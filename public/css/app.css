@@ -1,0 +1,10 @@
+.tbn-form .tbn-field .ts-control,
+.tbn-form .tbn-field .ts-dropdown-content {
+    font-size: 1rem;
+    padding: 0.75rem;
+}
+
+.tbn-form .tbn-field .ql-editor {
+    min-height: 15rem;
+    font-size: 1rem;
+}
