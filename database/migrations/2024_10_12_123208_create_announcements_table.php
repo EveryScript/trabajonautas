@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->dateTime('expiration_time');
             $table->bigInteger('salary');
+            $table->boolean('pro')->default(false);
             $table->string('announce_file');
             $table->unsignedBigInteger('area_id');
             $table->foreignUuid('user_id');

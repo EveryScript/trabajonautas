@@ -12,6 +12,7 @@ class AnnouncementForm extends Form
     public $expiration_time;
     public $salary;
     public $announce_file;
+    public $pro = false;
     public $company_id;
     public $user_id;
     public $area_id;
@@ -26,6 +27,7 @@ class AnnouncementForm extends Form
         $this->expiration_time = $announcement_edit->expiration_time;
         $this->salary = $announcement_edit->salary;
         $this->announce_file = $announcement_edit->announce_file;
+        $this->pro = $announcement_edit->pro;
         $this->company_id = $announcement_edit->company_id;
         $this->user_id = $announcement_edit->user_id;
         $this->area_id = $announcement_edit->area_id;
@@ -40,6 +42,7 @@ class AnnouncementForm extends Form
             'description' => 'required',
             'expiration_time' => 'required|date',
             'salary' => 'required',
+            'pro' => 'boolean',
             'company_id' => 'required',
             'user_id' => 'required',
             'area_id' => 'required',
@@ -54,6 +57,7 @@ class AnnouncementForm extends Form
             'description' => $this->description,
             'expiration_time' => $this->expiration_time,
             'salary' => $this->salary,
+            'pro' => $this->pro,
             'announce_file' => $this->announce_file,
             'company_id' => $this->company_id,
             'area_id' => $this->area_id,
@@ -70,6 +74,7 @@ class AnnouncementForm extends Form
             'description' => 'required',
             'expiration_time' => 'required|date',
             'salary' => 'required',
+            'pro' => 'boolean',
             'announce_file' => 'required|mimes:pdf,docx,zip|max:2000',
             'company_id' => 'required',
             'user_id' => 'required',
@@ -84,6 +89,7 @@ class AnnouncementForm extends Form
             'description',
             'expiration_time',
             'salary',
+            'pro',
             'announce_file',
             'company_id',
             'user_id',
@@ -100,6 +106,7 @@ class AnnouncementForm extends Form
             'description' => 'descripción',
             'expiration_time' => 'expiración',
             'salary' => 'sueldo',
+            'pro' => 'PRO',
             'announce_file' => 'archivo de la convocatoria',
             'company_id' => 'empresa',
             'user_id' => 'usuario',

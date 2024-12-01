@@ -3,6 +3,8 @@
 namespace App\Livewire\Web;
 
 use App\Models\Announcement;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class RecentAnnouncement extends Component
@@ -10,7 +12,11 @@ class RecentAnnouncement extends Component
     public $announcements;
     public function mount()
     {
-        $this->announcements = Announcement::take(8)->orderBy('updated_at', 'DESC')->get();
+        $user = Auth::check() ? User::find(Auth::user()->id) : null;
+        $this->announcements = Announcement::orderBy('updated_at', 'DESC')
+            ->when(!$user || $user->hasRole(env('FREE_CLIENT_ROLE')), fn($query) => $query->where('pro', false))
+            ->limit(8)
+            ->get();
     }
     public function render()
     {

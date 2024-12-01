@@ -56,16 +56,25 @@ class ResultAnnouncement extends Component
                 session()->flash('status', 'Esta convocatoria no está disponible');
             }
         } else {
-            $this->redirectRoute('/register', navigate: true);
+            $this->redirectRoute('register', navigate: true);
         }
     }
 
     public function render()
     {
-        $announcement = Announcement::with('company')->find($this->id);
-        $suggests = Announcement::whereHas('area', fn($query) => $query->where('id', $announcement->area->id))
-            ->where('id', '<>', $announcement->id)->get();
         $user = Auth::check() ? User::find(Auth::user()->id) : null;
+        $announcement = Announcement::with('company')->find($this->id);
+        $pro_flag = true;
+        // Verify PRO
+        if ($announcement->pro) {
+            if (!$user || $user->hasRole('FREE_CLIENT'))
+                $pro_flag = false;
+        }
+        $suggests = Announcement::whereHas('area', fn($query) => $query->where('id', $announcement->area->id))
+            ->where('id', '<>', $announcement->id)
+            ->when(!$user || $user->hasRole(env('FREE_CLIENT_ROLE')), fn($query)
+            => $query->where('pro', false))
+            ->get();
         $company_types = CompanyType::all('id', 'company_type_name');
         $share_buttons = (app(ShareButtons::class))->page(FacadesURL::full(), 'Trabajonautas tiene una convocatoria para ti')
             ->whatsapp()
@@ -80,7 +89,8 @@ class ResultAnnouncement extends Component
             'user',
             'share_buttons',
             'company_types',
-            'areas'
+            'areas',
+            'pro_flag'
         ));
     }
 }

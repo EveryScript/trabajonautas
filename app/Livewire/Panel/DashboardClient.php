@@ -52,9 +52,10 @@ class DashboardClient extends Component
         $profesions = Profesion::all('id', 'profesion_name');
         $locations = Location::all('id', 'location_name');
         $user = User::with('myAreas.announcements')->find(Auth::user()->id);
-        $area_announces = $user->myAreas->flatMap(function ($area) {
-            return $area->announcements;
-        });
+        $area_announces = $user->hasRole(env('FREE_CLIENT_ROLE')) ?
+            $user->myAreas->flatMap(fn($area) => $area->announcements->where('pro', false)) :
+            $user->myAreas->flatMap(fn($area) => $area->announcements);
+
         return view('livewire.panel.dashboard-client', compact(
             'user',
             'area_announces',

@@ -7,7 +7,7 @@
                 : 'Registra la información para una nueva convocatoria en la base de datos de Trabajonautas' }}
         </x-slot>
     </x-title-app>
-    <form class="tbn-form max-w-4xl" wire:submit="{{ $id ? 'update' : 'save' }}">
+    <form class="tbn-form max-w-4xl mb-10" wire:submit="{{ $id ? 'update' : 'save' }}">
         <div class="mb-4">
             <x-label for="announce_title" value="{{ __('Título') }}" />
             <x-input wire:model="announcement.announce_title" id="announce_title" type="text"
@@ -102,6 +102,21 @@
                 <div class="block w-full bg-white" id="description"></div>
             </div>
             <x-input-error for="announcement.description" class="mt-2" />
+        </div>
+        <div class="mb-4">
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" wire:model="announcement.pro" class="sr-only peer" id="pro"
+                    {{ $announcement->pro ? 'checked' : '' }}>
+                <div
+                    class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
+                </div>
+                <div class="ms-3">
+                    <p class="text-md font-medium text-black">Convocatoria PRO</p>
+                    <span class="text-xs text-tbn-dark">Esta convocatoria es exclusiva para los usuarios que tengan una
+                        cuenta PRO. El resto de usuarios no podrán ver esta convocatoria.</span>
+                </div>
+            </label>
+            <x-input-error for="announcement.pro" class="mt-2" />
         </div>
         <div>
             <x-button>{{ $id ? 'Actualizar' : 'Guardar' }}</x-button>

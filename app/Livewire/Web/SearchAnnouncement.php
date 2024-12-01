@@ -5,6 +5,8 @@ namespace App\Livewire\Web;
 use App\Models\Announcement;
 use App\Models\Company;
 use App\Models\Location;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -35,15 +37,18 @@ class SearchAnnouncement extends Component
     public function render()
     {
         sleep(0.8); // Delay or loading
+        $user = Auth::check() ? User::find(Auth::user()->id) : null;
         $announcements = Announcement::orderBy('updated_at', 'DESC')
-            ->when($this->search_title, function ($query) {
-                $query->where('announce_title', 'LIKE', '%' . $this->search_title . '%');
-            })
-            ->when($this->search_location, function ($query) {
-                $query->whereHas('locations', function ($sub_query) {
-                    $sub_query->where('location_id', $this->search_location);
-                });
-            });
+            ->when(!$user || $user->hasRole(env('FREE_CLIENT_ROLE')), fn($query)
+            => $query->where('pro', false))
+            ->when($this->search_title, fn($query)
+            => $query->where('announce_title', 'LIKE', '%' . $this->search_title . '%'))
+            ->when(
+                $this->search_location,
+                fn($query)
+                => $query->whereHas('locations', fn($sub_query)
+                => $sub_query->where('location_id', $this->search_location))
+            );
         return view('livewire.web.search-announcement', [
             'announcements' => $announcements->simplePaginate(12)
         ]);

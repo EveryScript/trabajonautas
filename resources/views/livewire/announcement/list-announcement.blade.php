@@ -49,7 +49,12 @@
                         <th scope="row" class="px-6 py-4 font-medium text-tbn-light whitespace-nowrap">
                             <div class="flex flex-row gap-2">
                                 <div class="max-w-[20rem] truncate">
-                                    <h5 class="text-md font-bold">{{ $announcement->announce_title }}</h5>
+                                    <h5 class="text-md font-bold">
+                                        @if ($announcement->pro)
+                                            <i class="fas fa-crown pr-1 text-sm text-orange-500"></i>
+                                        @endif
+                                        {{ $announcement->announce_title }}
+                                    </h5>
                                     <span class="font-normal text-tbn-dark">
                                         {{ $announcement->area ? $announcement->area->area_name : '(Area eliminada)' }}</span>
                                 </div>
