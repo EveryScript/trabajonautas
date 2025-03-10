@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -31,6 +32,13 @@ class User extends Authenticatable
         'email',
         'password',
         'location_id',
+        'gender',
+        'age',
+        'register_completed',
+        'phone',
+        'location_id',
+        'area_id',
+        'grade_profile_id'
     ];
 
     protected $hidden = [
@@ -58,13 +66,21 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Company::class);
     }
-    public function areas(): BelongsTo
+    public function area(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Area::class);
     }
-    public function myAreas(): BelongsToMany
+    public function gradeProfile(): BelongsTo
     {
-        return $this->belongsToMany(Area::class);
+        return $this->belongsTo(GradeProfile::class);
+    }
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
+    public function proAccount(): HasOne
+    {
+        return $this->hasOne(ProAccount::class);
     }
     public function myAnnounces(): BelongsToMany
     {
@@ -73,9 +89,5 @@ class User extends Authenticatable
     public function myProfesions(): BelongsToMany
     {
         return $this->belongsToMany(Profesion::class);
-    }
-    public function location(): BelongsTo
-    {
-        return $this->belongsTo(Location::class);
     }
 }

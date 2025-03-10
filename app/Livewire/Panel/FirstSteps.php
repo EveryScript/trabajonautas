@@ -11,55 +11,79 @@ use Livewire\Component;
 
 class FirstSteps extends Component
 {
-    public $user_id; // Parameter
-    public $profesions, $areas, $locations;
-    public $user_profesions = [];
-    public $user_areas = [];
-    public $user_location;
+    public $user_id;                            // Parameter
+    public $gender, $age, $location_id, $phone; // Step 1
+    public $grade_profile_id;                   // Step 2
+    public $duration_days;                      // Step 3
+    public $user_profesions, $user_area;        // Step 4 
+    public $profesions, $areas, $locations;     // Data to use in the view
     public $step = 1;
 
-    public function saveProfesions($selected_profesions)
+    public function savePersonalData()
     {
-        $this->user_profesions = $selected_profesions;
-        $this->validate(
-            [
-                'user_profesions' => 'required|array',
-                'user_profesions.*' => 'exists:profesions,id'
-            ],
-            ['user_profesions' => 'No es posible guardar tus profesiones']
-        );
+        $this->validate([
+            'gender' => 'required|in:M,F,O',
+            'age' => 'required|numeric|in:1,2,3',
+            'location_id' => 'required|exists:locations,id',
+            'phone' => 'required|numeric'
+        ]);
         $user = User::find($this->user_id);
-        $user->myProfesions()->attach($this->user_profesions);
+        $user->update([
+            'gender' => $this->gender,
+            'age' => $this->age,
+            'location_id' => $this->location_id,
+            'phone' => $this->phone
+        ]);
         $this->step = 2;
     }
-
-    public function saveAreas($selected_areas)
+    public function saveProfesionalData()
     {
-        $this->user_areas = $selected_areas;
-        $this->validate(
-            [
-                'user_profesions' => 'required|array',
-                'user_profesions.*' => 'exists:profesions,id'
-            ],
-            ['user_profesions' => 'No es posible guardar tus profesiones']
-        );
+        $this->validate([
+            'grade_profile_id' => 'required|exists:grade_profiles,id'
+        ]);
         $user = User::find($this->user_id);
-        $user->myAreas()->attach($this->user_areas);
+        $user->update(['grade_profile_id' => $this->grade_profile_id]);
         $this->step = 3;
     }
-
-    public function saveLocation($selected_location)
+    public function savePurchaseData()
     {
-        $this->user_location = $selected_location;
-        $this->validate(
-            [
-                'user_location' => 'required|exists:locations,id',
-            ],
-            ['user_location' => 'No es posible guardar tu ubicación']
-        );
+        $this->validate([
+            'duration_days' => 'required|numeric|in:0,30,60'
+        ]);
+
         $user = User::find($this->user_id);
-        $user->update(['location_id' => intval($this->user_location)]);
-        $this->redirectRoute('search', navigate: true);
+        if ($this->duration_days == 0) {
+            $user->update(['register_completed' => true]);
+            $this->redirectRoute('dashboard', navigate: true);
+        } else {
+            $user->syncRoles([env('PRO_CLIENT_ROLE')]);
+            $user->proAccount()->create([
+                'purchased_at' => now(),
+                'duration_days' => $this->duration_days
+            ]);
+            $this->step = 4;
+        }
+    }
+    public function saveProAccountData($form_profesions, $form_area)
+    {
+        $this->user_profesions = $form_profesions;
+        $this->user_area = $form_area;
+        $this->validate([
+            'user_profesions' => 'required|array',
+            'user_profesions.*' => 'exists:profesions,id',
+            'user_area' => 'required|exists:areas,id'
+        ]);
+        $user = User::find($this->user_id);
+        $user->myProfesions()->attach($this->user_profesions);
+        $user->update([
+            'area_id' => intval($this->user_area),
+            'register_completed' => true
+        ]);
+        $this->redirectRoute('dashboard', navigate: true);
+    }
+    public function stepBack()
+    {
+        $this->step--;
     }
 
     public function render()

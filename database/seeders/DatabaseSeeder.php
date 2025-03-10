@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AreaSeeder::class,
             AnnouncementSeeder::class,
             RoleUserSeeder::class,
+            GradeProfileSeeder::class
         ]);
     }
 }

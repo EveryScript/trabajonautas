@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('area_user', function (Blueprint $table) {
+        Schema::create('grade_profiles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('area_id');
-            $table->foreignUuid('user_id');
+            $table->char('profile_name');
             $table->timestamps();
         });
     }
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('area_user');
+        Schema::dropIfExists('grade_profiles');
     }
 };

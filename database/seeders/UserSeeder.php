@@ -19,24 +19,36 @@ class UserSeeder extends Seeder
             'name' => 'Rick Grimes',
             'email' => 'admin@email.com',
             'password' => $this->user_password,
+            'phone' => '72215498',
+            'gender' => 'M',
+            'age' => 32
         ]);
         User::create([
             'id' => Str::uuid(),
             'name' => 'Daryl Dixon',
             'email' => 'user@email.com',
             'password' => $this->user_password,
+            'phone' => '72215498',
+            'gender' => 'M',
+            'age' => 32
         ]);
         User::create([
             'id' => Str::uuid(),
             'name' => 'Carol Peletier',
             'email' => 'pro@email.com',
             'password' => $this->user_password,
+            'phone' => '72215498',
+            'gender' => 'M',
+            'age' => 32
         ]);
         User::create([
             'id' => Str::uuid(),
             'name' => 'Glenn Rhee',
             'email' => 'free@email.com',
             'password' => $this->user_password,
+            'phone' => '72215498',
+            'gender' => 'M',
+            'age' => 32
         ]);
     }
 }

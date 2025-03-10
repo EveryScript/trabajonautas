@@ -1,4 +1,157 @@
-<section class="mt-4">
+<section class="mt-8">
+    <div x-data="content" class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+        <aside class="w-full md:w-[18rem]">
+            <div class="bg-white rounded-xl shadow-lg mb-6 p-6 transition-all duration-300 hover:shadow-xl">
+                {{-- User info --}}
+                <picture class="relative mb-2">
+                    <img src="{{ asset('storage/img/tbn-avatar.webp') }}" alt="avatar" class="w-20 rounded-full mx-auto">
+                </picture>
+                <h5 class="text-lg font-bold text-center"> {{ $user->name }} </h5>
+                <p class="text-sm text-tbn-dark text-center mb-2"> {{ $user->gradeProfile->profile_name }} </p>
+                @role(env('PRO_CLIENT_ROLE'))
+                    <p class="text-center">
+                        <span class="text-xs text-white bg-orange-500 px-2 py-1 rounded-full"><i class="fas fa-crown"></i>
+                            PRO</span>
+                    </p>
+                @endrole
+                <hr class="my-4">
+                {{-- User navigation --}}
+                <a x-on:click="btnNavigation = 1"
+                    class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
+                    <i class="fas fa-home mx-2"></i> Inicio
+                </a>
+                <a x-on:click="btnNavigation = 2"
+                    class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
+                    <i class="fas fa-bookmark mx-2"></i> Mis convocatorias
+                </a>
+                {{-- User account --}}
+                @role(env('FREE_CLIENT_ROLE'))
+                    <hr class="my-4">
+                    <div class="bg-gray-200 p-4 rounded-lg mt-4">
+                        <i class="fas fa-leaf text-lg text-green-500 mr-2"></i>
+                        <h6 class="font-bold text-lg">FREE</h6>
+                        <p class="text-sm text-tbn-dark mb-4">Esta es una cuenta gratuita, cámbiate a PRO ahora mismo</p>
+                        <x-button-link href="{{ route('purchase') }}" class="block text-center">Obtener PRO</x-button-link>
+                    </div>
+                @endrole
+            </div>
+        </aside>
+        <main class="flex-1">
+            {{-- PRO Ad --}}
+            @role(env('FREE_CLIENT_ROLE'))
+                <div x-show="btnAd" class="relative mx-auto mb-8">
+                    <button x-on:click="btnAd = false" class="absolute top-4 right-6 text-2xl text-tbn-dark">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="w-full mx-auto rounded-lg shadow-lg overflow-hidden lg:max-w-none lg:flex bg-white">
+                        <div class="flex-1 px-6 py-8 lg:p-12">
+                            <h3 class="text-2xl font-extrabold text-tbn-primary sm:text-3xl">Trabajonautas PRO</h3>
+                            <p class="mt-6 text-base text-tbn-dark sm:text-lg text-md">Adquiere tu cuenta PRO ahora mismo y
+                                entérate
+                                de las mejores convocatorias de trabajo para ti.</p>
+                            <div class="mt-4">
+                                <div class="flex items-center">
+                                    <div class="flex-1 border-t-2 border-gray-200"></div>
+                                </div>
+                                <ul class="mt-6 space-y-2 text-sm">
+                                    <li class="flex items-center">
+                                        <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-check text-green-500 mr-2"></i> Notificaciones en
+                                        tiempo
+                                        real
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div
+                            class="py-8 px-6 text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center lg:p-12 bg-gray-300">
+                            <p class="text-lg leading-6 font-medium text-tbn-dark">Realiza el pago ahora mismo</p>
+                            <div class="mt-4 flex items-center justify-center text-5xl font-extrabold">
+                                <span>20</span><span class="ml-3 text-xl font-medium">Bs.</span>
+                            </div>
+                            <div class="mt-6">
+                                <x-button-link>Pagar con QR ahora</x-button-link>
+                                <p class="text-tbn-dark text-sm mt-3">Más información</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endrole
+            {{-- Suggestions --}}
+            <div x-show="btnNavigation == 1">
+                <h3 class="text-2xl font-bold text-tbn-dark mb-4">Convocatorias de trabajo para ti</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    @forelse ($ann_suggestions as $announcement)
+                        <a href="{{ route('result', ['id' => $announcement->id]) }}" wire:navigate>
+                            <x-card-announce logo_url="{{ $announcement->company->company_image }}">
+                                <x-slot name="area">{{ $announcement->area->area_name }}</x-slot>
+                                <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
+                                <x-slot name="company">{{ $announcement->company->company_name }}</x-slot>
+                            </x-card-announce>
+                        </a>
+                    @empty
+                        <p class="font-bold text-tbn-dark text-center mb-4">Oops, no hay sugerencias disponibles
+                        </p>
+                        <x-button-link>Iniciar busqueda</x-button-link>
+                    @endforelse
+                </div>
+            </div>
+            {{-- User announces --}}
+            <div x-show="btnNavigation == 2">
+                <h3 class="text-2xl font-bold text-tbn-dark mb-4">Mis convocatorias</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    @forelse ($user->myAnnounces as $announcement)
+                        <a href="{{ route('result', ['id' => $announcement->id]) }}" wire:navigate>
+                            <x-card-announce logo_url="{{ $announcement->company->company_image }}">
+                                <x-slot name="area">{{ $announcement->area->area_name }}</x-slot>
+                                <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
+                                <x-slot name="company">{{ $announcement->company->company_name }}</x-slot>
+                            </x-card-announce>
+                        </a>
+                    @empty
+                        <div class="col-span-2 text-gray-600 w-full text-center py-20">
+                            <picture class="block text-center">
+                                <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty"
+                                    class="mx-auto w-20 mb-4">
+                            </picture>
+                            <p class="font-bold text-tbn-dark text-center mb-4">Oops, aún no has guardado ninguna
+                                convocatoria
+                            </p>
+                            <x-button-link>Iniciar busqueda</x-button-link>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </main>
+    </div>
+
+    @script
+        <script>
+            Alpine.data('content', () => ({
+                btnNavigation: 1,
+                btnAd: true
+            }))
+        </script>
+    @endscript
+
+    {{-- <p>{{ 'nombre: ' . $user->name }}</p>
+    <p>{{ 'rol: ' . $user->getRoleNames() }}</p>
+    <p>{{ 'area: ' . $user->area->area_name }}</p>
+    <p>{{ 'Perfil académico: ' . $user->gradeProfile->profile_name }}</p>
+    <p>{{ 'Detalle de cuenta: ' . $user->proAccount->purchased_at }}</p>
+    @forelse ($user->myProfesions as $profesion)
+        <li class="">
+            {{ $profesion->profesion_name }}
+        </li>
+    @empty
+        <span class="text-tbn-dark italic">No hay profesiones disponibles</span>
+    @endforelse --}}
+    {{--
     @if (count($user->myProfesions) == 0 && count($user->myAreas) == 0)
         @livewire('panel.first-steps', ['user_id' => $user->id])
     @else
@@ -251,4 +404,5 @@
             </script>
         @endscript
     @endif
+    --}}
 </section>

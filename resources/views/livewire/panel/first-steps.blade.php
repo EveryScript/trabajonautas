@@ -1,128 +1,417 @@
-<section>
-    <div class="text-center">
-        <h3 class="mt-5 title-font font-medium text-lg text-tbn-primary">
-            Bienvenido a Trabajonautas
-        </h3>
-        <p class="leading-relaxed mt-2 text-sm text-gray-500">Vamos a completar tu información para brindarte las mejores
-            convocatorias de
-            Bolivia.</p>
+<div class="bg-gray-100 min-h-screen flex items-start justify-center pt-10">
+    <div x-data="content" class="w-full max-w-md md:max-w-3xl">
+        <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg">
+            <!-- Progress Indicator -->
+            <div class="flex flex-row justify-between items-center mb-8 {{ $step == 4 ? 'hidden' : '' }}">
+                <div class="flex items-center">
+                    <div id="step1"
+                        class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-tbn-primary text-white text-sm md:text-base">
+                        1</div>
+                    <span class="ml-2 text-gray-700 text-sm md:text-base hidden md:block">Información personal</span>
+                </div>
+                <div class="flex items-center">
+                    <div id="step2"
+                        class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full {{ $step == 2 || $step == 3 ? 'bg-tbn-primary text-white' : 'bg-gray-300 text-gray-500' }} text-sm md:text-base">
+                        2</div>
+                    <span class="ml-2 text-gray-700 text-sm md:text-base hidden md:block">Información profesional</span>
+                </div>
+                <div class="flex items-center">
+                    <div id="step3"
+                        class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full {{ $step == 3 ? 'bg-tbn-primary text-white' : 'bg-gray-300 text-gray-500' }} text-sm md:text-base">
+                        3</div>
+                    <span class="ml-2 text-gray-700 text-sm md:text-base hidden md:block">Confirmación</span>
+                </div>
+            </div>
+            <!-- Step Personal -->
+            @if ($step == 1)
+                <form wire:submit='savePersonalData'>
+                    <div id="stepContent1" class="step-content">
+                        <h3 class="text-lg md:text-2xl font-semibold mb-2">Hola {{ Auth()->user()->name }}</h3>
+                        <p class="text-sm text-gray-500 mb-2">Ingresa tus para completar el registro en
+                            Trabajonautas.com</p>
+                        <h5 class="text-md font-bold mb-2">¿Cuál es tu genero?</h5>
+                        <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='gender' value="M"
+                                    id="gender-1" name="gender" class="hidden peer">
+                                <label for="gender-1"
+                                    class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <span>masculino</span>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='gender' value="F"
+                                    id="gender-2" name="gender" class="hidden peer">
+                                <label for="gender-2"
+                                    class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <span>femenino</span>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='gender' value="0"
+                                    id="gender-3" name="gender" class="hidden peer">
+                                <label for="gender-3"
+                                    class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <span>prefiero no decirlo</span>
+                                </label>
+                            </li>
+                        </ul>
+                        <h5 class="text-md font-bold mb-2">¿Cuál es tu edad?</h5>
+                        <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='age' value="1" id="age-1"
+                                    name="age" class="hidden peer">
+                                <label for="age-1"
+                                    class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <span>de 18 a 25 años</span>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='age' value="2" id="age-2"
+                                    name="age" class="hidden peer">
+                                <label for="age-2"
+                                    class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <span>de 26-32 años</span>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='age' value="3" id="age-3"
+                                    name="age" class="hidden peer">
+                                <label for="age-3"
+                                    class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <span>de 33 en adelante</span>
+                                </label>
+                            </li>
+                        </ul>
+                        <h5 class="text-md font-bold mb-2">¿Cuál es tu ubicación actual?</h5>
+                        <x-select wire:model.live.debounce.200ms='location_id' id="location_id" class="mb-8">
+                            <option value="">Selecciona tu ubicación</option>
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id }}">{{ $location->location_name }}</option>
+                            @endforeach
+                        </x-select>
+                        <h5 class="text-md font-bold mb-2">Celular (WhatsApp)</h5>
+                        <x-input type="text" wire:model.live.debounce.200ms='phone' id="phone"
+                            placeholder="Ej. 71234567" />
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-6">
+                        <button id="prevButton" type="button"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300"
+                            disabled>Anterior</button>
+                        <button id="nextButton" type="submit"
+                            {{ $gender && $age && $location_id && $phone ? '' : 'disabled' }}
+                            class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary disabled:opacity-50 disabled:cursor-not-allowed">Siguiente</button>
+                    </div>
+                </form>
+                <!-- Step Profesional -->
+            @elseif($step == 2)
+                <form wire:submit='saveProfesionalData'>
+                    <div class="step-content">
+                        <h3 class="text-lg md:text-2xl font-semibold mb-2">Información profesional</h3>
+                        <p class="text-sm mb-4">Selecciona tu grado académico actual</p>
+                        <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
+                                    value="1" id="profile-1" name="grade-profile" class="hidden peer">
+                                <label for="profile-1"
+                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <div>
+                                        <span class="block font-bold uppercase">Estudiante</span>
+                                        <span class="text-xs">Bachiller o en Unidad Educativa actualmente</span>
+                                    </div>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
+                                    value="2" id="profile-2" name="grade-profile" class="hidden peer">
+                                <label for="profile-2"
+                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <div>
+                                        <span class="block font-bold uppercase">Técnico Medio</span>
+                                        <span class="text-xs">En carrera o con certificado obtenido</span>
+                                    </div>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
+                                    value="3" id="profile-3" name="grade-profile" class="hidden peer">
+                                <label for="profile-3"
+                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <div>
+                                        <span class="block font-bold uppercase">Técnico Superior</span>
+                                        <span class="text-xs">En carrera o con certificado obtenido</span>
+                                    </div>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
+                                    value="4" id="profile-4" name="grade-profile" class="hidden peer">
+                                <label for="profile-4"
+                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <div>
+                                        <span class="block font-bold uppercase">Egresado</span>
+                                        <span class="text-xs leading-none m-0">Terminó todas las materias y solamente
+                                            le falta la tesis</span>
+                                    </div>
+                                </label>
+                            </li>
+                            <li class="text-center">
+                                <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
+                                    value="5" id="profile-5" name="grade-profile" class="hidden peer">
+                                <label for="profile-5"
+                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    <div>
+                                        <span class="block font-bold uppercase">Titulado</span>
+                                        <span class="text-xs">Actualmente con un título universitario</span>
+                                    </div>
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-6">
+                        <button id="prevButton" type="button" wire:click="stepBack"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
+                        <button id="nextButton" type="submit" {{ $grade_profile_id ? '' : 'disabled' }}
+                            class="px-4 py-2 bg-tbn-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 hover:bg-tbn-primary">Siguiente</button>
+                    </div>
+                </form>
+                <!-- Step Purchase -->
+            @elseif($step == 3)
+                <form wire:submit='savePurchaseData'>
+                    <div class="step-content">
+                        <h3 class="text-lg md:text-2xl font-semibold mb-4">Cuenta</h3>
+                        <h5 class="text-md font-bold mb-2">Selecciona el tipo de cuenta que vas a utilizar</h5>
+                        <div class="flex flex-wrap">
+                            <!-- Free -->
+                            <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
+                                <input type="radio" wire:model.live.debounce.200ms='duration_days' value="0"
+                                    id="purchase-free" class="hidden peer" name="purchase">
+                                <label for="purchase-free"
+                                    x-on:click="btnFinish = 'Finalizar registro'; labelPrice = 0; labelAccount = 'Gratis'"
+                                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                                    <h2 class="text-2xl font-semibold text-gray-800">Gratis</h2>
+                                    <div class="mt-4">
+                                        <span class="text-5xl font-bold text-gray-900">0 Bs.</span>
+                                        <span class="text-gray-600">(siempre)</span>
+                                    </div>
+                                    <ul class="mt-6 space-y-2 text-sm">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-times text-red-500 mr-2"></i> Convocatorias Premium
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-times text-red-500 mr-2"></i> Notificaciones en tiempo
+                                            real
+                                        </li>
+                                    </ul>
+                                </label>
+                            </div>
+                            <!-- Pro -->
+                            <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
+                                <input type="radio" wire:model.live.debounce.200ms='duration_days' value="30"
+                                    id="purchase-pro" class="hidden peer" name="purchase">
+                                <label for="purchase-pro"
+                                    x-on:click="btnFinish = 'Realizar pago (QR)'; labelPrice = 10; labelAccount = 'PRO'"
+                                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                                    <h2 class="text-2xl font-semibold text-gray-800">Pro</h2>
+                                    <div class="mt-4">
+                                        <span class="text-5xl font-bold text-gray-900">10 Bs.</span>
+                                        <span class="text-gray-600">/mes</span>
+                                    </div>
+                                    <ul class="mt-6 space-y-2 text-sm">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-times text-red-500 mr-2"></i> Notificaciones en tiempo
+                                            real
+                                        </li>
+                                    </ul>
+                                </label>
+                            </div>
+                            <!-- Full -->
+                            <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
+                                <input type="radio" wire:model.live.debounce.200ms='duration_days' value="60"
+                                    id="purchase-full" class="hidden peer" name="purchase">
+                                <label for="purchase-full"
+                                    x-on:click="btnFinish = 'Realizar pago (QR)'; labelPrice = 20; labelAccount = 'FULL'"
+                                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                                    <h2 class="text-2xl font-semibold text-gray-800">Full</h2>
+                                    <div class="mt-4">
+                                        <span class="text-5xl font-bold text-gray-900">20 Bs.</span>
+                                        <span class="text-gray-600">/mes</span>
+                                    </div>
+                                    <ul class="mt-6 space-y-2 text-sm">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Notificaciones en
+                                            tiempo
+                                            real
+                                        </li>
+                                    </ul>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-6">
+                        <button id="prevButton" wire:click="stepBack"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
+
+                        <button id="nextButton" type="submit" x-text="btnFinish"
+                            class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary"></button>
+                    </div>
+                </form>
+                <!-- Step ProAccount -->
+            @elseif($step == 4)
+                <form wire:submit='saveProAccountData(user_profesions, user_area)'>
+                    <div class="step-content">
+                        <h3 class="text-lg md:text-2xl text-tbn-primary text-center font-semibold mb-4">
+                            Trabajonautas
+                            PRO</h3>
+                        <div class="flex flex-row gap-8">
+                            <div class="w-2/5">
+                                <p class="text-sm text-gray-500 mb-4 text-center">Escanea el código QR para realizar el
+                                    pago</p>
+                                <picture class="block max-w-[10rem] mx-auto mb-4">
+                                    <img class="w-full" src="{{ asset('storage/img/qr.png') }}" alt="qr-code">
+                                </picture>
+                                {{-- Description table --}}
+                                <table class="min-w-full divide-y divide-gray-200 mb-2">
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Tipo de cuenta</td>
+                                            <td class="py-1 whitespace-nowrap" x-text="labelAccount"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Costo</td>
+                                            <td class="py-1 whitespace-nowrap" x-text="labelPrice + ' Bs.'"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Duración</td>
+                                            <td class="py-1 whitespace-nowrap">{{ $duration_days }} dias</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                {{-- Payment options --}}
+                                <p class="text-sm text-gray-500 mt-2 mb-4 text-center">Alternativas de pago</p>
+                                <div class="relative px-3 py-2 bg-gray-300 mb-4">
+                                    <span
+                                        class="absolute -top-2 text-xs text-tbn-primary bg-gray-300 px-3 rounded-md">Banco
+                                        Bisa</span>
+                                    36621-54481-29402-6598
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-bold">¿Cual es tu profesión(es) actual?</h5>
+                                <span class="block mb-2 text-xs text-tbn-dark">Te enviaremos información de acuerdo con
+                                    las
+                                    profesiones que selecciones acontinuación. Estos datos se pueden cambiar más
+                                    adelante.</span>
+                                <x-input type="search" x-model="searchProfesion" id="searchProfesion"
+                                    placeholder="Arquitecto, ingeniero, ..." />
+                                <!-- Profesion list -->
+                                <div class="relative">
+                                    <ul class="absolute w-full mx-auto max-h-[10rem] overflow-y-auto"
+                                        x-show="searchProfesion.length > 0">
+                                        <template x-for="profesion in filteredProfesions">
+                                            <li x-text="profesion.profesion_name" @click="addProfesion(profesion)"
+                                                class="bg-white text-sm border border-gray-200 px-4 py-2 rounded-sm hover:bg-gray-200">
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                                <!-- Profesion selected -->
+                                <ul class="mx-auto max-w-2xl flex flex-row flex-wrap gap-1 mt-3 mb-4">
+                                    <template x-for="profesion in selected_profesions" class="h-full">
+                                        <li
+                                            class="flex flex-row px-3 py-2 rounded-full text-white text-xs bg-tbn-dark">
+                                            <span x-text="profesion.profesion_name"></span>
+                                            <button type="button" class="ml-2 text-xs"
+                                                @click="removeProfesion(profesion)"><i
+                                                    class="fas fa-times"></i></button>
+                                        </li>
+                                    </template>
+                                </ul>
+                                <h5 class="font-bold">¿Cual es tu principal area de interés?</h5>
+                                <span class="block mb-2 text-xs text-tbn-dark">Las sugerencias tambiés están vinculadas
+                                    al area seleccionada acontinuación.</span>
+                                <x-select id="area" x-model='user_area' class="mb-4">
+                                    <option value="">Selecciona un area</option>
+                                    @forelse ($areas as $area)
+                                        <option value="{{ $area->id }}">{{ $area->area_name }}</option>
+                                    @empty
+                                        <option>Empty</option>
+                                    @endforelse
+                                </x-select>
+                            </div>
+                        </div>
+                        <p class="text-xs text-tbn-dark text-justify">Una vez realizado el depósito nuestros
+                            operadores se
+                            contactarán contigo para confirmar el depósito y habilitar tu cuenta.</p>
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-6">
+                        <button id="prevButton" type="button" wire:click="stepBack"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
+                        <button id="nextButton" type="submit"
+                            x-bind:disabled="selected_profesions.length == 0 || !user_area"
+                            class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary disabled:opacity-50 disabled:cursor-not-allowed">Finalizar
+                            registro</button>
+                    </div>
+                </form>
+            @endif
+        </div>
+        <div class="mt-5">
+            <span class="text-xs text-tbn-dark">Trabajonautas.com guardará tu información de forma confidencial y
+                privada.</span>
+        </div>
     </div>
-    <div x-data="data">
-        <!-- Set profesions -->
-        @if ($step == 1)
-            <h4 class="mt-5 title-font font-bold text-2xl text-gray-700 text-center">
-                ¿Cual es tu profesión(es)?
-            </h4>
-            <!-- Selected profesions -->
-            <ul class="mx-auto max-w-2xl flex flex-row flex-wrap justify-center gap-1 mt-3">
-                <template x-for="profesion in selected_profesions" class="h-full">
-                    <li class="flex flex-row items-center px-3 py-2 rounded-full text-white text-sm bg-tbn-dark">
-                        <span x-text="profesion.profesion_name"></span>
-                        <button class="ml-2" @click="removeProfesion(profesion)">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                class="size-6">
-                                <path fill-rule="evenodd"
-                                    d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </li>
-                </template>
-            </ul>
-            <!-- Form profesions -->
-            <form wire:submit="saveProfesions(user_profesions)" class="max-w-[35rem] mx-auto text-center mt-4">
-                <x-input type="search" id="search-profesion" x-model="search_profesion"
-                    placeholder="Busca una profesion" />
-                <x-input-error for="user_profesions" class="mt-2" />
-                <!-- Profesions list (Alpine) -->
-                <ul class="max-w-[35rem] mx-auto mt-2" x-show="search_profesion.length > 0">
-                    <template x-for="profesion in filteredProfesions">
-                        <li class="w-full px-5 py-3 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:text-gray-600 hover:bg-gray-100"
-                            x-text="profesion.profesion_name" @click="addProfesion(profesion)"></li>
-                    </template>
-                </ul>
-                <x-button class="inline-block text-xl mt-4"
-                    x-bind:disabled="user_profesions.length == 0">Guardar</x-button>
-            </form>
-        @endif
-        <!-- Set areas -->
-        @if ($step == 2)
-            <h4 class="mt-5 title-font font-bold text-2xl text-gray-700 text-center">
-                ¿Cuales son tus areas de interés?
-            </h4>
-            <form wire:submit="saveAreas(user_areas)" class="max-w-4xl mx-auto text-center mt-4">
-                <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto">
-                    <template x-for="area in areas">
-                        <li class="text-center">
-                            <input type="checkbox" :id="'area-' + area.id" :value="area.id" x-model="user_areas"
-                                x-bind:name="'area-' + area.id" class="hidden peer">
-                            <label :for="'area-' + area.id"
-                                class="flex justify-center items-center h-[6rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
-                                <span x-text="area.area_name"></span>
-                            </label>
-                        </li>
-                    </template>
-                </ul>
-                <x-button class="inline-block text-xl mt-4" x-bind:disabled="user_areas.length == 0">Guardar</x-button>
-            </form>
-        @endif
-        <!-- Set location -->
-        @if ($step == 3)
-            <h4 class="mt-5 title-font font-bold text-2xl text-gray-700 text-center">
-                ¿En qué departamento quieres encontrar trabajo?
-            </h4>
-            <form wire:submit="saveLocation(user_location)" class="max-w-4xl mx-auto text-center mt-4">
-                <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto">
-                    <template x-for="location in locations">
-                        <li class="text-center">
-                            <input type="radio" :id="'location-' + location.id" :value="location.id"
-                                x-model="user_location" x-bind:name="'location-' + location.id" class="hidden peer">
-                            <label :for="'location-' + location.id"
-                                class="flex justify-center items-center h-[6rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
-                                <span x-text="location.location_name"></span>
-                            </label>
-                        </li>
-                    </template>
-                </ul>
-                <x-button class="inline-block text-xl mt-4" x-bind:disabled="!user_location">Finalizar</x-button>
-            </form>
-        @endif
-    </div>
-    <script>
-        function data() {
-            const urlParams = new URLSearchParams(window.location.search)
-            return {
-                search_profesion: '',
+    @script
+        <script>
+            Alpine.data('content', () => ({
+                // Data
                 profesions: {!! $profesions !!},
-                areas: {!! $areas !!},
-                locations: {!! $locations !!},
-                selected_profesions: [],
+                // Models
                 user_profesions: [],
-                user_areas: [],
-                user_location: '',
-                // Search profesions
+                user_area: '',
+                selected_profesions: [],
+                btnFinish: 'Finalizar registro',
+                labelPrice: 0,
+                labelAccount: 'Gratis',
+                searchProfesion: '',
+                // Functions
                 filteredProfesions() {
                     return this.profesions.filter(
-                        profesion => profesion.profesion_name.toLowerCase().includes(this.search_profesion
+                        profesion => profesion.profesion_name.toLowerCase().includes(this.searchProfesion
                             .toLowerCase())
                     )
                 },
-                // Add profesion
                 addProfesion(element) {
-                    this.search_profesion = ''
+                    this.searchProfesion = ''
                     this.selected_profesions.push(element)
                     this.user_profesions.push(element.id)
-                    this.profesions = this.profesions.filter(
-                        profesion => profesion.id != element.id
-                    )
+                    this.profesions = this.profesions.filter(profesion => profesion.id != element.id)
                 },
-                // Remove profesion
                 removeProfesion(element) {
-                    this.selected_profesions = this.selected_profesions.filter(profesion => profesion.id != element.id)
+                    this.selected_profesions = this.selected_profesions.filter(profesion => profesion.id != element
+                        .id)
                     this.user_profesions = this.user_profesions.filter(id => id != element.id)
                     this.profesions.unshift(element)
                 }
-            }
-        }
-    </script>
-</section>
+            }))
+        </script>
+    @endscript
+</div>

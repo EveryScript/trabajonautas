@@ -1,10 +1,17 @@
-<section class="min-h-screen flex flex-col sm:justify-center items-center body-font">
-    <div class="container px-5 py-24 mx-auto flex flex-wrap items-center">
-        <div class="lg:w-2/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
-            {{ $logo }}
+{{-- Autentication card --}}
+<div class="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
+    <div class="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
+        <div class="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
+            <div class="mt-12 flex flex-col items-center">
+                {{ $logo }}
+                <br>
+                {{ $slot }}
+            </div>
         </div>
-        <div class="lg:w-2/5 md:w-1/2 bg-white shadow-md rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0">
-            {{ $slot }}
+        <div class="flex-1 bg-indigo-100 text-center hidden lg:flex">
+            <div class="w-full bg-cover bg-center bg-no-repeat"
+                style="background-image: url('{{ asset('storage/img/tbn-landing.webp') }}');">
+            </div>
         </div>
     </div>
-</section>
+</div>

@@ -23,7 +23,7 @@ Route::get('/convocatoria/{id?}', fn($id = null) => view('result', ['id' => $id]
 // Purchase
 Route::get('/pro', fn() => view('purchase'))->name('purchase');
 
-// All access
+// All access logged
 Route::group(['middleware' => ['role:FREE_CLIENT|PRO_CLIENT|USER|ADMIN']], function () {
     Route::get('/panel', fn() => view('dashboard'))->name('dashboard');
 });
