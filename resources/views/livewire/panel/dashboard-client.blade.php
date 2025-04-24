@@ -1,19 +1,24 @@
 <section class="mt-8">
     <div x-data="content" class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+        <!-- User Card -->
         <aside class="w-full md:w-[18rem]">
             <div class="bg-white rounded-xl shadow-lg mb-6 p-6 transition-all duration-300 hover:shadow-xl">
-                {{-- User info --}}
-                <picture class="relative mb-2">
+                <picture class="block relative mb-2">
                     <img src="{{ asset('storage/img/tbn-avatar.webp') }}" alt="avatar" class="w-20 rounded-full mx-auto">
                 </picture>
-                <h5 class="text-lg font-bold text-center"> {{ $user->name }} </h5>
+                <h5 class="text-lg font-bold text-center mb-1"> {{ $user->name }} </h5>
                 <p class="text-sm text-tbn-dark text-center mb-2"> {{ $user->gradeProfile->profile_name }} </p>
-                @role(env('PRO_CLIENT_ROLE'))
+                @if ($pro_verified)
                     <p class="text-center">
-                        <span class="text-xs text-white bg-orange-500 px-2 py-1 rounded-full"><i class="fas fa-crown"></i>
-                            PRO</span>
+                        <span class="text-xs text-white bg-orange-500 px-2 py-1 rounded-full">
+                            <i class="fas fa-crown mr-2"></i>PRO</span>
                     </p>
-                @endrole
+                @else
+                    <p class="text-center">
+                        <span class="text-xs text-white bg-green-500 px-2 py-1 rounded-full">
+                            <i class="fas fa-leaf mr-2"></i>FREE</span>
+                    </p>
+                @endif
                 <hr class="my-4">
                 {{-- User navigation --}}
                 <a x-on:click="btnNavigation = 1"
@@ -24,18 +29,13 @@
                     class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
                     <i class="fas fa-bookmark mx-2"></i> Mis convocatorias
                 </a>
-                {{-- User account --}}
-                @role(env('FREE_CLIENT_ROLE'))
-                    <hr class="my-4">
-                    <div class="bg-gray-200 p-4 rounded-lg mt-4">
-                        <i class="fas fa-leaf text-lg text-green-500 mr-2"></i>
-                        <h6 class="font-bold text-lg">FREE</h6>
-                        <p class="text-sm text-tbn-dark mb-4">Esta es una cuenta gratuita, cámbiate a PRO ahora mismo</p>
-                        <x-button-link href="{{ route('purchase') }}" class="block text-center">Obtener PRO</x-button-link>
-                    </div>
-                @endrole
+                <a x-on:click="btnNavigation = 3"
+                    class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
+                    <i class="fas fa-user mx-2"></i> Mi perfil
+                </a>
             </div>
         </aside>
+        <!-- User content -->
         <main class="flex-1">
             {{-- PRO Ad --}}
             @role(env('FREE_CLIENT_ROLE'))
@@ -46,363 +46,224 @@
                     <div class="w-full mx-auto rounded-lg shadow-lg overflow-hidden lg:max-w-none lg:flex bg-white">
                         <div class="flex-1 px-6 py-8 lg:p-12">
                             <h3 class="text-2xl font-extrabold text-tbn-primary sm:text-3xl">Trabajonautas PRO</h3>
-                            <p class="mt-6 text-base text-tbn-dark sm:text-lg text-md">Adquiere tu cuenta PRO ahora mismo y
-                                entérate
-                                de las mejores convocatorias de trabajo para ti.</p>
+                            <p class="mt-4 text-base text-tbn-dark sm:text-md">Las mejores convocatorias para conseguir tu
+                                próximo empleo están aqui.</p>
+                            <ul class="my-4 space-y-2 text-sm">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 60 dias
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i> Notificaciones en tiempo real
+                                </li>
+                            </ul>
                             <div class="mt-4">
-                                <div class="flex items-center">
-                                    <div class="flex-1 border-t-2 border-gray-200"></div>
-                                </div>
-                                <ul class="mt-6 space-y-2 text-sm">
-                                    <li class="flex items-center">
-                                        <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
-                                    </li>
-                                    <li class="flex items-center">
-                                        <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
-                                    </li>
-                                    <li class="flex items-center">
-                                        <i class="fas fa-check text-green-500 mr-2"></i> Notificaciones en
-                                        tiempo
-                                        real
-                                    </li>
-                                </ul>
+                                <span class="text-4xl font-bold">20 Bs.</span>
+                                <span class="ml-2 text-gray-600">/mes</span>
+                            </div>
+                            <div class="mt-6">
+                                <x-button-link href="{{ route('purchase') }}" wire:navigate>Adquirir PRO
+                                    ahora</x-button-link>
                             </div>
                         </div>
                         <div
-                            class="py-8 px-6 text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center lg:p-12 bg-gray-300">
-                            <p class="text-lg leading-6 font-medium text-tbn-dark">Realiza el pago ahora mismo</p>
-                            <div class="mt-4 flex items-center justify-center text-5xl font-extrabold">
-                                <span>20</span><span class="ml-3 text-xl font-medium">Bs.</span>
-                            </div>
-                            <div class="mt-6">
-                                <x-button-link>Pagar con QR ahora</x-button-link>
-                                <p class="text-tbn-dark text-sm mt-3">Más información</p>
-                            </div>
+                            class="py-8 px-6 text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center lg:p-12 bg-gray-00 hidden">
+                            <img src="{{ asset('storage/img/tbn-champ.webp') }}" alt="empty"
+                                class="w-[10rem] h-[10rem] mx-auto mb-4">
                         </div>
                     </div>
                 </div>
             @endrole
-            {{-- Suggestions --}}
+            {{-- Payment verification --}}
+            @if ($user->proAccount && $user->proAccount->verified_payment)
+                <div class="bg-white rounded-xl shadow-lg mb-6 p-5 transition-all duration-300 hover:shadow-xl">
+                    <div class="flex flex-row gap-4">
+                        <picture class="block">
+                            <i class="fas fa-info-circle text-5xl inline mx-auto text-blue-500"></i>
+                        </picture>
+                        <div class="flex-1">
+                            <h5 class="font-medium text-xl mb-2">Verificación pendiente</h5>
+                            <p class="text-md text-gray-500">Estamos verificando tu pago de realizado por QR. Si ya
+                                realizaste
+                                tu pago
+                                envíanos un mensaje de Whatsapp para informarnos que hiciste tu depósito.</p>
+                            <x-button-link
+                                href="https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $user->phone }} y mi nombre es {{ $user->name }}."
+                                class="inline-block mt-4"><i class="fab fa-whatsapp mr-1"></i> Enviar
+                                mensaje</x-button-link>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            {{-- My suggestions --}}
             <div x-show="btnNavigation == 1">
-                <h3 class="text-2xl font-bold text-tbn-dark mb-4">Convocatorias de trabajo para ti</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    @forelse ($ann_suggestions as $announcement)
-                        <a href="{{ route('result', ['id' => $announcement->id]) }}" wire:navigate>
-                            <x-card-announce logo_url="{{ $announcement->company->company_image }}">
+                <h3 class="text-lg font-medium mb-3">Convocatorias de trabajo para ti</h3>
+                <div class="flex flex-col gap-4">
+                    @forelse ($suggests as $announcement)
+                        <a href="{{ $announcement->pro && (!auth()->check() || !auth()->user()->hasRole(env('PRO_CLIENT_ROLE')))
+                            ? route('purchase')
+                            : route('result', ['id' => $announcement->id]) }}"
+                            wire:navigate>
+                            <x-card-announce logo_url="{{ $announcement->company->company_image }}"
+                                pro="{{ $announcement->pro }}">
                                 <x-slot name="area">{{ $announcement->area->area_name }}</x-slot>
                                 <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
                                 <x-slot name="company">{{ $announcement->company->company_name }}</x-slot>
+                                <x-slot name="locations">
+                                    {{ $announcement->locations[0]->location_name }}
+                                    @if ($announcement->locations->count() > 1)
+                                        <i
+                                            class="fas fa-ellipsis-h inline-block px-1 text-xs bg-gray-200 rounded-lg"></i>
+                                    @endif
+                                </x-slot>
                             </x-card-announce>
                         </a>
                     @empty
-                        <p class="font-bold text-tbn-dark text-center mb-4">Oops, no hay sugerencias disponibles
-                        </p>
-                        <x-button-link>Iniciar busqueda</x-button-link>
+                        <x-section-empty class="col-span-2" title="No hay sugerencias disponibles"
+                            description="Las sugerencias de convocatorias de trabajo estarán visibles en esta sección.">
+                            <x-button-link href="{{ route('search') }}" class="inline-block mt-5" wire:navigate>Buscar
+                                convocatorias</x-button-link>
+                        </x-section-empty>
                     @endforelse
                 </div>
             </div>
-            {{-- User announces --}}
+            {{-- My saved announces --}}
             <div x-show="btnNavigation == 2">
-                <h3 class="text-2xl font-bold text-tbn-dark mb-4">Mis convocatorias</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <h3 class="text-lg font-medium mb-3">Mis convocatorias</h3>
+                <div class="flex flex-col gap-4">
                     @forelse ($user->myAnnounces as $announcement)
-                        <a href="{{ route('result', ['id' => $announcement->id]) }}" wire:navigate>
-                            <x-card-announce logo_url="{{ $announcement->company->company_image }}">
+                        <a href="{{ $announcement->pro && (!auth()->check() || !auth()->user()->hasRole(env('PRO_CLIENT_ROLE')))
+                            ? route('purchase')
+                            : route('result', ['id' => $announcement->id]) }}"
+                            wire:navigate>
+                            <x-card-announce logo_url="{{ $announcement->company->company_image }}"
+                                pro="{{ $announcement->pro }}">
                                 <x-slot name="area">{{ $announcement->area->area_name }}</x-slot>
                                 <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
                                 <x-slot name="company">{{ $announcement->company->company_name }}</x-slot>
+                                <x-slot name="locations">
+                                    {{ $announcement->locations[0]->location_name }}
+                                    @if ($announcement->locations->count() > 1)
+                                        <i
+                                            class="fas fa-ellipsis-h inline-block px-1 text-xs bg-gray-200 rounded-lg"></i>
+                                    @endif
+                                </x-slot>
                             </x-card-announce>
                         </a>
                     @empty
-                        <div class="col-span-2 text-gray-600 w-full text-center py-20">
-                            <picture class="block text-center">
-                                <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty"
-                                    class="mx-auto w-20 mb-4">
-                            </picture>
-                            <p class="font-bold text-tbn-dark text-center mb-4">Oops, aún no has guardado ninguna
-                                convocatoria
-                            </p>
-                            <x-button-link>Iniciar busqueda</x-button-link>
-                        </div>
+                        <x-section-empty class="col-span-2" title="No has guardado ninguna convocatoria"
+                            description="Las convocatorias guardadas en la sección de busqueda aparecerán aqui.">
+                            <x-button-link href="{{ route('search') }}" class="inline-block mt-5" wire:navigate>Iniciar
+                                busqueda</x-button-link>
+                        </x-section-empty>
                     @endforelse
                 </div>
+            </div>
+            {{-- My Profile --}}
+            <div x-show="btnNavigation == 3">
+                <h3 class="text-lg font-medium mb-3">Mi perfil</h3>
+                <form class="tbn-form" wire:submit="updateUser">
+                    <div class="mb-4">
+                        <x-label for="name" value="{{ __('Nombre') }}" />
+                        <x-input id="name" type="text" class="mt-1 block w-full" placeholder="Jaime Suarez"
+                            value="{{ $user->name }}" disabled />
+                    </div>
+                    <div class="mb-4">
+                        <x-label for="location" value="{{ __('Ubicación') }}" />
+                        <x-select id="location" wire:model='userForm.location_id'>
+                            <option value="">Selecciona tu ubicación</option>
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id }}">{{ $location->location_name }}</option>
+                            @endforeach
+                        </x-select>
+                        <x-input-error for="userForm.location_id" class="mt-2" />
+                    </div>
+                    <div class="mb-4">
+                        <x-label for="location" value="{{ __('Area profesional') }}" />
+                        <x-select id="area" wire:model='userForm.area_id'>
+                            <option value="">Selecciona un area</option>
+                            @foreach ($areas as $area)
+                                <option value="{{ $area->id }}">{{ $area->area_name }}</option>
+                            @endforeach
+                        </x-select>
+                        <x-input-error for="userForm.area_id" class="mt-2" />
+                    </div>
+                    <div class="tbn-field mb-4">
+                        @if (!$pro_verified)
+                            <i
+                                class="inline-block fas fa-crown text-[7px] text-white bg-orange-500 p-1 rounded-full mr-1 -translate-y-1"></i>
+                        @endif
+                        <x-label class="inline-block mb-1" for="profesions" value="{{ __('Profesiones') }}" />
+                        <div class="mb-4" wire:ignore>
+                            <x-select id="profesions" wire:model="userForm.profesions" multiple
+                                disabled="{{ !$pro_verified ? 'disabled' : '' }}">
+                                <option>Seleccionar profesiones</option>
+                                @foreach ($profesions as $profesion)
+                                    <option class="text-sm h-[1.2rem]" value="{{ $profesion->id }}">
+                                        {{ $profesion->profesion_name }}
+                                    </option>
+                                @endforeach
+                            </x-select>
+                        </div>
+                        @if (!$pro_verified)
+                            <i
+                                class="inline-block fas fa-crown text-[7px] text-white bg-orange-500 p-1 rounded-full mr-1 -translate-y-1"></i>
+                        @endif
+                        <span class="text-xs text-tbn-primary">Notificaciones en tiempo real</span>
+                        <div class="px-4 py-3 border bg-white border-tbn-primary rounded-lg mb-4">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer disabled:cursor-not-allowed"
+                                    id="actived" {{ !$pro_verified ? 'disabled' : '' }}>
+                                <div
+                                    class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
+                                </div>
+                                <div class="ms-3">
+                                    <p class="inline-block text-md font-medium text-black">Activar notificaciones</p>
+                                    <span class="block text-xs text-tbn-dark">El usuario recibe notificaciones de las
+                                        convocatorias según su profesión(es).</span>
+                                </div>
+                            </label>
+                        </div>
+                        <x-input-error for="userForm.profesions" class="mt-2" />
+                    </div>
+                    <div class="mb-4">
+                        <x-button type="submit">Guardar cambios</x-button>
+                    </div>
+                </form>
             </div>
         </main>
     </div>
 
+    @assets
+        <!-- Tom Select -->
+        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+        <!-- Sweet Alert -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @endassets
+
     @script
         <script>
+            new TomSelect('#profesions', []);
+            if ($wire.userForm.profesions.length > 0)
+                document.querySelector('#profesions').tomselect.setValue($wire.userForm.profesions);
             Alpine.data('content', () => ({
                 btnNavigation: 1,
-                btnAd: true
+                btnAd: true,
+                init() {
+                    $wire.on('user-updated', () => {
+                        Swal.fire({
+                            title: "Usuario actualizado",
+                            icon: "success",
+                        });
+                    })
+                }
             }))
         </script>
     @endscript
-
-    {{-- <p>{{ 'nombre: ' . $user->name }}</p>
-    <p>{{ 'rol: ' . $user->getRoleNames() }}</p>
-    <p>{{ 'area: ' . $user->area->area_name }}</p>
-    <p>{{ 'Perfil académico: ' . $user->gradeProfile->profile_name }}</p>
-    <p>{{ 'Detalle de cuenta: ' . $user->proAccount->purchased_at }}</p>
-    @forelse ($user->myProfesions as $profesion)
-        <li class="">
-            {{ $profesion->profesion_name }}
-        </li>
-    @empty
-        <span class="text-tbn-dark italic">No hay profesiones disponibles</span>
-    @endforelse --}}
-    {{--
-    @if (count($user->myProfesions) == 0 && count($user->myAreas) == 0)
-        @livewire('panel.first-steps', ['user_id' => $user->id])
-    @else
-        <div x-data="content" class="flex flex-row gap-4 items-start">
-            <!-- Navigation -->
-            <nav class="w-[20rem] max-w-[20rem] min-w-[20rem] bg-white rounded-md shadow-md px-7 py-5">
-                <div class="text-md border-b border-gray-400 pb-5">
-                    <ul class="text-tbn-primary font-medium">
-                        <li class="px-3 py-2 hover:bg-tbn-primary hover:text-white cursor-pointer rounded-lg"
-                            @click="navArea = 1" :class="navArea == 1 ? 'bg-gray-200' : ''">
-                            Inicio</li>
-                        <li class="px-3 py-2 hover:bg-tbn-primary hover:text-white cursor-pointer rounded-lg"
-                            @click="navArea = 2" :class="navArea == 2 ? 'bg-gray-200' : ''">
-                            Mi perfil</li>
-                        <li class="px-3 py-2 hover:bg-tbn-primary hover:text-white cursor-pointer rounded-lg"
-                            @click="navArea = 3" :class="navArea == 3 ? 'bg-gray-200' : ''">
-                            Mis convocatorias</li>
-                    </ul>
-                </div>
-                <!-- Account type -->
-                <div class="mt-5">
-                    @role('FREE_CLIENT')
-                        <div class="bg-gray-200 rounded-lg px-4 py-3">
-                            <span
-                                class="inline-block mb-2 bg-green-500 text-white px-2 font-medium text-lg rounded-lg">FREE</span>
-                            <p class="text-sm font-medium mb-4">Actualmente estas utilizando una cuenta gratuita. Para
-                                acceder a
-                                todos los beneficios de Trabajonautas cambiate a PRO ahora.</p>
-                            <x-button href="{{ route('purchase') }}" wire:navigate class="w-full">Obtener
-                                PRO</x-button>
-                        </div>
-                    @endrole
-                    @role('PRO_CLIENT')
-                        <div class="bg-gray-300 rounded-lg px-4 py-3">
-                            <span
-                                class="inline-block mb-2 bg-orange-500 text-white px-2 font-medium text-lg rounded-lg">PRO</span>
-                            <p class="text-sm font-medium">Disfruta de todos los beneficios de Trabajonautas.com con
-                                tu cuenta PRO sin límites.</p>
-                        </div>
-                    @endrole
-                </div>
-
-            </nav>
-            <!-- Announces for you -->
-            <div class="flex-grow bg-white rounded-md shadow-md px-7 py-5" x-show="navArea == 1">
-                <h4 class="text-2xl text-tbn-primary font-bold">Hola {{ Auth::user()->name }}</h4>
-                <p class="mb-5 text-tbn-dark text-sm">Trabajonautas te da la bienvenida y te muestra las
-                    mejores convocatorias de Bolivia adecuadas para tí.
-                </p>
-                <h4 class="text-lg text-tbn-primary font-bold">Convocatorias de trabajo para tí</h4>
-                <div class="grid grid-cols-2 gap-4 mb-5">
-                    @forelse ($area_announces as $announcement)
-                        <a href="{{ route('result', ['id' => $announcement->id]) }}" wire:navigate>
-                            <x-card-announce logo_url="{{ $announcement->company->company_image }}">
-                                <x-slot name="area">{{ $announcement->area->area_name }}</x-slot>
-                                <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
-                                <x-slot name="company">{{ $announcement->company->company_name }}</x-slot>
-                            </x-card-announce>
-                        </a>
-                    @empty
-                        <div class="col-span-2 text-gray-600 w-full text-center py-7">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="max-w-12 mx-auto mb-1" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                            </svg>
-                            <span class="text-md italic">Aún no has guardado convocatorias</span>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-            <!-- My profile -->
-            <div class="flex-grow bg-white rounded-md shadow-md px-7 py-5" x-show="navArea == 2">
-                <h4 class="text-lg text-tbn-primary font-bold">Mi perfil</h4>
-                <p class="mb-5 text-tbn-dark text-sm">Establece tu información para optimizar la busqueda de empleo en
-                    Trabajonautas
-                </p>
-                <div class="border-b border-gray-300 grid grid-cols-2 gap-2">
-                    <!-- Full name -->
-                    <div class="">
-                        <h4 class="text-md text-tbn-dark font-bold">Nombre completo</h4>
-                        <p class="text-3xl mb-5">{{ Auth::user()->name }}</p>
-                    </div>
-                    <!-- My Location -->
-                    <div>
-                        <h4 class="inline text-md text-tbn-dark font-bold">Mi ubicación</h4>
-                        <button @click="locationForm = !locationForm" x-show="!locationForm"
-                            class="font-medium text-tbn-primary underline font-sm">Cambiar</button>
-                        <p class="text-3xl mb-5" x-show="!locationForm">{{ $user->location->location_name }}</p>
-                        <!-- My Location form -->
-                        <div class="tbn-form mb-4" x-show="locationForm">
-                            <form class="flex flex-row gap-2 tbn-field" wire:submit='saveLocation' wire:ignore>
-                                <x-select class="w-full" id="locations" wire:model="location_id">
-                                    @forelse ($locations as $location)
-                                        <option value="{{ $location->id }}">{{ $location->location_name }}</option>
-                                    @empty
-                                        <option>No hay ubicaciones disponibles</option>
-                                    @endforelse
-                                </x-select>
-                                <x-button @click="locationForm = !locationForm">Guardar</x-button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <!-- My profesions -->
-                <div class="border-b border-gray-300 my-5">
-                    <div>
-                        <h4 class="inline text-md text-tbn-dark font-bold">Mis profesiones</h4>
-                        <button @click="profesionForm = !profesionForm"
-                            class="font-medium text-tbn-primary underline font-sm">Añadir</button>
-                        <p class="mb-2 text-tbn-dark text-sm">Esta información es util para personalizar los resultados
-                            de tu busqueda y ajustarlos a tus necesidades.</p>
-                    </div>
-                    <!-- Add profesion form -->
-                    <div class="tbn-form mb-4" x-show="profesionForm">
-                        <form class="flex flex-row gap-2 tbn-field" wire:submit='saveProfesion'>
-                            <x-select class="flex-grow" id="areas" wire:model="profesion_id">
-                                @forelse ($profesions as $profesion)
-                                    <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
-                                @empty
-                                    <option>No hay profesiones disponibles</option>
-                                @endforelse
-                            </x-select>
-                            <x-button @click="profesionForm = !profesionForm">Guardar</x-button>
-                        </form>
-                    </div>
-                    <ul class="grid grid-cols-2 gap-1">
-                        @forelse ($user->myProfesions as $profesion)
-                            <li class="border border-transparent bg-gray-200 px-5 py-6 rounded-md relative group">
-                                <i class="fas fa-graduation-cap text-tbn-primary text-lg pr-2"></i>
-                                {{ $profesion->profesion_name }}
-                                <button x-on:click='confirmProfesionModal({{ $profesion->id }})'
-                                    class="absolute top-0 right-0 bg-gray-300 text-red-500 rounded-tr-md rounded-bl-md p-2 group-hover:block hidden">
-                                    <i class="far fa-trash-alt"></i>
-                                </button>
-                            </li>
-                        @empty
-                            <span class="text-tbn-dark italic">No hay profesiones disponibles</span>
-                        @endforelse
-                    </ul>
-                </div>
-                <!-- My areas -->
-                <div class="border-b border-gray-300 my-5">
-                    <div>
-                        <h4 class="inline text-md text-tbn-dark font-bold">Areas profesionales</h4>
-                        <button @click="areaForm = !areaForm"
-                            class="font-medium text-tbn-primary underline font-sm">Añadir</button>
-                        <p class="mb-2 text-tbn-dark text-sm">Te ofrecemos la información acerca de convocatorias
-                            disponibles de
-                            acuerdo con el area profesional de tu interés.</p>
-                    </div>
-                    <!-- Add area form -->
-                    <div class="tbn-form mb-4" x-show="areaForm">
-                        <form class="flex flex-row gap-2 tbn-field" wire:submit='saveArea'>
-                            <x-select class="flex-grow" id="areas" wire:model="area_id">
-                                @forelse ($areas as $area)
-                                    <option value="{{ $area->id }}">{{ $area->area_name }}</option>
-                                @empty
-                                    <span class="text-tbn-dark italic">No hay areas disponibles</span>
-                                @endforelse
-                            </x-select>
-                            <x-button @click="areaForm = !areaForm">Guardar</x-button>
-                        </form>
-                    </div>
-
-                    <ul class="grid grid-cols-2 gap-1">
-                        @forelse ($user->myAreas as $area)
-                            <li class="border border-transparent bg-gray-200 px-5 py-6 rounded-md relative group">
-                                <i class="fas fa-suitcase text-lg text-tbn-primary pr-2"></i>
-                                {{ $area->area_name }}
-                                <button x-on:click="confirmAreaModal({{ $area->id }})"
-                                    class="absolute top-0 right-0 bg-gray-300 text-red-500 rounded-tr-md rounded-bl-md p-2 group-hover:block hidden">
-                                    <i class="far fa-trash-alt"></i>
-                                </button>
-                            </li>
-                        @empty
-                            <span class="my-5 text-tbn-dark italic">No hay areas seleccionadas</span>
-                        @endforelse
-                    </ul>
-                </div>
-            </div>
-            <!-- My announces -->
-            <div class="flex-grow bg-white rounded-md shadow-md px-7 py-5" x-show="navArea == 3">
-                <h4 class="text-lg text-tbn-primary font-bold">Mis convocatorias</h4>
-                <p class="mb-5 text-tbn-dark text-sm">Consulta las convocatorias que guardaste en tus busquedas.
-                </p>
-                <div class="grid grid-cols-2 gap-4 mb-5">
-                    @forelse ($user->myAnnounces as $announcement)
-                        <a href="{{ route('result', ['id' => $announcement->id]) }}" wire:navigate>
-                            <x-card-announce logo_url="{{ $announcement->company->company_image }}">
-                                <x-slot name="area">{{ $announcement->area->area_name }}</x-slot>
-                                <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
-                                <x-slot name="company">{{ $announcement->company->company_name }}</x-slot>
-                            </x-card-announce>
-                        </a>
-                    @empty
-                        <div class="col-span-2 text-gray-600 w-full text-center py-7">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="max-w-12 mx-auto mb-1" fill="none"
-                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                            </svg>
-                            <span class="text-md italic">Aún no has guardado convocatorias</span>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-        @assets
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-            <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-        @endassets
-        @script
-            <script>
-                Alpine.data('content', () => ({
-                    navArea: 1,
-                    profesionForm: false,
-                    areaForm: false,
-                    locationForm: false,
-                    confirmProfesionModal(id) {
-                        Swal.fire({
-                            title: "¿Eliminar profesion?",
-                            text: "¿Estas seguro de eliminar esta Profesion?",
-                            showDenyButton: true,
-                            confirmButtonText: "Si",
-                            denyButtonText: "No"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $wire.deleteProfesion(id)
-                            }
-                        });
-                    },
-                    confirmAreaModal(id) {
-                        Swal.fire({
-                            title: "¿Eliminar area?",
-                            text: "¿Estas seguro de eliminar esta Area profesional?",
-                            showDenyButton: true,
-                            confirmButtonText: "Si",
-                            denyButtonText: "No"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $wire.deleteArea(id)
-                            }
-                        });
-                    }
-                }))
-                new TomSelect('#areas', []);
-                new TomSelect('#locations', []);
-            </script>
-        @endscript
-    @endif
-    --}}
 </section>

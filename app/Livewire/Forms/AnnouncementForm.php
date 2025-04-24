@@ -49,7 +49,7 @@ class AnnouncementForm extends Form
             'locations' => 'required',
             'profesions' => 'required'
         ]);
-        if (!is_string($this->announce_file))
+        if ($this->announce_file)
             $this->announce_file = $this->announce_file->store('convocatorias', 'public');
         $announcement = Announcement::find($update_id);
         $announcement->update([
@@ -75,7 +75,7 @@ class AnnouncementForm extends Form
             'expiration_time' => 'required|date',
             'salary' => 'required',
             'pro' => 'boolean',
-            'announce_file' => 'required|mimes:pdf,docx,zip|max:2000',
+            // 'announce_file' => 'required|mimes:pdf,docx,zip|max:2000',
             'company_id' => 'required',
             'user_id' => 'required',
             'area_id' => 'required',

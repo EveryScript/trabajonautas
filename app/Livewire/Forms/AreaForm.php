@@ -12,9 +12,6 @@ class AreaForm extends Form
     #[Validate('required')]
     public $area_name;
 
-    #[Validate(['area_profesions' => 'required|array', 'area_profesions.*' => 'exists:profesions,id'])]
-    public $area_profesions = [];
-
     #[Validate('required|max:100')]
     public $description;
 
@@ -26,7 +23,6 @@ class AreaForm extends Form
         $area_edit = Area::find($edit_id);
         $this->area_name = $area_edit->area_name;
         $this->description = $area_edit->description;
-        $this->area_profesions = $area_edit->profesions->pluck('id');
         $this->user_id = $area_edit->user_id;
     }
 
@@ -40,7 +36,6 @@ class AreaForm extends Form
             'description' => $this->description,
             'user_id' => $this->user_id
         ]);
-        $area->profesions()->sync($this->area_profesions);
     }
 
     public function save()
@@ -48,7 +43,6 @@ class AreaForm extends Form
         $this->user_id = Auth::user()->id;
         $this->validate();
         $area = Area::create($this->only('area_name', 'description', 'user_id'));
-        $area->profesions()->attach($this->area_profesions);
     }
 
     public function validationAttributes()
@@ -56,7 +50,7 @@ class AreaForm extends Form
         return [
             'area_name' => 'nombre del area',
             'description' => 'descripción',
-            'area_profesions' => 'profesiones relacionadas'
+            // 'area_profesions' => 'profesiones relacionadas'
         ];
     }
 }

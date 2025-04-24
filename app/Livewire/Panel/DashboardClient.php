@@ -2,74 +2,56 @@
 
 namespace App\Livewire\Panel;
 
+use App\Livewire\Forms\UserForm;
 use App\Models\Announcement;
 use App\Models\Area;
+use App\Models\User;
 use App\Models\Location;
 use App\Models\Profesion;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class DashboardClient extends Component
 {
+    use WithPagination;
     public $user_id;            // Parameter
-    public $ann_suggestions;    // Suggestions to FREE or PRO clients
+    public UserForm $userForm;  // User profile form
 
-
-    // public $area_id;        // area_id to add
-    // public $profesion_id;   // profesion_id to add
-    // public $location_id;    // location_id to add
-
-    /*
-    public function saveArea()
+    public function mount()
     {
-        $user = User::find($this->user_id);
-        $user->myAreas()->syncWithoutDetaching($this->area_id);
+        $this->userForm->editClient();
     }
-
-    public function saveProfesion()
+    public function updateUser()
     {
-        $user = User::find($this->user_id);
-        $user->myProfesions()->syncWithoutDetaching($this->profesion_id);
+        $this->userForm->updateClient($this->user_id);
+        $this->dispatch('user-updated');
     }
-
-    public function saveLocation()
-    {
-        $user = User::find($this->user_id);
-        $user->update(['location_id' => intval($this->location_id)]);
-    }
-
-    public function deleteArea($id)
-    {
-        $user = User::find($this->user_id);
-        $user->myAreas()->detach($id);
-    }
-
-    public function deleteProfesion($id)
-    {
-        $user = User::find($this->user_id);
-        $user->myProfesions()->detach($id);
-    }
-        */
 
     public function render()
     {
         $user = User::find($this->user_id);
-        if ($user->hasRole(env('FREE_CLIENT_ROLE'))) {
-            $this->ann_suggestions = Announcement::where('pro', false)->get();
-        } else {
-            $this->ann_suggestions = Announcement::all();
-        }
-        // $areas = Area::all('id', 'area_name');
-        // $profesions = Profesion::all('id', 'profesion_name');
-        // $locations = Location::all('id', 'location_name');
-        // $user = User::with('myAreas.announcements')->find(Auth::user()->id);
-        // $area_announces = $user->hasRole(env('FREE_CLIENT_ROLE')) ?
-        //     $user->myAreas->flatMap(fn($area) => $area->announcements->where('pro', false)) :
-        //     $user->myAreas->flatMap(fn($area) => $area->announcements);
-
-        return view('livewire.panel.dashboard-client', compact(
-            'user',
-        ));
+        $pro_verified = $user->hasRole(env('PRO_CLIENT_ROLE')) && $user->proAccount->verified_payment;
+        $suggests = Announcement::where('expiration_time', '>=', now())
+            ->when($pro_verified, function ($query) use ($user) {
+                $query->whereHas('area', fn($subquery) => $subquery->where('id', $user->area->id));
+            })
+            // ->orWhereHas('profesions', function ($query) use ($user) {
+            //     $query->whereIn('profesion_id', $user->myProfesions->pluck('id'));
+            // })
+            // ->orWhereHas('locations', function ($query) use ($user) {
+            //     $query->whereIn('location_id', [$user->location_id]);
+            // })
+            ->orderBy('updated_at', 'DESC');
+        $locations = Location::all();
+        $areas = Area::all();
+        $profesions = Profesion::all();
+        return view('livewire.panel.dashboard-client', [
+            'user' => $user,
+            'suggests' => $suggests->simplePaginate(8),
+            'locations' => $locations,
+            'areas' => $areas,
+            'profesions' => $profesions,
+            'pro_verified' => $pro_verified
+        ]);
     }
 }

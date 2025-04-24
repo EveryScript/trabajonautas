@@ -7,9 +7,9 @@
             <p class="max-w-[50rem] mx-auto text-tbn-ligh mb-5">Bienvenido(a) al portal líder de
                 oportunidades laborales en Bolivia. Encuentra la convocatoria ideal para tu perfil y da el siguiente
                 paso en tu carrera profesional con nosotros.</p>
-            @livewire('web.main-search-announce')
+                <x-button-link href="{{ route('search') }}" wire:navigate>Iniciar busqueda</x-button-link>
         </div>
-    </section>
+    </section> 
     <!-- Latest announcements -->
     <section class="max-w-6xl sm:px-6 px-5 py-24 mx-auto">
         <div class="text-center py-5">
@@ -22,28 +22,8 @@
                 <x-button-link href="{{ route('search') }}" wire:navigate>Ver más</x-button-link>
             </div>
         </div>
-    </section>
-    <!-- Hero -->
-    <section class="bg-tbn-primary text-white body-font">
-        <div class="max-w-6xl mx-auto flex px-5 md:flex-row flex-col items-center">
-            <div class="lg:max-w-[20rem] lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
-                <img class="object-cover object-center rounded pt-20" alt="hero"
-                    src="{{ asset('storage/img/tbn-landing-2.webp') }}">
-            </div>
-            <div
-                class="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
-                <h1 class="title-font sm:text-4xl text-3xl mb-4 font-bold">Tu futuro profesional es nuestra motivación
-                    más grande.</h1>
-                <p class="mb-8 leading-relaxed">Estamos comprometidos con el crecimiento y desarrollo profesional de los
-                    bolivianos, conectándote con las mejores oportunidades laborales para impulsar tu carrera y alcanzar
-                    tus metas.</p>
-                <div class="flex justify-center">
-                    <a class="inline-flex items-center px-8 py-4 bg-tbn-primary border border-white rounded-sm font-semibold text-sm text-fwhite uppercase tracking-widest hover:bg-tbn-dark focus:bg-tbn-high active:bg-tbn-dark focus:outline-none focus:ring-2 focus:ring-tbn-dark focus:ring-offset-2 transition ease-in-out duration-150"
-                        href="{{ route('search') }}" wire:navigate>Iniciar ahora</a>
-                </div>
-            </div>
-        </div>
-    </section>
+    </section> 
+    
     <!-- Instrucions -->
     <section class="body-font">
         <div class="max-w-6xl px-5 py-24 mx-auto">
@@ -89,7 +69,27 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> 
+    <!-- Hero -->
+    <section class="bg-tbn-primary text-white body-font">
+        <div class="max-w-6xl mx-auto flex px-5 md:flex-row flex-col items-center">
+            <div class="lg:max-w-[20rem] lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
+                <img class="object-cover object-center rounded pt-20" alt="hero"
+                    src="{{ asset('storage/img/tbn-landing-2.webp') }}">
+            </div>
+            <div
+                class="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
+                <h1 class="title-font sm:text-4xl text-3xl mb-4 font-bold">Tu futuro profesional es nuestra motivación
+                    más grande.</h1>
+                <p class="mb-8 leading-relaxed">Estamos comprometidos con el crecimiento y desarrollo profesional de los
+                    bolivianos, conectándote con las mejores oportunidades laborales para impulsar tu carrera y alcanzar
+                    tus metas.</p>
+                <div class="flex justify-center">
+                    <x-button-link href="{{ route('search') }}" class="bg-gray-800" wire:navigate>Iniciar Busqueda</x-button-link>
+                </div>
+            </div>
+        </div>
+    </section> 
 
     <!-- Testimonials -->
     <section class="text-gray-600 body-font">
@@ -134,6 +134,93 @@
                         <p class="text-gray-500">Arquitecto profesional</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Purchase cards -->
+    <section class="body-font my-12">
+        <h4 class="text-tbn-light sm:text-3xl text-2xl font-bold title-font text-center mb-2">Adquiere tu cuenta PRO ahora mismo</h4>
+        <p class="text-center mb-10">Todos los beneficios en un solo pago con Trabajonautas.com</p>
+        <div class="max-w-6xl mx-auto flex flex-wrap">
+            <!-- Free -->
+            <div class="block w-full sm:w-1/2 lg:w-1/3 px-2 mb-8 cursor-pointer">
+                <label for="purchase-free" class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                    <h2 class="text-2xl font-semibold text-gray-800">Gratis</h2>
+                    <div class="mt-4">
+                        <span class="text-5xl font-bold text-gray-900">0 Bs.</span>
+                        <span class="text-gray-600">(siempre)</span>
+                    </div>
+                    <ul class="my-6 space-y-2 text-sm">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: Siempre
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-times text-red-500 mr-2"></i> Convocatorias Premium
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-times text-red-500 mr-2"></i> Notificaciones en tiempo
+                            real
+                        </li>
+                    </ul>
+                    <x-button-link href="{{ route('register') }}" wire:navigate>Adquirir</x-button-link>
+                </label>
+            </div>
+            <!-- Pro -->
+            <div class="block w-full sm:w-1/2 lg:w-1/3 px-2 mb-8 cursor-pointer">
+                <label for="purchase-pro" class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                    <h2 class="text-2xl font-semibold text-gray-800">Pro</h2>
+                    <div class="mt-4">
+                        <span class="text-5xl font-bold text-gray-900">10 Bs.</span>
+                        <span class="text-gray-600">/mes</span>
+                    </div>
+                    <ul class="my-6 space-y-2 text-sm">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 30 dias
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-times text-red-500 mr-2"></i> Notificaciones en tiempo
+                            real
+                        </li>
+                    </ul>
+                    <x-button-link href="{{ route('register') }}" wire:navigate>Comprar</x-button-link>
+                </label>
+            </div>
+            <!-- Full -->
+            <div class="block w-full sm:w-1/2 lg:w-1/3 px-2 mb-8 cursor-pointer">
+                <label for="purchase-full" class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                    <h2 class="text-2xl font-semibold text-gray-800">Full</h2>
+                    <div class="mt-4">
+                        <span class="text-5xl font-bold text-gray-900">20 Bs.</span>
+                        <span class="text-gray-600">/mes</span>
+                    </div>
+                    <ul class="my-6 space-y-2 text-sm">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 60 dias
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Notificaciones en
+                            tiempo
+                            real
+                        </li>
+                    </ul>
+                    <x-button-link href="{{ route('register') }}" wire:navigate>Comprar</x-button-link>
+                </label>
             </div>
         </div>
     </section>

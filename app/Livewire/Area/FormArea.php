@@ -22,18 +22,16 @@ class FormArea extends Component
         }
     }
 
-    public function update($area_profesions)
+    public function update()
     {
-        $this->area->area_profesions = $area_profesions;
         $this->area->update($this->id);
-        $this->redirectRoute('area', navigate:true);
+        $this->redirectRoute('area', navigate: true);
     }
 
-    public function save($area_profesions)
+    public function save()
     {
-        $this->area->area_profesions = $area_profesions;
         $this->area->save();
-        $this->redirectRoute('area', navigate:true);
+        $this->redirectRoute('area', navigate: true);
     }
 
     public function render()

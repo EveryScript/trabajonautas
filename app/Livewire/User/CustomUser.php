@@ -2,6 +2,7 @@
 
 namespace App\Livewire\User;
 
+use App\Models\ProAccount;
 use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -11,13 +12,17 @@ class CustomUser extends Component
 {
     public $user;
     public $user_account;
+    public $pro_account;
+    public $verified_payment;
 
     public function mount($id)
     {
         Carbon::setlocale('es');
         if ($id && User::find($id)) {
             $this->user = User::find($id);
+            $this->verified_payment = $this->user->proAccount ? $this->user->proAccount->verified_payment : null;
             $this->user_account = $this->user->getRoleNames()[0];
+            $this->pro_account = ProAccount::where('user_id', $id)->first();
         }
     }
 
@@ -28,6 +33,11 @@ class CustomUser extends Component
 
     public function save()
     {
+        if ($this->user->proAccount) {
+            $this->pro_account->update([
+                'verified_payment' => $this->verified_payment,
+            ]);
+        }
         $this->user->syncRoles([$this->user_account]);
         $this->redirectRoute('user', navigate: true);
     }

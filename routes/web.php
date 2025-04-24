@@ -7,6 +7,7 @@ use App\Livewire\Area\ListArea;
 use App\Livewire\Company\FormCompany;
 use App\Livewire\Company\ListCompany;
 use App\Livewire\Profesion\Profesions;
+use App\Livewire\User\CreateUser;
 use App\Livewire\User\CustomUser;
 use App\Livewire\User\ListUser;
 use Illuminate\Support\Facades\Route;
@@ -50,4 +51,5 @@ Route::group(['middleware' => ['role:ADMIN']], function () {
     // Users
     Route::get('/admin/usuario', ListUser::class)->name('user');
     Route::get('/admin/ajuste-usuario/{id}', CustomUser::class)->name('config-user');
+    Route::get('/admin/crear-usuario/{id?}', CreateUser::class)->name('create-user');
 });

@@ -53,7 +53,7 @@ class ResultAnnouncement extends Component
             try {
                 return response()->download('storage/' . $file, 'convocatoria.pdf');
             } catch (Exception $error) {
-                session()->flash('status', 'Esta convocatoria no está disponible');
+                dump('convocatoria no disponible');
             }
         } else {
             $this->redirectRoute('register', navigate: true);
@@ -72,15 +72,12 @@ class ResultAnnouncement extends Component
         }
         $suggests = Announcement::whereHas('area', fn($query) => $query->where('id', $announcement->area->id))
             ->where('id', '<>', $announcement->id)
-            ->when(!$user || $user->hasRole(env('FREE_CLIENT_ROLE')), fn($query)
-            => $query->where('pro', false))
+            ->where('expiration_time', '>=', now())
             ->get();
         $company_types = CompanyType::all('id', 'company_type_name');
         $share_buttons = (app(ShareButtons::class))->page(FacadesURL::full(), 'Trabajonautas tiene una convocatoria para ti')
             ->whatsapp()
             ->telegram()
-            ->facebook()
-            ->linkedin()
             ->render();
         $areas = Area::all();
         return view('livewire.web.result-announcement', compact(

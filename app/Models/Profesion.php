@@ -19,10 +19,6 @@ class Profesion extends Model
     {
         return $this->belongsToMany(User::class);
     }
-    public function area(): BelongsToMany
-    {
-        return $this->BelongsToMany(Area::class);
-    }
     public function announcements(): BelongsToMany
     {
         return $this->belongsToMany(Announcement::class);

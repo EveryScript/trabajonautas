@@ -72,7 +72,7 @@
             </div>
             <x-input-error for="announcement.locations" class="mt-2" />
         </div>
-        <div class="flex-grow mb-4">
+        {{-- <div class="flex-grow mb-4">
             <x-label for="announce_file" value="{{ __('Convocatoria (.pdf, .docx, .zip)') }}" />
             <x-input wire:model="announcement.announce_file" id="announce_file" type="file"
                 accept="application/pdf,application/docx,application/zip" class="mt-1 block w-full" />
@@ -81,12 +81,12 @@
                     wire:click='downloadFile'"> Archivo actual</a>
             @endif
             <x-input-error for="announcement.announce_file" class="mt-2" />
-        </div>
+        </div> --}}
         <div class="flex-grow flex gap-2 mb-4">
             <div class="w-1/2">
                 <x-label for="expiration_time" value="{{ __('Expiración') }}" />
                 <x-input wire:model="announcement.expiration_time" id="expiration_time" type="datetime-local"
-                    class="mt-1 block w-full" />
+                    class="mt-1 block w-full" min="{{ now()->format('Y-m-d\TH:i') }}" />
                 <x-input-error for="announcement.expiration_time" class="mt-2" />
             </div>
 

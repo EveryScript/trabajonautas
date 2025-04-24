@@ -1,16 +1,19 @@
 <section>
-    <div class="mb-4">
-        <x-title-app>
-            <x-slot name="title_page">Areas profesionales</x-slot>
-            <x-slot name="description_page">
-                Registra las areas a las que los clientes pueden acceder para registrarse en nuestro sistema.
-            </x-slot>
-            <x-slot name="search_field">
-                <x-button-link href="{{ route('new-area') }}" wire:navigate>Nuevo</x-button-link>
-            </x-slot>
-        </x-title-app>
-    </div>
     <div x-data="content">
+        <div class="mb-4">
+            <x-title-app>
+                <x-slot name="title_page">Areas profesionales</x-slot>
+                <x-slot name="description_page">
+                    Los clientes seleccionan una de estas areas para recibir sugerencias de convocatorias laborales de
+                    Trabajonautas.
+                </x-slot>
+                <x-slot name="search_field">
+                    <div>
+                        <x-button-link href="{{ route('new-area') }}" wire:navigate>Nuevo</x-button-link>
+                    </div>
+                </x-slot>
+            </x-title-app>
+        </div>
         <div class="grid grid-cols-3 gap-5">
             @forelse ($areas as $area)
                 <article
@@ -20,9 +23,11 @@
                             <span class="text-xs text-tbn-primary">Area profesional</span>
                             <h5 class="text-lg font-bold">{{ $area->area_name }}</h5>
                             <p class="text-sm text-tbn-dark">{{ $area->description }}</p>
-                            <p class="text-sm">Profesiones <span
-                                    class="text-tbn-primary">{{ count($area->profesions) }}</span></p>
-                            <p class="text-sm">Creador <span class="text-tbn-primary">{{ $area->user->name }}</span>
+                            <p class="text-sm">Creador <span class="text-tbn-primary">{{ $area->user->name }}</span></p>
+                            <p class="text-sm">Convocatorias <span
+                                    class="text-tbn-primary">{{ count($area->announcements) }}</span></p>
+                            <p class="text-sm">Clientes <span
+                                    class="text-tbn-primary">{{ count($area->usersOf) }}</span>
                             </p>
                         </div>
                         <div class="flex flex-row justify-end text-lg">

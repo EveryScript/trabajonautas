@@ -5,8 +5,14 @@
             Administra la información de todos los usuarios y clientes registrados en Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
+            <x-select wire:model.change='filterClients'>
+                <option value="1">Clientes</option>
+                <option value="0">Usuarios</option>
+            </x-select>
             <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
                 placeholder="Buscar usuario o cliente" />
+            <div class="mt-3"><x-button-link href="{{ route('create-user') }}" class="py-[.70rem]"
+                    wire:navigate>Nuevo</x-button-link></div>
         </x-slot>
     </x-title-app>
     <div x-data="content">
@@ -20,10 +26,10 @@
                         Profesiones
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Tipo de usuario
+                        Registro
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Registro
+                        Estado
                     </th>
                     <th scope="col" class="px-6 py-3 text-right">
                         Opciones
@@ -34,7 +40,16 @@
                 @forelse ($users as $user)
                     <tr class="border-b hover:bg-gray-300">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            <h5 class="text-lg font-medium">{{ $user->name }}</h5>
+                            <span class="mr-2" x-html="setUserRole({{ $user->getRoleNames() }})"
+                                x-bind:class="{
+                                    'text-gray-500': {{ $user->getRoleNames() }} == 'ADMIN',
+                                    'text-tbn-primary ': {{ $user->getRoleNames() }} == 'USER',
+                                    'text-green-500': {{ $user->getRoleNames() }} == 'FREE_CLIENT',
+                                    'text-orange-500': {{ $user->getRoleNames() }} == 'PRO_CLIENT'
+                                }">
+                            </span>
+                            <h5 class="inline text-lg font-medium {{ !$user->actived ? 'line-through text-gray-400' : '' }}">
+                                {{ $user->name }}</h5>
                         </th>
                         <td class="px-6 py-4">
                             @forelse ($user->myProfesions as $profesion)
@@ -46,22 +61,24 @@
                             @endforelse
                         </td>
                         <td class="px-6 py-4">
-                            <p x-text="setUserRole({{ $user->getRoleNames() }})"
-                                x-bind:class="{
-                                    'bg-gray-700': {{ $user->getRoleNames() }} == 'ADMIN',
-                                    'bg-tbn-primary ': {{ $user->getRoleNames() }} == 'USER',
-                                    'bg-green-700': {{ $user->getRoleNames() }} == 'FREE_CLIENT',
-                                    'bg-orange-700': {{ $user->getRoleNames() }} == 'PRO_CLIENT'
-                                }"
-                                class="inline-block px-2 py-1 rounded-full text-white bg-gray-700 text-sm leading-4 mb-1">
-                            </p>
-                        </td>
-                        <td class="px-6 py-4">
                             {{ (new Carbon\Carbon($user->created_at))->diffForHumans() }}
                         </td>
+                        <td class="px-6 py-4">
+                            @if ($user->proAccount)
+                                @if ($user->proAccount->verified_payment)
+                                    <span
+                                        class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Verificado</span>
+                                @else
+                                    <span
+                                        class="bg-tbn-dark text-white animate-pulse text-xs px-2 py-1 rounded-full">Pendiente</span>
+                                @endif
+                            @endif
+                        </td>
                         <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-xl">
-                            <a href="{{ route('config-user', ['id' => $user->id]) }}" class="text-tbn-dark"
-                                wire:navigate>
+                            <a href="{{ $user->hasRole(USER) || $user->hasRole(ADMIN)
+                                ? route('create-user', ['id' => $user->id])
+                                : route('config-user', ['id' => $user->id]) }}"
+                                class="text-tbn-dark" wire:navigate>
                                 <i class="fas fa-cog"></i>
                             </a>
                         </td>
@@ -76,7 +93,7 @@
                 @endforelse
             </tbody>
         </table>
-        <div> {{ $users->links() }} </div>
+        {{-- <div> {{ $users->links() }} </div> --}}
     </div>
     @script
         <script>
@@ -84,16 +101,16 @@
                 setUserRole(roles) {
                     switch (roles[0]) {
                         case 'ADMIN':
-                            return ['Administrador'];
+                            return '<i class="fas fa-user-cog"></i>';
                             break;
                         case 'USER':
-                            return 'Usuario';
+                            return '<i class="fas fa-user"></i>';
                             break;
                         case 'FREE_CLIENT':
-                            return 'Cliente (FREE)';
+                            return '<i class="fas fa-leaf"></i>';
                             break;
                         case 'PRO_CLIENT':
-                            return 'Cliente (PRO)';
+                            return '<i class="fas fa-crown"></i>';
                             break;
                     }
                 },

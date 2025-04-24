@@ -3,37 +3,36 @@
 namespace App\Livewire\Web;
 
 use App\Models\Announcement;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class RecentAnnouncement extends Component
 {
     public $announcements;
+
     public function mount()
     {
-        $user = Auth::check() ? User::find(Auth::user()->id) : null;
-        $this->announcements = Announcement::orderBy('updated_at', 'DESC')
-            ->when(!$user || $user->hasRole(env('FREE_CLIENT_ROLE')), fn($query) => $query->where('pro', false))
-            ->limit(8)
-            ->get();
+        $this->announcements = Announcement::where('expiration_time', '>=', now())
+            ->orderBy('updated_at', 'DESC')->limit(8)->get();
     }
     public function render()
     {
         return <<<'HTML'
-        <div class="grid grid-cols-2 gap-4 mb-12">
+        <div class="grid grid-cols-2 gap-8 mb-12">
             @forelse ($announcements as $announcement)
-            <a href="{{ route('result', ['id' => $announcement->id]) }}" wire:navigate>
-                <x-card-announce logo_url="{{ $announcement->company ? $announcement->company->company_image : '' }}">
+            <a href="{{ $announcement->pro && (!auth()->check() || !auth()->user()->hasRole(env('PRO_CLIENT_ROLE')))
+                ? route('purchase')
+                : route('result', ['id' => $announcement->id]) }}"
+                wire:navigate>
+                <x-card-announce logo_url="{{ $announcement->company ? $announcement->company->company_image : '' }}"
+                    pro="{{ $announcement->pro }}">
                     <x-slot name="area">{{ $announcement->area ? $announcement->area->area_name : '' }}</x-slot>
                     <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
                     <x-slot name="company">{{ $announcement->company ? $announcement->company->company_name : '' }}</x-slot>
                     <x-slot name="locations">
-                        @forelse ($announcement->locations as $location)
-                            <span>{{ $location->location_name }}</span>
-                        @empty
-                            <span>Sin ubicación</span>
-                        @endforelse
+                        {{ $announcement->locations[0]->location_name }}
+                        @if ($announcement->locations->count() > 1)
+                            <i class="fas fa-ellipsis-h inline-block px-1 text-xs bg-gray-200 rounded-lg"></i>
+                        @endif
                     </x-slot>
                     @if($announcement->expiration_time < Carbon\Carbon::now())
                         <x-slot name="expiration">

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->char('gender')->nullable(); // New field
             $table->char('age')->nullable(); // New field
             $table->boolean('register_completed')->default(false); // New field
+            $table->boolean('actived')->default(true); // New field
             $table->unsignedBigInteger('location_id')->nullable(); // Foreign
             $table->unsignedBigInteger('area_id')->nullable(); // Foreign
             $table->unsignedBigInteger('grade_profile_id')->nullable(); // Foreign

@@ -33,20 +33,21 @@ class Profesions extends Component
     public function delete($id)
     {
         $this->profesion->delete($id);
+        $this->render();
+        $this->search = null;
     }
 
     public function save()
     {
         $this->profesion->save();
-        session()->flash('status', 'La profesión se ha guardado correctamente');
-        $this->render();
+        $this->dispatch('profesion-saved');
     }
 
     public function render()
     {
         $profesions = Profesion::orderBy('profesion_name', 'ASC')
             ->when($this->search, fn($query) => $query->where('profesion_name', 'LIKE', '%' . $this->search . '%'))
-            ->simplePaginate(7);
+            ->simplePaginate(5);
         return view('livewire.profesion.profesions', compact('profesions'));
     }
 }

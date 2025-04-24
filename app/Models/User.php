@@ -35,6 +35,7 @@ class User extends Authenticatable
         'gender',
         'age',
         'register_completed',
+        'actived',
         'phone',
         'location_id',
         'area_id',

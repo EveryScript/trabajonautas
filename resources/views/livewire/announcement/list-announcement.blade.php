@@ -5,9 +5,9 @@
             Todas las convocatorias de trabajo registradas en el portal de empleos Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
-            <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
-                placeholder="Buscar convocatoria" />
-            <x-button-link class="pt-2.5" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button-link>
+                <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)" class="h-auto" 
+                    placeholder="Buscar convocatoria" />
+                <x-button-link class="pt-2.5" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button-link>
         </x-slot>
     </x-title-app>
     <div x-data="content">
@@ -23,13 +23,7 @@
                         Ubicación
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Usuario
-                    </th>
-                    <th scope="col" class="px-6 py-3">
                         Empresa
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-tbn-primary font-bold">
-                        <i class="fas fa-bell pr-1"></i> PRO
                     </th>
                     <th scope="col" class="px-6 py-3 text-right">
                         Opciones
@@ -63,18 +57,13 @@
                         <td class="px-6 py-4">
                             @forelse ($announcement->locations as $location)
                                 <span
-                                    class="inline-block px-2 py-1 rounded-sm bg-gray-200 text-black text-[.8rem] leading-4 mb-1">{{ $location->location_name }}</span>
+                                    class="inline-block px-2 py-1 rounded-md bg-gray-200 text-black text-[.8rem] leading-4 mb-1">{{ $location->location_name }}</span>
                             @empty
                                 <span class="text-sm text-gray-400">No items</span>
                             @endforelse
                         </td>
                         <td class="px-6 py-4">
-                            {{ $announcement->user->name }} </td>
-                        <td class="px-6 py-4">
                             {{ $announcement->company ? $announcement->company->company_name : '(Empresa eliminada)' }}
-                        </td>
-                        <td class="px-6 py-4">
-                            {{ $this->countPROClientsByProfesions($announcement->profesions) }}
                         </td>
                         <td class="flex flex-row justify-end items-center h-20 px-6 py-4 text-lg">
                             <a href="{{ route('new-announcement', ['id' => $announcement->id]) }}" wire:navigate

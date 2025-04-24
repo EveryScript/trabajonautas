@@ -1,8 +1,9 @@
 <div class="bg-gray-100 min-h-screen flex items-start justify-center pt-10">
-    <div x-data="content" class="w-full max-w-md md:max-w-3xl">
+    <div x-data="content" class="w-full max-w-md md:max-w-5xl">
         <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg">
+            <x-application-logo class="w-20 h-20 mx-auto" />
             <!-- Progress Indicator -->
-            <div class="flex flex-row justify-between items-center mb-8 {{ $step == 4 ? 'hidden' : '' }}">
+            <div class="flex flex-row justify-between items-center my-6 {{ $step == 4 ? 'hidden' : '' }}">
                 <div class="flex items-center">
                     <div id="step1"
                         class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-tbn-primary text-white text-sm md:text-base">
@@ -109,7 +110,7 @@
                 <form wire:submit='saveProfesionalData'>
                     <div class="step-content">
                         <h3 class="text-lg md:text-2xl font-semibold mb-2">Información profesional</h3>
-                        <p class="text-sm mb-4">Selecciona tu grado académico actual</p>
+                        <p class="text-sm mb-2">Selecciona tu grado académico actual</p>
                         <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
                             <li class="text-center">
                                 <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
@@ -168,12 +169,24 @@
                                 </label>
                             </li>
                         </ul>
+                        <h5 class="font-bold">Area profesional</h5>
+                        <span class="block text-tbn-dark text-sm mb-2">Trabajonautas seleccionará las mejores
+                            convocatorias de
+                            trabajo para ti en base al area profesional que elijas.</span>
+                        <x-select id="area" wire:model.live.debounce.200ms='user_area' class="mb-4">
+                            <option value="">Selecciona un area</option>
+                            @forelse ($areas as $area)
+                                <option value="{{ $area->id }}">{{ $area->area_name }}</option>
+                            @empty
+                                <option>Empty</option>
+                            @endforelse
+                        </x-select>
                     </div>
                     <!-- Navigation Buttons -->
                     <div class="flex justify-between mt-6">
                         <button id="prevButton" type="button" wire:click="stepBack"
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
-                        <button id="nextButton" type="submit" {{ $grade_profile_id ? '' : 'disabled' }}
+                        <button id="nextButton" type="submit" {{ $grade_profile_id && $user_area ? '' : 'disabled' }}
                             class="px-4 py-2 bg-tbn-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 hover:bg-tbn-primary">Siguiente</button>
                     </div>
                 </form>
@@ -197,6 +210,9 @@
                                         <span class="text-gray-600">(siempre)</span>
                                     </div>
                                     <ul class="mt-6 space-y-2 text-sm">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: Siempre
+                                        </li>
                                         <li class="flex items-center">
                                             <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
                                         </li>
@@ -224,6 +240,9 @@
                                     </div>
                                     <ul class="mt-6 space-y-2 text-sm">
                                         <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 30 dias
+                                        </li>
+                                        <li class="flex items-center">
                                             <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
                                         </li>
                                         <li class="flex items-center">
@@ -249,6 +268,9 @@
                                         <span class="text-gray-600">/mes</span>
                                     </div>
                                     <ul class="mt-6 space-y-2 text-sm">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 60 dias
+                                        </li>
                                         <li class="flex items-center">
                                             <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
                                         </li>
@@ -345,17 +367,6 @@
                                         </li>
                                     </template>
                                 </ul>
-                                <h5 class="font-bold">¿Cual es tu principal area de interés?</h5>
-                                <span class="block mb-2 text-xs text-tbn-dark">Las sugerencias tambiés están vinculadas
-                                    al area seleccionada acontinuación.</span>
-                                <x-select id="area" x-model='user_area' class="mb-4">
-                                    <option value="">Selecciona un area</option>
-                                    @forelse ($areas as $area)
-                                        <option value="{{ $area->id }}">{{ $area->area_name }}</option>
-                                    @empty
-                                        <option>Empty</option>
-                                    @endforelse
-                                </x-select>
                             </div>
                         </div>
                         <p class="text-xs text-tbn-dark text-justify">Una vez realizado el depósito nuestros
@@ -366,8 +377,7 @@
                     <div class="flex justify-between mt-6">
                         <button id="prevButton" type="button" wire:click="stepBack"
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
-                        <button id="nextButton" type="submit"
-                            x-bind:disabled="selected_profesions.length == 0 || !user_area"
+                        <button id="nextButton" type="submit" x-bind:disabled="selected_profesions.length == 0"
                             class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary disabled:opacity-50 disabled:cursor-not-allowed">Finalizar
                             registro</button>
                     </div>

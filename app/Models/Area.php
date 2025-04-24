@@ -17,15 +17,15 @@ class Area extends Model
     public $guarded = [];
 
     // Relationships
-    public function profesions(): BelongsToMany
-    {
-        return $this->BelongsToMany(Profesion::class);
-    }
     public function announcements(): HasMany
     {
         return $this->hasMany(Announcement::class);
     }
-    public function users(): HasMany
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function usersOf(): HasMany
     {
         return $this->hasMany(User::class);
     }

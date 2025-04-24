@@ -13,9 +13,9 @@ class FirstSteps extends Component
 {
     public $user_id;                            // Parameter
     public $gender, $age, $location_id, $phone; // Step 1
-    public $grade_profile_id;                   // Step 2
+    public $grade_profile_id, $user_area;       // Step 2
     public $duration_days;                      // Step 3
-    public $user_profesions, $user_area;        // Step 4 
+    public $user_profesions;                    // Step 4 
     public $profesions, $areas, $locations;     // Data to use in the view
     public $step = 1;
 
@@ -39,10 +39,14 @@ class FirstSteps extends Component
     public function saveProfesionalData()
     {
         $this->validate([
-            'grade_profile_id' => 'required|exists:grade_profiles,id'
+            'grade_profile_id' => 'required|exists:grade_profiles,id',
+            'user_area' => 'required|exists:areas,id'
         ]);
         $user = User::find($this->user_id);
-        $user->update(['grade_profile_id' => $this->grade_profile_id]);
+        $user->update([
+            'grade_profile_id' => intval($this->grade_profile_id),
+            'area_id' => intval($this->user_area)
+        ]);
         $this->step = 3;
     }
     public function savePurchaseData()
@@ -64,19 +68,16 @@ class FirstSteps extends Component
             $this->step = 4;
         }
     }
-    public function saveProAccountData($form_profesions, $form_area)
+    public function saveProAccountData($form_profesions)
     {
         $this->user_profesions = $form_profesions;
-        $this->user_area = $form_area;
         $this->validate([
             'user_profesions' => 'required|array',
-            'user_profesions.*' => 'exists:profesions,id',
-            'user_area' => 'required|exists:areas,id'
+            'user_profesions.*' => 'exists:profesions,id'
         ]);
         $user = User::find($this->user_id);
         $user->myProfesions()->attach($this->user_profesions);
         $user->update([
-            'area_id' => intval($this->user_area),
             'register_completed' => true
         ]);
         $this->redirectRoute('dashboard', navigate: true);
@@ -85,7 +86,6 @@ class FirstSteps extends Component
     {
         $this->step--;
     }
-
     public function render()
     {
         $this->profesions = Profesion::orderBy('profesion_name', 'ASC')->get();

@@ -79,41 +79,5 @@ class AreaSeeder extends Seeder
             'description' => 'Ciencia de la geologia y otras ramas que estudian piedras preciosas.',
             'user_id' => $this->admin_id
         ]);
-
-        DB::table('area_profesion')->insert([
-            'id' => 1,
-            'area_id' => 1,
-            'profesion_id' => 1,
-            'created_at' => $this->now,
-            'updated_at' => $this->now
-        ]);
-        DB::table('area_profesion')->insert([
-            'id' => 2,
-            'area_id' => 1,
-            'profesion_id' => 2,
-            'created_at' => $this->now,
-            'updated_at' => $this->now
-        ]);
-        DB::table('area_profesion')->insert([
-            'id' => 3,
-            'area_id' => 1,
-            'profesion_id' => 3,
-            'created_at' => $this->now,
-            'updated_at' => $this->now
-        ]);
-        DB::table('area_profesion')->insert([
-            'id' => 4,
-            'area_id' => 1,
-            'profesion_id' => 4,
-            'created_at' => $this->now,
-            'updated_at' => $this->now
-        ]);
-        DB::table('area_profesion')->insert([
-            'id' => 5,
-            'area_id' => 1,
-            'profesion_id' => 5,
-            'created_at' => $this->now,
-            'updated_at' => $this->now
-        ]);
     }
 }

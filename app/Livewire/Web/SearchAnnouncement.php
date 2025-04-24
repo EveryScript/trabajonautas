@@ -34,13 +34,16 @@ class SearchAnnouncement extends Component
         $this->search_location = $location_id;
     }
 
+    public function clearSearch()
+    {
+        $this->search_title = null;
+        $this->search_location = null;
+    }
+
     public function render()
     {
-        sleep(0.8); // Delay or loading
-        $user = Auth::check() ? User::find(Auth::user()->id) : null;
-        $announcements = Announcement::orderBy('updated_at', 'DESC')
-            ->when(!$user || $user->hasRole(env('FREE_CLIENT_ROLE')), fn($query)
-            => $query->where('pro', false))
+        $announcements = Announcement::where('expiration_time', '>=', now())
+            ->orderBy('updated_at', 'DESC')
             ->when($this->search_title, fn($query)
             => $query->where('announce_title', 'LIKE', '%' . $this->search_title . '%'))
             ->when(

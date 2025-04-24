@@ -6,6 +6,9 @@
             </h1>
             <span class="text-center text-sm text-tbn-dark">Ingresa tus datos y regístrate ahora.</span>
         </x-slot>
+
+        <x-validation-errors class="mb-2" />
+
         <div class="w-full flex-1 mt-2">
             <form method="POST" action="{{ route('register') }}">
                 @csrf
@@ -22,8 +25,8 @@
                     </div>
                     <div class="relative mt-6">
                         <x-label for="password" value="{{ __('Password') }}" />
-                        <x-input id="password" class="block mt-1 w-full" type="password" name="password"
-                            required autocomplete="new-password" />
+                        <x-input id="password" class="block mt-1 w-full" type="password" name="password" required
+                            autocomplete="new-password" />
                     </div>
 
                     <div class="flex items-center justify-between mt-8">

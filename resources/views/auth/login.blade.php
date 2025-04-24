@@ -36,8 +36,8 @@
                     <div class="flex items-center justify-between mt-8">
                         <x-button>{{ __('Log in') }}</x-button>
                         <a class="underline text-sm hover:text-tbn-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high cursor-pointer"
-                            href="{{ route('register') }}">
-                            {{ __('Ya tengo una cuenta') }}
+                            href="{{ route('register') }}" wire:navigate>
+                            {{ __('No tengo una cuenta') }}
                         </a>
                         {{-- @if (Route::has('password.request'))
                             <a
