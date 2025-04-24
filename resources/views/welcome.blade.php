@@ -1,15 +1,16 @@
 <x-web-layout>
     <!-- Landing -->
-    <section class="mx-auto p-5 bg-image-landing">
+    <section class="mx-auto p-5"
+        style="background-image: url('{{ asset('storage/img/tbn-landing.webp') }}'); background-size: cover; background-position: center;">
         <div class="max-w-[50rem] h-[30rem] flex flex-col justify-center items-center text-center mx-auto">
             <h4 class="text-tbn-light sm:text-3xl text-2xl font-bold title-font text-center mb-2">Más de 1000
                 empresas trabajando con nosotros</h4>
             <p class="max-w-[50rem] mx-auto text-tbn-ligh mb-5">Bienvenido(a) al portal líder de
                 oportunidades laborales en Bolivia. Encuentra la convocatoria ideal para tu perfil y da el siguiente
                 paso en tu carrera profesional con nosotros.</p>
-                <x-button-link href="{{ route('search') }}" wire:navigate>Iniciar busqueda</x-button-link>
+            <x-button-link href="{{ route('search') }}" wire:navigate>Iniciar busqueda</x-button-link>
         </div>
-    </section> 
+    </section>
     <!-- Latest announcements -->
     <section class="max-w-6xl sm:px-6 px-5 py-24 mx-auto">
         <div class="text-center py-5">
@@ -22,8 +23,8 @@
                 <x-button-link href="{{ route('search') }}" wire:navigate>Ver más</x-button-link>
             </div>
         </div>
-    </section> 
-    
+    </section>
+
     <!-- Instrucions -->
     <section class="body-font">
         <div class="max-w-6xl px-5 py-24 mx-auto">
@@ -69,7 +70,7 @@
                 </div>
             </div>
         </div>
-    </section> 
+    </section>
     <!-- Hero -->
     <section class="bg-tbn-primary text-white body-font">
         <div class="max-w-6xl mx-auto flex px-5 md:flex-row flex-col items-center">
@@ -85,11 +86,12 @@
                     bolivianos, conectándote con las mejores oportunidades laborales para impulsar tu carrera y alcanzar
                     tus metas.</p>
                 <div class="flex justify-center">
-                    <x-button-link href="{{ route('search') }}" class="bg-gray-800" wire:navigate>Iniciar Busqueda</x-button-link>
+                    <x-button-link href="{{ route('search') }}" class="bg-gray-800" wire:navigate>Iniciar
+                        Busqueda</x-button-link>
                 </div>
             </div>
         </div>
-    </section> 
+    </section>
 
     <!-- Testimonials -->
     <section class="text-gray-600 body-font">
@@ -140,12 +142,14 @@
 
     <!-- Purchase cards -->
     <section class="body-font my-12">
-        <h4 class="text-tbn-light sm:text-3xl text-2xl font-bold title-font text-center mb-2">Adquiere tu cuenta PRO ahora mismo</h4>
+        <h4 class="text-tbn-light sm:text-3xl text-2xl font-bold title-font text-center mb-2">Adquiere tu cuenta PRO
+            ahora mismo</h4>
         <p class="text-center mb-10">Todos los beneficios en un solo pago con Trabajonautas.com</p>
         <div class="max-w-6xl mx-auto flex flex-wrap">
             <!-- Free -->
             <div class="block w-full sm:w-1/2 lg:w-1/3 px-2 mb-8 cursor-pointer">
-                <label for="purchase-free" class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                <label for="purchase-free"
+                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
                     <h2 class="text-2xl font-semibold text-gray-800">Gratis</h2>
                     <div class="mt-4">
                         <span class="text-5xl font-bold text-gray-900">0 Bs.</span>
@@ -171,7 +175,8 @@
             </div>
             <!-- Pro -->
             <div class="block w-full sm:w-1/2 lg:w-1/3 px-2 mb-8 cursor-pointer">
-                <label for="purchase-pro" class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                <label for="purchase-pro"
+                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
                     <h2 class="text-2xl font-semibold text-gray-800">Pro</h2>
                     <div class="mt-4">
                         <span class="text-5xl font-bold text-gray-900">10 Bs.</span>
@@ -197,7 +202,8 @@
             </div>
             <!-- Full -->
             <div class="block w-full sm:w-1/2 lg:w-1/3 px-2 mb-8 cursor-pointer">
-                <label for="purchase-full" class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                <label for="purchase-full"
+                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
                     <h2 class="text-2xl font-semibold text-gray-800">Full</h2>
                     <div class="mt-4">
                         <span class="text-5xl font-bold text-gray-900">20 Bs.</span>
