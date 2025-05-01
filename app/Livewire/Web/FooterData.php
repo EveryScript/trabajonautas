@@ -19,7 +19,7 @@ class FooterData extends Component
     public function render()
     {
         return <<<'HTML'
-        <div class="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10 md:text-left text-center">
+        <div class="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10">
             <div class="lg:w-1/3 md:w-1/2 w-full px-4">
                 <h2 class="title-font font-medium text-tbn-light tracking-widest text-sm mb-3 uppercase">Profesiones
                 </h2>

@@ -38,9 +38,9 @@
     <!-- Footer Content -->
     <footer class="bg-gray-800 text-white body-font">
         <div
-            class="max-w-6xl px-5 py-24 mx-auto flex md:items-center lg:items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
-            <div class="w-64 flex-shrink-0 md:mx-0 mx-auto text-center md:text-left">
-                <x-application-logo />
+            class="max-w-6xl px-5 py-16 md:py-24 mx-auto flex items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
+            <div class="w-full md:w-64 px-5 flex-shrink-0">
+                <x-application-logo class="mb-5" />
                 <h5 class="text-white font-bold">Contactos</h5>
                 <p class="text-sm font-normal">
                     <span class="block">SEO Ricardo Oropeza - 76543210</span>

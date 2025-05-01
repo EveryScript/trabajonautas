@@ -139,9 +139,4 @@
             </div>
         </div>
     </section>
-
-    <!-- Purchase cards -->
-    <section class="body-font my-12">
-        @livewire('web.purchase-account')
-    </section>
 </x-web-layout>
