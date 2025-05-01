@@ -10,7 +10,7 @@
 @endphp
 
 <article
-    class="w-full h-full relative flex sm:flex-row flex-col items-center sm:justify-start justify-center text-center sm:text-left
+    class="w-full h-full relative flex flex-row justify-start gap-4 text-start
             bg-white shadow-md px-6 py-5 rounded-lg border border-gray-300 hover:border-tbn-primary cursor-pointer">
     <img alt="team" class="flex-shrink-0 rounded-lg w-16 h-16 object-cover object-center sm:mb-0 mb-4"
         src="{{ asset('storage/' . $logo_url) }}">

@@ -40,15 +40,9 @@
                 @forelse ($users as $user)
                     <tr class="border-b hover:bg-gray-300">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            <span class="mr-2" x-html="setUserRole({{ $user->getRoleNames() }})"
-                                x-bind:class="{
-                                    'text-gray-500': {{ $user->getRoleNames() }} == 'ADMIN',
-                                    'text-tbn-primary ': {{ $user->getRoleNames() }} == 'USER',
-                                    'text-green-500': {{ $user->getRoleNames() }} == 'FREE_CLIENT',
-                                    'text-orange-500': {{ $user->getRoleNames() }} == 'PRO_CLIENT'
-                                }">
-                            </span>
-                            <h5 class="inline text-lg font-medium {{ !$user->actived ? 'line-through text-gray-400' : '' }}">
+                            <span class="mr-2" x-html="setUserRole({{ $user->getRoleNames() }})"></span>
+                            <h5
+                                class="inline text-lg font-medium {{ !$user->actived ? 'line-through text-gray-400' : '' }}">
                                 {{ $user->name }}</h5>
                         </th>
                         <td class="px-6 py-4">
@@ -64,8 +58,8 @@
                             {{ (new Carbon\Carbon($user->created_at))->diffForHumans() }}
                         </td>
                         <td class="px-6 py-4">
-                            @if ($user->proAccount)
-                                @if ($user->proAccount->verified_payment)
+                            @if ($user->account && $user->account->account_type_id != 1)
+                                @if ($user->account->verified_payment)
                                     <span
                                         class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Verificado</span>
                                 @else
@@ -101,16 +95,16 @@
                 setUserRole(roles) {
                     switch (roles[0]) {
                         case 'ADMIN':
-                            return '<i class="fas fa-user-cog"></i>';
+                            return '<i class="fas fa-user-cog text-gray-500"></i>';
                             break;
                         case 'USER':
-                            return '<i class="fas fa-user"></i>';
+                            return '<i class="fas fa-user text-tbn-primary"></i>';
                             break;
                         case 'FREE_CLIENT':
-                            return '<i class="fas fa-leaf"></i>';
+                            return '<i class="fas fa-leaf text-green-500"></i>';
                             break;
                         case 'PRO_CLIENT':
-                            return '<i class="fas fa-crown"></i>';
+                            return '<i class="fas fa-crown text-orange-500"></i>';
                             break;
                     }
                 },

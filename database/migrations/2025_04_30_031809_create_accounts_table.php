@@ -8,22 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('pro_accounts', function (Blueprint $table) {
+        Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('purchased_at');
-            $table->smallInteger('duration_days');
+            $table->smallInteger('days_left')->default(0);
             $table->boolean('verified_payment')->default(false);
             $table->text('device_token')->nullable();
-            $table->foreignUuid('user_id');
+            $table->foreignUuid('user_id'); // Foreign key
+            $table->unsignedBigInteger('account_type_id'); // Foreign key
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('pro_accounts');
+        Schema::dropIfExists('accounts');
     }
 };

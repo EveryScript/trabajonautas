@@ -1,14 +1,14 @@
 <section class="max-w-6xl mt-5 mb-10 px-5 mx-auto">
     <div x-data="content">
         <!-- Search fields -->
-        <div class="w-full flex flex-row gap-2 mb-5 tbn-form">
-            <div class="w-1/2">
+        <div class="w-full flex flex-col md:flex-row gap-2 mb-5 tbn-form">
+            <div class="w-full md:w-1/2">
                 <x-label for="search_title" value="{{ __('Profesion actual') }}" />
                 <x-input x-model="search_title" class="w-full px-2 py-[.6rem]" type="search" wire:model='search_title'
                     wire:keydown.enter='searchAnnounces(search_title, search_location_id)'
                     placeholder="Arquitecto, ingeniero ..." />
             </div>
-            <div class="w-1/2 tbn-field" wire:ignore>
+            <div class="w-full md:w-1/2 tbn-field" wire:ignore>
                 <x-label for="search_location" value="{{ __('Departamento o región') }}" />
                 <x-select @change="setLocationName($event.target.value)" id="locations" wire:model="search_location">
                     <option value="0" selected>Cualquier lugar</option>
@@ -19,7 +19,7 @@
                     @endforelse
                 </x-select>
             </div>
-            <div class="pt-5">
+            <div class="pt-1 md:pt-5">
                 <x-button wire:click="searchAnnounces(search_title, search_location_id)" class="h-[3rem] mt-1"
                     x-bind:disabled="!search_title && !search_location">Buscar</x-button>
             </div>
@@ -46,13 +46,13 @@
             </template>
         </div>
         <!-- Results numbers -->
-        @if (count($announcements) > 0)
+        @if (count($announcements) > 0 && $search_title)
             <div class="text-tbn-high font-medium text-sm mb-5" wire:loading.remove>Resultados
                 encontrados ({{ count($announcements) }})</div>
         @endif
 
         <!-- Announcements -->
-        <div x-data="{}" class="w-full grid grid-cols-2 gap-4 mb-5">
+        <div x-data="{}" class="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
             @forelse ($announcements as $announcement)
                 <div wire:loading.remove wire:key='announce-{{ $announcement->id }}'>
                     <a href="{{ $announcement->pro && (!auth()->check() || !auth()->user()->hasRole(env('PRO_CLIENT_ROLE')))
@@ -77,10 +77,9 @@
                     </a>
                 </div>
             @empty
-
                 <x-section-empty class="col-span-2" title="No hay resultados"
                     description="No hemos encontrado coincidencias para tu busqueda" wire:loading.remove>
-                    <x-button class="mt-5" wire:click='clearSearch' @click="clearData()">Limpiar busqueda</x-button>
+                    <x-button class="mt-5" @click="clearData()">Limpiar busqueda</x-button>
                 </x-section-empty>
             @endforelse
         </div>

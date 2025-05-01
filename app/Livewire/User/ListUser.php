@@ -16,16 +16,15 @@ class ListUser extends Component
 
     public function edit($id)
     {
-        dump($id);
         return $this->redirect("/create-user?id=" . $id, true);
     }
-
     public function render()
     {
         define('FREE', env('FREE_CLIENT_ROLE'));
         define('PRO', env('PRO_CLIENT_ROLE'));
         define('USER', env('USER_ROLE'));
         define('ADMIN', env('ADMIN_ROLE'));
+
         if ($this->search) {
             $users = User::orderBy('updated_at', 'DESC')
                 ->when($this->search, fn($query) => $query->where('name', 'LIKE', '%' . $this->search . '%'))

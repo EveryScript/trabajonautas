@@ -2,35 +2,39 @@
 
 namespace App\Livewire\Web;
 
+use App\Models\AccountType;
 use App\Models\Profesion;
 use App\Models\User;
 use Livewire\Component;
 
 class PurchaseAccount extends Component
 {
-    public $profesions, $duration_days;
+    public $profesions, $account_type_id;
 
-    public function saveChanges($duration_days, $profesions)
+    public function saveChanges($type_id, $profesions)
     {
         $this->profesions = $profesions;
-        $this->duration_days = $duration_days;
+        $this->account_type_id = intval($type_id);
 
         $this->validate([
             'profesions' => 'required|array',
             'profesions.*' => 'exists:profesions,id',
-            'duration_days' => 'required|numeric|in:0,30,60'
+            'account_type_id' => 'required|exists:account_types,id'
         ]);
         $user = User::find(auth()->user()->id);
         $user->syncRoles([env('PRO_CLIENT_ROLE')]);
-        $user->proAccount()->create([
-            'purchased_at' => now(),
-            'duration_days' => $this->duration_days
+        $user->myProfesions()->attach($this->profesions);
+        $user->account()->update([
+            'account_type_id' => intval($this->account_type_id)
         ]);
         $this->redirectRoute('dashboard', navigate: true);
     }
     public function render()
     {
+        $account_types = AccountType::all();
         $this->profesions = Profesion::select(['id', 'profesion_name'])->get();
-        return view('livewire.web.purchase-account');
+        return view('livewire.web.purchase-account', [
+            'account_types' => $account_types
+        ]);
     }
 }

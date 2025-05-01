@@ -17,7 +17,7 @@ class RecentAnnouncement extends Component
     public function render()
     {
         return <<<'HTML'
-        <div class="grid grid-cols-2 gap-8 mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             @forelse ($announcements as $announcement)
             <a href="{{ $announcement->pro && (!auth()->check() || !auth()->user()->hasRole(env('PRO_CLIENT_ROLE')))
                 ? route('purchase')

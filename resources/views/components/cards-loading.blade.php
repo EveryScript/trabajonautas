@@ -1,4 +1,4 @@
-<div class="w-full grid grid-cols-2 gap-4 my-5">
+<div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mt-1 lg:my-5">
     <div class="rounded-lg p-4 bg-white animate-pulse">
         <div class="flex space-x-4 py-6">
             <div class="rounded-full bg-gray-300 h-12 w-12"></div>

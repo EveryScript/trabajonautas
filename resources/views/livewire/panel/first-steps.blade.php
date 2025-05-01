@@ -1,7 +1,7 @@
-<div class="bg-gray-100 min-h-screen flex items-start justify-center pt-10">
+<div class="bg-gray-100 min-h-screen flex items-start justify-center py-10">
     <div x-data="content" class="w-full max-w-md md:max-w-5xl">
         <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg">
-            <x-application-logo class="w-20 h-20 mx-auto" />
+            <x-application-logo class="{{ $step == 4 ? 'hidden' : '' }}" />
             <!-- Progress Indicator -->
             <div class="flex flex-row justify-between items-center my-6 {{ $step == 4 ? 'hidden' : '' }}">
                 <div class="flex items-center">
@@ -23,11 +23,11 @@
                     <span class="ml-2 text-gray-700 text-sm md:text-base hidden md:block">Confirmación</span>
                 </div>
             </div>
-            <!-- Step Personal -->
+            <!-- Steps -->
             @if ($step == 1)
                 <form wire:submit='savePersonalData'>
                     <div id="stepContent1" class="step-content">
-                        <h3 class="text-lg md:text-2xl font-semibold mb-2">Hola {{ Auth()->user()->name }}</h3>
+                        <h3 class="text-lg md:text-2xl font-semibold mb-2">Hola {{ auth()->user()->name }}</h3>
                         <p class="text-sm text-gray-500 mb-2">Ingresa tus para completar el registro en
                             Trabajonautas.com</p>
                         <h5 class="text-md font-bold mb-2">¿Cuál es tu genero?</h5>
@@ -105,7 +105,6 @@
                             class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary disabled:opacity-50 disabled:cursor-not-allowed">Siguiente</button>
                     </div>
                 </form>
-                <!-- Step Profesional -->
             @elseif($step == 2)
                 <form wire:submit='saveProfesionalData'>
                     <div class="step-content">
@@ -173,7 +172,7 @@
                         <span class="block text-tbn-dark text-sm mb-2">Trabajonautas seleccionará las mejores
                             convocatorias de
                             trabajo para ti en base al area profesional que elijas.</span>
-                        <x-select id="area" wire:model.live.debounce.200ms='user_area' class="mb-4">
+                        <x-select id="area" wire:model.live.debounce.200ms='area_id' class="mb-4">
                             <option value="">Selecciona un area</option>
                             @forelse ($areas as $area)
                                 <option value="{{ $area->id }}">{{ $area->area_name }}</option>
@@ -186,105 +185,61 @@
                     <div class="flex justify-between mt-6">
                         <button id="prevButton" type="button" wire:click="stepBack"
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
-                        <button id="nextButton" type="submit" {{ $grade_profile_id && $user_area ? '' : 'disabled' }}
+                        <button id="nextButton" type="submit" {{ $grade_profile_id && $area_id ? '' : 'disabled' }}
                             class="px-4 py-2 bg-tbn-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 hover:bg-tbn-primary">Siguiente</button>
                     </div>
                 </form>
-                <!-- Step Purchase -->
             @elseif($step == 3)
                 <form wire:submit='savePurchaseData'>
                     <div class="step-content">
                         <h3 class="text-lg md:text-2xl font-semibold mb-4">Cuenta</h3>
                         <h5 class="text-md font-bold mb-2">Selecciona el tipo de cuenta que vas a utilizar</h5>
                         <div class="flex flex-wrap">
-                            <!-- Free -->
-                            <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
-                                <input type="radio" wire:model.live.debounce.200ms='duration_days' value="0"
-                                    id="purchase-free" class="hidden peer" name="purchase">
-                                <label for="purchase-free"
-                                    x-on:click="btnFinish = 'Finalizar registro'; labelPrice = 0; labelAccount = 'Gratis'"
-                                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
-                                    <h2 class="text-2xl font-semibold text-gray-800">Gratis</h2>
-                                    <div class="mt-4">
-                                        <span class="text-5xl font-bold text-gray-900">0 Bs.</span>
-                                        <span class="text-gray-600">(siempre)</span>
-                                    </div>
-                                    <ul class="mt-6 space-y-2 text-sm">
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: Siempre
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-times text-red-500 mr-2"></i> Convocatorias Premium
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-times text-red-500 mr-2"></i> Notificaciones en tiempo
-                                            real
-                                        </li>
-                                    </ul>
-                                </label>
-                            </div>
-                            <!-- Pro -->
-                            <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
-                                <input type="radio" wire:model.live.debounce.200ms='duration_days' value="30"
-                                    id="purchase-pro" class="hidden peer" name="purchase">
-                                <label for="purchase-pro"
-                                    x-on:click="btnFinish = 'Realizar pago (QR)'; labelPrice = 10; labelAccount = 'PRO'"
-                                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
-                                    <h2 class="text-2xl font-semibold text-gray-800">Pro</h2>
-                                    <div class="mt-4">
-                                        <span class="text-5xl font-bold text-gray-900">10 Bs.</span>
-                                        <span class="text-gray-600">/mes</span>
-                                    </div>
-                                    <ul class="mt-6 space-y-2 text-sm">
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 30 dias
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-times text-red-500 mr-2"></i> Notificaciones en tiempo
-                                            real
-                                        </li>
-                                    </ul>
-                                </label>
-                            </div>
-                            <!-- Full -->
-                            <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
-                                <input type="radio" wire:model.live.debounce.200ms='duration_days' value="60"
-                                    id="purchase-full" class="hidden peer" name="purchase">
-                                <label for="purchase-full"
-                                    x-on:click="btnFinish = 'Realizar pago (QR)'; labelPrice = 20; labelAccount = 'FULL'"
-                                    class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
-                                    <h2 class="text-2xl font-semibold text-gray-800">Full</h2>
-                                    <div class="mt-4">
-                                        <span class="text-5xl font-bold text-gray-900">20 Bs.</span>
-                                        <span class="text-gray-600">/mes</span>
-                                    </div>
-                                    <ul class="mt-6 space-y-2 text-sm">
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 60 dias
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Notificaciones en
-                                            tiempo
-                                            real
-                                        </li>
-                                    </ul>
-                                </label>
-                            </div>
+                            @forelse ($account_types as $account_type)
+                                <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
+                                    <input type="radio" wire:model.live.debounce.200ms='account_type_id'
+                                        id="{{ 'account-' . $account_type->name }}" value="{{ $account_type->id }}"
+                                        class="hidden peer" name="account_type">
+                                    <label for="{{ 'account-' . $account_type->name }}"
+                                        x-on:click="changeAccountData({{ $account_type->id }}, '{{ $account_type->name }}', '{{ $account_type->price }}', '{{ $account_type->duration_days }}')"
+                                        class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                                        <h2 class="text-2xl font-semibold text-gray-800 capitalize">
+                                            {{ $account_type->name }}</h2>
+                                        <div class="mt-4">
+                                            <span class="text-5xl font-bold text-gray-900">{{ $account_type->price }}
+                                                Bs.</span>
+                                            <span class="text-gray-600">
+                                                {{ $account_type->duration_days == 0 ? 'Siempre' : '/ ' . $account_type->duration_days . ' dias' }}</span>
+                                        </div>
+                                        <ul class="mt-6 space-y-2 text-sm">
+                                            <li class="flex items-center">
+                                                <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 30 dias
+                                            </li>
+                                            <li class="flex items-center">
+                                                <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
+                                            </li>
+                                            <li class="flex items-center">
+                                                @if ($account_type->id == 1)
+                                                    <i class="fas fa-times text-red-500 mr-2"></i>
+                                                @else
+                                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                                @endif
+                                                Convocatorias Premium
+                                            </li>
+                                            <li class="flex items-center">
+                                                @if ($account_type->id == 1 || $account_type->id == 2)
+                                                    <i class="fas fa-times text-red-500 mr-2"></i>
+                                                @else
+                                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                                @endif
+                                                Notificaciones en tiempo real
+                                            </li>
+                                        </ul>
+                                    </label>
+                                </div>
+                            @empty
+                                <p class="px-4 py-3 text-center">No hay nada para mostrar</p>
+                            @endforelse
                         </div>
                     </div>
                     <!-- Navigation Buttons -->
@@ -292,51 +247,21 @@
                         <button id="prevButton" wire:click="stepBack"
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
 
-                        <button id="nextButton" type="submit" x-text="btnFinish"
+                        <button id="nextButton" type="submit" x-text="btnAccountFinish"
                             class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary"></button>
                     </div>
                 </form>
-                <!-- Step ProAccount -->
             @elseif($step == 4)
                 <form wire:submit='saveProAccountData(user_profesions, user_area)'>
                     <div class="step-content">
-                        <h3 class="text-lg md:text-2xl text-tbn-primary text-center font-semibold mb-4">
-                            Trabajonautas
-                            PRO</h3>
-                        <div class="flex flex-row gap-8">
-                            <div class="w-2/5">
-                                <p class="text-sm text-gray-500 mb-4 text-center">Escanea el código QR para realizar el
-                                    pago</p>
-                                <picture class="block max-w-[10rem] mx-auto mb-4">
-                                    <img class="w-full" src="{{ asset('storage/img/qr.png') }}" alt="qr-code">
-                                </picture>
-                                {{-- Description table --}}
-                                <table class="min-w-full divide-y divide-gray-200 mb-2">
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Tipo de cuenta</td>
-                                            <td class="py-1 whitespace-nowrap" x-text="labelAccount"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Costo</td>
-                                            <td class="py-1 whitespace-nowrap" x-text="labelPrice + ' Bs.'"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Duración</td>
-                                            <td class="py-1 whitespace-nowrap">{{ $duration_days }} dias</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                {{-- Payment options --}}
-                                <p class="text-sm text-gray-500 mt-2 mb-4 text-center">Alternativas de pago</p>
-                                <div class="relative px-3 py-2 bg-gray-300 mb-4">
-                                    <span
-                                        class="absolute -top-2 text-xs text-tbn-primary bg-gray-300 px-3 rounded-md">Banco
-                                        Bisa</span>
-                                    36621-54481-29402-6598
-                                </div>
-                            </div>
+                        <div class="flex flex-row gap-12">
                             <div class="flex-1">
+                                <h3 class="text-lg md:text-2xl text-tbn-primary font-semibold mb-2">
+                                    Trabajonautas PRO</h3>
+                                <p class="text-sm text-gray-500 mb-4">Estás listo para disfrutar de todos los
+                                    beneficios de
+                                    Trabajonautas. Simplemente sigue las instrucciones para tener tu cuenta PRO desde
+                                    ahora.</p>
                                 <h5 class="font-bold">¿Cual es tu profesión(es) actual?</h5>
                                 <span class="block mb-2 text-xs text-tbn-dark">Te enviaremos información de acuerdo con
                                     las
@@ -367,11 +292,48 @@
                                         </li>
                                     </template>
                                 </ul>
+
+                            </div>
+                            <div class="w-2/5">
+                                <p class="text-sm text-gray-500 mb-4 text-center">Escanea el código QR para realizar el
+                                    pago</p>
+                                <picture class="block max-w-[10rem] mx-auto mb-4">
+                                    <img class="w-full" src="{{ asset('storage/img/qr.png') }}" alt="qr-code">
+                                </picture>
+                                {{-- Description table --}}
+                                <table class="min-w-full divide-y divide-gray-200 mb-2">
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Tipo de cuenta</td>
+                                            <td class="py-1 whitespace-nowrap uppercase" x-text="labelAccountName">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Costo</td>
+                                            <td class="py-1 whitespace-nowrap" x-text="labelAccountPrice + ' Bs.'">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Duración</td>
+                                            <td class="py-1 whitespace-nowrap"
+                                                x-text="labelAccountDuration + ' dias'"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                {{-- Payment options --}}
+                                <p class="text-sm text-gray-500 mt-2 mb-4 text-center">Alternativas de pago</p>
+                                <div class="relative px-4 py-3 bg-gray-300 mb-4">
+                                    <span
+                                        class="absolute -top-3 text-xs text-tbn-primary bg-gray-300 px-3 rounded-md">Banco
+                                        Bisa</span>
+                                    36621-54481-29402-6598
+                                </div>
+                                <p class="text-xs text-tbn-dark text-justify">Una vez realizado el depósito nuestros
+                                    operadores se
+                                    contactarán contigo para confirmar el depósito y habilitar tu cuenta.</p>
                             </div>
                         </div>
-                        <p class="text-xs text-tbn-dark text-justify">Una vez realizado el depósito nuestros
-                            operadores se
-                            contactarán contigo para confirmar el depósito y habilitar tu cuenta.</p>
+
                     </div>
                     <!-- Navigation Buttons -->
                     <div class="flex justify-between mt-6">
@@ -384,10 +346,6 @@
                 </form>
             @endif
         </div>
-        <div class="mt-5">
-            <span class="text-xs text-tbn-dark">Trabajonautas.com guardará tu información de forma confidencial y
-                privada.</span>
-        </div>
     </div>
     @script
         <script>
@@ -398,11 +356,18 @@
                 user_profesions: [],
                 user_area: '',
                 selected_profesions: [],
-                btnFinish: 'Finalizar registro',
-                labelPrice: 0,
-                labelAccount: 'Gratis',
+                btnAccountFinish: 'Finalizar registro',
+                labelAccountName: '',
+                labelAccountPrice: '',
+                labelAccountDuration: '',
                 searchProfesion: '',
                 // Functions
+                changeAccountData(accountId, accountName, accountPrice, accountDuration) {
+                    this.btnAccountFinish = accountId == 1 ? 'Finalizar registro' : 'Pagar ahora (QR)'
+                    this.labelAccountName = accountName
+                    this.labelAccountPrice = accountPrice
+                    this.labelAccountDuration = accountDuration
+                },
                 filteredProfesions() {
                     return this.profesions.filter(
                         profesion => profesion.profesion_name.toLowerCase().includes(this.searchProfesion

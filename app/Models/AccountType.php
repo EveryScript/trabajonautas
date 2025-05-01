@@ -4,16 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class ProAccount extends Model
+class AccountType extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
 
-    public function user(): BelongsTo
+    public function accounts(): HasMany
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Account::class);
     }
 }

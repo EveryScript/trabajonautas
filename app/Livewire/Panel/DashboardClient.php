@@ -29,8 +29,8 @@ class DashboardClient extends Component
 
     public function render()
     {
-        $user = User::find($this->user_id);
-        $pro_verified = $user->hasRole(env('PRO_CLIENT_ROLE')) && $user->proAccount->verified_payment;
+        $user = User::with('account.accountType')->find($this->user_id);
+        $pro_verified = $user->hasRole(env('PRO_CLIENT_ROLE')) && $user->account->verified_payment;
         $suggests = Announcement::where('expiration_time', '>=', now())
             ->when($pro_verified, function ($query) use ($user) {
                 $query->whereHas('area', fn($subquery) => $subquery->where('id', $user->area->id));

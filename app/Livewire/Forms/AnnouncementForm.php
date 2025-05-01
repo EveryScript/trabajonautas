@@ -49,8 +49,8 @@ class AnnouncementForm extends Form
             'locations' => 'required',
             'profesions' => 'required'
         ]);
-        if ($this->announce_file)
-            $this->announce_file = $this->announce_file->store('convocatorias', 'public');
+        // if ($this->announce_file)
+        //     $this->announce_file = $this->announce_file->store('convocatorias', 'public');
         $announcement = Announcement::find($update_id);
         $announcement->update([
             'announce_title' => $this->announce_title,
@@ -58,7 +58,7 @@ class AnnouncementForm extends Form
             'expiration_time' => $this->expiration_time,
             'salary' => $this->salary,
             'pro' => $this->pro,
-            'announce_file' => $this->announce_file,
+            // 'announce_file' => $this->announce_file,
             'company_id' => $this->company_id,
             'area_id' => $this->area_id,
             'user_id' => $this->user_id

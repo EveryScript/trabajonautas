@@ -1,4 +1,5 @@
 <x-guest-layout>
+
     <x-authentication-card>
         <x-slot name="logo">
             <h1 class="text-2xl xl:text-2xl">
@@ -39,7 +40,8 @@
                 </div>
             </form>
         </div>
-        <div class="flex justify-evenly items-center space-x-2 w-80 mt-4">
+        <!-- Google registration -->
+        {{-- <div class="flex justify-evenly items-center space-x-2 w-80 mt-4">
             <span class="bg-gray-300 h-px flex-grow t-2 relative top-2"></span>
         </div>
         <div class="mt-4 w-full flex flex-col items-center gap-3">
@@ -56,6 +58,6 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </x-authentication-card>
 </x-guest-layout>

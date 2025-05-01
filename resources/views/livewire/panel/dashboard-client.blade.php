@@ -2,21 +2,30 @@
     <div x-data="content" class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
         <!-- User Card -->
         <aside class="w-full md:w-[18rem]">
-            <div class="bg-white rounded-xl shadow-lg mb-6 p-6 transition-all duration-300 hover:shadow-xl">
+            <div class="bg-white rounded-xl shadow-lg mb-6 px-6 py-8 transition-all duration-300 hover:shadow-xl">
                 <picture class="block relative mb-2">
-                    <img src="{{ asset('storage/img/tbn-avatar.webp') }}" alt="avatar" class="w-20 rounded-full mx-auto">
+                    <img src="{{ asset('storage/img/tbn-avatar.webp') }}" alt="avatar"
+                        class="w-[3rem] rounded-full mx-auto">
                 </picture>
                 <h5 class="text-lg font-bold text-center mb-1"> {{ $user->name }} </h5>
                 <p class="text-sm text-tbn-dark text-center mb-2"> {{ $user->gradeProfile->profile_name }} </p>
-                @if ($pro_verified)
-                    <p class="text-center">
-                        <span class="text-xs text-white bg-orange-500 px-2 py-1 rounded-full">
-                            <i class="fas fa-crown mr-2"></i>PRO</span>
-                    </p>
-                @else
+                @if ($user->account->account_type_id == 1)
                     <p class="text-center">
                         <span class="text-xs text-white bg-green-500 px-2 py-1 rounded-full">
                             <i class="fas fa-leaf mr-2"></i>FREE</span>
+                    </p>
+                @else
+                    <p class="text-center">
+                        <span class="inline-block mb-2 text-xs text-white bg-orange-500 px-2 py-1 rounded-full">
+                            <i class="fas fa-crown mr-2"></i>PRO</span>
+                        @if (!$user->account->verified_payment)
+                            <p class="text-center text-xs text-orange-500">Verificación pendiente</p>
+                        @else
+                            <p class="text-center text-xs text-gray-900">
+                                <i class="far fa-check-circle text-green-500 mr-1"></i>
+                                {{ $user->account->days_left }} dias restantes
+                            </p>
+                        @endif
                     </p>
                 @endif
                 <hr class="my-4">
@@ -35,71 +44,32 @@
                 </a>
             </div>
         </aside>
-        <!-- User content -->
         <main class="flex-1">
-            {{-- PRO Ad --}}
+            <!-- Notice -->
             @role(env('FREE_CLIENT_ROLE'))
-                <div x-show="btnAd" class="relative mx-auto mb-8">
-                    <button x-on:click="btnAd = false" class="absolute top-4 right-6 text-2xl text-tbn-dark">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <div class="w-full mx-auto rounded-lg shadow-lg overflow-hidden lg:max-w-none lg:flex bg-white">
-                        <div class="flex-1 px-6 py-8 lg:p-12">
-                            <h3 class="text-2xl font-extrabold text-tbn-primary sm:text-3xl">Trabajonautas PRO</h3>
-                            <p class="mt-4 text-base text-tbn-dark sm:text-md">Las mejores convocatorias para conseguir tu
-                                próximo empleo están aqui.</p>
-                            <ul class="my-4 space-y-2 text-sm">
-                                <li class="flex items-center">
-                                    <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 60 dias
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias Premium
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-check text-green-500 mr-2"></i> Notificaciones en tiempo real
-                                </li>
-                            </ul>
-                            <div class="mt-4">
-                                <span class="text-4xl font-bold">20 Bs.</span>
-                                <span class="ml-2 text-gray-600">/mes</span>
+                <x-dashboard-ad />
+            @else
+                @if (!$user->account->verified_payment)
+                    <div class="bg-white rounded-xl shadow-lg mb-6 p-5 transition-all duration-300 hover:shadow-xl">
+                        <div class="flex flex-row gap-4">
+                            <picture class="block">
+                                <i class="fas fa-info-circle text-5xl inline mx-auto text-blue-500"></i>
+                            </picture>
+                            <div class="flex-1">
+                                <h5 class="font-medium text-xl mb-2">Verificación pendiente</h5>
+                                <p class="text-md text-gray-500">Estamos verificando tu pago de realizado por QR. Si ya
+                                    realizaste
+                                    tu pago
+                                    envíanos un mensaje de Whatsapp para informarnos que hiciste tu depósito.</p>
+                                <x-button-link
+                                    href="https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $user->phone }} y mi nombre es {{ $user->name }}."
+                                    class="inline-block mt-4"><i class="fab fa-whatsapp mr-1"></i> Enviar
+                                    mensaje</x-button-link>
                             </div>
-                            <div class="mt-6">
-                                <x-button-link href="{{ route('purchase') }}" wire:navigate>Adquirir PRO
-                                    ahora</x-button-link>
-                            </div>
-                        </div>
-                        <div
-                            class="py-8 px-6 text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center lg:p-12 bg-gray-00 hidden">
-                            <img src="{{ asset('storage/img/tbn-champ.webp') }}" alt="empty"
-                                class="w-[10rem] h-[10rem] mx-auto mb-4">
                         </div>
                     </div>
-                </div>
+                @endif
             @endrole
-            {{-- Payment verification --}}
-            @if ($user->proAccount && $user->proAccount->verified_payment)
-                <div class="bg-white rounded-xl shadow-lg mb-6 p-5 transition-all duration-300 hover:shadow-xl">
-                    <div class="flex flex-row gap-4">
-                        <picture class="block">
-                            <i class="fas fa-info-circle text-5xl inline mx-auto text-blue-500"></i>
-                        </picture>
-                        <div class="flex-1">
-                            <h5 class="font-medium text-xl mb-2">Verificación pendiente</h5>
-                            <p class="text-md text-gray-500">Estamos verificando tu pago de realizado por QR. Si ya
-                                realizaste
-                                tu pago
-                                envíanos un mensaje de Whatsapp para informarnos que hiciste tu depósito.</p>
-                            <x-button-link
-                                href="https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $user->phone }} y mi nombre es {{ $user->name }}."
-                                class="inline-block mt-4"><i class="fab fa-whatsapp mr-1"></i> Enviar
-                                mensaje</x-button-link>
-                        </div>
-                    </div>
-                </div>
-            @endif
             {{-- My suggestions --}}
             <div x-show="btnNavigation == 1">
                 <h3 class="text-lg font-medium mb-3">Convocatorias de trabajo para ti</h3>

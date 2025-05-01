@@ -79,14 +79,12 @@ class ResultAnnouncement extends Component
             ->whatsapp()
             ->telegram()
             ->render();
-        $areas = Area::all();
         return view('livewire.web.result-announcement', compact(
             'announcement',
             'suggests',
             'user',
             'share_buttons',
             'company_types',
-            'areas',
             'pro_flag'
         ));
     }

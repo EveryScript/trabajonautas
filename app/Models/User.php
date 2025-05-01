@@ -39,7 +39,8 @@ class User extends Authenticatable
         'phone',
         'location_id',
         'area_id',
-        'grade_profile_id'
+        'grade_profile_id',
+        'account_id'
     ];
 
     protected $hidden = [
@@ -79,9 +80,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Location::class);
     }
-    public function proAccount(): HasOne
+    public function account(): HasOne
     {
-        return $this->hasOne(ProAccount::class);
+        return $this->hasOne(Account::class);
     }
     public function myAnnounces(): BelongsToMany
     {

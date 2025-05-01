@@ -8,15 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('grade_profiles', function (Blueprint $table) {
+        Schema::create('account_types', function (Blueprint $table) {
             $table->id();
-            $table->char('profile_name');
+            $table->string('name')->unique();
+            $table->integer('price')->default(0);
+            $table->smallInteger('duration_days')->default(0);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('grade_profiles');
+        Schema::dropIfExists('account_types');
     }
 };

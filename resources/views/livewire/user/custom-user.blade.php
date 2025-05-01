@@ -19,8 +19,8 @@
                 <span class="text-xs text-tbn-primary">Profesion(es)</span>
                 <ul>
                     @forelse ($user->myProfesions as $profesion)
-                        <li><i class="fas fa-suitcase text-tbn-primary pr-1"></i>
-                            <h4 class="inline text-md font-medium">{{ $profesion->profesion_name }}</h4>
+                        <li class="inline text-md font-medium">
+                            <h4 class="">{{ $profesion->profesion_name }}</h4>
                         </li>
                     @empty
                         <li class="text-tbn-dark italic text-sm">(vacio)</li>
@@ -30,7 +30,8 @@
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Area profesional</span>
                 @if ($user->area)
-                    <h4 class="text-md font-medium">{{ $user->area->area_name }}</h4>
+                    <h4 class="text-md font-medium">
+                        {{ $user->area->area_name }}</h4>
                 @else
                     <span class="text-tbn-dark block italic text-sm">(vacio)</span>
                 @endif
@@ -40,58 +41,20 @@
                 <h4 class="text-md font-medium">{{ $this->formatDate($user->created_at) }}</h4>
             </div>
         </div>
-        {{-- Verificate payment --}}
-        @if ($user->proAccount)
-            <span class="text-xs text-tbn-primary">Verificación de pago</span>
-            <div class="px-4 py-3 border border-tbn-primary rounded-lg mb-4">
-                <label class="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" wire:model="verified_payment" class="sr-only peer" id="verification"
-                        {{ $pro_account && $pro_account->verified_payment ? 'checked' : '' }}>
-                    <div
-                        class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
-                    </div>
-                    <div class="ms-3">
-                        <p class="text-md font-medium text-black">Verificación de pago</p>
-                        <span class="text-xs text-tbn-dark">El cliente ha realizado el pago por una cuenta PRO.</span>
-                    </div>
-                </label>
-            </div>
-        @endif
-        <!-- Change type Account
-        <div class="mb-4">
-            <span class="text-xs text-tbn-primary">Tipo de cuenta</span>
-            <ul class="grid w-full gap-4 grid-cols-2">
-                <li>
-                    <input @click="userAccount = '{{ FREE }}'" wire:model='user_account' type="radio"
-                        id="free-account" class="hidden peer" value="{{ FREE }}"
-                        {{ $user->hasRole(FREE) ? 'checked' : '' }}>
-                    <label @click="" for="free-account"
-                        class="inline-flex items-center justify-between w-full p-5 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
-                        <div class="w-2/3">
-                            <div class="w-full text-lg font-semibold">Cuenta <span class="font-medium">FREE</span></div>
-                            <div class="w-full text-sm">El cliente tiene privilegios limitados de búsqueda y
-                                notificación.</div>
-                        </div>
-                        <i class="fas fa-leaf text-green-500 text-2xl"></i>
-                    </label>
-                </li>
-                <li>
-                    <input @click="userAccount = '{{ PRO }}'" wire:model='user_account' type="radio"
-                        id="pro-account" class="hidden peer" value="{{ PRO }}"
-                        {{ $user->hasRole(PRO) ? 'checked' : '' }} />
-                    <label for="pro-account"
-                        class="inline-flex items-center justify-between w-full p-5 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
-                        <div class="w-2/3">
-                            <div class="w-full text-lg font-semibold">Cuenta <span class="font-medium">PRO</span></div>
-                            <div class="w-full text-sm">El cliente tiene todos los privilegios de búsqueda y
-                                notificación.</div>
-                        </div>
-                        <i class="fas fa-crown text-orange-500 text-2xl"></i>
-                    </label>
-                </li>
-            </ul>
-        </div> -->
-        
+        <span class="text-xs text-tbn-primary">Verificación de pago</span>
+        <div class="px-4 py-3 border border-tbn-primary rounded-lg mb-4 mt-1">
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" wire:model="user_verified_payment" class="sr-only peer" id="verification"
+                    {{ $user->account->verified_payment ? 'checked' : '' }}>
+                <div
+                    class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
+                </div>
+                <div class="ms-3">
+                    <p class="text-md font-medium text-black">Verificación de pago</p>
+                    <span class="text-xs text-tbn-dark">El cliente ha realizado el pago por una cuenta PRO.</span>
+                </div>
+            </label>
+        </div>
         <div class="mb-4">
             <x-button type="button" @click="dangerModal">Guardar configuración</x-button>
         </div>
@@ -119,23 +82,7 @@
                             $wire.save()
                         }
                     });
-                },
-                setUserRole(role) {
-                    switch (role) {
-                        case 'ADMIN':
-                            return 'Administrador';
-                            break;
-                        case 'USER':
-                            return 'Usuario';
-                            break;
-                        case 'FREE_CLIENT':
-                            return 'Cliente (FREE)';
-                            break;
-                        case 'PRO_CLIENT':
-                            return 'Cliente (PRO)';
-                            break;
-                    }
-                },
+                }
             }))
         </script>
     @endscript
