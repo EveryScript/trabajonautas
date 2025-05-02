@@ -74,24 +74,34 @@
                     class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white">
                     @role('USER|ADMIN')
                         <x-nav-link-responsive href="{{ route('dashboard') }}" wire:navigate :active="request()->routeIs('dashboard')">
-                            {{ __('Dashboard') }}
+                            <span class="sm:block md:hidden lg:block">{{ __('Dashboard') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-home text-md"></i>
                         </x-nav-link-responsive>
                         <x-nav-link-responsive href="{{ route('announcement') }}" wire:navigate :active="request()->routeIs('announcement')">
-                            {{ __('Convocatorias') }}
+                            <span class="sm:block md:hidden lg:block">{{ __('Convocatorias') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-scroll text-md"></i>
                         </x-nav-link-responsive>
                         <x-nav-link-responsive href="{{ route('profesions') }}" wire:navigate :active="request()->routeIs('profesions')">
-                            {{ __('Profesiones') }}
+                            <span class="sm:block md:hidden lg:block">{{ __('Profesiones') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-graduation-cap text-md"></i>
                         </x-nav-link-responsive>
                     @endrole
                     @role('ADMIN')
                         <x-nav-link-responsive href="{{ route('area') }}" wire:navigate :active="request()->routeIs('area')">
-                            {{ __('Areas') }}
+                            <span class="sm:block md:hidden lg:block">{{ __('Areas') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-suitcase text-md"></i>
                         </x-nav-link-responsive>
                         <x-nav-link-responsive href="{{ route('company') }}" wire:navigate :active="request()->routeIs('company')">
-                            {{ __('Empresas') }}
+                            <span class="sm:block md:hidden lg:block">{{ __('Empresas') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-building text-md"></i>
+                        </x-nav-link-responsive>
+                        <x-nav-link-responsive href="{{ route('report') }}" wire:navigate :active="request()->routeIs('report')">
+                            <span class="sm:block md:hidden lg:block">{{ __('Reportes') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-clipboard-list text-md"></i>
                         </x-nav-link-responsive>
                         <x-nav-link-responsive href="{{ route('user') }}" wire:navigate :active="request()->routeIs('user')">
-                            {{ __('Usuarios') }}
+                            <span class="sm:block md:hidden lg:block">{{ __('Usuarios') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-users text-md"></i>
                         </x-nav-link-responsive>
                     @endrole
                 </ul>

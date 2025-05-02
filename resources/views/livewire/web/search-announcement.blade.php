@@ -3,7 +3,7 @@
         <!-- Search fields -->
         <div class="w-full flex flex-col md:flex-row gap-2 mb-5 tbn-form">
             <div class="w-full md:w-1/2">
-                <x-label for="search_title" value="{{ __('Profesion actual') }}" />
+                <x-label for="search_title" value="{{ __('¿Cuál es tu profesión?') }}" />
                 <x-input x-model="search_title" class="w-full px-2 py-[.6rem]" type="search" wire:model='search_title'
                     wire:keydown.enter='searchAnnounces(search_title, search_location_id)'
                     placeholder="Arquitecto, ingeniero ..." />
@@ -15,7 +15,7 @@
                     @forelse ($locations as $location)
                         <option value="{{ $location->id }}">{{ $location->location_name }}</option>
                     @empty
-                        <option>No option avaliable</option>
+                        <option>Hay opciones disponibles</option>
                     @endforelse
                 </x-select>
             </div>

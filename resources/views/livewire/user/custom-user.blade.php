@@ -41,20 +41,22 @@
                 <h4 class="text-md font-medium">{{ $this->formatDate($user->created_at) }}</h4>
             </div>
         </div>
-        <span class="text-xs text-tbn-primary">Verificación de pago</span>
-        <div class="px-4 py-3 border border-tbn-primary rounded-lg mb-4 mt-1">
-            <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" wire:model="user_verified_payment" class="sr-only peer" id="verification"
-                    {{ $user->account->verified_payment ? 'checked' : '' }}>
-                <div
-                    class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
-                </div>
-                <div class="ms-3">
-                    <p class="text-md font-medium text-black">Verificación de pago</p>
-                    <span class="text-xs text-tbn-dark">El cliente ha realizado el pago por una cuenta PRO.</span>
-                </div>
-            </label>
-        </div>
+        @if ($user->account->account_type_id !== 1)
+            <span class="text-xs text-tbn-primary">Verificación de pago</span>
+            <div class="px-4 py-3 border border-tbn-primary rounded-lg mb-4 mt-1">
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" wire:model="user_verified_payment" class="sr-only peer" id="verification"
+                        {{ $user->account->verified_payment ? 'checked' : '' }}>
+                    <div
+                        class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
+                    </div>
+                    <div class="ms-3">
+                        <p class="text-md font-medium text-black">Verificación de pago</p>
+                        <span class="text-xs text-tbn-dark">El cliente ha realizado el pago por una cuenta PRO.</span>
+                    </div>
+                </label>
+            </div>
+        @endif
         <div class="mb-4">
             <x-button type="button" @click="dangerModal">Guardar configuración</x-button>
         </div>
