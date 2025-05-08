@@ -18,6 +18,9 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Google, don't index this page -->
+    <meta name="robots" content="noindex, nofollow">
+
     <!-- Styles -->
     @livewireStyles
 </head>
