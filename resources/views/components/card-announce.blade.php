@@ -16,8 +16,8 @@
         src="{{ asset('storage/' . $logo_url) }}">
     <div class="flex-grow sm:pl-4 text-sm">
         <span class="absolute top-4 right-6 {{ $pro ? '' : 'hidden' }}"><i
-                class="fas fa-crown text-sm text-orange-500"></i></span>
-        <span class="text-xs font-normal text-gray-800">
+                class="fas fa-crown text-sm text-tbn-secondary"></i></span>
+        <span class="text-xs font-normal text-tbn-dark">
             {{ $area }}
         </span>
         <h2 class="font-bold text-lg leading-6 my-1">{{ $title }}</h2>

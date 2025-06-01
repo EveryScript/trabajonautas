@@ -28,7 +28,7 @@ class CreateNewUser implements CreatesNewUsers
             'password' => Hash::make($input['password']),
         ]);
 
-        $new_user->assignRole(env('FREE_CLIENT_ROLE')); // Always user is CLIENT_FREE
+        $new_user->assignRole(env('CLIENT_ROLE')); // Always user is CLIENT
 
         return $new_user;
     }

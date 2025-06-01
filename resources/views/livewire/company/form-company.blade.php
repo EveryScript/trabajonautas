@@ -40,33 +40,37 @@
                 <x-input-error for="company.company_image" class="mt-2" />
             </div>
             <x-button>{{ $id ? 'Actualizar' : 'Guardar' }}</x-button>
+            <x-secondary-button type="button" href="{{ route('company') }}"
+                wire:navigate>Cancelar</x-secondary-button>
         </form>
-        <div class="bg-gray-300 rounded-lg px-10 py-8 text-center">
-            <div class="flex flex-col justify-center h-full">
+        <div x-show="company_name || company_type || company_description">
+            <div class="bg-white rounded-lg shadow-md p-5">
                 <template x-if="imageUrl">
-                    <div class="inline-block max-w-[15rem] max-h-[15rem] mx-auto rounded-full mb-4 overflow-hidden">
-                        <img :src="imageUrl" class="w-full" alt="company-logo">
-                    </div>
+                    <picture class="block mb-0 md:mb-2">
+                        <img alt="company-logo"
+                            class="flex-shrink-0 rounded-lg w-24 h-24 object-cover object-center sm:mb-0 mb-4"
+                            :src="imageUrl">
+                    </picture>
                 </template>
                 <template x-if="!imageUrl">
-                    <div class="inline-block max-w-[10rem] max-h-[10rem] mx-auto rounded-full mb-4 overflow-hidden">
-                        <img src="{{ asset('storage/img/default.jpg') }}" class="w-full" alt="company-logo" />
-                    </div>
+                    <picture class="block mb-0 md:mb-2">
+                        <img alt="company-logo"
+                            class="flex-shrink-0 rounded-lg w-24 h-24 object-cover object-center sm:mb-0 mb-4"
+                            src="{{ asset($company->company_image ? 'storage/empresas/' . $company->company_image : 'storage/empresas/' . 'tbn-default.webp') }}">
+                    </picture>
                 </template>
+                <h5 x-text="company_name" class="font-medium text-lg mb-2 text-tbn-primary"></h5>
                 <template x-if="typeText">
-                    <p class="mb-2"><span x-text="typeText"
-                            class="font-medium bg-tbn-primary text-white px-3 py-1 text-sm rounded-full"></span>
-                    </p>
+                    <p x-text="typeText" class="inline-block bg-gray-200 px-3 py-1 mb-2 rounded-lg text-sm"></p>
                 </template>
-                <h5 x-text="company_name" class="text-lg text-black font-bold mb-3"></h5>
-                <p x-text="company_description" class="text-sm mb-3"></p>
+                <p x-text="company_description" class="text-tbn-dark text-sm"></p>
             </div>
         </div>
     </div>
     @script
         <script>
             Alpine.data('content', () => ({
-                imageUrl: '',
+                imageUrl: null,
                 companyTypes: {!! $company_types !!},
                 typeText: '',
                 // Model
@@ -79,7 +83,6 @@
                         this.company_name = $wire.company.company_name.toString()
                         this.company_description = $wire.company.description.toString()
                         this.setTypeName($wire.company.company_type_id.toString())
-                        this.imageUrl = 'storage/' + $wire.company.company_image.toString()
                     }
                 },
                 setTypeName(id) {

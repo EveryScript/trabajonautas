@@ -24,7 +24,7 @@
                     x-bind:disabled="!search_title && !search_location">Buscar</x-button>
             </div>
         </div>
-        <!-- Search results -->
+        <!-- Search elements -->
         <div class="flex flex-row items-center gap-2">
             <template x-if="search_title">
                 <div
@@ -52,24 +52,21 @@
         @endif
 
         <!-- Announcements -->
-        <div x-data="{}" class="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
-            @forelse ($announcements as $announcement)
-                <div wire:loading.remove wire:key='announce-{{ $announcement->id }}'>
-                    <a href="{{ $announcement->pro && (!auth()->check() || !auth()->user()->hasRole(env('PRO_CLIENT_ROLE')))
-                        ? route('purchase')
-                        : route('result', ['id' => $announcement->id]) }}"
-                        wire:navigate>
-                        <x-card-announce
-                            logo_url="{{ $announcement->company ? $announcement->company->company_image : '' }}"
-                            pro="{{ $announcement->pro }}">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+            @forelse ($announcements as $announce)
+                <div wire:loading.remove>
+                    <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase') : route('result', ['id' => $announce->id]) }}"
+                        wire:navigate wire:key='announce-{{ $announce->id }}'>
+                        <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
+                            pro="{{ $announce->pro }}">
                             <x-slot name="area">
-                                {{ $announcement->area ? $announcement->area->area_name : '' }}</x-slot>
-                            <x-slot name="title">{{ $announcement->announce_title }}</x-slot>
-                            <x-slot
-                                name="company">{{ $announcement->company ? $announcement->company->company_name : '' }}</x-slot>
+                                {{ $announce->area ? $announce->area->area_name : '' }}</x-slot>
+                            <x-slot name="title">{{ $announce->announce_title }}</x-slot>
+                            <x-slot name="company">
+                                {{ $announce->company ? $announce->company->company_name : '' }}</x-slot>
                             <x-slot name="locations">
-                                {{ $announcement->locations[0]->location_name }}
-                                @if ($announcement->locations->count() > 1)
+                                {{ $announce->locations[0]->location_name }}
+                                @if ($announce->locations->count() > 1)
                                     <i class="fas fa-ellipsis-h inline-block px-1 text-xs bg-gray-200 rounded-lg"></i>
                                 @endif
                             </x-slot>
@@ -79,15 +76,12 @@
             @empty
                 <x-section-empty class="col-span-2" title="No hay resultados"
                     description="No hemos encontrado coincidencias para tu busqueda" wire:loading.remove>
-                    <x-button class="mt-5" @click="clearData()">Limpiar busqueda</x-button>
                 </x-section-empty>
             @endforelse
         </div>
     </div>
     <div wire:loading.remove> {{ $announcements->links() }} </div>
-    <div class="w-full" wire:loading>
-        <x-cards-loading />
-    </div>
+    <div class="w-full" wire:loading><x-cards-loading /></div>
 
     @script
         <script>

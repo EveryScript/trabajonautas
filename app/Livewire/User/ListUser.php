@@ -20,23 +20,12 @@ class ListUser extends Component
     }
     public function render()
     {
-        define('FREE', env('FREE_CLIENT_ROLE'));
-        define('PRO', env('PRO_CLIENT_ROLE'));
         define('USER', env('USER_ROLE'));
         define('ADMIN', env('ADMIN_ROLE'));
 
-        if ($this->search) {
-            $users = User::orderBy('updated_at', 'DESC')
-                ->when($this->search, fn($query) => $query->where('name', 'LIKE', '%' . $this->search . '%'))
-                ->paginate(10);
-        } else {
-            $users = User::role($this->filterClients ?
-                [env('FREE_CLIENT_ROLE'), env('PRO_CLIENT_ROLE')] :
-                [env('ADMIN_ROLE'), env('USER_ROLE')])
-                ->with('roles')
-                ->orderBy('updated_at', 'DESC')
-                ->paginate(10);
-        }
+        $users = User::whereHas('roles', function($query) {
+            $query->whereIn('name', [USER, ADMIN]);
+        })->get();
 
         return view('livewire.user.list-user', compact('users'));
     }

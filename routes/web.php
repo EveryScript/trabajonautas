@@ -7,9 +7,10 @@ use App\Livewire\Area\ListArea;
 use App\Livewire\Company\FormCompany;
 use App\Livewire\Company\ListCompany;
 use App\Livewire\Profesion\Profesions;
-use App\Livewire\Report\ListClient;
-use App\Livewire\User\CreateUser;
-use App\Livewire\User\CustomUser;
+use App\Livewire\Report\ReportClient;
+use App\Livewire\User\ConfigClient;
+use App\Livewire\User\ConfigUser;
+use App\Livewire\User\ListClient;
 use App\Livewire\User\ListUser;
 use Illuminate\Support\Facades\Route;
 
@@ -26,13 +27,13 @@ Route::get('/convocatoria/{id?}', fn($id = null) => view('result', ['id' => $id]
 Route::get('/pro', fn() => view('purchase'))->name('purchase');
 
 // All access logged
-Route::group(['middleware' => ['role:FREE_CLIENT|PRO_CLIENT|USER|ADMIN']], function () {
+Route::group(['middleware' => ['role:CLIENT|USER|ADMIN']], function () {
     Route::get('/panel', fn() => view('dashboard'))->name('dashboard');
 });
 
 // Only users and admin access
 Route::group(['middleware' => ['role:USER|ADMIN']], function () {
-    //Announcements
+    // Announcements
     Route::get('/admin/convocatoria', ListAnnouncement::class)->name('announcement');
     Route::get('/admin/nueva-convocatoria/{id?}', FormAnnouncement::class)->name('new-announcement');
 
@@ -42,6 +43,10 @@ Route::group(['middleware' => ['role:USER|ADMIN']], function () {
 
     // Profesions
     Route::get('/admin/profesiones', Profesions::class)->name('profesions');
+
+    // Clients
+    Route::get('/admin/cliente', ListClient::class)->name('client');
+    Route::get('/admin/config-cliente/{id}', ConfigClient::class)->name('config-client');
 });
 
 Route::group(['middleware' => ['role:ADMIN']], function () {
@@ -51,9 +56,8 @@ Route::group(['middleware' => ['role:ADMIN']], function () {
 
     // Users
     Route::get('/admin/usuario', ListUser::class)->name('user');
-    Route::get('/admin/ajuste-usuario/{id}', CustomUser::class)->name('config-user');
-    Route::get('/admin/crear-usuario/{id?}', CreateUser::class)->name('create-user');
+    Route::get('/admin/config-usuario/{id?}', ConfigUser::class)->name('config-user');
 
     // Reports
-    Route::get('/admin/report', ListClient::class)->name('report');
+    Route::get('/admin/report', ReportClient::class)->name('report');
 });

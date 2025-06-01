@@ -8,15 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('company_types', function (Blueprint $table) {
+        Schema::create('announcement_files', function (Blueprint $table) {
             $table->id();
-            $table->string('company_type_name');
+            $table->unsignedBigInteger('announcement_id'); // Foreign key
+            $table->string('url')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('company_types');
+        Schema::dropIfExists('announcement_files');
     }
 };

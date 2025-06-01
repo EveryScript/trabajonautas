@@ -17,9 +17,10 @@ export default {
                 sans: ["Figtree", ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                "tbn-primary": "#006BFF",
-                "tbn-secondary": "#FFF100",
-                "tbn-dark": "#535962",
+                "tbn-primary": "#034b8d",
+                "tbn-secondary": "#f29000",
+                "tbn-light": "#888888",
+                "tbn-dark": "#484848",
             },
         },
     },

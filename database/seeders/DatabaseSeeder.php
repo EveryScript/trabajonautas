@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             AnnouncementSeeder::class,
             RoleUserSeeder::class,
             GradeProfileSeeder::class,
-            AccountTypeSeeder::class
+            AccountTypeSeeder::class,
+            AccountSeeder::class
         ]);
     }
 }

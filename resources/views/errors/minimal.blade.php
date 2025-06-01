@@ -26,7 +26,7 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <x-button-link href="{{ route('welcome') }}" wire:navigate>Volver a inicio</x-button-link>
+                    <x-button-link class="bg-tbn-primary" href="{{ route('welcome') }}" wire:navigate>Volver a inicio</x-button-link>
                 </div>
             </div>
         </div>

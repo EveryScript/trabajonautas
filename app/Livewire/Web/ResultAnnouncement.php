@@ -3,23 +3,35 @@
 namespace App\Livewire\Web;
 
 use App\Models\Announcement;
-use App\Models\Area;
-use App\Models\CompanyType;
 use App\Models\User;
-use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL as FacadesURL;
-use Kudashevs\ShareButtons\ShareButtons;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class ResultAnnouncement extends Component
 {
     public $id; // Announce id component
+    public $client, $pro_verified = false;
 
     public function mount($id = null)
     {
         if ($id && Announcement::find($id)) {
             $this->id = $id;
+            if (auth()->check()) {
+                if (auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')) {
+                    $this->client = User::with('account.accountType')->find(auth()->user()->id);
+                    $this->pro_verified = $this->client->account->verified_payment;
+                    if ($this->client->account->limit_time) {
+                        $limit_time = Carbon::parse($this->client->account->limit_time);
+                        if ($limit_time->isBefore(Carbon::now()))
+                            $this->redirect('/panel', true);
+                    }
+                    if (Announcement::find($id)->pro && $this->client->account->account_type_id == 1)
+                        $this->redirect('/pro', true);
+                }
+            } elseif (Announcement::find($id)->pro) {
+                $this->redirect('/pro', true);
+            }
         } else {
             $this->redirect('/', true);
         }
@@ -27,8 +39,8 @@ class ResultAnnouncement extends Component
 
     public function saveAnnounce($id)
     {
-        if (Auth::check()) {
-            $user = User::find(Auth::user()->id);
+        if (auth()->check()) {
+            $user = User::find(auth()->user()->id);
             if (!$user->myAnnounces->contains($id)) {
                 $user->myAnnounces()->attach($id);
             }
@@ -39,53 +51,54 @@ class ResultAnnouncement extends Component
 
     public function removeAnnounce($id)
     {
-        if (Auth::check()) {
-            $user = User::find(Auth::user()->id);
+        if (auth()->check()) {
+            $user = User::find(auth()->user()->id);
             $user->myAnnounces()->detach($id);
         } else {
             $this->redirectRoute('register', navigate: true);
         }
     }
 
-    public function downloadFile($file)
+    public function downloadAnnounceFiles()
     {
-        if (Auth::check()) {
-            try {
-                return response()->download('storage/' . $file, 'convocatoria.pdf');
-            } catch (Exception $error) {
-                dump('convocatoria no disponible');
+        $announcement = Announcement::with('announceFiles')->find($this->id);
+        $zipFileName = 'archivos_convocatoria_' . $announcement->id . '.zip';
+        return response()->streamDownload(function () use ($announcement) {
+            $zip = new \ZipArchive;
+            $tmpFile = tempnam(sys_get_temp_dir(), 'zip');
+            $zip->open($tmpFile, \ZipArchive::CREATE);
+
+            foreach ($announcement->announceFiles as $file) {
+                $filePath = $file->url;
+                $fileName = basename($filePath);
+                $fileContent = Storage::disk('public')->get($filePath);
+                $zip->addFromString($fileName, $fileContent);
             }
-        } else {
-            $this->redirectRoute('register', navigate: true);
-        }
+
+            $zip->close();
+            echo file_get_contents($tmpFile);
+            unlink($tmpFile);
+        }, $zipFileName, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
+        ]);
     }
 
     public function render()
     {
-        $user = Auth::check() ? User::find(Auth::user()->id) : null;
-        $announcement = Announcement::with('company')->find($this->id);
-        $pro_flag = true;
-        // Verify PRO
-        if ($announcement->pro) {
-            if (!$user || $user->hasRole('FREE_CLIENT'))
-                $pro_flag = false;
-        }
+        $user = auth()->check() ? User::find(auth()->user()->id) : null;
+        $announcement = Announcement::with('company.companyType')->find($this->id);
         $suggests = Announcement::whereHas('area', fn($query) => $query->where('id', $announcement->area->id))
             ->where('id', '<>', $announcement->id)
             ->where('expiration_time', '>=', now())
             ->get();
-        $company_types = CompanyType::all('id', 'company_type_name');
-        $share_buttons = (app(ShareButtons::class))->page(FacadesURL::full(), 'Trabajonautas tiene una convocatoria para ti')
-            ->whatsapp()
-            ->telegram()
-            ->render();
+        // $share_buttons = (app(ShareButtons::class))->page(FacadesURL::full(), 'Trabajonautas tiene una convocatoria para ti')
+        //     ->whatsapp()
+        //     ->telegram()
+        //     ->render();
         return view('livewire.web.result-announcement', compact(
             'announcement',
-            'suggests',
-            'user',
-            'share_buttons',
-            'company_types',
-            'pro_flag'
+            'suggests'
         ));
     }
 }

@@ -2,7 +2,7 @@
     <div class="bg-white rounded-md shadow-md px-7 py-5" x-data="content">
         <h4 class="text-2xl text-tbn-primary font-bold">Bienvenido {{ Auth::user()->name }}</h4>
         <p class="mb-5 text-tbn-dark text-sm">Esta es la actividad más reciente en Trabajonautas.com</p>
-        <div class="grid grid-cols-4 gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
             <!-- Clients by role chart -->
             <div class="border border-gray-300 rounded-lg shadow-lg px-5 py-4">
                 <h4 class="text-lg text-tbn-dark font-bold mb-1">Clientes registrados</h4>

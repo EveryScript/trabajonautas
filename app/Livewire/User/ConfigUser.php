@@ -6,9 +6,9 @@ use App\Livewire\Forms\UserForm;
 use App\Models\User;
 use Livewire\Component;
 
-class CreateUser extends Component
+class ConfigUser extends Component
 {
-    public $id;         // Edit
+    public $id; // User ID parameter
     public UserForm $user;
 
     public function mount($id = null)
@@ -33,10 +33,8 @@ class CreateUser extends Component
 
     public function render()
     {
-        define('FREE', env('FREE_CLIENT_ROLE'));
-        define('PRO', env('PRO_CLIENT_ROLE'));
         define('USER', env('USER_ROLE'));
         define('ADMIN', env('ADMIN_ROLE'));
-        return view('livewire.user.create-user');
+        return view('livewire.user.config-user');
     }
 }

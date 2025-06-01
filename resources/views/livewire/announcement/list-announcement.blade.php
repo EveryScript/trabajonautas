@@ -5,9 +5,9 @@
             Todas las convocatorias de trabajo registradas en el portal de empleos Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
-                <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)" class="h-auto" 
-                    placeholder="Buscar convocatoria" />
-                <x-button-link class="pt-2.5" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button-link>
+            <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
+                placeholder="Buscar convocatoria" />
+            <x-button-link class="pt-2.5 bg-tbn-primary" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button-link>
         </x-slot>
     </x-title-app>
     <div x-data="content">
@@ -34,18 +34,18 @@
                 @if ($search)
                     <tr class="text-center text-tbn-dark text-sm">
                         <td class="py-2" colspan="5">Resultados encontrados <button
-                                class="text-tbn-primary underline" wire:click="$set('search', null)"> Aceptar
+                                class="text-tbn-primary underline" wire:click="$set('search', null)"> Volver
                             </button> </td>
                     </tr>
                 @endif
                 @forelse ($announcements as $announcement)
                     <tr class="border-b hover:bg-gray-300">
-                        <th scope="row" class="px-6 py-4 font-medium text-tbn-light whitespace-nowrap">
+                        <th scope="row" class="px-6 py-4 font-medium  whitespace-nowrap">
                             <div class="flex flex-row gap-2">
                                 <div class="max-w-[20rem] truncate">
                                     <h5 class="text-md font-bold">
                                         @if ($announcement->pro)
-                                            <i class="fas fa-crown pr-1 text-sm text-orange-500"></i>
+                                            <i class="fas fa-crown pr-1 text-sm text-tbn-secondary"></i>
                                         @endif
                                         {{ $announcement->announce_title }}
                                     </h5>
@@ -67,7 +67,7 @@
                         </td>
                         <td class="flex flex-row justify-end items-center h-20 px-6 py-4 text-lg">
                             <a href="{{ route('new-announcement', ['id' => $announcement->id]) }}" wire:navigate
-                                class="font-medium text-blue-600 hover:underline cursor-pointer mr-3">
+                                class="font-medium text-tbn-primary hover:underline cursor-pointer mr-3">
                                 <i class="far fa-edit"></i></a>
                             <a x-on:click="confirmModal({{ $announcement->id }})"
                                 class="font-medium text-red-600 hover:underline cursor-pointer">

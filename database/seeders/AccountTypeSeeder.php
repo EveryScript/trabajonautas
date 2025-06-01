@@ -12,21 +12,21 @@ class AccountTypeSeeder extends Seeder
     {
         AccountType::create([
             'id' => 1,
-            'name' => 'Gratis',
+            'name' => 'FREE',
             'price' => 0,
             'duration_days' => 0
         ]);
         AccountType::create([
             'id' => 2,
-            'name' => 'pro',
-            'price' => 10,
+            'name' => 'PRO',
+            'price' => 27,
             'duration_days' => 30
         ]);
         AccountType::create([
             'id' => 3,
-            'name' => 'Full',
-            'price' => 20,
-            'duration_days' => 60
+            'name' => 'PRO-MAX',
+            'price' => 30,
+            'duration_days' => 35
         ]);
     }
 }

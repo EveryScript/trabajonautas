@@ -1,9 +1,9 @@
 <div class="bg-gray-100 min-h-screen flex items-start justify-center py-10">
-    <div x-data="content" class="w-full max-w-md md:max-w-5xl">
-        <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg">
-            <x-application-logo class="{{ $step == 4 ? 'hidden' : '' }}" />
+    <div x-data="content" class="w-full max-w-md  {{ $step >= 4 ? 'md:max-w-4xl' : 'md:max-w-5xl' }}">
+        <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg {{ $step >= 4 ? 'border border-tbn-primary' : '' }}">
+            <x-application-logo class="{{ $step >= 4 ? 'hidden' : '' }}" />
             <!-- Progress Indicator -->
-            <div class="flex flex-row justify-between items-center my-6 {{ $step == 4 ? 'hidden' : '' }}">
+            <div class="flex flex-row justify-between items-center my-6 {{ $step >= 4 ? 'hidden' : '' }}">
                 <div class="flex items-center">
                     <div id="step1"
                         class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-tbn-primary text-white text-sm md:text-base">
@@ -31,7 +31,7 @@
                         <p class="text-sm text-gray-500 mb-2">Ingresa tus para completar el registro en
                             Trabajonautas.com</p>
                         <h5 class="text-md font-bold mb-2">¿Cuál es tu genero?</h5>
-                        <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
+                        <ul class="grid grid-cols-2 gap-1 mx-auto mb-8">
                             <li class="text-center">
                                 <input type="radio" wire:model.live.debounce.200ms='gender' value="M"
                                     id="gender-1" name="gender" class="hidden peer">
@@ -46,14 +46,6 @@
                                 <label for="gender-2"
                                     class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <span>femenino</span>
-                                </label>
-                            </li>
-                            <li class="text-center">
-                                <input type="radio" wire:model.live.debounce.200ms='gender' value="0"
-                                    id="gender-3" name="gender" class="hidden peer">
-                                <label for="gender-3"
-                                    class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
-                                    <span>prefiero no decirlo</span>
                                 </label>
                             </li>
                         </ul>
@@ -110,15 +102,15 @@
                     <div class="step-content">
                         <h3 class="text-lg md:text-2xl font-semibold mb-2">Información profesional</h3>
                         <p class="text-sm mb-2">Selecciona tu grado académico actual</p>
-                        <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
+                        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 mx-auto mb-8">
                             <li class="text-center">
-                                <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
-                                    value="1" id="profile-1" name="grade-profile" class="hidden peer">
+                                <input type="radio" wire:model.live.debounce.200ms='grade_profile_id' value="1"
+                                    id="profile-1" name="grade-profile" class="hidden peer">
                                 <label for="profile-1"
                                     class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Estudiante</span>
-                                        <span class="text-xs">Bachiller o en Unidad Educativa actualmente</span>
+                                        <span class="text-xs">Bachiller o cursante de instituto o universidad</span>
                                     </div>
                                 </label>
                             </li>
@@ -129,7 +121,7 @@
                                     class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Técnico Medio</span>
-                                        <span class="text-xs">En carrera o con certificado obtenido</span>
+                                        <span class="text-xs">Profesional titulado a nivel tecnico medio</span>
                                     </div>
                                 </label>
                             </li>
@@ -140,7 +132,7 @@
                                     class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Técnico Superior</span>
-                                        <span class="text-xs">En carrera o con certificado obtenido</span>
+                                        <span class="text-xs">Profesional titulado a nivel tecnico superior</span>
                                     </div>
                                 </label>
                             </li>
@@ -151,8 +143,8 @@
                                     class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Egresado</span>
-                                        <span class="text-xs leading-none m-0">Terminó todas las materias y solamente
-                                            le falta la tesis</span>
+                                        <span class="text-xs leading-none m-0">Aprobó todas las materias y solamente le
+                                            falta la tesis.</span>
                                     </div>
                                 </label>
                             </li>
@@ -163,7 +155,7 @@
                                     class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Titulado</span>
-                                        <span class="text-xs">Actualmente con un título universitario</span>
+                                        <span class="text-xs">Actualmente con titulo en provisión nacional.</span>
                                     </div>
                                 </label>
                             </li>
@@ -201,7 +193,7 @@
                                         id="{{ 'account-' . $account_type->name }}" value="{{ $account_type->id }}"
                                         class="hidden peer" name="account_type">
                                     <label for="{{ 'account-' . $account_type->name }}"
-                                        x-on:click="changeAccountData({{ $account_type->id }}, '{{ $account_type->name }}', '{{ $account_type->price }}', '{{ $account_type->duration_days }}')"
+                                        x-on:click="changeBtnLabel({{ $account_type->id }})"
                                         class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
                                         <h2 class="text-2xl font-semibold text-gray-800 capitalize">
                                             {{ $account_type->name }}</h2>
@@ -248,102 +240,126 @@
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
 
                         <button id="nextButton" type="submit" x-text="btnAccountFinish"
-                            class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary"></button>
+                            {{ $account_type_id ? '' : 'disabled' }}
+                            class="px-4 py-2 bg-tbn-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 hover:bg-tbn-primary"></button>
                     </div>
                 </form>
             @elseif($step == 4)
-                <form wire:submit='saveProAccountData(user_profesions, user_area)'>
+                <form wire:submit='saveProAccountData(user_profesions)'>
                     <div class="step-content">
-                        <div class="flex flex-row gap-12">
-                            <div class="flex-1">
-                                <h3 class="text-lg md:text-2xl text-tbn-primary font-semibold mb-2">
-                                    Trabajonautas PRO</h3>
-                                <p class="text-sm text-gray-500 mb-4">Estás listo para disfrutar de todos los
-                                    beneficios de
-                                    Trabajonautas. Simplemente sigue las instrucciones para tener tu cuenta PRO desde
-                                    ahora.</p>
-                                <h5 class="font-bold">¿Cual es tu profesión(es) actual?</h5>
-                                <span class="block mb-2 text-xs text-tbn-dark">Te enviaremos información de acuerdo con
-                                    las
-                                    profesiones que selecciones acontinuación. Estos datos se pueden cambiar más
-                                    adelante.</span>
-                                <x-input type="search" x-model="searchProfesion" id="searchProfesion"
-                                    placeholder="Arquitecto, ingeniero, ..." />
-                                <!-- Profesion list -->
-                                <div class="relative">
-                                    <ul class="absolute w-full mx-auto max-h-[10rem] overflow-y-auto"
-                                        x-show="searchProfesion.length > 0">
-                                        <template x-for="profesion in filteredProfesions">
-                                            <li x-text="profesion.profesion_name" @click="addProfesion(profesion)"
-                                                class="bg-white text-sm border border-gray-200 px-4 py-2 rounded-sm hover:bg-gray-200">
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </div>
-                                <!-- Profesion selected -->
-                                <ul class="mx-auto max-w-2xl flex flex-row flex-wrap gap-1 mt-3 mb-4">
+                        <div class="gap-12">
+                            <h3 class="inline-block text-lg md:text-2xl text-tbn-primary font-semibold mb-4">
+                                Trabajonautas PRO</h3>
+                            <p class="text-sm text-gray-500 mb-4">Estás listo para disfrutar de todos los
+                                beneficios de
+                                Trabajonautas. Simplemente sigue las instrucciones para tener tu cuenta PRO desde
+                                ahora.</p>
+                            <h5 class="font-bold">¿Cual es tu profesión(es) actual?</h5>
+                            <span class="block mb-2 text-xs text-tbn-dark">Te enviaremos información de acuerdo con
+                                las
+                                profesiones que selecciones acontinuación. Estos datos se pueden cambiar más
+                                adelante.</span>
+                            <x-input type="search" x-model="searchProfesion" id="searchProfesion"
+                                placeholder="Arquitecto, ingeniero, ..." />
+                            <!-- Profesion list -->
+                            <div class="relative">
+                                <ul class="absolute w-full mx-auto max-h-[10rem] overflow-y-auto"
+                                    x-show="searchProfesion.length > 0">
+                                    <template x-for="profesion in filteredProfesions">
+                                        <li x-text="profesion.profesion_name" @click="addProfesion(profesion)"
+                                            class="bg-white text-sm border border-gray-200 px-4 py-2 rounded-sm hover:bg-gray-200">
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                            <!-- Profesion selected -->
+                            <div class="min-h-[10rem]">
+                                <ul class="mx-auto flex flex-row flex-wrap gap-1 mt-3 mb-4">
                                     <template x-for="profesion in selected_profesions" class="h-full">
                                         <li
                                             class="flex flex-row px-3 py-2 rounded-full text-white text-xs bg-tbn-dark">
-                                            <span x-text="profesion.profesion_name"></span>
+                                            <span class="text-md" x-text="profesion.profesion_name"></span>
                                             <button type="button" class="ml-2 text-xs"
                                                 @click="removeProfesion(profesion)"><i
                                                     class="fas fa-times"></i></button>
                                         </li>
                                     </template>
                                 </ul>
-
-                            </div>
-                            <div class="w-2/5">
-                                <p class="text-sm text-gray-500 mb-4 text-center">Escanea el código QR para realizar el
-                                    pago</p>
-                                <picture class="block max-w-[10rem] mx-auto mb-4">
-                                    <img class="w-full" src="{{ asset('storage/img/qr.png') }}" alt="qr-code">
-                                </picture>
-                                {{-- Description table --}}
-                                <table class="min-w-full divide-y divide-gray-200 mb-2">
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Tipo de cuenta</td>
-                                            <td class="py-1 whitespace-nowrap uppercase" x-text="labelAccountName">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Costo</td>
-                                            <td class="py-1 whitespace-nowrap" x-text="labelAccountPrice + ' Bs.'">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Duración</td>
-                                            <td class="py-1 whitespace-nowrap"
-                                                x-text="labelAccountDuration + ' dias'"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                {{-- Payment options --}}
-                                <p class="text-sm text-gray-500 mt-2 mb-4 text-center">Alternativas de pago</p>
-                                <div class="relative px-4 py-3 bg-gray-300 mb-4">
-                                    <span
-                                        class="absolute -top-3 text-xs text-tbn-primary bg-gray-300 px-3 rounded-md">Banco
-                                        Bisa</span>
-                                    36621-54481-29402-6598
-                                </div>
-                                <p class="text-xs text-tbn-dark text-justify">Una vez realizado el depósito nuestros
-                                    operadores se
-                                    contactarán contigo para confirmar el depósito y habilitar tu cuenta.</p>
                             </div>
                         </div>
-
                     </div>
                     <!-- Navigation Buttons -->
                     <div class="flex justify-between mt-6">
                         <button id="prevButton" type="button" wire:click="stepBack"
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">Anterior</button>
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">
+                            Anterior</button>
                         <button id="nextButton" type="submit" x-bind:disabled="selected_profesions.length == 0"
-                            class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary disabled:opacity-50 disabled:cursor-not-allowed">Finalizar
-                            registro</button>
+                            class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                            Pagar ahora (QR)</button>
                     </div>
                 </form>
+            @elseif($step == 5)
+                <div class="step-content">
+                    <div class="gap-12">
+                        <h3 class="inline-block text-lg md:text-2xl text-tbn-primary font-semibold mb-4">
+                            Trabajonautas PRO</h3>
+                        <p class="text-sm font-medium mb-4">
+                            <i class="fas fa-check text-green-500 mr-2"></i> Tus datos han sido registrados
+                            correctamete. Envíanos una foto el comprobante de tu deposito por WhatsApp al <span
+                                class="text-tbn-primary">77777777</span> para habilitar tu cuenta de Trabajonautas hoy
+                            mismo.
+                        </p>
+                        <div class="flex flex-row gap-4">
+                            <div class="w-1/2">
+                                <p class="text-sm text-tbn-primary mb-4 text-center">
+                                    Escanea el código QR para realizar el pago</p>
+                                <picture class="block max-w-[10rem] mx-auto mb-4">
+                                    <img class="w-full" src="{{ asset('storage/img/qr.png') }}" alt="qr-code">
+                                </picture>
+                                <hr class="my-7">
+                                <p class="text-sm text-tbn-primary mt-2 mb-4 text-center">Alternativas de pago</p>
+                                <div class="relative px-4 py-3 bg-gray-200 mb-4">
+                                    <span class="absolute -top-3 text-xs text-tbn-primary bg-gray-200 px-3 rounded-md">
+                                        Banco Bisa</span>36621-54481-29402-6598
+                                </div>
+                            </div>
+                            <div class="w-1/2">
+                                <p class="text-sm text-tbn-primary mb-4 text-center">
+                                    Resumen de la información</p>
+                                <table class="min-w-full divide-y divide-gray-200 mb-2">
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Cliente</td>
+                                            <td class="py-1 whitespace-nowrap uppercase">{{ $user->name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Celular</td>
+                                            <td class="py-1 whitespace-nowrap uppercase">{{ $user->phone }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Tipo de cuenta</td>
+                                            <td class="py-1 whitespace-nowrap uppercase">
+                                                {{ $user->account->accountType->name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Costo</td>
+                                            <td class="py-1 whitespace-nowrap">
+                                                {{ $user->account->accountType->price }} Bs.</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-1 whitespace-nowrap font-bold">Duración</td>
+                                            <td class="py-1 whitespace-nowrap">
+                                                {{ $user->account->accountType->duration_days }} dias</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <x-button-link wire:click='completeAndSend'
+                            class="block w-full bg-green-600 text-center mt-4">
+                            <i class="fab fa-whatsapp mr-1"></i> Enviar mensaje por WhatsApp</x-button-link>
+                    </div>
+                </div>
             @endif
         </div>
     </div>
@@ -357,16 +373,10 @@
                 user_area: '',
                 selected_profesions: [],
                 btnAccountFinish: 'Finalizar registro',
-                labelAccountName: '',
-                labelAccountPrice: '',
-                labelAccountDuration: '',
                 searchProfesion: '',
                 // Functions
-                changeAccountData(accountId, accountName, accountPrice, accountDuration) {
-                    this.btnAccountFinish = accountId == 1 ? 'Finalizar registro' : 'Pagar ahora (QR)'
-                    this.labelAccountName = accountName
-                    this.labelAccountPrice = accountPrice
-                    this.labelAccountDuration = accountDuration
+                changeBtnLabel(accountId) {
+                    this.btnAccountFinish = accountId == 1 ? 'Finalizar registro' : 'Siguiente'
                 },
                 filteredProfesions() {
                     return this.profesions.filter(

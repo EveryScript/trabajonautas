@@ -3,10 +3,9 @@
 namespace App\Livewire\Web;
 
 use App\Models\Announcement;
-use App\Models\Company;
 use App\Models\Location;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Services\ClientService;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -16,14 +15,18 @@ class SearchAnnouncement extends Component
     use WithPagination;
     #[Url]
     public $title;
+    public $client, $pro_verified = false;
     public $locations, $companies;
     public $search_title, $search_location;
     public $announce_area;
 
     public function mount($title = null)
     {
-        if ($title) {
-            $this->search_title = $this->title;
+        if ($title) $this->search_title = $this->title;
+        if (auth()->check()) {
+            $this->client = User::with('account.accountType')->find(auth()->user()->id);
+            $this->pro_verified = auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')
+                ? $this->client->account->verified_payment : true;
         }
         $this->locations = Location::select(['id', 'location_name'])->get();
     }

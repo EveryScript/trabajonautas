@@ -40,7 +40,9 @@
                         </tbody>
                     </table>
                     <x-button type="button" wire:click='exportData' x-bind:disabled="{{ count($clients) == 0 }}">
-                        Exportar</x-button>
+                        <span wire:loading.remove wire:target="exportData">Exportar</span>
+                        <span wire:loading wire:target="exportData">Exportando...</span>
+                    </x-button>
                 </div>
             </div>
             <div class="w-full md:w-2/3">
@@ -49,10 +51,13 @@
                     <thead class="text-xs uppercase text-tbn-dark">
                         <tr>
                             <th scope="col" class="px-6 py-3">
-                                Nombre del cliente
+                                Cliente
                             </th>
                             <th scope="col" class="px-6 py-3">
-                                Tipo de cuenta
+                                Cuenta
+                            </th>
+                            <th scope="col" class="px-6 py-3">
+                                Celular
                             </th>
                             <th scope="col" class="px-6 py-3">
                                 Verificación
@@ -72,7 +77,10 @@
                                     {{ $client->account->accountType->name }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{ date('d/M/Y - H:m', strtotime($client->account->updated_at)) }}
+                                    {{ $client->phone }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ date('d/M/Y - H:i', strtotime($client->account->updated_at)) }}
                                 </td>
                                 <td class="px-6 py-4">
                                     {{ $client->account->accountType->price }}

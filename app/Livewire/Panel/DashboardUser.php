@@ -2,25 +2,29 @@
 
 namespace App\Livewire\Panel;
 
-use App\Models\Announcement;
+use App\Models\Account;
+use App\Models\AccountType;
 use App\Models\Area;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class DashboardUser extends Component
 {
-    public $primary_color = "#006BFF";
+    public $primary_color = "#034b8d";
 
-    public function getClientsByRole()
+    public function getClientsByAccount()
     {
-        return [
-            'labels' => ['Clientes FREE', 'Clientes PRO'],
-            'data' => [User::role('FREE_CLIENT')->get()->count(), User::role('PRO_CLIENT')->get()->count()],
-            'backgroundColor' => ['#6cff76', '#006BFF']
-        ];
+        $account_types = AccountType::all('id', 'name');
+        $labels = [];
+        $data = [];
+        $background = ['#22c55e', '#034b8d', '#f29000'];
+        foreach ($account_types as $account_type) {
+            array_push($labels, $account_type->name);
+            array_push($data, Account::where('account_type_id', $account_type->id)->count());
+        }
+        return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
 
     public function getAnnouncesByArea()
@@ -64,16 +68,16 @@ class DashboardUser extends Component
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
-    
+
     public function getUsersByLocation()
     {
-        $locations = Location::withCount('users')->get();
+        $locations = Location::whereHas('users', fn($subquery) => $subquery->role(env('CLIENT_ROLE')))->get();
         $labels = [];
         $data = [];
         $background = [];
         foreach ($locations as $location) {
             array_push($labels, $location->location_name);
-            array_push($data, $location->users()->get()->count());
+            array_push($data, $location->users()->count());
             array_push($background,  $this->primary_color);
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
@@ -81,7 +85,7 @@ class DashboardUser extends Component
 
     public function render()
     {
-        $tbn_clients = $this->getClientsByRole();
+        $tbn_clients = $this->getClientsByAccount();
         $tbn_announces_area = $this->getAnnouncesByArea();
         $tbn_announces_user = $this->getAnnouncesByUser();
         $tbn_users_profesion = $this->getUsersByProfesion();

@@ -7,6 +7,7 @@ use App\Models\Area;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class FirstSteps extends Component
@@ -15,14 +16,22 @@ class FirstSteps extends Component
     public $gender, $age, $location_id, $phone; // Step 1
     public $grade_profile_id, $area_id;         // Step 2
     public $account_type_id;                    // Step 3
-    public $user_profesions;                    // Step 4 
+    public $user_profesions;                    // Step 4
+    public $user;                               // Current user
     public $profesions, $areas, $locations, $account_types; // Data to use in the view
     public $step = 1;
+
+    public function mount()
+    {
+        if (Auth::check()) {
+            $this->user = User::with('account.accountType')->find($this->user_id);
+        }
+    }
 
     public function savePersonalData()
     {
         $this->validate([
-            'gender' => 'required|in:M,F,O',
+            'gender' => 'required|in:M,F',
             'age' => 'required|numeric|in:1,2,3',
             'location_id' => 'required|exists:locations,id',
             'phone' => 'required|numeric'
@@ -63,7 +72,6 @@ class FirstSteps extends Component
             $user->update(['register_completed' => true]);
             $this->redirectRoute('dashboard', navigate: true);
         } else {
-            $user->syncRoles([env('PRO_CLIENT_ROLE')]);
             $this->step = 4;
         }
     }
@@ -76,8 +84,14 @@ class FirstSteps extends Component
         ]);
         $user = User::find($this->user_id);
         $user->myProfesions()->attach($this->user_profesions);
-        $user->update(['register_completed' => true]);
-        $this->redirectRoute('dashboard', navigate: true);
+        $this->step = 5;
+    }
+    public function completeAndSend()
+    {
+        $this->user->update(['register_completed' => true]);
+        return redirect()->away('https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta '
+            . $this->user->account->accountType->name . '. Mi nombre es ' . $this->user->name . ' y mi número de celular es '
+            . $this->user->phone . '.Aquí está mi comprobante:');
     }
     public function stepBack()
     {

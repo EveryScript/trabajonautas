@@ -20,14 +20,6 @@ class UserForm extends Form
     public $area_id;
     public $profesions;
 
-    public function editClient()
-    {
-        $user_id = auth()->user()->id;
-        $user_edit = User::find($user_id);
-        $this->location_id = $user_edit->location_id;
-        $this->area_id = $user_edit->area_id;
-        $this->profesions = $user_edit->myProfesions->pluck('id');
-    }
     public function editUser($user_id)
     {
         $user_edit = User::find($user_id);
@@ -50,19 +42,6 @@ class UserForm extends Form
         ]);
         $user->assignRole(env('USER_ROLE')); // Always user
     }
-    public function updateClient($client_id)
-    {
-        $this->validate([
-            'location_id' => 'required',
-            'area_id' => 'required',
-        ]);
-        $client = User::find($client_id);
-        $client->update([
-            'location_id' => $this->location_id,
-            'area_id' => $this->area_id
-        ]);
-        $client->myProfesions()->sync($this->profesions);
-    }
     public function updateUser($user_id)
     {
         $this->validate([
@@ -72,8 +51,7 @@ class UserForm extends Form
             'role' => 'required|in:' . implode(',', [
                 env('USER_ROLE'),
                 env('ADMIN_ROLE'),
-                env('PRO_CLIENT_ROLE'),
-                env('FREE_CLIENT_ROLE')
+                env('CLIENT_ROLE'),
             ]),
         ]);
         $user = User::find($user_id);

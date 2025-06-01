@@ -9,7 +9,17 @@ use Livewire\Component;
 
 class PurchaseAccount extends Component
 {
+    public $client, $pro_verified = false;
     public $profesions, $account_type_id;
+
+    public function mount()
+    {
+        if (auth()->check()) {
+            $this->client = User::with('account.accountType')->find(auth()->user()->id);
+            $this->pro_verified = auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')
+                ? $this->client->account->verified_payment : true;
+        }
+    }
 
     public function saveChanges($type_id, $profesions)
     {
@@ -21,11 +31,9 @@ class PurchaseAccount extends Component
             'profesions.*' => 'exists:profesions,id',
             'account_type_id' => 'required|exists:account_types,id'
         ]);
-        $user = User::find(auth()->user()->id);
-        $user->syncRoles([env('PRO_CLIENT_ROLE')]);
-        $user->myProfesions()->attach($this->profesions);
-        $user->account()->update([
-            'account_type_id' => intval($this->account_type_id)
+        $this->client->myProfesions()->sync($this->profesions);
+        $this->client->account->update([
+            'account_type_id' => intval($this->account_type_id),
         ]);
         $this->redirectRoute('dashboard', navigate: true);
     }

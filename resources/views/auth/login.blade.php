@@ -37,7 +37,7 @@
                         <x-button>{{ __('Log in') }}</x-button>
                         <a class="underline text-sm hover:text-tbn-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high cursor-pointer"
                             href="{{ route('register') }}" wire:navigate>
-                            {{ __('No tengo una cuenta') }}
+                            {{ __('Crear cuenta') }}
                         </a>
                         {{-- @if (Route::has('password.request'))
                             <a

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->smallInteger('days_left')->default(0);
+            $table->dateTime('limit_time')->nullable();
             $table->boolean('verified_payment')->default(false);
             $table->text('device_token')->nullable();
             $table->foreignUuid('user_id'); // Foreign key

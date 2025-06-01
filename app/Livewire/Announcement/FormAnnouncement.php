@@ -8,6 +8,7 @@ use App\Models\Area;
 use App\Models\Company;
 use App\Models\Location;
 use App\Models\Profesion;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -28,13 +29,6 @@ class FormAnnouncement extends Component
         }
     }
 
-    public function downloadFile()
-    {
-        if ($this->id) {
-            return response()->download('storage/' . $this->announcement->announce_file, 'convocatoria.pdf');
-        }
-    }
-
     public function save()
     {
         $this->announcement->user_id = Auth::id();
@@ -44,6 +38,15 @@ class FormAnnouncement extends Component
 
     public function update()
     {
+        // $clients = User::role(env('CLIENT_ROLE'))
+        //     ->whereHas('account', fn($query) => $query
+        //         ->where('account_type_id', 3))
+        //     ->whereHas('location', fn($query) => $query
+        //         ->whereIn('location_id', $this->announcement->locations))
+        //     ->whereHas('myProfesions', fn($query)  => $query
+        //         ->whereIn('profesion_id', $this->announcement->profesions))
+        //     ->get();
+        // dump($clients);
         $this->announcement->update($this->id);
         $this->redirectRoute('announcement', navigate: true);
     }

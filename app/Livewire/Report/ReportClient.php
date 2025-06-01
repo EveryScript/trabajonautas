@@ -8,8 +8,9 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ListClient extends Component
+class ReportClient extends Component
 {
+
     public $start_date, $end_date;
 
     public function mount()
@@ -38,11 +39,12 @@ class ListClient extends Component
                     Carbon::parse($this->end_date)->endOfDay()
                 ]);
             $query->whereIn('account_type_id', [2, 3]);
+            $query->where('verified_payment', true);
         })
             ->with('account.accountType')
             ->get();
         $sum_prices = $clients->pluck('account.accountType.price')->sum();
-        return view('livewire.report.list-client', [
+        return view('livewire.report.report-client', [
             'clients' => $clients,
             'sum_prices' => $sum_prices
         ]);

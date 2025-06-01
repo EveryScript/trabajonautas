@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Announcement extends Model
 {
@@ -38,5 +39,9 @@ class Announcement extends Model
     public function profesions(): BelongsToMany
     {
         return $this->belongsToMany(Profesion::class);
+    }
+    public function announceFiles(): HasMany
+    {
+        return $this->hasMany(AnnouncementFile::class);
     }
 }

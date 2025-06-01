@@ -3,24 +3,27 @@
     <section class="mx-auto p-5"
         style="background-image: url('{{ asset('storage/img/tbn-landing.webp') }}'); background-size: cover; background-position: center;">
         <div class="max-w-[50rem] h-[30rem] flex flex-col justify-center items-center text-center mx-auto">
-            <h4 class="text-tbn-light sm:text-3xl text-2xl font-bold title-font text-center mb-2">Más de 1000
+            <h4 class="text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Más de 1000
                 empresas trabajando con nosotros</h4>
-            <p class="max-w-[50rem] mx-auto text-tbn-ligh mb-5">Bienvenido(a) al portal líder de
+            <p class="text-center text-tbn-dark mb-5">Bienvenido(a) al portal líder de
                 oportunidades laborales en Bolivia. Encuentra la convocatoria ideal para tu perfil y da el siguiente
                 paso en tu carrera profesional con nosotros.</p>
-            <x-button-link href="{{ route('search') }}" wire:navigate>Iniciar busqueda</x-button-link>
+            <div class="flex gap-4">
+                <x-button-link class="bg-tbn-primary" href="{{ route('search') }}" wire:navigate>Iniciar busqueda</x-button-link>
+                <x-button-link class="bg-tbn-secondary" href="{{ route('purchase') }}" wire:navigate>Comprar ahora</x-button-link>
+            </div>
         </div>
     </section>
     <!-- Latest announcements -->
     <section class="max-w-6xl sm:px-6 px-5 py-24 mx-auto">
         <div class="text-center py-5">
-            <h4 class="text-tbn-light sm:text-3xl text-2xl font-bold title-font text-center mb-2">Las mejores
+            <h4 class="text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Las mejores
                 convocatorias laborales de Bolivia a tu alcance</h4>
             <p class="text-center text-tbn-dark mb-5">Cada convocatoria es una oportunidad única para ti y en
                 Trabajonautas.com las tenemos todas.</p>
             @livewire('web.recent-announcement')
             <div class="mt-5">
-                <x-button-link href="{{ route('search') }}" wire:navigate>Ver más</x-button-link>
+                <x-button-link class="bg-tbn-primary" href="{{ route('search') }}" wire:navigate>Ver más</x-button-link>
             </div>
         </div>
     </section>
@@ -28,9 +31,9 @@
     <!-- Instrucions -->
     <section class="body-font">
         <div class="max-w-6xl px-5 py-24 mx-auto">
-            <h4 class="text-tbn-light sm:text-3xl text-2xl font-bold title-font text-center mb-2">Un mundo de
+            <h4 class="text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Un mundo de
                 oportunidades laborales en tus manos.</h4>
-            <p class="text-center mb-10">Sigue las instrucciones y forma parte de la comunidad más grande de
+            <p class="text-tbn-dark text-center mb-10">Sigue las instrucciones y forma parte de la comunidad más grande de
                 profesionales para
                 encontrar tu próximo trabajo.</p>
 
@@ -86,8 +89,7 @@
                     bolivianos, conectándote con las mejores oportunidades laborales para impulsar tu carrera y alcanzar
                     tus metas.</p>
                 <div class="flex justify-center">
-                    <x-button-link href="{{ route('search') }}" class="bg-gray-800" wire:navigate>Iniciar
-                        Busqueda</x-button-link>
+                    <x-button-link class="bg-tbn-secondary" href="{{ route('search') }}" wire:navigate>Iniciar Busqueda</x-button-link>
                 </div>
             </div>
         </div>

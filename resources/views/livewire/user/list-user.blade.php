@@ -5,13 +5,8 @@
             Administra la información de todos los usuarios y clientes registrados en Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
-            <x-select wire:model.change='filterClients'>
-                <option value="1">Clientes</option>
-                <option value="0">Usuarios</option>
-            </x-select>
-            <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
-                placeholder="Buscar usuario o cliente" />
-            <div class="mt-3"><x-button-link href="{{ route('create-user') }}" class="py-[.70rem]"
+            <div class="mt-3">
+                <x-button-link href="{{ route('config-user') }}" class="bg-tbn-primary pt-2.5"
                     wire:navigate>Nuevo</x-button-link></div>
         </x-slot>
     </x-title-app>
@@ -23,10 +18,10 @@
                         Nombre
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Profesiones
+                        Email
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Registro
+                        Actualización
                     </th>
                     <th scope="col" class="px-6 py-3">
                         Estado
@@ -46,35 +41,23 @@
                                 {{ $user->name }}</h5>
                         </th>
                         <td class="px-6 py-4">
-                            @forelse ($user->myProfesions as $profesion)
-                                <span
-                                    class="inline-block px-2 py-1 rounded-sm bg-gray-200 text-black text-[.8rem] leading-4 mb-1">
-                                    {{ $profesion->profesion_name }}</span>
-                            @empty
-                                <span class="text-sm text-gray-400">(Sin registrar)</span>
-                            @endforelse
+                            {{ $user->email }}
                         </td>
                         <td class="px-6 py-4">
-                            {{ (new Carbon\Carbon($user->created_at))->diffForHumans() }}
+                            {{ (new Carbon\Carbon($user->updated_at))->diffForHumans() }}
                         </td>
                         <td class="px-6 py-4">
-                            @if ($user->account && $user->account->account_type_id != 1)
-                                @if ($user->account->verified_payment)
-                                    <span
-                                        class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Verificado</span>
-                                @else
-                                    <span
-                                        class="bg-tbn-dark text-white animate-pulse text-xs px-2 py-1 rounded-full">Pendiente</span>
-                                @endif
+                            @if ($user->actived)
+                                <span class="bg-tbn-primary text-white text-xs px-2 py-1 rounded-full">
+                                    Activo</span>
+                            @else
+                                <span class="bg-tbn-dark text-white text-xs px-2 py-1 rounded-full">
+                                    Inactivo</span>
                             @endif
                         </td>
                         <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-xl">
-                            <a href="{{ $user->hasRole(USER) || $user->hasRole(ADMIN)
-                                ? route('create-user', ['id' => $user->id])
-                                : route('config-user', ['id' => $user->id]) }}"
-                                class="text-tbn-dark" wire:navigate>
-                                <i class="fas fa-cog"></i>
-                            </a>
+                            <a href="{{ route('config-user', ['id' => $user->id]) }}" class="text-tbn-dark"
+                                wire:navigate><i class="fas fa-cog"></i></a>
                         </td>
                     </tr>
                 @empty

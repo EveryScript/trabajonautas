@@ -12,7 +12,7 @@ class CompanyFactory extends Factory
         return [
             'company_name' => fake()->sentence(2),
             'description' => fake()->sentence(20),
-            'company_image' => 'empresas/default.jpg',
+            'company_image' => 'empresas/tbn-default.webp',
             'company_type_id' => fake()->numberBetween(1, 3),
             'user_id' => User::where('email', 'admin@email.com')->first()->id
         ];

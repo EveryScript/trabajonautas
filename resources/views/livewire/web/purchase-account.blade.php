@@ -1,6 +1,6 @@
 <section class="max-w-6xl mx-auto my-10">
     <div class="text-center mb-4">
-        <i class="fas fa-crown text-[3rem] text-orange-500 mb-4"></i>
+        <i class="fas fa-crown text-[3rem] text-tbn-secondary mb-4"></i>
         <h5 class="font-medium text-xl">Adquiere tu cuenta de <span class="text-tbn-primary">Trabajonautas
                 PRO</span> ahora mismo</h5>
         <p class="text-tbn-dark text-sm">Convocatorías exclusivas y nuevas opciones de búsqueda cada día al
@@ -71,12 +71,17 @@
                             </ul>
                         </div>
                         <div class="p-6 border-t border-gray-200 rounded-b-lg bg-gray-50">
-                            @if (!auth()->check())
+                            @if (!$client)
                                 <a href="{{ route('register') }}" wire:navigate
                                     class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
                                     {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                     <i class="fas fa-arrow-right ml-2"></i></a>
-                            @else
+                            @elseif($client->roles->pluck('name')->first() !== env('CLIENT_ROLE'))
+                                <a href="{{ route('dashboard') }}" wire:navigate
+                                    class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
+                                    {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
+                                    <i class="fas fa-arrow-right ml-2"></i></a>
+                            @elseif($pro_verified || $client->account->account_type_id == 1)
                                 @if ($account_type->id == 1)
                                     <a href="{{ route('dashboard') }}" wire:navigate
                                         class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
@@ -88,6 +93,11 @@
                                         {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                         <i class="fas fa-arrow-right ml-2"></i></a>
                                 @endif
+                            @else
+                                <a href="{{ route('dashboard') }}" wire:navigate
+                                    class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
+                                    {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
+                                    <i class="fas fa-arrow-right ml-2"></i></a>
                             @endif
                         </div>
                     </div>

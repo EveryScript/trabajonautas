@@ -23,6 +23,8 @@
             </div>
             <div class="mb-4">
                 <x-button type="submit">{{ $id ? 'Acualizar area' : 'Crear area' }}</x-button>
+                <x-secondary-button type="button" href="{{ route('area') }}"
+                    wire:navigate>Cancelar</x-secondary-button>
             </div>
         </form>
         <div>

@@ -19,13 +19,13 @@ class FooterData extends Component
     public function render()
     {
         return <<<'HTML'
-        <div class="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10">
+        <div class="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10 text-white">
             <div class="lg:w-1/3 md:w-1/2 w-full px-4">
-                <h2 class="title-font font-medium text-tbn-light tracking-widest text-sm mb-3 uppercase">Profesiones
+                <h2 class="title-font font-medium text-tbn-secondary tracking-widest text-sm mb-3 uppercase">Profesiones
                 </h2>
                 <nav class="list-none mb-10">
                     @forelse($profesions as $profesion)
-                        <li class="hover:text-tbn-primary">
+                        <li class="hover:text-tbn-secondary">
                             <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}">{{ $profesion->profesion_name }}</a>
                         </li>
                     @empty
@@ -34,10 +34,10 @@ class FooterData extends Component
                 </nav>
             </div>
             <div class="lg:w-1/3 md:w-1/2 w-full px-4">
-                <h2 class="title-font font-medium text-tbn-light tracking-widest text-sm mb-3 uppercase">Areas</h2>
+                <h2 class="title-font font-medium text-tbn-secondary tracking-widest text-sm mb-3 uppercase">Areas</h2>
                 <nav class="list-none mb-10">
                     @forelse($areas as $area)
-                        <li class="hover:text-tbn-primary">
+                        <li class="hover:text-tbn-secondary">
                             <a href="{{ route('search', ['title' => $area->area_name]) }}">{{ $area->area_name }}</a>
                         </li>
                     @empty
@@ -46,7 +46,7 @@ class FooterData extends Component
                 </nav>
             </div>
             <div class="lg:w-1/3 md:w-1/2 w-full px-4">
-                <h2 class="title-font font-medium text-tbn-light tracking-widest text-sm mb-3 uppercase">Redes
+                <h2 class="title-font font-medium text-tbn-secondary tracking-widest text-sm mb-3 uppercase">Redes
                     sociales</h2>
                 <nav class="list-none mb-10">
                     <li>

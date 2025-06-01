@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Trabajonautas') }}</title>
-    <link rel="icon" href="{{ asset('storage/img/icon.ico') }}">
+    <link rel="icon" href="{{ asset('storage/img/tbn-icon.ico') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

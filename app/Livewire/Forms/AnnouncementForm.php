@@ -11,13 +11,14 @@ class AnnouncementForm extends Form
     public $description;
     public $expiration_time;
     public $salary;
-    public $announce_file;
+    public $announce_files;
     public $pro = false;
     public $company_id;
     public $user_id;
     public $area_id;
     public $locations;
     public $profesions;
+    public $announce_urls;
 
     public function edit($id)
     {
@@ -26,13 +27,13 @@ class AnnouncementForm extends Form
         $this->description = $announcement_edit->description;
         $this->expiration_time = $announcement_edit->expiration_time;
         $this->salary = $announcement_edit->salary;
-        $this->announce_file = $announcement_edit->announce_file;
         $this->pro = $announcement_edit->pro;
         $this->company_id = $announcement_edit->company_id;
         $this->user_id = $announcement_edit->user_id;
         $this->area_id = $announcement_edit->area_id;
         $this->locations = $announcement_edit->locations->pluck('id');
         $this->profesions = $announcement_edit->profesions->pluck('id');
+        $this->announce_urls = $announcement_edit->announceFiles->pluck('url');
     }
 
     public function update($update_id)
@@ -43,14 +44,13 @@ class AnnouncementForm extends Form
             'expiration_time' => 'required|date',
             'salary' => 'required',
             'pro' => 'boolean',
+            'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx|max:2000',
             'company_id' => 'required',
             'user_id' => 'required',
             'area_id' => 'required',
             'locations' => 'required',
             'profesions' => 'required'
         ]);
-        // if ($this->announce_file)
-        //     $this->announce_file = $this->announce_file->store('convocatorias', 'public');
         $announcement = Announcement::find($update_id);
         $announcement->update([
             'announce_title' => $this->announce_title,
@@ -58,13 +58,24 @@ class AnnouncementForm extends Form
             'expiration_time' => $this->expiration_time,
             'salary' => $this->salary,
             'pro' => $this->pro,
-            // 'announce_file' => $this->announce_file,
             'company_id' => $this->company_id,
             'area_id' => $this->area_id,
             'user_id' => $this->user_id
         ]);
         $announcement->locations()->sync($this->locations);
         $announcement->profesions()->sync($this->profesions);
+        if ($this->announce_files && count($this->announce_files)) {
+            $announcement->announceFiles()->delete();
+            $announce_files_data = [];
+            foreach ($this->announce_files as $index => $file) {
+                $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->getClientOriginalName());
+                $announce_files_data[] = [
+                    'announcement_id' => $announcement->id,
+                    'url' => $file_url
+                ];
+            }
+            $announcement->announceFiles()->createMany($announce_files_data);
+        }
     }
 
     public function save()
@@ -75,28 +86,44 @@ class AnnouncementForm extends Form
             'expiration_time' => 'required|date',
             'salary' => 'required',
             'pro' => 'boolean',
-            // 'announce_file' => 'required|mimes:pdf,docx,zip|max:2000',
+            'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx|max:2000',
             'company_id' => 'required',
             'user_id' => 'required',
             'area_id' => 'required',
             'locations' => 'required',
             'profesions' => 'required'
         ]);
-        if ($this->announce_file)
-            $this->announce_file = $this->announce_file->store('convocatorias', 'public');
         $announcement = Announcement::create($this->only(
             'announce_title',
             'description',
             'expiration_time',
             'salary',
             'pro',
-            'announce_file',
             'company_id',
             'user_id',
             'area_id'
         ));
         $announcement->locations()->attach($this->locations);
         $announcement->profesions()->attach($this->profesions);
+        $announce_files_data = [];
+        if ($this->announce_files && count($this->announce_files)) {
+            foreach ($this->announce_files as $index => $file) {
+                $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->getClientOriginalName());
+                $announce_files_data[] = [
+                    'announcement_id' => $announcement->id,
+                    'url' => $file_url
+                ];
+            }
+            $announcement->announceFiles()->createMany($announce_files_data);
+        }
+    }
+
+    public function messages()
+    {
+        return [
+            'announce_files.*.max' => 'Los archivos de la convocatoria no deben ser mayores a 2MB',
+            'announce_files.*.mimes' => 'Los archivos de la convocatoria deben ser documentos o imagenes'
+        ];
     }
 
     public function validationAttributes()
@@ -107,7 +134,6 @@ class AnnouncementForm extends Form
             'expiration_time' => 'expiración',
             'salary' => 'sueldo',
             'pro' => 'PRO',
-            'announce_file' => 'archivo de la convocatoria',
             'company_id' => 'empresa',
             'user_id' => 'usuario',
             'area_id' => 'area profesional',

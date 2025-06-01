@@ -2,12 +2,9 @@
 
 namespace App\Livewire\Panel;
 
-use App\Livewire\Forms\UserForm;
 use App\Models\Announcement;
-use App\Models\Area;
 use App\Models\User;
-use App\Models\Location;
-use App\Models\Profesion;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,43 +12,47 @@ class DashboardClient extends Component
 {
     use WithPagination;
     public $user_id;            // Parameter
-    public UserForm $userForm;  // User profile form
+    public $client, $free_client = true, $pro_verified = false;
+    public $time_left = 'Tiempo expirado';
 
     public function mount()
     {
-        $this->userForm->editClient();
-    }
-    public function updateUser()
-    {
-        $this->userForm->updateClient($this->user_id);
-        $this->dispatch('user-updated');
+        $this->client = User::with('account.accountType')->find($this->user_id);
+        $this->free_client = $this->client->account->account_type_id == 1;
+        $this->pro_verified = $this->client->account->account_type_id !== 1 && $this->client->account->verified_payment;
+        // Check Expiration
+        if ($this->client->account->limit_time) {
+            $limit_time = Carbon::parse($this->client->account->limit_time);
+            $now = Carbon::now();
+            if ($limit_time->isBefore($now)) {
+                $this->client->account->update([
+                    'limit_time' => null,
+                    'verified_payment' => false,
+                    'account_type_id' => 1
+                ]);
+                $this->free_client = true;
+            } else {
+                $this->time_left = $now->diffInHours($limit_time) > 0
+                    ? $now->diffInDays($limit_time) . ' dias y ' . $now->diff($limit_time)->format('%H horas restantes')
+                    : $now->diff($limit_time)->format('minutos restantes');
+            }
+        }
     }
 
     public function render()
     {
-        $user = User::with('account.accountType')->find($this->user_id);
-        $pro_verified = $user->hasRole(env('PRO_CLIENT_ROLE')) && $user->account->verified_payment;
         $suggests = Announcement::where('expiration_time', '>=', now())
-            ->when($pro_verified, function ($query) use ($user) {
-                $query->whereHas('area', fn($subquery) => $subquery->where('id', $user->area->id));
+            ->when($this->free_client, function ($query) {
+                $query->whereHas('locations', fn($subquery) => $subquery->where('location_id', $this->client->location_id));
             })
-            // ->orWhereHas('profesions', function ($query) use ($user) {
-            //     $query->whereIn('profesion_id', $user->myProfesions->pluck('id'));
-            // })
-            // ->orWhereHas('locations', function ($query) use ($user) {
-            //     $query->whereIn('location_id', [$user->location_id]);
-            // })
+            ->when(!$this->free_client, function ($query) {
+                $query->whereHas('area', fn($subquery) => $subquery->where('id', $this->client->area->id))
+                    ->orWhereHas('locations', fn($subquery) => $subquery->where('location_id', $this->client->location_id));
+                // $query->whereHas('profesions', fn($subquery) => $subquery->whereIn('profesion_id', $this->client->myProfesions->pluck('id')));
+            })
             ->orderBy('updated_at', 'DESC');
-        $locations = Location::all();
-        $areas = Area::all();
-        $profesions = Profesion::all();
         return view('livewire.panel.dashboard-client', [
-            'user' => $user,
-            'suggests' => $suggests->simplePaginate(8),
-            'locations' => $locations,
-            'areas' => $areas,
-            'profesions' => $profesions,
-            'pro_verified' => $pro_verified
+            'suggests' => $suggests->simplePaginate(8)
         ]);
     }
 }

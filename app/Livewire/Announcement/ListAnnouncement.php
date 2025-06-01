@@ -21,7 +21,7 @@ class ListAnnouncement extends Component
     {
         $announcements = Announcement::with('profesions')->orderBy('updated_at', 'DESC')
             ->when($this->search, fn($query) => $query->where('announce_title', 'LIKE', '%' . $this->search . '%'))
-            ->simplePaginate(7);
+            ->paginate(7);
         return view('livewire.announcement.list-announcement', compact('announcements'));
     }
 }

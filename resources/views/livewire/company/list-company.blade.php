@@ -7,7 +7,8 @@
         <x-slot name="search_field">
             <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
                 placeholder="Buscar empresa" />
-            <x-button-link class="pt-2.5" href="{{ route('new-company') }}" wire:navigate>Nuevo</x-button-link>
+            <x-button-link class="bg-tbn-primary pt-2.5" href="{{ route('new-company') }}"
+                wire:navigate>Nuevo</x-button-link>
         </x-slot>
     </x-title-app>
     <div x-data="content">
@@ -47,7 +48,7 @@
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                             <div class="flex flex-row gap-2">
                                 <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
-                                    class="w-10">
+                                    class="w-10 mr-2">
                                 <div class="max-w-[20rem] truncate">
                                     <h5 class="text-md font-bold">{{ $company->company_name }}</h5>
                                     <span class="text-sm text-gray-600 font-normal">{{ $company->description }}</span>
@@ -55,7 +56,7 @@
                             </div>
                         </th>
                         <td class="px-6 py-4">
-                            {{ $company->company_type->company_type_name }}
+                            {{ $company->companyType->company_type_name }}
                         </td>
                         <td class="px-6 py-4">
                             {{ (new Carbon\Carbon($company->updated_at))->diffForHumans() }}

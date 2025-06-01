@@ -23,7 +23,7 @@ class Company extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function company_type(): BelongsTo
+    public function companyType(): BelongsTo
     {
         return $this->belongsTo(CompanyType::class);
     }

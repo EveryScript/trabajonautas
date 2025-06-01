@@ -4,12 +4,11 @@
             <x-title-app>
                 <x-slot name="title_page">Areas profesionales</x-slot>
                 <x-slot name="description_page">
-                    Los clientes seleccionan una de estas areas para recibir sugerencias de convocatorias laborales de
-                    Trabajonautas.
+                    Administra las areas profesionales para clasificar las convocatorias y a los clientes.
                 </x-slot>
                 <x-slot name="search_field">
-                    <div>
-                        <x-button-link href="{{ route('new-area') }}" wire:navigate>Nuevo</x-button-link>
+                    <div class="mt-4">
+                        <x-button-link class="bg-tbn-primary" href="{{ route('new-area') }}" wire:navigate>Nuevo</x-button-link>
                     </div>
                 </x-slot>
             </x-title-app>

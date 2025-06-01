@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Trabajonautas') }}</title>
-    <link rel="icon" href="{{ asset('storage/img/icon.ico') }}">
+    <link rel="icon" href="{{ asset('storage/img/tbn-icon.ico') }}">
 
     <!-- Scripts & css -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -32,19 +32,21 @@
 
 <body class="font-sans antialiased bg-gray-200">
     <!-- NavBar -->
-    {{-- <x-navigation-web /> --}}
-    <x-nav-responsive />
+    <x-navigation-web />
+    {{-- <x-nav-responsive /> --}}
     <!-- Main Content -->
     <main>
         {{ $slot }}
     </main>
     <!-- Footer Content -->
-    <footer class="bg-gray-800 text-white body-font">
+    <footer class="bg-tbn-primary body-font">
         <div
             class="max-w-6xl px-5 py-16 md:py-24 mx-auto flex items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
-            <div class="w-full md:w-64 px-5 flex-shrink-0">
-                <x-application-logo class="mb-5" />
-                <h5 class="text-white font-bold">Contactos</h5>
+            <div class="w-full md:w-64 px-5 flex-shrink-0 text-white">
+                <picture class="block mb-4">
+                    <img class="max-w-[12rem]" src="{{ asset('storage/img/tbn-logo-white.webp') }}" alt="tbn-logo">
+                </picture>
+                <h5 class="font-bold">Contactos</h5>
                 <p class="text-sm font-normal">
                     <span class="block">SEO Ricardo Oropeza - 76543210</span>
                     <span class="block">SEO Carla Vargas - 76543210</span>
