@@ -190,3 +190,30 @@
         </script>
     @endscript
 </section>
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import {
+        getMessaging
+    } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-messaging.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyAvwNRxrt1CRWOO5Q09uFLRpbUf00GVfzA",
+        authDomain: "every-script-cloud.firebaseapp.com",
+        projectId: "every-script-cloud",
+        storageBucket: "every-script-cloud.firebasestorage.app",
+        messagingSenderId: "702129503021",
+        appId: "1:702129503021:web:afe3b44ed73bea558331a4",
+        measurementId: "G-EKQ013DRFR"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const messaging = getMessaging(app);
+</script>
