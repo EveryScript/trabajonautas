@@ -10,7 +10,7 @@
         </div>
         <div class="flex-1 bg-indigo-100 text-center hidden lg:flex">
             <div class="w-full bg-cover bg-center bg-no-repeat"
-                style="background-image: url('{{ asset('storage/img/tbn-landing.webp') }}');">
+                style="background-image: url('{{ asset('storage/img/tbn-orange.webp') }}');">
             </div>
         </div>
     </div>

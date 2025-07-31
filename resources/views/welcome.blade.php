@@ -1,23 +1,28 @@
 <x-web-layout>
     <!-- Landing -->
     <section class="mx-auto p-5"
-        style="background-image: url('{{ asset('storage/img/tbn-landing.webp') }}'); background-size: cover; background-position: center;">
+        style="background-image: url('{{ asset('storage/img/tbn-orange.webp') }}');
+        background-size: cover;
+        background-position: center;
+        background-brightness: 2;">
         <div class="max-w-[50rem] h-[30rem] flex flex-col justify-center items-center text-center mx-auto">
-            <h4 class="text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Más de 1000
-                empresas trabajando con nosotros</h4>
+            <h4 class="font-baloo text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Un universo de oportunidades de empleo</h4>
             <p class="text-center text-tbn-dark mb-5">Bienvenido(a) al portal líder de
                 oportunidades laborales en Bolivia. Encuentra la convocatoria ideal para tu perfil y da el siguiente
                 paso en tu carrera profesional con nosotros.</p>
             <div class="flex gap-4">
-                <x-button-link class="bg-tbn-primary" href="{{ route('search') }}" wire:navigate>Iniciar busqueda</x-button-link>
-                <x-button-link class="bg-tbn-secondary" href="{{ route('purchase') }}" wire:navigate>Comprar ahora</x-button-link>
+                <x-button-link class="bg-tbn-primary" href="{{ route('search') }}" wire:navigate>Iniciar
+                    busqueda</x-button-link>
+                <x-button-link class="bg-tbn-secondary" href="{{ route('purchase') }}" wire:navigate>Comprar
+                    ahora</x-button-link>
             </div>
         </div>
     </section>
     <!-- Latest announcements -->
     <section class="max-w-6xl sm:px-6 px-5 py-24 mx-auto">
         <div class="text-center py-5">
-            <h4 class="text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Las mejores
+            <h4 class="font-baloo text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Las
+                mejores
                 convocatorias laborales de Bolivia a tu alcance</h4>
             <p class="text-center text-tbn-dark mb-5">Cada convocatoria es una oportunidad única para ti y en
                 Trabajonautas.com las tenemos todas.</p>
@@ -31,9 +36,11 @@
     <!-- Instrucions -->
     <section class="body-font">
         <div class="max-w-6xl px-5 py-24 mx-auto">
-            <h4 class="text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Un mundo de
+            <h4 class="font-baloo text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">Un mundo
+                de
                 oportunidades laborales en tus manos.</h4>
-            <p class="text-tbn-dark text-center mb-10">Sigue las instrucciones y forma parte de la comunidad más grande de
+            <p class="text-tbn-dark text-center mb-10">Sigue las instrucciones y forma parte de la comunidad más grande
+                de
                 profesionales para
                 encontrar tu próximo trabajo.</p>
 
@@ -77,19 +84,20 @@
     <!-- Hero -->
     <section class="bg-tbn-primary text-white body-font">
         <div class="max-w-6xl mx-auto flex px-5 md:flex-row flex-col items-center">
-            <div class="lg:max-w-[20rem] lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
+            <figure class="lg:max-w-[20rem] lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
                 <img class="object-cover object-center rounded pt-20" alt="hero"
-                    src="{{ asset('storage/img/tbn-landing-2.webp') }}">
-            </div>
+                    src="{{ asset('storage/img/tbn-astro.webp') }}">
+            </figure>
             <div
                 class="lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 flex flex-col md:items-start md:text-left items-center text-center">
-                <h1 class="title-font sm:text-4xl text-3xl mb-4 font-bold">Tu futuro profesional es nuestra motivación
-                    más grande.</h1>
+                <h4 class="font-baloo sm:text-4xl text-3xl mb-4 font-bold">Tu futuro profesional es nuestra motivación
+                    más grande.</h4>
                 <p class="mb-8 leading-relaxed">Estamos comprometidos con el crecimiento y desarrollo profesional de los
                     bolivianos, conectándote con las mejores oportunidades laborales para impulsar tu carrera y alcanzar
                     tus metas.</p>
                 <div class="flex justify-center">
-                    <x-button-link class="bg-tbn-secondary" href="{{ route('search') }}" wire:navigate>Iniciar Busqueda</x-button-link>
+                    <x-button-link class="bg-tbn-secondary" href="{{ route('search') }}" wire:navigate>Iniciar
+                        Busqueda</x-button-link>
                 </div>
             </div>
         </div>
@@ -103,7 +111,7 @@
                     <div class="h-full text-center">
                         <img alt="testimonial"
                             class="w-20 h-20 mb-8 object-cover object-center rounded-full inline-block border-2 border-gray-200 bg-gray-100"
-                            src="https://dummyimage.com/302x302">
+                            src="{{ asset('storage/img/tbn-default.webp') }}">
                         <p class="leading-relaxed">"Gracias a esta plataforma, pude encontrar el trabajo que estaba
                             buscando en muy poco tiempo. Su sistema es fácil de usar y tienen convocatorias actualizadas
                             constantemente. ¡Recomendada! Sobre todo para profesionales"</p>
@@ -116,7 +124,7 @@
                     <div class="h-full text-center">
                         <img alt="testimonial"
                             class="w-20 h-20 mb-8 object-cover object-center rounded-full inline-block border-2 border-gray-200 bg-gray-100"
-                            src="https://dummyimage.com/300x300">
+                            src="{{ asset('storage/img/tbn-default.webp') }}">
                         <p class="leading-relaxed">"La empresa se preocupa realmente por conectar a los profesionales
                             con empleadores de calidad en Bolivia. He tenido una excelente experiencia aplicando a
                             diversas vacantes y finalmente encontré una posición perfecta para mí."</p>
@@ -129,7 +137,7 @@
                     <div class="h-full text-center">
                         <img alt="testimonial"
                             class="w-20 h-20 mb-8 object-cover object-center rounded-full inline-block border-2 border-gray-200 bg-gray-100"
-                            src="https://dummyimage.com/305x305">
+                            src="{{ asset('storage/img/tbn-default.webp') }}">
                         <p class="leading-relaxed">"Lo que más me gusta es la transparencia y el compromiso que tienen
                             con los candidatos. La plataforma es clara y confiable, y siempre cuentan con las mejores
                             ofertas laborales del país. Muy satisfecha con el servicio."</p>

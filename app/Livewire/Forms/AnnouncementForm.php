@@ -116,6 +116,7 @@ class AnnouncementForm extends Form
             }
             $announcement->announceFiles()->createMany($announce_files_data);
         }
+        return $announcement;
     }
 
     public function messages()

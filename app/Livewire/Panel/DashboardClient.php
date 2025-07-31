@@ -4,6 +4,7 @@ namespace App\Livewire\Panel;
 
 use App\Models\Announcement;
 use App\Models\User;
+use App\Services\FirebaseNotificationService;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,6 +15,7 @@ class DashboardClient extends Component
     public $user_id;            // Parameter
     public $client, $free_client = true, $pro_verified = false;
     public $time_left = 'Tiempo expirado';
+    public $notify_token_actived;
 
     public function mount()
     {
@@ -36,6 +38,21 @@ class DashboardClient extends Component
                     ? $now->diffInDays($limit_time) . ' dias y ' . $now->diff($limit_time)->format('%H horas restantes')
                     : $now->diff($limit_time)->format('minutos restantes');
             }
+        }
+    }
+
+    public function verifyHasToken()
+    {
+        $this->notify_token_actived = $this->client->account->device_token ? true : false;
+    }
+
+    public function saveClientToken($token)
+    {
+        if ($this->client && is_string($token)) {
+            $this->client->account->update([
+                'device_token' => $token
+            ]);
+            $this->notify_token_actived = true;
         }
     }
 

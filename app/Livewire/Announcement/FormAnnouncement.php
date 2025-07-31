@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\User;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -32,22 +33,66 @@ class FormAnnouncement extends Component
     public function save()
     {
         $this->announcement->user_id = Auth::id();
-        $this->announcement->save();
+        $announce_saved = $this->announcement->save();
+        if ($this->announcement->pro) {
+            $notifier = new FirebaseNotificationService();
+            $clients = User::role(env('CLIENT_ROLE'))
+                // Clients PRO-MAX and with TOKEN registered
+                ->whereHas('account', fn($query) => $query
+                    ->where('account_type_id', 3)->whereNotNull('device_token'))
+                // Clients with same announcement location
+                ->whereHas('location', fn($query) => $query
+                    ->whereIn('location_id', $this->announcement->locations))
+                // Clients with just one announcement profesion
+                ->whereHas('myProfesions', fn($query)  => $query
+                    ->whereIn('profesion_id', $this->announcement->profesions))
+                ->get();
+            $array_tokens = $clients->pluck('account.device_token')->toArray();
+            // $notifier->sendToToken($array_tokens, $announce_saved->id);
+            $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
+            dump($response_notifications);
+        }
         $this->redirectRoute('announcement', navigate: true);
+    }
+
+    public function sendPushNotifications()
+    {
+        // try {
+        $notifier = new FirebaseNotificationService();
+        $client_tokens = User::role(env('CLIENT_ROLE'))
+            ->whereHas('account', fn($query) => $query
+                ->whereNotNull('device_token'))
+            ->get();
+        $array_tokens = $client_tokens->pluck('account.device_token')->toArray();
+        // $notifier->sendToToken($array_tokens, 1);
+        $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
+        dump($response_notifications);
+        // } catch (\Throwable $th) {
+        //     dump($th);
+        // }
     }
 
     public function update()
     {
-        // $clients = User::role(env('CLIENT_ROLE'))
-        //     ->whereHas('account', fn($query) => $query
-        //         ->where('account_type_id', 3))
-        //     ->whereHas('location', fn($query) => $query
-        //         ->whereIn('location_id', $this->announcement->locations))
-        //     ->whereHas('myProfesions', fn($query)  => $query
-        //         ->whereIn('profesion_id', $this->announcement->profesions))
-        //     ->get();
-        // dump($clients);
         $this->announcement->update($this->id);
+        if ($this->announcement->pro) {
+            $notifier = new FirebaseNotificationService();
+            $clients = User::role(env('CLIENT_ROLE'))
+                // Clients PRO-MAX and with TOKEN registered
+                ->whereHas('account', fn($query) => $query
+                    ->where('account_type_id', 3)->whereNotNull('device_token'))
+                // Clients with same announcement location
+                ->whereHas('location', fn($query) => $query
+                    ->whereIn('location_id', $this->announcement->locations))
+                // Clients with just one announcement profesion
+                ->whereHas('myProfesions', fn($query)  => $query
+                    ->whereIn('profesion_id', $this->announcement->profesions))
+                ->get();
+            $array_tokens = $clients->pluck('account.device_token')->toArray();
+            // $notifier->sendToToken($array_tokens, $this->id);
+            $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
+            dump($response_notifications);
+        }
         $this->redirectRoute('announcement', navigate: true);
     }
 

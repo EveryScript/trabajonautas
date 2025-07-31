@@ -17,6 +17,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=baloo-da-2:400,700" rel="stylesheet" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <!-- Tom Select -->
@@ -24,13 +25,13 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
     <!-- Google, don't index this page -->
-    <meta name="robots" content="noindex, nofollow">
+    {{-- <meta name="robots" content="noindex, nofollow"> --}}
 
     <!-- Styles -->
     @livewireStyles
 </head>
 
-<body class="font-sans antialiased bg-gray-200">
+<body class="font-figtree antialiased bg-gray-200">
     <!-- NavBar -->
     <x-navigation-web />
     {{-- <x-nav-responsive /> --}}

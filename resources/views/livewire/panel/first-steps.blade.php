@@ -76,7 +76,8 @@
                                 </label>
                             </li>
                         </ul>
-                        <h5 class="text-md font-bold mb-2">¿Cuál es tu ubicación actual?</h5>
+                        <h5 class="text-md font-bold mb-1">¿Cuál es tu ubicación actual?</h5>
+                        <span class="block text-tbn-dark text-sm mb-2">Esta información nos servirá para conocer en que departamento deseas trabajar.</span>
                         <x-select wire:model.live.debounce.200ms='location_id' id="location_id" class="mb-8">
                             <option value="">Selecciona tu ubicación</option>
                             @foreach ($locations as $location)

@@ -26,7 +26,7 @@
                         Registro
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Estado
+                        Cuenta
                     </th>
                     <th scope="col" class="px-6 py-3 text-right">
                         Opciones
@@ -96,7 +96,6 @@
         <script>
             Alpine.data('content', () => ({
                 setAccountIcon(actived, accountId) {
-                    console.log(actived, accountId)
                     if (actived) {
                         return parseInt(accountId) == 1 ?
                             '<i class="fas fa-leaf text-green-500"></i>' :

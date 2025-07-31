@@ -37,6 +37,29 @@
                                 {{ $time_left }}
                             </p>
                         </div>
+                        {{-- Verify if notifications is actived --}}
+                        @if ($client->account->account_type_id === 3)
+                            <hr class="my-4">
+                            @if ($notify_token_actived)
+                                <div class="bg-gray-200 p-4 rounded-md text-center">
+                                    <p><i class="fas fa-check text-2xl text-tbn-secondary"></i></p>
+                                    <p><span class="font-medium text-black">Notificaciones activadas</span></p>
+                                    <p class="text-xs">Permanece atento a las convocatorias para tí.</p>
+                                </div>
+                            @else
+                                <div class="bg-gray-200 p-4 rounded-md text-center">
+                                    <p class="mb-1"><i class="fas fa-lightbulb text-2xl text-tbn-secondary"></i></p>
+                                    <p class="mb-1"><span class="font-medium text-black">Notificaciones
+                                            desactivadas</span></p>
+                                    <p class="mb-3"><span class="inline-block font-medium text-xs text-tbn-dark">
+                                            Haz click para activar las notificaciones y recibe una alerta cuando una
+                                            nueva
+                                            convocatoria esté disponible.</span></p>
+                                    <x-button-link x-on:click="registerAndGetTokenFirebase" class="bg-tbn-secondary">
+                                        Activar</x-button-link>
+                                </div>
+                            @endif
+                        @endif
                     @endif
                 @endif
                 <hr class="my-4">
@@ -167,13 +190,18 @@
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Profesiones</p>
-                            <ul class="list-disc text-gray-900">
-                                @forelse ($client->myProfesions as $profesion)
-                                    <li class="ml-4">{{ $profesion->profesion_name }}</li>
-                                @empty
-                                    <span class="font-italic">No hay profesiones registradas</span>
-                                @endforelse
-                            </ul>
+                            @if ($free_client)
+                                <span class="text-xs text-tbn-dark"><i class="text-tbn-secondary fas fa-crown mr-1"></i> Adquiere
+                                    Trabajonautas PRO o PRO-MAX</span>
+                            @else
+                                <ul class="list-disc text-gray-900">
+                                    @forelse ($client->myProfesions as $profesion)
+                                        <li class="ml-4">{{ $profesion->profesion_name }}</li>
+                                    @empty
+                                        <span class="font-italic">No hay profesiones registradas</span>
+                                    @endforelse
+                                </ul>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -185,35 +213,34 @@
         <script>
             Alpine.data('content', () => ({
                 btnNavigation: 1,
-                btnAd: true
+                btnAd: true,
+                VAPID_KEY: 'BMNaBtUsrS1ops3vvcRqJXlNZ3cdxTlKHMG77c7Y6C1rfe12l5G75AhJYIthEoWJREdwZBGtisKHILPRTok46vU',
+                init() {
+                    if (Notification.permission === 'granted')
+                        $wire.verifyHasToken()
+                },
+                registerAndGetTokenFirebase() {
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                            .then(function(registration) {
+                                console.log('Service Worker registrado:', registration);
+                                messaging.getToken({
+                                    vapidKey: this.VAPID_KEY,
+                                    serviceWorkerRegistration: registration
+                                }).then((currentToken) => {
+                                    if (currentToken) {
+                                        console.log('Token del dispositivo:', currentToken);
+                                        $wire.saveClientToken(currentToken)
+                                    } else {
+                                        console.warn('No se obtuvo token.');
+                                    }
+                                }).catch((err) => {
+                                    console.error('Error al obtener el token:', err);
+                                });
+                            });
+                    }
+                }
             }))
         </script>
     @endscript
 </section>
-<script type="module">
-    // Import the functions you need from the SDKs you need
-    import {
-        initializeApp
-    } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import {
-        getMessaging
-    } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-messaging.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-        apiKey: "AIzaSyAvwNRxrt1CRWOO5Q09uFLRpbUf00GVfzA",
-        authDomain: "every-script-cloud.firebaseapp.com",
-        projectId: "every-script-cloud",
-        storageBucket: "every-script-cloud.firebasestorage.app",
-        messagingSenderId: "702129503021",
-        appId: "1:702129503021:web:afe3b44ed73bea558331a4",
-        measurementId: "G-EKQ013DRFR"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const messaging = getMessaging(app);
-</script>
