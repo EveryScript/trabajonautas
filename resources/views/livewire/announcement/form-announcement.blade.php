@@ -8,10 +8,10 @@
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        <div class="my-5">
+        {{-- <div class="my-5">
             <x-button-link type="button" class="bg-tbn-primary" wire:click='sendPushNotifications'>
                 Enviar notificación</x-button-link>
-        </div>
+        </div> --}}
         <form class="tbn-form max-w-4xl mb-10" wire:submit="{{ $id ? 'update' : 'save' }}">
             <div class="mb-4">
                 <x-label for="announce_title" value="{{ __('Título') }}" />

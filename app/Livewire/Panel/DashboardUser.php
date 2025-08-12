@@ -27,6 +27,24 @@ class DashboardUser extends Component
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
 
+    public function getUsersByAge()
+    {
+        $client_ages = [
+            ['value' => 1, 'text' => 'de 18 a 25 años'],
+            ['value' => 2, 'text' => 'de 26-32 años'],
+            ['value' => 3, 'text' => 'de 33 en adelante'],
+        ];
+        $labels = [];
+        $data = [];
+        $background = ['#034b8d', '#f29000', '#22c55e'];
+        foreach ($client_ages as $client_age) {
+            array_push($labels, $client_age['text']);
+            array_push($data, User::role(env('CLIENT_ROLE'))->whereNotNull('age')->where('age', $client_age['value'])->count());
+            array_push($background,  $this->primary_color);
+        }
+        return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
+    }
+
     public function getAnnouncesByArea()
     {
         $areas = Area::all('id', 'area_name');
@@ -57,13 +75,15 @@ class DashboardUser extends Component
 
     public function getUsersByProfesion()
     {
-        $profesions = Profesion::withCount('users')->orderBy('users_count', 'DESC')->take(10)->get();
+        $profesions = Profesion::withCount(['users as clients_profesion' => function ($query) {
+            $query->role(env('CLIENT_ROLE'));
+        }])->orderBy('clients_profesion', 'DESC')->take(10)->get();
         $labels = [];
         $data = [];
         $background = [];
         foreach ($profesions as $profesion) {
             array_push($labels, $profesion->profesion_name);
-            array_push($data, $profesion->users()->get()->count());
+            array_push($data, $profesion->clients_profesion);
             array_push($background,  $this->primary_color);
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
@@ -83,6 +103,7 @@ class DashboardUser extends Component
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
 
+
     public function render()
     {
         $tbn_clients = $this->getClientsByAccount();
@@ -90,13 +111,15 @@ class DashboardUser extends Component
         $tbn_announces_user = $this->getAnnouncesByUser();
         $tbn_users_profesion = $this->getUsersByProfesion();
         $tbn_users_location = $this->getUsersByLocation();
+        $tbn_users_age = $this->getUsersByAge();
 
         return view('livewire.panel.dashboard-user', compact(
             'tbn_clients',
             'tbn_announces_area',
             'tbn_announces_user',
             'tbn_users_profesion',
-            'tbn_users_location'
+            'tbn_users_location',
+            'tbn_users_age'
         ));
     }
 }
