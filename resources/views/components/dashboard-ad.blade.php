@@ -31,8 +31,8 @@
         </div>
         <div
             class="py-8 px-6 text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center lg:p-12 bg-gray-00 hidden">
-            <img src="{{ asset('storage/img/tbn-champ.webp') }}" alt="empty"
-                class="w-[10rem] h-[10rem] mx-auto mb-4">
+            <img src="{{ asset('storage/img/pro.webp') }}" alt="empty"
+                class="w-[12rem] h-[12rem] mx-auto mb-4">
         </div>
     </div>
 </div>

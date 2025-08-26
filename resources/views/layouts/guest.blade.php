@@ -26,7 +26,7 @@
 </head>
 
 <body>
-    <div class="font-figtree antialiased bg-gray-200">
+    <div class="font-figtree antialiased bg-gray-50">
         {{ $slot }}
     </div>
 

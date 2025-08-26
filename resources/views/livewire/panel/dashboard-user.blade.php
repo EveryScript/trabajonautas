@@ -15,11 +15,13 @@
                 class="col-span-3 md:col-span-2 border border-gray-300 rounded-lg shadow-lg px-5 py-4 
                 {{ Auth::user()->hasRole('USER') ? 'hidden' : '' }}">
                 <h4 class="text-lg text-tbn-dark font-bold mb-1">Convocatorias registradas por usuario</h4>
-                <p class="mb-5 text-tbn-dark text-sm">Cantidad total de convocatorias: {{ array_sum($tbn_announces_user['data']) }}</p>
+                <p class="mb-5 text-tbn-dark text-sm">Cantidad total de convocatorias:
+                    {{ array_sum($tbn_announces_user['data']) }}</p>
                 <canvas id="announces-user-chart"></canvas>
             </div>
             <!-- Clients by age chart -->
-            <div class="col-span-3 md:col-span-1 border border-gray-300 rounded-lg shadow-lg px-5 py-4">
+            <div class="col-span-3 md:col-span-1 border border-gray-300 rounded-lg shadow-lg px-5 py-4"
+                {{ Auth::user()->hasRole('USER') ? 'hidden' : '' }}>
                 <h4 class="text-lg text-tbn-dark font-bold mb-1">Clientes según la edad </h4>
                 <p class="mb-5 text-tbn-dark text-sm">Cantidad total de clientes: {{ array_sum($tbn_clients['data']) }}
                 </p>
@@ -42,7 +44,8 @@
             <div class="col-span-3 border border-gray-300 rounded-lg shadow-lg px-5 py-4"
                 {{ Auth::user()->hasRole('USER') ? 'hidden' : '' }}>
                 <h4 class="text-lg text-tbn-dark font-bold mb-1">Convocatorias registradas por area</h4>
-                <p class="mb-5 text-tbn-dark text-sm">Cantidad total de convocatorias: {{ array_sum($tbn_announces_area['data']) }}</p>
+                <p class="mb-5 text-tbn-dark text-sm">Cantidad total de convocatorias:
+                    {{ array_sum($tbn_announces_area['data']) }}</p>
                 <canvas id="announces-area-chart"></canvas>
             </div>
         </div>

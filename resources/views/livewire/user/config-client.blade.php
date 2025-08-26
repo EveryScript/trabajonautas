@@ -70,7 +70,7 @@
                 </div>
             @endif
             <div class="col-span-2">
-                <span class="text-xs text-tbn-primary">Control de acceso</span>
+                <span class="text-xs text-red-700">Control de acceso</span>
                 <div class="px-4 py-3 border bg-white border-red-700 rounded-lg mb-4">
                     <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" class="sr-only peer" id="actived" wire:model="client_actived"

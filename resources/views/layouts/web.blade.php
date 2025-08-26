@@ -31,7 +31,7 @@
     @livewireStyles
 </head>
 
-<body class="font-figtree antialiased bg-gray-200">
+<body class="font-figtree antialiased bg-gray-50">
     <!-- NavBar -->
     <x-navigation-web />
     {{-- <x-nav-responsive /> --}}
@@ -45,14 +45,14 @@
             class="max-w-6xl px-5 py-16 md:py-24 mx-auto flex items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
             <div class="w-full md:w-64 px-5 flex-shrink-0 text-white">
                 <picture class="block mb-4">
-                    <img class="max-w-[12rem]" src="{{ asset('storage/img/tbn-logo-white.webp') }}" alt="tbn-logo">
+                    <img class="max-w-[20rem] md:max-w-[15rem]" src="{{ asset('storage/img/tbn-logo-white.webp') }}" alt="tbn-logo">
                 </picture>
                 <h5 class="font-bold">Contactos</h5>
                 <p class="text-sm font-normal">
                     <span class="block">SEO Ricardo Oropeza - 76543210</span>
                     <span class="block">SEO Carla Vargas - 76543210</span>
                 </p>
-                <p class="mt-2 text-sm text-tbn-primary">&copy; 2024 - Todos los derechos reservados</p>
+                <p class="mt-2 text-sm">&copy; {{ now()->year }} - Todos los derechos reservados</p>
             </div>
             @livewire('web.footer-data')
         </div>

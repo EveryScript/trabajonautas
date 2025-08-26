@@ -1,5 +1,5 @@
 <section class="max-w-6xl mx-auto my-10">
-    <div class="text-center mb-4">
+    <div class="text-center mb-4 px-4">
         <i class="fas fa-crown text-[3rem] text-tbn-secondary mb-4"></i>
         <h5 class="font-medium text-xl">Adquiere tu cuenta de <span class="text-tbn-primary">Trabajonautas
                 PRO</span> ahora mismo</h5>

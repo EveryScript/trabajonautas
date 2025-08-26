@@ -12,8 +12,8 @@ class FooterData extends Component
     public $areas;
     public function mount()
     {
-        $this->profesions = Profesion::inRandomOrder()->limit(5)->get();
-        $this->areas = Area::inRandomOrder()->limit(5)->get();
+        $this->profesions = Profesion::inRandomOrder()->limit(4)->get();
+        $this->areas = Area::inRandomOrder()->limit(4)->get();
     }
 
     public function render()

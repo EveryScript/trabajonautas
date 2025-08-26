@@ -20,7 +20,8 @@
                 </x-select>
             </div>
             <div class="pt-1 md:pt-5">
-                <x-button wire:click="searchAnnounces(search_title, search_location_id)" class="h-[3rem] mt-1"
+                <x-button wire:click="searchAnnounces(search_title, search_location_id)"
+                    class="h-[3rem] md:w-auto w-full mt-1"
                     x-bind:disabled="!search_title && !search_location">Buscar</x-button>
             </div>
         </div>

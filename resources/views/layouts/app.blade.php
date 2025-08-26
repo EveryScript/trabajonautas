@@ -54,7 +54,7 @@
 <body class="font-figtree antialiased">
     <x-banner />
 
-    <div class="min-h-screen bg-gray-200">
+    <div class="min-h-screen bg-gray-50">
         {{-- @livewire('navigation-menu') --}}
         <x-nav-responsive />
 

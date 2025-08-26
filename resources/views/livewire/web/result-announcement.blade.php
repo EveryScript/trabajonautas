@@ -1,9 +1,9 @@
 <div class="flex flex-col md:flex-row gap-6 px-4">
-    <section class="w-full md:w-3/5" x-data="content">
-        <div class="relative bg-white rounded-lg shadow-md p-10">
+    <section class="w-full md:w-3/5 select-none" x-data="content">
+        <div class="relative bg-white rounded-lg shadow-md p-5 sm:p-10">
             <span class="absolute top-6 right-6 {{ $announcement->pro ? '' : 'hidden' }}">
                 <i class="fas fa-crown text-md text-tbn-secondary"></i></span>
-            <div class=" w-full flex sm:flex-row flex-col gap-6">
+            <div class=" w-full flex sm:flex-row flex-col gap-2 sm:gap-6">
                 <img alt="team"
                     class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
                     src="{{ asset('storage/' . $announcement->company->company_image) }}">
@@ -12,7 +12,7 @@
                     <h3 class="inline-block text-md font-medium mb-2 text-tbn-primary">
                         {{ $announcement->company->company_name }}
                     </h3>
-                    <div class="grid grid-cols-2">
+                    <div class="grid grid-cols-1 lg:grid-cols-2">
                         <div class="flex flex-col gap-1 text-sm text-tbn-dark font-normal mb-2">
                             @forelse ($announcement->locations as $location)
                                 <span><i class="fas fa-map-marker-alt text-red-500 pr-1"></i>
@@ -56,32 +56,6 @@
                     {!! $announcement->description !!}
                 </div>
             </div>
-            {{-- @if ($announcement->announceFiles && count($announcement->announceFiles))
-                <div class="my-3">
-                    <h3 class="text-lg font-medium mb-1 tbn-special text-tbn-primary">Archivos</h3>
-                    <div class="mt-2 flex flex-row gap-2">
-                        @foreach ($announcement->announceFiles as $announce_file)
-                            <a href="{{ asset('storage/' . $announce_file->url) }}"
-                                class="block px-3 py-2 text-xl border border-tbn-primary rounded bg-white">
-                                @switch(explode('.', $announce_file->url)[1])
-                                    @case('png')
-                                        <picture class="block max-w-24">
-                                            <img src="{{ asset('storage/' . $announce_file->url) }}" alt="imagen-convocatoria">
-                                        </picture>
-                                    @break
-
-                                    @case('pdf')
-                                        <i class="far fa-file-pdf"></i>
-                                    @break
-
-                                    @default
-                                        <i class="fas fa-eye mr-2"></i>
-                                @endswitch
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif --}}
             <div class="my-4">
                 <!-- Save -->
                 @if ($client && $client->myAnnounces->contains($announcement->id))
@@ -124,7 +98,8 @@
                 @forelse ($suggests as $suggest)
                     <a href="{{ $suggest->pro && (!$client || !$pro_verified) ? route('purchase') : route('result', ['id' => $suggest->id]) }}"
                         wire:navigate wire:key='suggest-{{ $suggest->id }}'>
-                        <x-card-announce logo_url="{{ $suggest->company->company_image }}" pro="{{ $suggest->pro }}">
+                        <x-card-announce logo_url="{{ $suggest->company->company_image }}"
+                            logo_flag="{{ false }}" pro="{{ $suggest->pro }}">
                             <x-slot name="area">
                                 {{ $suggest->area->area_name }}
                                 @foreach ($suggest->profesions as $profesion)

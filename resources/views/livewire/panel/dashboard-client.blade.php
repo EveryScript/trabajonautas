@@ -78,7 +78,7 @@
                 </a>
             </div>
         </aside>
-        <main class="flex-1">
+        <main class="flex-1 mb-0 md:mb-24">
             @if ($free_client)
                 <x-dashboard-ad />
             @endif
@@ -86,17 +86,18 @@
             <div x-show="btnNavigation == 1">
                 <h3 class="text-lg font-medium mb-1">Convocatorias de trabajo para ti</h3>
                 @if ($free_client)
-                    <p class="inline-block text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg bg-white">
-                        <i class="inline fas fa-map-marker-alt text-primary pr-1"></i>
+                    <p
+                        class="inline-block text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg border border-tbn-primary bg-white">
+                        <i class="inline fas fa-map-marker-alt text-tbn-primary pr-1"></i>
                         {{ $client->location->location_name }}
                     </p>
                 @else
                     <div class="flex flex-row gap-2">
-                        <p class="text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg bg-white">
+                        <p class="text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg border border-tbn-primary bg-white">
                             <i class="inline fas fa-map-marker-alt text-tbn-primary pr-1"></i>
                             {{ $client->location->location_name }}
                         </p>
-                        <p class="text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg bg-white">
+                        <p class="text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg border border-tbn-primary bg-white">
                             <i class="inline fas fa-suitcase text-tbn-primary pr-1"></i>
                             {{ $client->area->area_name }}
                         </p>
@@ -191,8 +192,10 @@
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Profesiones</p>
                             @if ($free_client)
-                                <span class="text-xs text-tbn-dark"><i class="text-tbn-secondary fas fa-crown mr-1"></i> Adquiere
-                                    Trabajonautas PRO o PRO-MAX</span>
+                                <span class="text-xs text-tbn-dark"><i
+                                        class="text-tbn-secondary fas fa-crown mr-1"></i> Adquiere
+                                    Trabajonautas PRO o PRO-MAX <a class="text-tbn-primary underline"
+                                        href="{{ route('purchase') }}">aqui</a></span>.
                             @else
                                 <ul class="list-disc text-gray-900">
                                     @forelse ($client->myProfesions as $profesion)

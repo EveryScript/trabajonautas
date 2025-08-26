@@ -34,7 +34,7 @@
                         <x-button>{{ __('Register') }}</x-button>
                         <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             href="{{ route('login') }}" wire:navigate>
-                            {{ __('Already registered?') }}
+                            {{ __('Ya tengo una cuenta') }}
                         </a>
                     </div>
                 </div>

@@ -19,7 +19,7 @@ class RecentAnnouncement extends Component
                 ? $this->client->account->verified_payment : true;
         }
         $this->announcements = Announcement::where('expiration_time', '>=', now())
-            ->orderBy('updated_at', 'DESC')->limit(8)->get();
+            ->orderBy('updated_at', 'DESC')->limit(6)->get();
     }
 
     public function render()
