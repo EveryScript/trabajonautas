@@ -117,8 +117,8 @@
                         </x-card-announce>
                     </a>
                 @empty
-                    <span class="inline-block text-tbn-dark text-sm text-center">
-                        No hay sugerencias para esta convocatoria</span>
+                    <p class="text-tbn-dark text-sm text-center my-8">
+                        No hay sugerencias para esta convocatoria</p>
                 @endforelse
             </div>
         </div>
