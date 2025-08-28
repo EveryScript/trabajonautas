@@ -15,9 +15,6 @@
     <link href="https://fonts.bunny.net/css?family=baloo-da-2:400,700" rel="stylesheet" />
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Google, don't index this page -->
-    {{-- <meta name="robots" content="noindex, nofollow"> --}}
-
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 

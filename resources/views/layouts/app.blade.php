@@ -19,9 +19,6 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Google, don't index this page -->
-    {{-- <meta name="robots" content="noindex, nofollow"> --}}
-
     {{-- Firebase SDK --}}
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
