@@ -42,14 +42,14 @@
             class="max-w-6xl px-5 py-16 md:py-24 mx-auto flex items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
             <div class="w-full md:w-64 px-5 flex-shrink-0 text-white">
                 <picture class="block mb-4">
-                    <img class="max-w-[20rem] md:max-w-[15rem]" src="{{ asset('storage/img/tbn-logo-white.webp') }}" alt="tbn-logo">
+                    <img class="md:max-w-[15rem] max-w-48" src="{{ asset('storage/img/tbn-logo-white.webp') }}"
+                        alt="tbn-logo">
                 </picture>
-                <h5 class="font-bold">Contactos</h5>
-                <p class="text-sm font-normal">
-                    <span class="block">SEO Ricardo Oropeza - 76543210</span>
-                    <span class="block">SEO Carla Vargas - 76543210</span>
+                <p class="text-sm text-tbn-secondary my-2">&copy; {{ now()->year }} - Todos los derechos reservados
                 </p>
-                <p class="mt-2 text-sm">&copy; {{ now()->year }} - Todos los derechos reservados</p>
+                <h5 class="font-bold">Contactos</h5>
+                <p class="text-sm my-1 font-normal">SEO Ricardo Oropeza - 76543210</p>
+                <p class="text-sm my-1 font-normal">SEO Carla Vargas - 76543210</p>
             </div>
             @livewire('web.footer-data')
         </div>

@@ -59,23 +59,23 @@
             <div class="my-4">
                 <!-- Save -->
                 @if ($client && $client->myAnnounces->contains($announcement->id))
-                    <x-button class="w-full sm:w-auto my-2" wire:click='removeAnnounce({{ $announcement->id }})'>
-                        <i class="fas fa-bookmark pr-2"></i> Guardado
+                    <x-button class="w-full sm:w-auto my-1" wire:click='removeAnnounce({{ $announcement->id }})'>
+                        <i class="fas fa-bookmark pr-2 text-sm"></i> Guardado
                     </x-button>
                 @else
-                    <x-button class="w-full sm:w-auto my-2" wire:click='saveAnnounce({{ $announcement->id }})'>
-                        <i class="far fa-bookmark pr-2"></i> Guardar
+                    <x-button class="w-full sm:w-auto my-1" wire:click='saveAnnounce({{ $announcement->id }})'>
+                        <i class="far fa-bookmark pr-2 text-sm"></i> Guardar
                     </x-button>
                 @endif
                 @if ($announcement->announceFiles && count($announcement->announceFiles))
-                    <x-button class="w-full sm:w-auto my-2" wire:click='downloadAnnounceFiles()'>
-                        <i class="fas fa-arrow-down pr-2"></i> Descargar archivos
+                    <x-button class="w-full sm:w-auto my-1" wire:click='downloadAnnounceFiles()'>
+                        <i class="fas fa-arrow-down pr-2 text-sm"></i> Descargar archivos
                     </x-button>
                 @endif
                 <!-- Return -->
                 <a href="{{ route('search') }}" wire:navigate>
-                    <x-secondary-button>
-                        <i class="fas fa-arrow-left"></i> Volver
+                    <x-secondary-button class="w-full sm:w-auto my-1">
+                        <i class="fas fa-arrow-left pr-2 text-sm"></i> Volver
                     </x-secondary-button>
                 </a>
             </div>

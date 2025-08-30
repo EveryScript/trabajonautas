@@ -26,16 +26,21 @@
         <!-- Results numbers -->
         @if ($search_title || $search_location)
             <div class="p-5 rounded-md bg-gray-100 mb-4" wire:loading.remove>
-                <div class="flex flex-row align-end">
+                <div class="flex flex-row align-center">
                     <div class="flex-1">
                         <h5 class="text-tbn-primary text-sm font-semibold mb-1">
                             Resultados encontrados: {{ $count_results }}</h5>
-                        <p class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900">
-                            {{ $search_title }}</p>
+                        @if ($search_title)
+                            <p class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900">
+                                {{ $search_title }}</p>
+                        @endif
                         <p x-text="search_location" x-show="search_location"
                             class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900"></p>
                     </div>
-                    <x-button type="button" wire:click='clearSearch'>Borrar</x-button>
+                    <div class="flex flex-col justify-center">
+                        <button class="inline-block w-10 h-10 rounded-full bg-tbn-primary" type="button" wire:click='clearSearch'>
+                            <i class="fas fa-trash text-sm text-white"></i></button>
+                    </div>
                 </div>
             </div>
         @endif
@@ -99,7 +104,9 @@
     @endscript
     @script
         <script>
-            new TomSelect('#locations', []);
+            new TomSelect('#locations', {
+                controlInput: null
+            });
         </script>
     @endscript
 </section>
