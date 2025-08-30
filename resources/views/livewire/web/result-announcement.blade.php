@@ -30,13 +30,13 @@
                                     @else
                                         Expiró
                                     @endif
-                                    {{ (new Carbon\Carbon($announcement->expiration_time))->diffForHumans() }}
+                                    {{ \Carbon\Carbon::parse($announcement->expiration_time)->diffForHumans() }}
                                 </span>
                             </div>
                             <div class="mb-2">
                                 <i class="fas fa-calendar-alt text-red-500 pr-1"></i>
                                 <span class=""> Publicado
-                                    {{ (new Carbon\Carbon($announcement->updated_at))->diffForHumans() }}
+                                    {{ \Carbon\Carbon::parse($announcement->updated_at)->diffForHumans() }}
                                 </span>
                             </div>
                             <div class="mb-2">
@@ -72,6 +72,12 @@
                         <i class="fas fa-arrow-down pr-2"></i> Descargar archivos
                     </x-button>
                 @endif
+                <!-- Return -->
+                <a href="{{ route('search') }}" wire:navigate>
+                    <x-secondary-button>
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </x-secondary-button>
+                </a>
             </div>
         </div>
     </section>

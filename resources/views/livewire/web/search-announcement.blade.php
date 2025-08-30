@@ -4,11 +4,10 @@
         <div class="w-full flex flex-col md:flex-row gap-2 mb-5 tbn-form">
             <div class="w-full md:w-1/2">
                 <x-label for="search_title" value="{{ __('¿Cuál es tu profesión?') }}" />
-                <x-input x-model="search_title" class="w-full px-2 py-[.6rem]" type="search" wire:model='search_title'
-                    wire:keydown.enter='searchAnnounces(search_title, search_location_id)'
-                    placeholder="Arquitecto, ingeniero ..." />
+                <x-input class="px-[12px] py-[6px]" type="search" wire:model='search_title' x-model="search_title"
+                    @keyup.enter="searchAnnouncements" placeholder='Arquitecto, ingeniero ...' />
             </div>
-            <div class="w-full md:w-1/2 tbn-field" wire:ignore>
+            <div class="w-full md:w-1/2" wire:ignore>
                 <x-label for="search_location" value="{{ __('Departamento o región') }}" />
                 <x-select @change="setLocationName($event.target.value)" id="locations" wire:model="search_location">
                     <option value="0" selected>Cualquier lugar</option>
@@ -20,38 +19,26 @@
                 </x-select>
             </div>
             <div class="pt-1 md:pt-5">
-                <x-button wire:click="searchAnnounces(search_title, search_location_id)"
-                    class="h-[3rem] md:w-auto w-full mt-1"
+                <x-button @click="searchAnnouncements" class="md:w-auto w-full mt-1"
                     x-bind:disabled="!search_title && !search_location">Buscar</x-button>
             </div>
         </div>
-        <!-- Search elements -->
-        <div class="flex flex-row items-center gap-2">
-            <template x-if="search_title">
-                <div
-                    class="flex flex-row bg-tbn-primary text-white text-sm font-normal px-4 py-2 rounded-full gap-2 mb-5 shadow-md">
-                    <p x-text="search_title"></p>
-                    <button class="cursor-pointer" @click="search_title = ''">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
-                </div>
-            </template>
-            <template x-if="search_location">
-                <div
-                    class="flex flex-row bg-tbn-primary text-white text-sm font-normal px-4 py-2 rounded-full gap-2 mb-5 shadow-md">
-                    <p x-text="search_location"></p>
-                    <button class="cursor-pointer" @click="setLocationName(0)">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
-                </div>
-            </template>
-        </div>
         <!-- Results numbers -->
-        @if (count($announcements) > 0 && $search_title)
-            <div class="text-tbn-high font-medium text-sm mb-5" wire:loading.remove>Resultados
-                encontrados ({{ count($announcements) }})</div>
+        @if ($search_title || $search_location)
+            <div class="p-5 rounded-md bg-gray-100 mb-4" wire:loading.remove>
+                <div class="flex flex-row align-end">
+                    <div class="flex-1">
+                        <h5 class="text-tbn-primary text-sm font-semibold mb-1">
+                            Resultados encontrados: {{ $count_results }}</h5>
+                        <p class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900">
+                            {{ $search_title }}</p>
+                        <p x-text="search_location" x-show="search_location"
+                            class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900"></p>
+                    </div>
+                    <x-button type="button" wire:click='clearSearch'>Borrar</x-button>
+                </div>
+            </div>
         @endif
-
         <!-- Announcements -->
         <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
             @forelse ($announcements as $announce)
@@ -77,6 +64,7 @@
             @empty
                 <x-section-empty class="col-span-2" title="No hay resultados"
                     description="No hemos encontrado coincidencias para tu busqueda" wire:loading.remove>
+                    <x-button type="button" wire:click='clearSearch' class="mt-4">Aceptar</x-button>
                 </x-section-empty>
             @endforelse
         </div>
@@ -91,6 +79,9 @@
                 search_location: '',
                 search_location_id: '',
                 locations: {!! $locations !!},
+                init() {
+                    this.search_title = $wire.search_title
+                },
                 setLocationName(id) {
                     if (id == 0) {
                         this.search_location = null
@@ -102,11 +93,6 @@
                 },
                 searchAnnouncements() {
                     $wire.searchAnnounces(this.search_title, this.search_location_id)
-                },
-                clearData() {
-                    this.search_title = ''
-                    this.search_location = ''
-                    this.search_location_id = ''
                 }
             }));
         </script>
