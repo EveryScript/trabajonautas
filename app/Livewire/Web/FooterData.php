@@ -26,7 +26,7 @@ class FooterData extends Component
                 <nav class="list-none mb-10">
                     @forelse($profesions as $profesion)
                         <li class="hover:text-tbn-secondary">
-                            <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}">{{ $profesion->profesion_name }}</a>
+                            <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}" wire:navigate>{{ $profesion->profesion_name }}</a>
                         </li>
                     @empty
                         <li class="text-gray-500">No hay profesiones</li>

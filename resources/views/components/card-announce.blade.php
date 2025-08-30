@@ -13,12 +13,15 @@
 @endphp
 
 <article
-    class="w-full h-full relative flex flex-row justify-start gap-4 text-start
+    class="w-full h-full relative flex md:flex-row flex-col justify-start gap-4 md:gap-6 text-start
             bg-white shadow-md px-6 py-5 rounded-lg border border-gray-300 hover:border-tbn-primary cursor-pointer">
-    <img alt="team"
-        class="flex-shrink-0 rounded-lg w-16 h-16 object-cover object-center sm:mb-0 mb-4 {{ $logo_flag ? '' : 'hidden' }}"
-        src="{{ asset('storage/' . $logo_url) }}">
-    <div class="flex-grow md:pl-1 sm:pl-4 text-sm">
+    @if ($logo_flag)
+        <picture class="w-10 h-10 md:w-16 md:h-16">
+            <img alt="team" class="w-full rounded-md object-cover object-center {{ $logo_flag ? '' : 'hidden' }}"
+                src="{{ asset('storage/' . $logo_url) }}">
+        </picture>
+    @endif
+    <div class="flex-1 text-sm">
         <span class="absolute top-4 right-6 {{ $pro ? '' : 'hidden' }}"><i
                 class="fas fa-crown text-sm text-tbn-secondary"></i></span>
         <span class="text-xs font-normal text-tbn-dark">
