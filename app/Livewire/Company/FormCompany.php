@@ -14,7 +14,7 @@ class FormCompany extends Component
     use WithFileUploads;
 
     public $id; // Edit
-    public $image_logo;
+    public $preview_image;
     public CompanyForm $company;
     public $company_types;
 
@@ -23,13 +23,13 @@ class FormCompany extends Component
         if ($id && Company::find($id)) {
             $this->id = $id;
             $this->company->edit($id);
+            $this->preview_image = $this->company->company_image;
+            $this->company->company_image = null;
         }
     }
 
     public function update()
     {
-        if ($this->image_logo)
-            $this->company->company_image = $this->image_logo->store('empresas', 'public');
         $this->company->update($this->id);
         $this->redirectRoute('company', navigate: true);
     }
@@ -37,8 +37,6 @@ class FormCompany extends Component
     public function save()
     {
         $this->company->user_id = Auth::id();
-        if ($this->image_logo)
-            $this->company->company_image = $this->image_logo->store('empresas', 'public');
         $this->company->save();
         $this->redirectRoute('company', navigate: true);
     }

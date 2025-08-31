@@ -8,19 +8,10 @@ use Livewire\Form;
 
 class CompanyForm extends Form
 {
-    #[Validate('required|min:2')]
     public $company_name;
-
-    #[Validate('required')]
     public $description;
-
-    #[Validate('required')]
     public $company_image;
-
-    #[Validate('required')]
     public $user_id;
-    
-    #[Validate('required')]
     public $company_type_id = 1;
 
     public function edit($edit_id)
@@ -36,18 +27,39 @@ class CompanyForm extends Form
     public function update($update_id)
     {
         $company = Company::find($update_id);
-        $company->update([
+        $rules = [
+            'company_name' => 'required|min:2',
+            'description' => 'required',
+            'user_id' => 'required',
+            'company_type_id' => 'required'
+        ];
+        if ($this->company_image)
+            $rules['company_image'] = 'required|image|mimes:jpg,jpeg,png|max:4000';
+        $this->validate($rules);
+
+        $update_data = [
             'company_name' => $this->company_name,
             'description' => $this->description,
-            'company_image' => $this->company_image,
             'user_id' => $this->user_id,
             'company_type_id' => $this->company_type_id
-        ]);
+        ];
+        if ($this->company_image) {
+            $this->company_image = $this->company_image->store('empresas', 'public');
+            $update_data['company_image'] = $this->company_image;
+        }
+        $company->update($update_data);
     }
 
     public function save()
     {
-        $this->validate();
+        $this->validate([
+            'company_name' => 'required|min:2',
+            'description' => 'required',
+            'company_image' => 'required|image|mimes:jpg,jpeg,png|max:4000',
+            'user_id' => 'required',
+            'company_type_id' => 'required'
+        ]);
+        $this->company_image = $this->company_image->store('empresas', 'public');
         $company_saved = Company::create(
             $this->only('company_name', 'description', 'company_image', 'user_id', 'company_type_id')
         );

@@ -35,8 +35,9 @@
             </div>
             <div class="mb-4">
                 <x-label for="company_image" value="{{ __('Logotipo de la empresa') }}" />
-                <x-input wire:model='company_image' wire:model="image_logo" id="company_image" type="file"
-                    class="mt-1 block w-full" accept="image/png, image/jpeg, image/jpg" @change="imageChange" />
+                <input type="file" wire:model.live="company.company_image" id="company_image"
+                    class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white file:cursor-pointer cursor-pointer file:border-0 file:py-2 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-dark file:text-white rounded"
+                    accept="image/png, image/jpeg, image/jpg" @change="imageChange" />
                 <x-input-error for="company.company_image" class="mt-2" />
             </div>
             <x-button>{{ $id ? 'Actualizar' : 'Guardar' }}</x-button>
@@ -56,7 +57,7 @@
                     <picture class="block mb-0 md:mb-2">
                         <img alt="company-logo"
                             class="flex-shrink-0 rounded-lg w-24 h-24 object-cover object-center sm:mb-0 mb-4"
-                            src="{{ asset($company->company_image ? 'storage/empresas/' . $company->company_image : 'storage/empresas/' . 'tbn-default.webp') }}">
+                            src="{{ asset($preview_image ? 'storage/' . $preview_image : 'storage/empresas/tbn-default.webp') }}">
                     </picture>
                 </template>
                 <h5 x-text="company_name" class="font-medium text-lg mb-2 text-tbn-primary"></h5>
@@ -72,7 +73,7 @@
             Alpine.data('content', () => ({
                 imageUrl: null,
                 companyTypes: {!! $company_types !!},
-                typeText: '',
+                typeText: 'Pública',
                 // Model
                 company_name: '',
                 company_type: '',
