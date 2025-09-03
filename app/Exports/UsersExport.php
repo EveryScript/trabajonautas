@@ -27,6 +27,7 @@ class UsersExport implements FromCollection, WithHeadings
                     Carbon::parse($this->end_date)->endOfDay()
                 ]);
             $query->whereIn('account_type_id', [2, 3]);
+            $query->where('verified_payment', true);
         })
             ->with('account.accountType')
             ->get()

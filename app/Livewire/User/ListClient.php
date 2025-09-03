@@ -25,11 +25,6 @@ class ListClient extends Component
             ? $filter_query->paginate(8)
             : $base_query->paginate(8);
 
-        // $clients = User::whereHas('account')
-        //     ->when($this->search, fn($query) => $query->where('name', 'LIKE', '%' . $this->search . '%'))
-        //     ->with('account.accountType')
-        //     ->paginate(12);
-
         return view('livewire.user.list-client', [
             'clients' => $clients,
             'count_results' => $count_results,
