@@ -7,7 +7,8 @@
         <x-slot name="search_field">
             <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
                 placeholder="Buscar convocatoria" />
-            <x-button-link class="pt-2.5 bg-tbn-primary" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button-link>
+            <x-button-link class="pt-2.5 bg-tbn-primary" href="{{ route('new-announcement') }}"
+                wire:navigate>Nuevo</x-button-link>
         </x-slot>
     </x-title-app>
     <div x-data="content">
@@ -32,10 +33,18 @@
             </thead>
             <tbody>
                 @if ($search)
-                    <tr class="text-center text-tbn-dark text-sm">
-                        <td class="py-2" colspan="5">Resultados encontrados <button
-                                class="text-tbn-primary underline" wire:click="$set('search', null)"> Volver
-                            </button> </td>
+                    <tr class="text-center text-tbn-dark text-sm bg-gray-200">
+                        <td class="px-6 py-2" colspan="5">
+                            <div class="flex flex-row justify-between items-center">
+                                <div>
+                                    <span class="font-bold">"{{ $search }}"</span>
+                                    <i class="fas fa-arrow-right text-xs px-2"></i>
+                                    {{ $count_results }} Resultados encontrados
+                                </div>
+                                <button type="button" wire:click="$set('search', null)">
+                                    <i class="fas fa-times text-tbn-primary text-lg"></i></button>
+                            </div>
+                        </td>
                     </tr>
                 @endif
                 @forelse ($announcements as $announcement)
@@ -76,9 +85,9 @@
                     </tr>
                 @empty
                     <tr class="bg-white border-b hover:bg-gray-50">
-                        <td class="py-4 text-center font-italic text-gray-600" colspan="6">No se han
-                            encontrado
-                            datos <button class="text-tbn-primary underline" wire:click="$set('search', null)">
+                        <td class="py-4 text-center font-italic text-gray-600" colspan="5">
+                            No se han encontrado datos
+                            <button class="text-tbn-primary underline" wire:click="$set('search', null)">
                                 Aceptar </button>
                         </td>
                     </tr>
