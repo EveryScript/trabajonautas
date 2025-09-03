@@ -19,9 +19,21 @@ class ListAnnouncement extends Component
 
     public function render()
     {
-        $announcements = Announcement::with('profesions')->orderBy('updated_at', 'DESC')
-            ->when($this->search, fn($query) => $query->where('announce_title', 'LIKE', '%' . $this->search . '%'))
-            ->paginate(7);
-        return view('livewire.announcement.list-announcement', compact('announcements'));
+        $base_query = Announcement::with('profesions')->orderBy('updated_at', 'DESC');
+
+        $filter_query = (clone $base_query)
+            ->when($this->search, fn($query) => $query->where('announce_title', 'LIKE', '%' . $this->search . '%'));
+
+        $count_results = $filter_query->count();
+
+        $announcements = $count_results > 0
+            ? $filter_query->paginate(7)
+            : $base_query->paginate(7);
+            
+        return view('livewire.announcement.list-announcement', [
+            'announcements' => $announcements,
+            'count_results' => $count_results,
+            'search_title' => $this->search
+        ]);
     }
 }

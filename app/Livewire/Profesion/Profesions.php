@@ -35,6 +35,7 @@ class Profesions extends Component
         $this->profesion->delete($id);
         $this->render();
         $this->search = null;
+        $this->cancelForm();
     }
 
     public function save()
@@ -43,11 +44,29 @@ class Profesions extends Component
         $this->dispatch('profesion-saved');
     }
 
+    public function cancelForm()
+    {
+        $this->profesion->profesion_name = null;
+        $this->update_mode = false;
+    }
+
     public function render()
     {
-        $profesions = Profesion::orderBy('profesion_name', 'ASC')
-            ->when($this->search, fn($query) => $query->where('profesion_name', 'LIKE', '%' . $this->search . '%'))
-            ->simplePaginate(5);
-        return view('livewire.profesion.profesions', compact('profesions'));
+        $base_query = Profesion::orderBy('profesion_name', 'ASC');
+
+        $filter_query = (clone $base_query)
+            ->when($this->search, fn($query) => $query->where('profesion_name', 'LIKE', '%' . $this->search . '%'));
+
+        $count_results = $filter_query->count();
+
+        $profesions = $count_results > 0
+            ? $filter_query->simplePaginate(7)
+            : $base_query->simplePaginate(7);
+
+        return view('livewire.profesion.profesions', [
+            'profesions' => $profesions,
+            'count_results' => $count_results,
+            'search_title' => $this->search
+        ]);
     }
 }
