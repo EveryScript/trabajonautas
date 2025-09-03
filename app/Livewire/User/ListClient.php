@@ -14,12 +14,26 @@ class ListClient extends Component
 
     public function render()
     {
-        $clients = User::whereHas('account')
-            ->when($this->search, fn($query) => $query->where('name', 'LIKE', '%' . $this->search . '%'))
-            ->with('account.accountType')
-            ->paginate(12);
+        $base_query = User::whereHas('account')->with('account.accountType');
+
+        $filter_query = (clone $base_query)
+            ->when($this->search, fn($query) => $query->where('name', 'LIKE', '%' . $this->search . '%'));
+
+        $count_results = $filter_query->count();
+
+        $clients = $count_results > 0
+            ? $filter_query->paginate(8)
+            : $base_query->paginate(8);
+
+        // $clients = User::whereHas('account')
+        //     ->when($this->search, fn($query) => $query->where('name', 'LIKE', '%' . $this->search . '%'))
+        //     ->with('account.accountType')
+        //     ->paginate(12);
+
         return view('livewire.user.list-client', [
-            'clients' => $clients
+            'clients' => $clients,
+            'count_results' => $count_results,
+            'search' => $this->search
         ]);
     }
 }
