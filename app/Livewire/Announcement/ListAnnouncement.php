@@ -29,6 +29,7 @@ class ListAnnouncement extends Component
         $announcements = $count_results > 0
             ? $filter_query->paginate(7)
             : $base_query->paginate(7);
+            
         return view('livewire.announcement.list-announcement', [
             'announcements' => $announcements,
             'count_results' => $count_results,
