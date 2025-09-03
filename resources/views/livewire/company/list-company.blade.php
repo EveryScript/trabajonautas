@@ -36,11 +36,19 @@
                 </tr>
             </thead>
             <tbody>
-                @if ($search && count($companies) > 0)
-                    <tr class="text-center text-tbn-dark text-sm">
-                        <td class="py-2" colspan="5">
-                            {{ count($companies) }} Resultados encontrados <button class="text-tbn-primary underline"
-                                wire:click="$set('search', null)"> Cerrar </button> </td>
+                @if ($search)
+                    <tr class="text-center text-tbn-dark text-sm bg-gray-200">
+                        <td class="px-6 py-2" colspan="4">
+                            <div class="flex flex-row justify-between items-center">
+                                <div>
+                                    <span class="font-bold">"{{ $search }}"</span>
+                                    <i class="fas fa-arrow-right text-xs px-2"></i>
+                                    {{ $count_results }} Resultados encontrados
+                                </div>
+                                <button type="button" wire:click="$set('search', null)">
+                                    <i class="fas fa-times text-tbn-primary text-lg"></i></button>
+                            </div>
+                        </td>
                     </tr>
                 @endif
                 @forelse ($companies as $company)
@@ -59,7 +67,7 @@
                             {{ $company->companyType->company_type_name }}
                         </td>
                         <td class="px-6 py-4">
-                            {{ (new Carbon\Carbon($company->updated_at))->diffForHumans() }}
+                            {{ \Carbon\Carbon::parse($company->updated_at)->diffForHumans() }}
                         </td>
                         <td class="flex flex-row justify-end items-center h-20 px-6 py-4 text-lg">
                             <a href="{{ route('new-company', ['id' => $company->id]) }}" wire:navigate

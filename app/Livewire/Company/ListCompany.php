@@ -24,9 +24,21 @@ class ListCompany extends Component
 
     public function render()
     {
-        $companies = Company::orderBy('company_name', 'ASC')
-            ->when($this->search, fn($query)  => $query->where('company_name', 'LIKE', '%' . $this->search . '%'))
-            ->simplePaginate(7);
-        return view('livewire.company.list-company', compact('companies'));
+        $base_query = Company::orderBy('company_name', 'ASC');
+
+        $filter_query = (clone $base_query)
+            ->when($this->search, fn($query)  => $query->where('company_name', 'LIKE', '%' . $this->search . '%'));
+
+        $count_results = $filter_query->count();
+
+        $companies = $count_results > 0
+            ? $filter_query->simplePaginate(7)
+            : $base_query->simplePaginate(7);
+            
+        return view('livewire.company.list-company', [
+            'companies' => $companies,
+            'count_results' => $count_results,
+            'search' => $this->search
+        ]);
     }
 }
