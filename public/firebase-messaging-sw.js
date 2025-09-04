@@ -27,30 +27,12 @@ messaging.onBackgroundMessage(function (payload) {
     self.registration.showNotification(title, {
         body: body,
         icon: icon,
+<<<<<<< HEAD
         data: {
             url: clickAction,
         },
+=======
+        data: { url: clickAction },
+>>>>>>> develop
     });
-});
-
-// Handle notification click
-self.addEventListener("notificationclick", function (event) {
-    const targetUrl =
-        event.notification.data?.url || "https://trabajonautas.com";
-    event.notification.close();
-
-    event.waitUntil(
-        clients
-            .matchAll({ type: "window", includeUncontrolled: true })
-            .then(function (clientList) {
-                for (const client of clientList) {
-                    if (client.url === targetUrl && "focus" in client) {
-                        return client.focus();
-                    }
-                }
-                if (clients.openWindow) {
-                    return clients.openWindow(targetUrl);
-                }
-            })
-    );
 });
