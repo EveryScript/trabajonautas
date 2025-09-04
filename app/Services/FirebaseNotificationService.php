@@ -21,7 +21,7 @@ class FirebaseNotificationService
         $message = CloudMessage::new()
             ->withNotification($notification)
             ->withData([
-                'click_action' => 'https://trabajonautas.test/convocatoria/' . $announce_id
+                'click_action' => 'https://trabajonautas.com/convocatoria/' . $announce_id
             ]);
         $report = $messaging->sendMulticast($message, $device_tokens);
         return [
@@ -29,21 +29,4 @@ class FirebaseNotificationService
             'failure_count' => $report->failures()->count()
         ];
     }
-
-    // public function sendToToken(array $device_tokens, $announce_id)
-    // {
-    //     $firebase = (new Factory)->withServiceAccount(storage_path(env('FIREBASE_CREDENTIALS')));
-    //     $messaging = $firebase->createMessaging();
-
-    //     $message = CloudMessage::new()
-    //         ->withNotification([
-    //             'title' => 'Nueva convocatoria',
-    //             'body' => 'Trabajonautas ha publicado una convocatoria ideal para ti. Haz click aquí para ver la convocatoria.'
-    //         ])
-    //         ->withData([
-    //             'icon' => 'some.png'
-    //         ]);
-
-    //         $messaging->sendMulticast($message, $device_tokens);
-    // }
 }

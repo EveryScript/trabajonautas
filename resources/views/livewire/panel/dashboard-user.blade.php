@@ -2,6 +2,9 @@
     <div class="bg-white rounded-md shadow-md px-7 py-5" x-data="content">
         <h4 class="text-2xl text-tbn-primary font-bold">Bienvenido {{ Auth::user()->name }}</h4>
         <p class="mb-5 text-tbn-dark text-sm">Esta es la actividad más reciente en Trabajonautas.com</p>
+        <div class="mb-5">
+            <x-button type="button" wire:click='sendNotification'>Send notifications</x-button>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
             <!-- Clients by role chart -->
             <div class="col-span-3 md:col-span-1 border border-gray-300 rounded-lg shadow-lg px-5 py-4">
