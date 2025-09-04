@@ -19,36 +19,14 @@ const messaging = firebase.messaging();
 
 // Handle background messages
 messaging.onBackgroundMessage(function (payload) {
-    const { title, body } = payload.notification;
+    const title = payload.data.title || "Trabajonautas";
+    const body = payload.data.body || "";
+    const icon = payload.data.icon || "storage/img/tbn-icon.ico";
     const clickAction =
         payload.data.click_action || "https://trabajonautas.com";
     self.registration.showNotification(title, {
         body: body,
-        icon: "storage/img/tbn-icon.ico", // opcional
-        data: {
-            url: clickAction,
-        },
+        icon: icon,
+        data: { url: clickAction },
     });
-});
-
-// Handle notification click
-self.addEventListener("notificationclick", function (event) {
-    const targetUrl =
-        event.notification.data?.url || "https://trabajonautas.com";
-    event.notification.close();
-
-    event.waitUntil(
-        clients
-            .matchAll({ type: "window", includeUncontrolled: true })
-            .then(function (clientList) {
-                for (const client of clientList) {
-                    if (client.url === targetUrl && "focus" in client) {
-                        return client.focus();
-                    }
-                }
-                if (clients.openWindow) {
-                    return clients.openWindow(targetUrl);
-                }
-            })
-    );
 });
