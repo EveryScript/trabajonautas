@@ -2,10 +2,7 @@
 
 namespace App\Services;
 
-use Kreait\Firebase\Exception\MessagingException;
-use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class FirebaseNotificationService
@@ -17,7 +14,7 @@ class FirebaseNotificationService
         $message = CloudMessage::new()
             ->withData([
                 'title' => 'Nueva convocatoria',
-                'body' => 'Trabajonautas ha publicado una convocatoria ideal para ti.',
+                'body' => 'Trabajonautas.com ha publicado una convocatoria ideal para ti.',
                 'click_action' => 'https://trabajonautas.com/convocatoria/' . $announce_id,
                 'icon' => 'storage/img/tbn-icon.ico'
             ]);
