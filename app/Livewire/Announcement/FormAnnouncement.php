@@ -50,7 +50,6 @@ class FormAnnouncement extends Component
             $array_tokens = $clients->pluck('account.device_token')->toArray();
             // $notifier->sendToToken($array_tokens, $announce_saved->id);
             $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
-            dump($response_notifications);
         }
         $this->redirectRoute('announcement', navigate: true);
     }
