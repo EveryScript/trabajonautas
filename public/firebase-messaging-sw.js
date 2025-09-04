@@ -22,11 +22,12 @@ messaging.onBackgroundMessage(function (payload) {
     const title = payload.data.title || "Trabajonautas";
     const body = payload.data.body || "";
     const icon = payload.data.icon || "storage/img/tbn-icon.ico";
-    const clickAction =
-        payload.data.click_action || "https://trabajonautas.com";
+    const clickAction = payload.data.click_action || "https://trabajonautas.com";
     self.registration.showNotification(title, {
         body: body,
         icon: icon,
-        data: { url: clickAction },
+        data: {
+            url: clickAction,
+        },
     });
 });
