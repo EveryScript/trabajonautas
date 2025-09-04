@@ -14,14 +14,12 @@ class FirebaseNotificationService
     public function sendBatchTokens(array $device_tokens, $announce_id)
     {
         $messaging = Firebase::messaging();
-        $notification = Notification::create(
-            'Nueva convocatoria',
-            'Trabajonautas ha publicado una convocatoria ideal para ti. Haz click aquí para ver la convocatoria.'
-        );
         $message = CloudMessage::new()
-            ->withNotification($notification)
             ->withData([
-                'click_action' => 'https://trabajonautas.com/convocatoria/' . $announce_id
+                'title' => 'Nueva convocatoria',
+                'body' => 'Trabajonautas ha publicado una convocatoria ideal para ti.',
+                'click_action' => 'https://trabajonautas.com/convocatoria/' . $announce_id,
+                'icon' => 'storage/img/tbn-icon.ico'
             ]);
         $report = $messaging->sendMulticast($message, $device_tokens);
         return [

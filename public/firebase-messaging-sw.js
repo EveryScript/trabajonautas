@@ -19,12 +19,14 @@ const messaging = firebase.messaging();
 
 // Handle background messages
 messaging.onBackgroundMessage(function (payload) {
-    const { title, body } = payload.notification;
+    const title = payload.data.title || "Trabajonautas";
+    const body = payload.data.body || "";
+    const icon = payload.data.icon || "storage/img/tbn-icon.ico";
     const clickAction =
         payload.data.click_action || "https://trabajonautas.com";
     self.registration.showNotification(title, {
         body: body,
-        icon: "storage/img/tbn-icon.ico", // opcional
+        icon: icon,
         data: {
             url: clickAction,
         },
