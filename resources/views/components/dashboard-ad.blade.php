@@ -1,5 +1,5 @@
 <div x-show="btnAd" class="relative mx-auto mb-8">
-    <button x-on:click="btnAd = false" class="absolute top-4 right-6 text-2xl text-tbn-dark">
+    <button x-on:click="btnAd = false" class="absolute top-4 right-6 text-md text-tbn-primary">
         <i class="fas fa-times"></i>
     </button>
     <div class="w-full mx-auto rounded-lg shadow-lg overflow-hidden lg:max-w-none lg:flex bg-white">
@@ -25,14 +25,14 @@
                 <span class="text-4xl font-bold">30 Bs.</span>
             </div>
             <div class="mt-6">
-                <x-button-link class="bg-tbn-primary" href="{{ route('purchase') }}" wire:navigate>
+                <x-button-link class="bg-tbn-primary" href="{{ route('purchase-cards', ['account_type_id' => 3]) }}"
+                    wire:navigate>
                     Adquirir PRO ahora</x-button-link>
             </div>
         </div>
         <div
             class="py-8 px-6 text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center lg:p-12 bg-gray-00 hidden">
-            <img src="{{ asset('storage/img/pro.webp') }}" alt="empty"
-                class="w-[12rem] h-[12rem] mx-auto mb-4">
+            <img src="{{ asset('storage/img/pro.webp') }}" alt="empty" class="w-[12rem] h-[12rem] mx-auto mb-4">
         </div>
     </div>
 </div>

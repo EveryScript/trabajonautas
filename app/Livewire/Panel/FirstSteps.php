@@ -18,7 +18,7 @@ class FirstSteps extends Component
     public $account_type_id;                    // Step 3
     public $user_profesions;                    // Step 4
     public $user;                               // Current user
-    public $profesions, $areas, $locations, $account_types; // Data to use in the view
+    public $areas, $locations, $account_types; // Data to use in the view
     public $step = 1;
 
     public function mount()
@@ -58,7 +58,7 @@ class FirstSteps extends Component
         ]);
         $this->step = 3;
     }
-    public function savePurchaseData()
+    public function saveAccountData()
     {
         $this->validate([
             'account_type_id' => 'required|exists:account_types,id'
@@ -72,9 +72,10 @@ class FirstSteps extends Component
             $user->update(['register_completed' => true]);
             $this->redirectRoute('dashboard', navigate: true);
         } else {
-            $this->step = 4;
+            $this->redirectRoute('purchase-account', ['account_type_id' => $this->account_type_id], navigate: true);
         }
     }
+    /*
     public function saveProAccountData($form_profesions)
     {
         $this->user_profesions = $form_profesions;
@@ -93,13 +94,13 @@ class FirstSteps extends Component
             . $this->user->account->accountType->name . '. Mi nombre es ' . $this->user->name . ' y mi número de celular es '
             . $this->user->phone . '.Aquí está mi comprobante:');
     }
+    */
     public function stepBack()
     {
         $this->step--;
     }
     public function render()
     {
-        $this->profesions = Profesion::orderBy('profesion_name', 'ASC')->get();
         $this->areas = Area::orderBy('area_name', 'ASC')->get();
         $this->locations = Location::all();
         $this->account_types = AccountType::all();

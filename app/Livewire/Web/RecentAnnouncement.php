@@ -27,7 +27,7 @@ class RecentAnnouncement extends Component
         return <<<'HTML'
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-12">
             @forelse ($announcements as $announce)
-            <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase') : route('result', ['id' => $announce->id]) }}"
+            <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
                     wire:navigate wire:key='announce-{{ $announce->id }}'>
                 <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
                     pro="{{ $announce->pro }}">

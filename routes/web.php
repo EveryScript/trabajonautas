@@ -24,7 +24,9 @@ Route::get('/busqueda/{title?}', fn($title = null) => view('search', ['title' =>
 Route::get('/convocatoria/{id?}', fn($id = null) => view('result', ['id' => $id]))->name('result');
 
 // Purchase
-Route::get('/pro', fn() => view('purchase'))->name('purchase');
+Route::get('/pro', fn() => view('purchase-cards'))->name('purchase-cards');
+Route::get('/compra/{account_type_id}', fn($account_type_id = null) => view('purchase-account', ['account_type_id' => $account_type_id]))
+    ->name('purchase-account');
 
 // All access logged
 Route::group(['middleware' => ['role:CLIENT|USER|ADMIN']], function () {

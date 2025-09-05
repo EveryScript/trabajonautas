@@ -1,113 +1,23 @@
-<section class="max-w-6xl mx-auto my-10">
-    <div class="text-center mb-4 px-4">
-        <i class="fas fa-crown text-[3rem] text-tbn-secondary mb-4"></i>
-        <h5 class="font-medium text-xl">Adquiere tu cuenta de <span class="text-tbn-primary">Trabajonautas
-                PRO</span> ahora mismo</h5>
-        <p class="text-tbn-dark text-sm">Convocatorías exclusivas y nuevas opciones de búsqueda cada día al
-            alcance de ti. </p>
-    </div>
+<section class="min-h-screen flex items-start justify-center py-10">
     <div x-data="content">
-        {{-- Purchase cards --}}
-        <div class="grid gap-8 mb-12 lg:grid-cols-3 p-4 md:p-8 mt-4" x-show="!showForm">
-            @foreach ($account_types as $account_type)
-                <div class="relative">
-                    @if ($account_type->id == 2)
-                        <div class="absolute left-0 right-0 flex justify-center -top-4">
-                            <span
-                                class="flex items-center gap-1 px-4 py-1 text-sm font-medium text-white rounded-full bg-gradient-to-r from-tbn-primary to-blue-800">
-                                <i class="fas fa-star"></i> Mejor opción
-                            </span>
-                        </div>
-                    @endif
-                    <div
-                        class="flex flex-col justify-between h-full bg-white border border-gray-200 rounded-lg shadow-sm
-                        {{ $account_type->id == 2 ? 'border-2 border-tbn-primary' : '' }}">
-                        <div class="p-6">
-                            <h3 class="text-2xl font-semibold text-gray-900 capitalize">{{ $account_type->name }}</h3>
-                            <p class="mt-2 text-sm text-gray-600">
-                                @switch($account_type->id)
-                                    @case(1)
-                                        La mejor opción para comenzar
-                                    @break
-
-                                    @case(2)
-                                        Convocatorias exclusivas y beneficios al instante
-                                    @break
-
-                                    @case(3)
-                                        Navega sin límites en nuestra plataforma Trabajonautas.
-                                    @break
-                                @endswitch
-                            </p>
-                            <div class="mt-4">
-                                <span class="text-4xl font-bold">{{ $account_type->price }} Bs.</span>
-                                <span class="ml-2 text-gray-600">
-                                    {{ $account_type->duration_days == 0 ? 'Siempre' : '/ ' . $account_type->duration_days . ' dias' }}
-                                </span>
-                            </div>
-                            <ul class="my-6 space-y-2 text-sm">
-                                <li class="flex items-center">
-                                    <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: Siempre
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
-                                </li>
-                                <li class="flex items-center">
-                                    @if ($account_type->id == 1)
-                                        <i class="fas fa-times text-red-500 mr-2"></i>
-                                    @else
-                                        <i class="fas fa-check text-green-500 mr-2"></i>
-                                    @endif
-                                    Convocatorias Premium
-                                </li>
-                                <li class="flex items-center">
-                                    @if ($account_type->id == 1 || $account_type->id == 2)
-                                        <i class="fas fa-times text-red-500 mr-2"></i>
-                                    @else
-                                        <i class="fas fa-check text-green-500 mr-2"></i>
-                                    @endif
-                                    Notificaciones en tiempo real
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="p-6 border-t border-gray-200 rounded-b-lg bg-gray-50">
-                            @if (!$client)
-                                <a href="{{ route('register') }}" wire:navigate
-                                    class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
-                                    {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
-                                    <i class="fas fa-arrow-right ml-2"></i></a>
-                            @elseif($client->roles->pluck('name')->first() !== env('CLIENT_ROLE'))
-                                <a href="{{ route('dashboard') }}" wire:navigate
-                                    class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
-                                    {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
-                                    <i class="fas fa-arrow-right ml-2"></i></a>
-                            @elseif($pro_verified || $client->account->account_type_id == 1)
-                                @if ($account_type->id == 1)
-                                    <a href="{{ route('dashboard') }}" wire:navigate
-                                        class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
-                                        {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
-                                        <i class="fas fa-arrow-right ml-2"></i></a>
-                                @else
-                                    <a x-on:click="purchaseShowForm({{ $account_type->id }}, '{{ $account_type->name }}', '{{ $account_type->price }}', '{{ $account_type->duration_days }}');"
-                                        class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
-                                        {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
-                                        <i class="fas fa-arrow-right ml-2"></i></a>
-                                @endif
-                            @else
-                                <a href="{{ route('dashboard') }}" wire:navigate
-                                    class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
-                                    {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
-                                    <i class="fas fa-arrow-right ml-2"></i></a>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
         {{-- Payment section --}}
-        <div class="max-w-4xl p-4 md:p-8 bg-white rounded-lg shadow-md mx-auto" x-show="showForm">
-            <div class="flex flex-row gap-12">
-                <div class="flex-1">
+        <div class="max-w-5xl p-4 md:p-8 bg-white rounded-lg shadow-md mx-auto">
+            <div class="mb-8">
+                <picture class="block max-w-48 mb-4">
+                    <x-application-logo />
+                </picture>
+                <h5 class="font-medium text-2xl">
+                    @if ($account_type_id == 3)
+                        Despega al infinito con tu cuenta
+                    @else
+                        Impulsa tus oportunidades con tu cuenta
+                    @endif
+                    <span class="text-tbn-primary">{{ $account_type->name }}</span>
+                </h5>
+                <p class="text-tbn-dark text-sm">Pero antes, necesitamos algunos datos para finalizar tu registro.</p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-12 mb-6">
+                <div class="w-full md:w-3/5">
                     <h5 class="font-bold text-lg">¿Cual es tu profesión(es) actual?</h5>
                     <span class="block mb-2 text-xs text-tbn-dark">Te enviaremos información de acuerdo con las
                         profesiones que selecciones acontinuación. Estos datos se pueden cambiar más adelante.</span>
@@ -135,56 +45,65 @@
                         </template>
                     </ul>
                     <h5 class="font-bold text-lg">Resumen de la compra</h5>
-                    <table class="min-w-full divide-y divide-gray-200 mb-8">
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Nombre</td>
-                                <td class="py-1 whitespace-nowrap">{{ auth()->check() ? auth()->user()->name : '' }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Celular</td>
-                                <td class="py-1 whitespace-nowrap">{{ auth()->check() ? auth()->user()->phone : '' }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Tipo de cuenta</td>
-                                <td class="py-1 whitespace-nowrap uppercase" x-text="labelAccountName"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Costo</td>
-                                <td class="py-1 whitespace-nowrap" x-text="labelAccountPrice + ' Bs.'"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Duración</td>
-                                <td class="py-1 whitespace-nowrap" x-text="labelAccountDuration + ' dias'"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                </div>
-                <div class="w-2/5">
-                    <p class="text-sm text-gray-500 mb-4 text-center">Escanea el código QR para realizar el
-                        pago</p>
-                    <picture class="block max-w-[10rem] mx-auto mb-6">
-                        <img class="w-full" src="{{ asset('storage/img/qr.png') }}" alt="qr-code">
-                    </picture>
-                    <p class="text-sm text-gray-500 mt-2 mb-4 text-center">o selecciona una alternativa de pago</p>
-                    <div class="relative px-4 py-3 bg-gray-300 mb-4">
-                        <span class="absolute -top-3 text-xs text-tbn-primary bg-gray-300 px-3 rounded-md">Banco
-                            Bisa</span>
-                        36621-54481-29402-6598
+                    <span class="block mb-2 text-xs text-tbn-dark">Revisa tus datos antes de enviarnos tu
+                        depósito.</span>
+                    <div class="bg-gray-50 rounded-md p-6 mb-8">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-1 whitespace-nowrap font-medium">Nombre</td>
+                                    <td class="py-1 whitespace-nowrap">{{ auth()->check() ? auth()->user()->name : '' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 whitespace-nowrap font-medium">Celular</td>
+                                    <td class="py-1 whitespace-nowrap">
+                                        {{ auth()->check() ? auth()->user()->phone : '' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 whitespace-nowrap font-medium">Tipo de cuenta</td>
+                                    <td class="py-1 whitespace-nowrap uppercase">{{ $account_type->name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 whitespace-nowrap font-medium">Costo</td>
+                                    <td class="py-1 whitespace-nowrap">{{ $account_type->price }} Bs.</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 whitespace-nowrap font-medium">Duración</td>
+                                    <td class="py-1 whitespace-nowrap">{{ $account_type->duration_days }} días</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <p class="text-xs text-tbn-dark text-justify">Una vez realizado el depósito nuestros
-                        operadores se
-                        contactarán contigo para confirmar el depósito y habilitar tu cuenta.</p>
+                </div>
+                <div class="w-full md:w-2/5">
+                    <p class="text-sm text-gray-500 mb-6 text-center">
+                        Escanea el código QR para realizar el pago</p>
+                    <picture class="block max-w-[10rem] mx-auto mb-2">
+                        <img class="w-full" src="{{ asset('storage/img/tbn-qr.png') }}" alt="qr-code">
+                    </picture>
+                    <div class="text-center mb-10">
+                        <button wire:click='downloadQR' class="text-tbn-primary text-xs px-3 py-2 rounded-full border border-tbn-primary">
+                            Descargar QR</button>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6 text-center">o selecciona una alternativa de pago</p>
+                    <div class="relative px-4 py-3 bg-gray-100 mb-4 rounded-md">
+                        <span class="absolute -top-3 text-xs text-tbn-primary bg-gray-100 px-4 rounded-md">
+                            Banco Bisa</span>
+                        <span class="font-arial">36621-54481-29402-6598</span>
+                    </div>
+                    <p class="text-xs text-tbn-dark text-justify">
+                        Una vez realizado el depósito nuestros operadores se comunicarán contigo para confirmar el
+                        depósito y habilitar tu cuenta.</p>
                 </div>
             </div>
             <div class="text-center mb-6">
-                <x-button type="button" @click="saveChanges" x-bind:disabled="user_profesions.length == 0">Confirmar
-                    pago</x-button>
-                <x-secondary-button type="button" @click="showForm = false">Elegir otro
-                    paquete</x-secondary-button>
+                <x-button class="w-full sm:w-auto mb-2" type="button" @click="saveChanges"
+                    x-bind:disabled="user_profesions.length == 0">
+                    Confirmar pago</x-button>
+                <x-secondary-button href="{{ route('purchase-cards') }}" class="w-full sm:w-auto" wire:navigate>
+                    Elegir otro paquete</x-secondary-button>
             </div>
 
         </div>
@@ -193,24 +112,12 @@
         <script>
             Alpine.data('content', () => ({
                 // Data
-                showForm: false,
                 profesions: {!! $profesions !!},
                 // Models
                 user_profesions: [],
                 selected_profesions: [],
                 searchProfesion: '',
-                labelAccountId: 1,
-                labelAccountName: '',
-                labelAccountPrice: '',
-                labelAccountDuration: '',
                 // Functions
-                purchaseShowForm(accountId, accountName, accountPrice, accountDuration) {
-                    this.showForm = true
-                    this.labelAccountId = accountId
-                    this.labelAccountName = accountName
-                    this.labelAccountPrice = accountPrice
-                    this.labelAccountDuration = accountDuration
-                },
                 filteredProfesions() {
                     return this.profesions.filter(
                         profesion => profesion.profesion_name.toLowerCase().includes(this.searchProfesion
@@ -231,7 +138,7 @@
                 },
                 saveChanges() {
                     if (this.user_profesions.length != 0) {
-                        $wire.saveChanges(this.labelAccountId, this.user_profesions)
+                        $wire.saveChanges(this.user_profesions)
                     }
                 }
             }))

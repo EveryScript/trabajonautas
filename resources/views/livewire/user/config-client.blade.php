@@ -87,10 +87,10 @@
                 </div>
             </div>
         </div>
-        {{-- --}}
         <div class="mb-4">
-            <x-button type="button" @click="dangerModal">Guardar configuración</x-button>
-            <x-secondary-button href="{{ route('client') }}" wire:navigate>Volver</x-button>
+            <x-button type="button" @click="saveSettings">Guardar configuración</x-button>
+            {{-- <x-button type="button" @click="dangerModal">Guardar configuración</x-button> --}}
+            <x-secondary-button href="{{ route('client') }}" wire:navigate>Salir</x-button>
         </div>
     </form>
     @assets
@@ -102,20 +102,29 @@
             Alpine.data('content', () => ({
                 dangerFlag: false,
                 userName: @json($client->name),
-                userAccount: '',
-                dangerModal() {
-                    Swal.fire({
-                        title: "Atención",
-                        html: "¿Está seguro de guardar la configuración del usuario <strong>" + this
-                            .userName + "</strong>",
-                        showDenyButton: true,
-                        confirmButtonText: "Guardar",
-                        denyButtonText: "Cancelar"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $wire.save()
-                        }
-                    });
+                userPhone: @json($client->phone),
+                saveSettings() {
+                    $wire.save().then(() => {
+                        Swal.fire({
+                            title: "Guardado",
+                            html: "Los datos del cliente <strong>" +
+                                this.userName + "</strong> se han guardado correctamente.",
+                            showDenyButton: true,
+                            confirmButtonColor: '#034b8d',
+                            confirmButtonText: "Enviar Whatsapp",
+                            denyButtonColor: '#484848',
+                            denyButtonText: "Salir",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                let phone = this.userPhone.replace(/[\s()+-]/g, '')
+                                let url = 'https://api.whatsapp.com/send?phone=591' + phone +
+                                    '&text=*Trabajonautas.com*%20te%20informa%20que%20tu%20cuenta%20ya%20está%20disponible.%20Ingresa%20a%20trabajonautas.com%2Fpanel%20ahora%20mismo'
+                                window.open(url, '_blank')
+                            }
+                            if (result.isDenied)
+                                $wire.justExit()
+                        });
+                    })
                 }
             }))
         </script>
