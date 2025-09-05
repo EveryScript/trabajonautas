@@ -48,8 +48,7 @@ class FormAnnouncement extends Component
                     ->whereIn('profesion_id', $this->announcement->profesions))
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();
-            // $notifier->sendToToken($array_tokens, $announce_saved->id);
-            $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
+            $response_notifications = $notifier->sendBatchTokens($array_tokens, $announce_saved);
         }
         $this->redirectRoute('announcement', navigate: true);
     }
