@@ -15,17 +15,6 @@ class DashboardUser extends Component
 {
     public $primary_color = "#034b8d";
 
-    public function sendNotification()
-    {
-        $notifier = new FirebaseNotificationService();
-        $clients = User::role(env('CLIENT_ROLE'))
-            ->whereHas('account', fn($query) => $query
-                ->where('account_type_id', 3)->whereNotNull('device_token'))
-            ->get();
-        $array_tokens = $clients->pluck('account.device_token')->toArray();
-        $response = $notifier->sendBatchTokens($array_tokens, 1);
-    }
-
     public function getClientsByAccount()
     {
         $account_types = AccountType::all('id', 'name');

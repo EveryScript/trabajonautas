@@ -2,10 +2,7 @@
 
 namespace App\Services;
 
-use Kreait\Firebase\Exception\MessagingException;
-use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class FirebaseNotificationService
