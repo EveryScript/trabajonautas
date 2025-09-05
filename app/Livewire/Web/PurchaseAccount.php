@@ -9,22 +9,28 @@ use Livewire\Component;
 
 class PurchaseAccount extends Component
 {
+    public $account_type_id;  // Component parameter
     public $client, $pro_verified = false;
-    public $profesions, $account_type_id;
+    public $account_type, $profesions;
 
     public function mount()
     {
-        if (auth()->check()) {
+        $exists_type_id = AccountType::where('id', $this->account_type_id)->exists();
+        if ($exists_type_id && auth()->check()) {
+            $this->account_type = AccountType::where('id', $this->account_type_id)->first();
+
             $this->client = User::with('account.accountType')->find(auth()->user()->id);
             $this->pro_verified = auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')
                 ? $this->client->account->verified_payment : true;
+        } else {
+            $this->redirect('/', true);
         }
     }
 
-    public function saveChanges($type_id, $profesions)
+    public function saveChanges($profesions)
     {
         $this->profesions = $profesions;
-        $this->account_type_id = intval($type_id);
+        $user = User::find(auth()->user()->id);
 
         $this->validate([
             'profesions' => 'required|array',
@@ -34,15 +40,20 @@ class PurchaseAccount extends Component
         $this->client->myProfesions()->sync($this->profesions);
         $this->client->account->update([
             'account_type_id' => intval($this->account_type_id),
+            'verified_payment' => false
         ]);
+        $user->update(['register_completed' => true]);
         $this->redirectRoute('dashboard', navigate: true);
     }
+
+    public function downloadQR()
+    {
+        return response()->download(storage_path('app/public/img/tbn-qr.png'), 'trabajonautas.png');
+    }
+
     public function render()
     {
-        $account_types = AccountType::all();
         $this->profesions = Profesion::select(['id', 'profesion_name'])->get();
-        return view('livewire.web.purchase-account', [
-            'account_types' => $account_types
-        ]);
+        return view('livewire.web.purchase-account');
     }
 }

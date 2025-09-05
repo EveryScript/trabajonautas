@@ -105,7 +105,7 @@
                 @endif
                 <div class="flex flex-col gap-4">
                     @forelse ($suggests as $announce)
-                        <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase') : route('result', ['id' => $announce->id]) }}"
+                        <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
                             wire:navigate wire:key='announce-{{ $announce->id }}'>
                             <x-card-announce logo_url="{{ $announce->company->company_image }}"
                                 pro="{{ $announce->pro }}">
@@ -141,7 +141,7 @@
                 <h3 class="text-lg font-medium mb-3">Mis convocatorias</h3>
                 <div class="flex flex-col gap-4">
                     @forelse ($client->myAnnounces as $announce)
-                        <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase') : route('result', ['id' => $announce->id]) }}"
+                        <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
                             wire:navigate wire:key='announce-{{ $announce->id }}'>
                             <x-card-announce logo_url="{{ $announce->company->company_image }}"
                                 pro="{{ $announce->pro }}">
@@ -195,7 +195,7 @@
                                 <span class="text-xs text-tbn-dark"><i
                                         class="text-tbn-secondary fas fa-crown mr-1"></i> Adquiere
                                     Trabajonautas PRO o PRO-MAX <a class="text-tbn-primary underline"
-                                        href="{{ route('purchase') }}">aqui</a></span>.
+                                        href="{{ route('purchase-cards') }}">aqui</a></span>.
                             @else
                                 <ul class="list-disc text-gray-900">
                                     @forelse ($client->myProfesions as $profesion)

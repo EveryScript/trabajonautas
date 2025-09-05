@@ -34,12 +34,16 @@ class ConfigClient extends Component
         $this->client->update([
             'actived' => $this->client_actived
         ]);
-        $this->redirectRoute('client', navigate: true);
     }
 
     public function formatDate($datetime)
     {
         return Carbon::parse($datetime)->translatedFormat('l d/M/Y H:m:s');
+    }
+
+    public function justExit()
+    {
+        $this->redirectRoute('client', navigate: true);
     }
 
     public function render()

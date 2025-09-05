@@ -1,7 +1,9 @@
 <div class="bg-gray-100 min-h-screen flex items-start justify-center py-10">
     <div x-data="content" class="w-full max-w-md  {{ $step >= 4 ? 'md:max-w-4xl' : 'md:max-w-5xl' }}">
         <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg {{ $step >= 4 ? 'border border-tbn-primary' : '' }}">
-            <x-application-logo class="{{ $step >= 4 ? 'hidden' : '' }}" />
+            <picture class="block max-w-48">
+                <x-application-logo class="{{ $step >= 4 ? 'hidden' : '' }}" />
+            </picture>
             <!-- Progress Indicator -->
             <div class="flex flex-row justify-between items-center my-6 {{ $step >= 4 ? 'hidden' : '' }}">
                 <div class="flex items-center">
@@ -77,7 +79,8 @@
                             </li>
                         </ul>
                         <h5 class="text-md font-bold mb-1">¿Cuál es tu ubicación actual?</h5>
-                        <span class="block text-tbn-dark text-sm mb-2">Esta información nos servirá para conocer en que departamento deseas trabajar.</span>
+                        <span class="block text-tbn-dark text-sm mb-2">Esta información nos servirá para conocer en que
+                            departamento deseas trabajar.</span>
                         <x-select wire:model.live.debounce.200ms='location_id' id="location_id" class="mb-8">
                             <option value="">Selecciona tu ubicación</option>
                             @foreach ($locations as $location)
@@ -108,7 +111,7 @@
                                 <input type="radio" wire:model.live.debounce.200ms='grade_profile_id' value="1"
                                     id="profile-1" name="grade-profile" class="hidden peer">
                                 <label for="profile-1"
-                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Estudiante</span>
                                         <span class="text-xs">Bachiller o cursante de instituto o universidad</span>
@@ -119,7 +122,7 @@
                                 <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
                                     value="2" id="profile-2" name="grade-profile" class="hidden peer">
                                 <label for="profile-2"
-                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Técnico Medio</span>
                                         <span class="text-xs">Profesional titulado a nivel tecnico medio</span>
@@ -130,7 +133,7 @@
                                 <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
                                     value="3" id="profile-3" name="grade-profile" class="hidden peer">
                                 <label for="profile-3"
-                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Técnico Superior</span>
                                         <span class="text-xs">Profesional titulado a nivel tecnico superior</span>
@@ -141,7 +144,7 @@
                                 <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
                                     value="4" id="profile-4" name="grade-profile" class="hidden peer">
                                 <label for="profile-4"
-                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Egresado</span>
                                         <span class="text-xs leading-none m-0">Aprobó todas las materias y solamente le
@@ -153,7 +156,7 @@
                                 <input type="radio" wire:model.live.debounce.200ms='grade_profile_id'
                                     value="5" id="profile-5" name="grade-profile" class="hidden peer">
                                 <label for="profile-5"
-                                    class="flex justify-center items-center h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Titulado</span>
                                         <span class="text-xs">Actualmente con titulo en provisión nacional.</span>
@@ -183,7 +186,7 @@
                     </div>
                 </form>
             @elseif($step == 3)
-                <form wire:submit='savePurchaseData'>
+                <form wire:submit='saveAccountData'>
                     <div class="step-content">
                         <h3 class="text-lg md:text-2xl font-semibold mb-4">Cuenta</h3>
                         <h5 class="text-md font-bold mb-2">Selecciona el tipo de cuenta que vas a utilizar</h5>
@@ -243,60 +246,6 @@
                         <button id="nextButton" type="submit" x-text="btnAccountFinish"
                             {{ $account_type_id ? '' : 'disabled' }}
                             class="px-4 py-2 bg-tbn-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 hover:bg-tbn-primary"></button>
-                    </div>
-                </form>
-            @elseif($step == 4)
-                <form wire:submit='saveProAccountData(user_profesions)'>
-                    <div class="step-content">
-                        <div class="gap-12">
-                            <h3 class="inline-block text-lg md:text-2xl text-tbn-primary font-semibold mb-4">
-                                Trabajonautas PRO</h3>
-                            <p class="text-sm text-gray-500 mb-4">Estás listo para disfrutar de todos los
-                                beneficios de
-                                Trabajonautas. Simplemente sigue las instrucciones para tener tu cuenta PRO desde
-                                ahora.</p>
-                            <h5 class="font-bold">¿Cual es tu profesión(es) actual?</h5>
-                            <span class="block mb-2 text-xs text-tbn-dark">Te enviaremos información de acuerdo con
-                                las
-                                profesiones que selecciones acontinuación. Estos datos se pueden cambiar más
-                                adelante.</span>
-                            <x-input type="search" x-model="searchProfesion" id="searchProfesion"
-                                placeholder="Arquitecto, ingeniero, ..." />
-                            <!-- Profesion list -->
-                            <div class="relative">
-                                <ul class="absolute w-full mx-auto max-h-[10rem] overflow-y-auto"
-                                    x-show="searchProfesion.length > 0">
-                                    <template x-for="profesion in filteredProfesions">
-                                        <li x-text="profesion.profesion_name" @click="addProfesion(profesion)"
-                                            class="bg-white text-sm border border-gray-200 px-4 py-2 rounded-sm hover:bg-gray-200">
-                                        </li>
-                                    </template>
-                                </ul>
-                            </div>
-                            <!-- Profesion selected -->
-                            <div class="min-h-[10rem]">
-                                <ul class="mx-auto flex flex-row flex-wrap gap-1 mt-3 mb-4">
-                                    <template x-for="profesion in selected_profesions" class="h-full">
-                                        <li
-                                            class="flex flex-row px-3 py-2 rounded-full text-white text-xs bg-tbn-dark">
-                                            <span class="text-md" x-text="profesion.profesion_name"></span>
-                                            <button type="button" class="ml-2 text-xs"
-                                                @click="removeProfesion(profesion)"><i
-                                                    class="fas fa-times"></i></button>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Navigation Buttons -->
-                    <div class="flex justify-between mt-6">
-                        <button id="prevButton" type="button" wire:click="stepBack"
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300">
-                            Anterior</button>
-                        <button id="nextButton" type="submit" x-bind:disabled="selected_profesions.length == 0"
-                            class="px-4 py-2 bg-tbn-primary text-white rounded transition duration-300 hover:bg-tbn-primary disabled:opacity-50 disabled:cursor-not-allowed">
-                            Pagar ahora (QR)</button>
                     </div>
                 </form>
             @elseif($step == 5)
@@ -367,35 +316,12 @@
     @script
         <script>
             Alpine.data('content', () => ({
-                // Data
-                profesions: {!! $profesions !!},
                 // Models
-                user_profesions: [],
                 user_area: '',
-                selected_profesions: [],
                 btnAccountFinish: 'Finalizar registro',
-                searchProfesion: '',
                 // Functions
                 changeBtnLabel(accountId) {
                     this.btnAccountFinish = accountId == 1 ? 'Finalizar registro' : 'Siguiente'
-                },
-                filteredProfesions() {
-                    return this.profesions.filter(
-                        profesion => profesion.profesion_name.toLowerCase().includes(this.searchProfesion
-                            .toLowerCase())
-                    )
-                },
-                addProfesion(element) {
-                    this.searchProfesion = ''
-                    this.selected_profesions.push(element)
-                    this.user_profesions.push(element.id)
-                    this.profesions = this.profesions.filter(profesion => profesion.id != element.id)
-                },
-                removeProfesion(element) {
-                    this.selected_profesions = this.selected_profesions.filter(profesion => profesion.id != element
-                        .id)
-                    this.user_profesions = this.user_profesions.filter(id => id != element.id)
-                    this.profesions.unshift(element)
                 }
             }))
         </script>

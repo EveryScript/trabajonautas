@@ -102,7 +102,7 @@
             <h3 class="text-tbn-dark text-md font-medium mb-1">Convocatorias similares</h3>
             <div class="flex flex-col gap-2">
                 @forelse ($suggests as $suggest)
-                    <a href="{{ $suggest->pro && (!$client || !$pro_verified) ? route('purchase') : route('result', ['id' => $suggest->id]) }}"
+                    <a href="{{ $suggest->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $suggest->id]) }}"
                         wire:navigate wire:key='suggest-{{ $suggest->id }}'>
                         <x-card-announce logo_url="{{ $suggest->company->company_image }}"
                             logo_flag="{{ false }}" pro="{{ $suggest->pro }}">
