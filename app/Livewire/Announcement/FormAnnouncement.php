@@ -48,7 +48,8 @@ class FormAnnouncement extends Component
                     ->whereIn('profesion_id', $this->announcement->profesions))
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();
-            $response_notifications = $notifier->sendBatchTokens($array_tokens, $announce_saved);
+            if ($array_tokens !== [])
+                $notifier->sendBatchTokens($array_tokens, $announce_saved);
         }
         $this->redirectRoute('announcement', navigate: true);
     }
@@ -62,7 +63,6 @@ class FormAnnouncement extends Component
                 ->whereNotNull('device_token'))
             ->get();
         $array_tokens = $client_tokens->pluck('account.device_token')->toArray();
-        // $notifier->sendToToken($array_tokens, 1);
         $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
         dump($response_notifications);
         // } catch (\Throwable $th) {
@@ -87,9 +87,8 @@ class FormAnnouncement extends Component
                     ->whereIn('profesion_id', $this->announcement->profesions))
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();
-            // $notifier->sendToToken($array_tokens, $this->id);
-            $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
-            dump($response_notifications);
+            if ($array_tokens !== [])
+                $notifier->sendBatchTokens($array_tokens, $this->id);
         }
         $this->redirectRoute('announcement', navigate: true);
     }
