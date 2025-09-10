@@ -1,9 +1,7 @@
 <div class="bg-gray-100 min-h-screen flex items-start justify-center py-10">
     <div x-data="content" class="w-full max-w-md  {{ $step >= 4 ? 'md:max-w-4xl' : 'md:max-w-5xl' }}">
         <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg {{ $step >= 4 ? 'border border-tbn-primary' : '' }}">
-            <picture class="block max-w-48">
-                <x-application-logo class="{{ $step >= 4 ? 'hidden' : '' }}" />
-            </picture>
+            <x-application-logo class="{{ $step >= 4 ? 'hidden' : '' }}" />
             <!-- Progress Indicator -->
             <div class="flex flex-row justify-between items-center my-6 {{ $step >= 4 ? 'hidden' : '' }}">
                 <div class="flex items-center">

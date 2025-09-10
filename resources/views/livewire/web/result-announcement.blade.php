@@ -26,11 +26,11 @@
                                 <i class="fas fa-calendar-alt text-red-500 pr-1"></i>
                                 <span class="">
                                     @if ($announcement->expiration_time > Carbon\Carbon::now())
-                                        Expira
+                                        Postula hasta el
                                     @else
-                                        Expiró
+                                        Fecha límite
                                     @endif
-                                    {{ \Carbon\Carbon::parse($announcement->expiration_time)->diffForHumans() }}
+                                    {{ $this->formatDate($announcement->expiration_time) }}
                                 </span>
                             </div>
                             <div class="mb-2">

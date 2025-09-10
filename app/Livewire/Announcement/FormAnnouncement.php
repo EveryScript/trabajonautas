@@ -54,22 +54,6 @@ class FormAnnouncement extends Component
         $this->redirectRoute('announcement', navigate: true);
     }
 
-    public function sendPushNotifications()
-    {
-        // try {
-        $notifier = new FirebaseNotificationService();
-        $client_tokens = User::role(env('CLIENT_ROLE'))
-            ->whereHas('account', fn($query) => $query
-                ->whereNotNull('device_token'))
-            ->get();
-        $array_tokens = $client_tokens->pluck('account.device_token')->toArray();
-        $response_notifications = $notifier->sendBatchTokens($array_tokens, 1);
-        dump($response_notifications);
-        // } catch (\Throwable $th) {
-        //     dump($th);
-        // }
-    }
-
     public function update()
     {
         $this->announcement->update($this->id);
