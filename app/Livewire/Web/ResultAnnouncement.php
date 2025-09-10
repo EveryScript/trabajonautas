@@ -84,6 +84,11 @@ class ResultAnnouncement extends Component
         ]);
     }
 
+    public function formatDate($datetime)
+    {
+        return Carbon::parse($datetime)->translatedFormat('l d/M/Y H:m:s');
+    }
+
     public function render()
     {
         $user = auth()->check() ? User::find(auth()->user()->id) : null;

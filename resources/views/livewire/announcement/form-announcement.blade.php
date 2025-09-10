@@ -8,10 +8,6 @@
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        {{-- <div class="my-5">
-            <x-button-link type="button" class="bg-tbn-primary" wire:click='sendPushNotifications'>
-                Enviar notificación</x-button-link>
-        </div> --}}
         <form class="tbn-form max-w-4xl mb-10" wire:submit="{{ $id ? 'update' : 'save' }}">
             <div class="mb-4">
                 <x-label for="announce_title" value="{{ __('Título') }}" />
@@ -53,7 +49,7 @@
                 <x-label for="profesions" value="{{ __('Profesiones') }}" />
                 <div wire:ignore>
                     <x-select id="profesions" wire:model="announcement.profesions" multiple>
-                        <option>Seleccionar ubicaciones</option>
+                        <option>Seleccionar profesiones</option>
                         @forelse ($profesions as $profesion)
                             <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
                         @empty
@@ -137,7 +133,7 @@
                 </div>
             </div>
             <div class="tbn-field mb-4">
-                <x-label for="description" class="mb-2" value="{{ __('Descripción de la empresa') }}" />
+                <x-label for="description" class="mb-2" value="{{ __('Descripción/Detalles de la convocatoria') }}" />
                 <div wire:ignore>
                     <div class="block w-full bg-white" id="description"></div>
                 </div>
@@ -152,9 +148,9 @@
                     </div>
                     <div class="ms-3">
                         <p class="text-md font-medium text-black">Convocatoria PRO</p>
-                        <span class="text-xs text-tbn-dark">Esta convocatoria es exclusiva para los usuarios que tengan
-                            una
-                            cuenta PRO. El resto de usuarios no podrán ver esta convocatoria.</span>
+                        <span class="text-xs text-tbn-dark">
+                            Esta convocatoria es exclusiva para los usuarios que tengan una cuenta PRO. El resto de
+                            usuarios no podrán ver esta convocatoria.</span>
                     </div>
                 </label>
                 <x-input-error for="announcement.pro" class="mt-2" />
