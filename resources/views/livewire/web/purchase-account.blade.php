@@ -1,9 +1,9 @@
 <section class="min-h-screen flex items-start justify-center py-10">
     <div x-data="content">
         {{-- Payment section --}}
-        <div class="max-w-md p-4 md:p-8 bg-white rounded-lg shadow-md mx-auto">
+        <div class="max-w-[15rem] p-4 md:p-8 bg-white rounded-lg shadow-md mx-auto">
             <div class="mb-8">
-                <div class="max-w-[15rem] mb-4">
+                <div class="mb-4">
                     <x-application-logo />
                 </div>
                 <h5 class="font-medium text-2xl">
@@ -84,7 +84,8 @@
                         <img class="w-full" src="{{ asset('storage/img/tbn-qr.png') }}" alt="qr-code">
                     </picture>
                     <div class="text-center mb-10">
-                        <button wire:click='downloadQR' class="text-tbn-primary text-xs px-3 py-2 rounded-full border border-tbn-primary hover:bg-tbn-primary hover:text-white transition-all duration-200 ">
+                        <button wire:click='downloadQR'
+                            class="text-tbn-primary text-xs px-3 py-2 rounded-full border border-tbn-primary hover:bg-tbn-primary hover:text-white transition-all duration-200 ">
                             Descargar QR</button>
                     </div>
                     <p class="text-sm text-gray-500 mb-6 text-center">o selecciona una alternativa de pago</p>
