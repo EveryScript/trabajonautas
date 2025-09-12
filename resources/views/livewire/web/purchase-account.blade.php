@@ -1,7 +1,7 @@
 <section class="min-h-screen flex items-start justify-center py-10">
     <div x-data="content">
         {{-- Payment section --}}
-        <div class="max-w-5xl p-4 md:p-8 bg-white rounded-lg shadow-md mx-auto">
+        <div class="max-w-md p-4 md:p-8 bg-white rounded-lg shadow-md mx-auto">
             <div class="mb-8">
                 <div class="max-w-[15rem] mb-4">
                     <x-application-logo />
