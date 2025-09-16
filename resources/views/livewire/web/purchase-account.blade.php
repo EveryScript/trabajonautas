@@ -7,29 +7,33 @@
                     <x-application-logo />
                 </div>
                 <h5 class="font-medium text-2xl">
-                    @if ($account_type_id == 3)
-                        Despega al infinito con tu cuenta
+                    @if (auth()->user()->register_completed)
+                        Renueva tu cuenta <span class="text-tbn-primary">{{ $account_type->name }}</span>
                     @else
-                        Impulsa tus oportunidades con tu cuenta
+                        @if ($account_type_id == 3)
+                            Despega al infinito con tu cuenta
+                        @else
+                            Impulsa tus oportunidades con tu cuenta
+                        @endif
+                        <span class="text-tbn-primary">{{ $account_type->name }}</span>
                     @endif
-                    <span class="text-tbn-primary">{{ $account_type->name }}</span>
                 </h5>
                 <p class="text-tbn-dark text-sm">Pero antes, necesitamos algunos datos para finalizar tu registro.</p>
             </div>
             <div class="flex flex-col md:flex-row gap-12 mb-6">
                 <div class="w-full md:w-3/5">
+                    <!-- User profesions -->
                     <h5 class="font-bold text-lg">¿Cual es tu profesión(es) actual?</h5>
                     <span class="block mb-2 text-xs text-tbn-dark">Te enviaremos información de acuerdo con las
                         profesiones que selecciones acontinuación. Estos datos se pueden cambiar más adelante.</span>
                     <x-input type="search" x-model="searchProfesion" id="searchProfesion"
                         placeholder="Arquitecto, ingeniero, ..." autofocus />
-                    <!-- Profesion list -->
                     <div class="relative">
                         <ul class="absolute w-full mx-auto max-h-[10rem] overflow-y-auto bg-white"
                             x-show="searchProfesion.length > 0">
                             <template x-for="profesion in filteredProfesions">
                                 <li x-text="profesion.profesion_name" @click="addProfesion(profesion)"
-                                    class="bg-white text-sm border border-gray-200 px-4 py-2 rounded-sm hover:bg-gray-200">
+                                    class="bg-white text-sm border border-gray-200 px-5 py-2 rounded-sm hover:bg-gray-200">
                                 </li>
                             </template>
                         </ul>
@@ -44,6 +48,21 @@
                             </li>
                         </template>
                     </ul>
+                    <!-- New location (Renewal) -->
+                    @if (auth()->user()->register_completed)
+                        <!-- Profesion selected -->
+                        <h5 class="font-bold text-lg">¿Cuál es tu ubicación?</h5>
+                        <span class="block mb-2 text-xs text-tbn-dark">Si cambiaste de ubicación recientemente,
+                            registra tu nueva ubicación para enviarte las convocatorias más cercanas a ti.</span>
+                        <x-select wire:model='user_location' id="user_location" class="mb-8">
+                            <option value="">Selecciona tu ubicación</option>
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id }}"
+                                    {{ auth()->user()->location->id == $location->id ? 'selected' : '' }}>
+                                    {{ $location->location_name }}</option>
+                            @endforeach
+                        </x-select>
+                    @endif
                     <h5 class="font-bold text-lg">Resumen de la compra</h5>
                     <span class="block mb-2 text-xs text-tbn-dark">Revisa tus datos antes de enviarnos tu
                         depósito.</span>
@@ -115,10 +134,19 @@
                 // Data
                 profesions: {!! $profesions !!},
                 // Models
-                user_profesions: [],
-                selected_profesions: [],
+                user_profesions: [], // IDs
+                selected_profesions: [], // Names
                 searchProfesion: '',
                 // Functions
+                init() {
+                    this.user_profesions = @json($user_profesions);
+                    if (this.user_profesions && this.user_profesions.length > 0) {
+                        this.selected_profesions = this.profesions.filter(profesion =>
+                            this.user_profesions.includes(profesion.id))
+                        this.profesions = this.profesions.filter(profesion =>
+                            !this.user_profesions.includes(profesion.id))
+                    }
+                },
                 filteredProfesions() {
                     return this.profesions.filter(
                         profesion => profesion.profesion_name.toLowerCase().includes(this.searchProfesion
@@ -132,8 +160,8 @@
                     this.profesions = this.profesions.filter(profesion => profesion.id != element.id)
                 },
                 removeProfesion(element) {
-                    this.selected_profesions = this.selected_profesions.filter(profesion => profesion.id != element
-                        .id)
+                    this.selected_profesions = this.selected_profesions.filter(profesion =>
+                        profesion.id != element.id)
                     this.user_profesions = this.user_profesions.filter(id => id != element.id)
                     this.profesions.unshift(element)
                 },

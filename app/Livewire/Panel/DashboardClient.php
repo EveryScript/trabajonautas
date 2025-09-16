@@ -15,6 +15,7 @@ class DashboardClient extends Component
     public $user_id;            // Parameter
     public $client, $free_client = true, $pro_verified = false;
     public $time_left = 'Tiempo expirado';
+    public $alert_time_left = false;
     public $notify_token_actived;
 
     public function mount()
@@ -34,9 +35,9 @@ class DashboardClient extends Component
                 ]);
                 $this->free_client = true;
             } else {
-                $this->time_left = $now->diffInHours($limit_time) > 0
-                    ? $now->diffInDays($limit_time) . ' dias y ' . $now->diff($limit_time)->format('%H horas restantes')
-                    : $now->diff($limit_time)->format('minutos restantes');
+                $this->time_left = $now->longAbsoluteDiffForHumans($limit_time);
+                if($now->diffInDays($limit_time) <= 5)
+                    $this->alert_time_left = true;
             }
         }
     }

@@ -29,13 +29,25 @@
                         </div>
                     @else
                         <div class="text-center">
-                            <p class="inline-block mb-2 text-xs text-white bg-orange-500 px-2 py-1 rounded-full">
+                            <p class="inline-block mb-2 text-xs text-white bg-tbn-secondary px-2 py-1 rounded-full">
                                 <i class="fas fa-crown mr-2"></i>{{ $client->account->accountType->name }}
                             </p>
-                            <p class="text-center text-xs text-gray-900">
-                                <i class="far fa-check-circle text-green-500 mr-1"></i>
-                                {{ $time_left }}
-                            </p>
+                            @if ($alert_time_left)
+                                <div class="bg-gray-100 p-4 rounded-md mt-4 text-center">
+                                    <i class="fas fa-exclamation-circle text-red-600 block text-2xl animate-pulse"></i>
+                                    <p class="font-bold text-lg">Atención</p>
+                                    <span class="block font-medium text-sm text-tbn-dark mb-2">
+                                        Tu cuenta va a expirar en {{ $time_left }}</span>
+                                    <a href="{{ route('purchase-account', ['account_type_id' => $client->account->account_type_id]) }}"
+                                        class="inline-block px-4 py-2 bg-tbn-primary rounded-md text-white text-xs cursor-pointer hover:bg-tbn-dark">
+                                        Renovar ahora</a>
+                                </div>
+                            @else
+                                <p class="text-center text-xs text-gray-900">
+                                    <i class="far fa-check-circle text-green-500 mr-1"></i>
+                                    Tu cuenta expira en {{ $time_left }}
+                                </p>
+                            @endif
                         </div>
                         {{-- Verify if notifications is actived --}}
                         @if ($client->account->account_type_id === 3)
@@ -93,11 +105,11 @@
                     </p>
                 @else
                     <div class="flex flex-row gap-2">
-                        <p class="text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg border border-tbn-primary bg-white">
+                        <p class="text-tbn-dark text-xs shadow-md mb-4 px-4 py-3 rounded-lg bg-white">
                             <i class="inline fas fa-map-marker-alt text-tbn-primary pr-1"></i>
                             {{ $client->location->location_name }}
                         </p>
-                        <p class="text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg border border-tbn-primary bg-white">
+                        <p class="text-tbn-dark text-xs shadow-md mb-4 px-4 py-3 rounded-lg bg-white">
                             <i class="inline fas fa-suitcase text-tbn-primary pr-1"></i>
                             {{ $client->area->area_name }}
                         </p>

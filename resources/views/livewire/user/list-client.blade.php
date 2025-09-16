@@ -72,15 +72,18 @@
                         <td class="px-6 py-4 {{ !$client->actived ? 'opacity-50' : '' }}">
                             {{ \Carbon\Carbon::parse($client->created_at)->diffForHumans() }}
                         </td>
-                        <td class="px-6 py-4 {{ !$client->actived ? 'opacity-50' : '' }}">
-                            @if ($client->account && $client->account->account_type_id != 1)
-                                @if ($client->account->verified_payment)
-                                    <span
-                                        class="inline-block bg-tbn-primary text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">
-                                        {{ $client->account->accountType->name }}</span>
-                                @else
-                                    <span class="bg-tbn-dark text-white animate-pulse text-xs px-2 py-1 rounded-full">
-                                        Pendiente</span>
+                        <td class="px-6 py-4">
+                            @if ($client->actived)
+                                @if ($client->account && $client->account->account_type_id != 1)
+                                    @if ($client->account->verified_payment)
+                                        <span
+                                            class="inline-block bg-tbn-primary text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">
+                                            {{ $client->account->accountType->name }}</span>
+                                    @else
+                                        <span
+                                            class="bg-tbn-dark text-white animate-pulse text-xs px-2 py-1 rounded-full">
+                                            Pendiente</span>
+                                    @endif
                                 @endif
                             @endif
                         </td>

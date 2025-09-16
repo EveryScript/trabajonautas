@@ -14,7 +14,7 @@ class ListClient extends Component
 
     public function render()
     {
-        $base_query = User::whereHas('account')->with('account.accountType');
+        $base_query = User::whereHas('account')->with('account.accountType')->orderBy('updated_at', 'DESC');
 
         $filter_query = (clone $base_query)
             ->when($this->search, fn($query) => $query->where('name', 'LIKE', '%' . $this->search . '%'));
