@@ -16,16 +16,22 @@
                 @else
                     @if (!$pro_verified)
                         <hr class="my-4">
-                        <div class="bg-gray-200 p-4 rounded-md text-left">
-                            <span class="inline-block font-bold text-md text-tbn-primary">
-                                Tu cuenta {{ $client->account->accountType->name }} está en camino </span>
-                            <span class="inline-block font-medium text-xs text-tbn-dark">
-                                Gracias por adquirir tu cuenta con Trabajonautas.com. Envíanos tu <strong>comprobante de
-                                    pago</strong> por WhatsApp para habilitar tu cuenta hoy mismo.</span>
-                            <x-button-link
-                                href="https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $client->phone }} y mi nombre es {{ $client->name }}."
-                                class="bg-tbn-primary inline-block text-sm mt-2">
-                                <i class="fab fa-whatsapp mr-1"></i> Enviar mensaje</x-button-link>
+                        <div class="flex flex-row gap-4 border border-tbn-primary p-4 rounded-lg">
+                            <i class="inline-block fas fa-rocket text-xl text-tbn-primary"></i>
+                            <div class="flex-1 text-left mb-3">
+                                <span class="font-medium text-black">Tu cuenta {{ $client->account->accountType->name }}
+                                    está en camino</span>
+                                <p class="mb-3">
+                                    <span class="inline-block font-medium text-xs text-tbn-dark">
+                                        Gracias por adquirir tu cuenta con Trabajonautas.com. Envíanos tu
+                                        <strong class="font-bold text-tbn-primary">comprobante de pago</strong>
+                                        por WhatsApp para habilitar tu cuenta hoy mismo.
+                                </p>
+                                <x-button-link
+                                    href="https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $client->phone }} y mi nombre es {{ $client->name }}."
+                                    class="bg-tbn-primary cursor-pointer text-sm select-none">
+                                    <i class="fab fa-whatsapp mr-1"></i> Enviar</x-button-link>
+                            </div>
                         </div>
                     @else
                         <div class="text-center">
@@ -108,7 +114,7 @@
                 @endif
                 <hr class="my-4">
                 {{-- User navigation --}}
-                <nav class="text-sm">
+                <nav class="text-sm select-none">
                     <a x-on:click="btnNavigation = 1"
                         class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
                         <i class="fas fa-home mx-2"></i> Inicio

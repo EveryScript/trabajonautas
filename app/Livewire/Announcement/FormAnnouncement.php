@@ -49,7 +49,7 @@ class FormAnnouncement extends Component
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();
             if ($array_tokens !== [])
-                $notifier->sendBatchTokens($array_tokens, $announce_saved);
+                $notifier->sendBatchTokens($array_tokens, $announce_saved->id);
         }
         $this->redirectRoute('announcement', navigate: true);
     }
