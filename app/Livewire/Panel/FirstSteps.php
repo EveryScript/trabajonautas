@@ -19,7 +19,7 @@ class FirstSteps extends Component
     public $user_profesions;                    // Step 4
     public $user;                               // Current user
     public $areas, $locations, $account_types; // Data to use in the view
-    public $step = 1;
+    public $step = 0;
 
     public function mount()
     {
