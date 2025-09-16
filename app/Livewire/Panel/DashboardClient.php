@@ -55,6 +55,7 @@ class DashboardClient extends Component
             ]);
             $this->notify_token_actived = true;
         }
+        $this->dispatch('token-saved');
     }
 
     public function render()

@@ -29,18 +29,25 @@
                         </div>
                     @else
                         <div class="text-center">
-                            <p class="inline-block mb-2 text-xs text-white bg-tbn-secondary px-2 py-1 rounded-full">
+                            <p class="inline-block mb-4 text-xs text-white bg-tbn-secondary px-2 py-1 rounded-full">
                                 <i class="fas fa-crown mr-2"></i>{{ $client->account->accountType->name }}
                             </p>
                             @if ($alert_time_left)
-                                <div class="bg-gray-100 p-4 rounded-md mt-4 text-center">
-                                    <i class="fas fa-exclamation-circle text-red-600 block text-2xl animate-pulse"></i>
-                                    <p class="font-bold text-lg">Atención</p>
-                                    <span class="block font-medium text-sm text-tbn-dark mb-2">
-                                        Tu cuenta va a expirar en {{ $time_left }}</span>
-                                    <a href="{{ route('purchase-account', ['account_type_id' => $client->account->account_type_id]) }}"
-                                        class="inline-block px-4 py-2 bg-tbn-primary rounded-md text-white text-xs cursor-pointer hover:bg-tbn-dark">
-                                        Renovar ahora</a>
+                                <div class="flex flex-row gap-4 border border-tbn-primary p-4 rounded-lg">
+                                    <i class="inline-block fas fa-exclamation-triangle text-xl text-red-600"></i>
+                                    <div class="flex-1 text-left">
+                                        <span class="font-medium text-black">Atención</span>
+                                        <p class="mb-3">
+                                            <span class="inline-block font-medium text-xs text-tbn-dark">
+                                                Tu cuenta va a expirar en <strong class="text-tbn-primary">
+                                                    {{ $time_left }}</strong>.
+                                                Renueva tu cuenta para seguir recibiendo las mejores convocatorias.
+                                        </p>
+                                        <x-button-link
+                                            href="{{ route('purchase-account', ['account_type_id' => $client->account->account_type_id]) }}"
+                                            class="bg-tbn-primary cursor-pointer text-sm select-none">
+                                            Renovar ahora</x-button-link>
+                                    </div>
                                 </div>
                             @else
                                 <p class="text-center text-xs text-gray-900">
@@ -49,26 +56,51 @@
                                 </p>
                             @endif
                         </div>
+
+
                         {{-- Verify if notifications is actived --}}
                         @if ($client->account->account_type_id === 3)
                             <hr class="my-4">
                             @if ($notify_token_actived)
-                                <div class="bg-gray-200 p-4 rounded-md text-center">
-                                    <p><i class="fas fa-check text-2xl text-tbn-secondary"></i></p>
-                                    <p><span class="font-medium text-black">Notificaciones activadas</span></p>
-                                    <p class="text-xs">Permanece atento a las convocatorias para tí.</p>
+                                <div class="flex flex-row gap-4 border border-tbn-secondary p-4 rounded-lg">
+                                    <i class="inline-block fas fa-check-circle text-xl text-tbn-secondary"></i>
+                                    <div class="flex-1">
+                                        <p class="mb-1"><span class="font-medium text-black">
+                                                Notificaciones activadas</span></p>
+                                        <p class="mb-1"><span class="inline-block font-medium text-xs text-tbn-dark">
+                                                Recibirás una notificación cuando una nueva convocatoria esteé
+                                                disponible para ti.</span></p>
+                                    </div>
                                 </div>
                             @else
-                                <div class="bg-gray-200 p-4 rounded-md text-center">
-                                    <p class="mb-1"><i class="fas fa-lightbulb text-2xl text-tbn-secondary"></i></p>
-                                    <p class="mb-1"><span class="font-medium text-black">Notificaciones
-                                            desactivadas</span></p>
-                                    <p class="mb-3"><span class="inline-block font-medium text-xs text-tbn-dark">
-                                            Haz click para activar las notificaciones y recibe una alerta cuando una
-                                            nueva
-                                            convocatoria esté disponible.</span></p>
-                                    <x-button-link x-on:click="registerAndGetTokenFirebase" class="bg-tbn-secondary">
-                                        Activar</x-button-link>
+                                <div class="flex flex-row gap-4 border border-tbn-primary p-4 rounded-lg">
+                                    <div>
+                                        <template x-if="!loading">
+                                            <i class="fas fa-lightbulb text-xl text-tbn-primary"></i>
+                                        </template>
+                                        <template x-if="loading">
+                                            <i class="text-tbn-dark fas fa-spinner text-xl animate-spin"></i>
+                                        </template>
+                                    </div>
+                                    <div class="flex-1 mb-2">
+                                        <p class="mb-1">
+                                            <template x-if="!loading">
+                                                <span class="font-medium text-black">Notificaciones desactivadas</span>
+                                            </template>
+                                            <template x-if="loading">
+                                                <span class="font-medium text-tbn-dark">Cargando...</span>
+                                            </template>
+                                        </p>
+                                        <p class="mb-3">
+                                            <span class="inline-block font-medium text-xs text-tbn-dark">
+                                                Activa las notificaciones para recibir alertas cada vez que
+                                                <strong>Trabajonautas.com</strong>
+                                                publique una nueva convocatoria.</span>
+                                        </p>
+                                        <x-button-link x-on:click="registerAndGetTokenFirebase"
+                                            class="bg-tbn-primary cursor-pointer text-sm select-none">
+                                            Activar</x-button-link>
+                                    </div>
                                 </div>
                             @endif
                         @endif
@@ -76,18 +108,20 @@
                 @endif
                 <hr class="my-4">
                 {{-- User navigation --}}
-                <a x-on:click="btnNavigation = 1"
-                    class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
-                    <i class="fas fa-home mx-2"></i> Inicio
-                </a>
-                <a x-on:click="btnNavigation = 2"
-                    class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
-                    <i class="fas fa-bookmark mx-2"></i> Mis convocatorias
-                </a>
-                <a x-on:click="btnNavigation = 3"
-                    class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
-                    <i class="fas fa-user mx-2"></i> Mi perfil
-                </a>
+                <nav class="text-sm">
+                    <a x-on:click="btnNavigation = 1"
+                        class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
+                        <i class="fas fa-home mx-2"></i> Inicio
+                    </a>
+                    <a x-on:click="btnNavigation = 2"
+                        class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
+                        <i class="fas fa-bookmark mx-2"></i> Mis convocatorias
+                    </a>
+                    <a x-on:click="btnNavigation = 3"
+                        class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
+                        <i class="fas fa-user mx-2"></i> Mi perfil
+                    </a>
+                </nav>
             </div>
         </aside>
         <main class="flex-1 mb-0 md:mb-24">
@@ -98,18 +132,19 @@
             <div x-show="btnNavigation == 1">
                 <h3 class="text-lg font-medium mb-1">Convocatorias de trabajo para ti</h3>
                 @if ($free_client)
-                    <p
-                        class="inline-block text-tbn-dark text-sm mb-4 px-3 py-2 rounded-lg border border-tbn-primary bg-white">
-                        <i class="inline fas fa-map-marker-alt text-tbn-primary pr-1"></i>
-                        {{ $client->location->location_name }}
-                    </p>
-                @else
-                    <div class="flex flex-row gap-2">
-                        <p class="text-tbn-dark text-xs shadow-md mb-4 px-4 py-3 rounded-lg bg-white">
+                    <div class="flex flex-wrap flex-row gap-6 mb-4 bg-white px-4 py-3 rounded-lg">
+                        <p class="text-tbn-dark text-xs">
                             <i class="inline fas fa-map-marker-alt text-tbn-primary pr-1"></i>
                             {{ $client->location->location_name }}
                         </p>
-                        <p class="text-tbn-dark text-xs shadow-md mb-4 px-4 py-3 rounded-lg bg-white">
+                    </div>
+                @else
+                    <div class="flex flex-wrap flex-row gap-6 mb-4 bg-white px-4 py-3 rounded-lg">
+                        <p class="text-tbn-dark text-xs">
+                            <i class="inline fas fa-map-marker-alt text-tbn-primary pr-1"></i>
+                            {{ $client->location->location_name }}
+                        </p>
+                        <p class="text-tbn-dark text-xs">
                             <i class="inline fas fa-suitcase text-tbn-primary pr-1"></i>
                             {{ $client->area->area_name }}
                         </p>
@@ -188,7 +223,7 @@
             <div x-show="btnNavigation == 3">
                 <h3 class="text-lg font-medium mb-3">Mi perfil</h3>
                 <div class="bg-white rounded-xl shadow-lg mb-6 p-5 transition-all duration-300 hover:shadow-xl">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Nombre del cliente</p>
                             <p class="text-gray-900">{{ $client->name }}</p>
@@ -196,6 +231,10 @@
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Ubicación</p>
                             <p class="text-gray-900">{{ $client->location->location_name }}</p>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-tbn-primary text-xs">Celular</p>
+                            <p class="text-gray-900">{{ $client->phone }}</p>
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Area profesional</p>
@@ -230,27 +269,33 @@
                 btnNavigation: 1,
                 btnAd: true,
                 VAPID_KEY: 'BMNaBtUsrS1ops3vvcRqJXlNZ3cdxTlKHMG77c7Y6C1rfe12l5G75AhJYIthEoWJREdwZBGtisKHILPRTok46vU',
+                loading: false,
                 init() {
+                    this.loading = true
                     if (Notification.permission === 'granted')
-                        $wire.verifyHasToken()
+                        $wire.verifyHasToken().then(() => this.loading = false)
+                    else this.loading = false
+                    $wire.on('token-saved', () => {
+                        this.loading = false
+                    })
                 },
                 registerAndGetTokenFirebase() {
+                    this.loading = true
                     if ('serviceWorker' in navigator) {
                         navigator.serviceWorker.register('/firebase-messaging-sw.js')
                             .then(function(registration) {
-                                console.log('Service Worker registrado:', registration);
+                                // console.log('Service Worker registrado:', registration);
                                 messaging.getToken({
                                     vapidKey: this.VAPID_KEY,
                                     serviceWorkerRegistration: registration
                                 }).then((currentToken) => {
-                                    if (currentToken) {
-                                        console.log('Token del dispositivo:', currentToken);
+                                    if (currentToken)
                                         $wire.saveClientToken(currentToken)
-                                    } else {
-                                        console.warn('No se obtuvo token.');
-                                    }
+                                    else
+                                        this.loading = false
                                 }).catch((err) => {
-                                    console.error('Error al obtener el token:', err);
+                                    this.loading = false
+                                    // console.error('Error al obtener el token:', err);
                                 });
                             });
                     }
