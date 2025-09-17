@@ -63,6 +63,7 @@
                             @endforeach
                         </x-select>
                     @endif
+                    <!-- Purchase resume -->
                     <h5 class="font-bold text-lg">Resumen de la compra</h5>
                     <span class="block mb-2 text-xs text-tbn-dark">Revisa tus datos antes de enviarnos tu
                         depósito.</span>

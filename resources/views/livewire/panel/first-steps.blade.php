@@ -1,8 +1,8 @@
 <div class="bg-gray-100 min-h-screen flex items-start justify-center py-10">
-    <div x-data="content" class="w-full max-w-md  {{ $step == 0 ? 'md:max-w-xl' : 'md:max-w-3xl' }}">
+    <div x-data="content" class="w-full max-w-xl md:max-w-4xl">
         <div class="p-6 md:p-10 bg-white rounded-lg shadow-lg mx-2">
             <div class="max-w-[15rem] mx-auto">
-                <x-application-logo class="{{ $step >= 4 ? 'hidden' : '' }}" />
+                <x-application-logo />
             </div>
             <!-- Progress Indicator -->
             <div class="flex flex-row justify-between items-center my-6 {{ $step == 0 ? 'hidden' : '' }}">
@@ -111,7 +111,7 @@
                             @endforeach
                         </x-select>
                         <h5 class="text-md font-bold mb-2">Celular (WhatsApp)</h5>
-                        <x-input type="text" wire:model.live.debounce.200ms='phone' id="phone"
+                        <x-input type="number" wire:model.live.debounce.200ms='phone' id="phone"
                             placeholder="Ej. 71234567" />
                     </div>
                     <!-- Navigation Buttons -->
@@ -270,68 +270,6 @@
                             class="px-4 py-2 bg-tbn-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition duration-300 hover:bg-tbn-primary"></button>
                     </div>
                 </form>
-            @elseif($step == 5)
-                <div class="step-content">
-                    <div class="gap-12">
-                        <h3 class="inline-block text-lg md:text-2xl text-tbn-primary font-semibold mb-4">
-                            Trabajonautas PRO</h3>
-                        <p class="text-sm font-medium mb-4">
-                            <i class="fas fa-check text-green-500 mr-2"></i> Tus datos han sido registrados
-                            correctamete. Envíanos una foto el comprobante de tu deposito por WhatsApp al <span
-                                class="text-tbn-primary">77777777</span> para habilitar tu cuenta de Trabajonautas hoy
-                            mismo.
-                        </p>
-                        <div class="flex flex-row gap-4">
-                            <div class="w-1/2">
-                                <p class="text-sm text-tbn-primary mb-4 text-center">
-                                    Escanea el código QR para realizar el pago</p>
-                                <picture class="block max-w-[10rem] mx-auto mb-4">
-                                    <img class="w-full" src="{{ asset('storage/img/qr.png') }}" alt="qr-code">
-                                </picture>
-                                <hr class="my-7">
-                                <p class="text-sm text-tbn-primary mt-2 mb-4 text-center">Alternativas de pago</p>
-                                <div class="relative px-4 py-3 bg-gray-200 mb-4">
-                                    <span class="absolute -top-3 text-xs text-tbn-primary bg-gray-200 px-3 rounded-md">
-                                        Banco Bisa</span>36621-54481-29402-6598
-                                </div>
-                            </div>
-                            <div class="w-1/2">
-                                <p class="text-sm text-tbn-primary mb-4 text-center">
-                                    Resumen de la información</p>
-                                <table class="min-w-full divide-y divide-gray-200 mb-2">
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Cliente</td>
-                                            <td class="py-1 whitespace-nowrap uppercase">{{ $user->name }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Celular</td>
-                                            <td class="py-1 whitespace-nowrap uppercase">{{ $user->phone }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Tipo de cuenta</td>
-                                            <td class="py-1 whitespace-nowrap uppercase">
-                                                {{ $user->account->accountType->name }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Costo</td>
-                                            <td class="py-1 whitespace-nowrap">
-                                                {{ $user->account->accountType->price }} Bs.</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-1 whitespace-nowrap font-bold">Duración</td>
-                                            <td class="py-1 whitespace-nowrap">
-                                                {{ $user->account->accountType->duration_days }} dias</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <x-button-link wire:click='completeAndSend'
-                            class="block w-full bg-green-600 text-center mt-4">
-                            <i class="fab fa-whatsapp mr-1"></i> Enviar mensaje por WhatsApp</x-button-link>
-                    </div>
-                </div>
             @endif
         </div>
     </div>
