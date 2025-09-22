@@ -7,9 +7,11 @@ use App\Models\Announcement;
 use App\Models\Area;
 use App\Models\Company;
 use App\Models\Location;
+use App\Models\NotificationLog;
 use App\Models\Profesion;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -75,6 +77,36 @@ class FormAnnouncement extends Component
                 $notifier->sendBatchTokens($array_tokens, $this->id);
         }
         $this->redirectRoute('announcement', navigate: true);
+    }
+
+    public function sendUnnotifiedClients()
+    {
+        $today = Carbon::today();
+        $allTokens = User::role(env('CLIENT_ROLE'))
+            ->whereHas('account', fn($query) => $query->whereNotNull('device_token'))
+            ->pluck('account.device_token')
+            ->unique()
+            ->toArray();
+
+        $notified_tokens = NotificationLog::whereDate('sent_at', $today)
+            ->pluck('device_token')
+            ->unique()
+            ->toArray();
+
+        $unnotified_tokens = array_diff($allTokens, $notified_tokens);
+
+        if (!empty($unnotified_tokens)) {
+            $notifier = new FirebaseNotificationService();
+            $notifier->sendUnnotifiedTokens($unnotified_tokens);
+            // Register tokens in NotificationLog
+            foreach ($unnotified_tokens as $token) {
+                NotificationLog::create([
+                    'device_token' => $token,
+                    'announcement_id' => $this->id ?? null,
+                    'sent_at' => now()
+                ]);
+            }
+        }
     }
 
     public function render()

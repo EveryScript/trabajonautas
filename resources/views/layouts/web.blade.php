@@ -42,14 +42,14 @@
             class="max-w-6xl px-5 py-16 md:py-24 mx-auto flex items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
             <div class="w-full md:w-64 px-5 flex-shrink-0 text-white">
                 <picture class="block mb-4">
-                    <img class="md:max-w-[15rem] max-w-48" src="{{ asset('storage/img/tbn-logo-white.webp') }}"
+                    <img class="md:max-w-[12rem] max-w-24" src="{{ asset('storage/img/tbn-logo-white.webp') }}"
                         alt="tbn-logo">
                 </picture>
                 <p class="text-sm text-tbn-secondary my-2">&copy; {{ now()->year }} - Todos los derechos reservados
                 </p>
                 <h5 class="font-bold">Contactos</h5>
-                <p class="text-sm my-1 font-normal">SEO Ricardo Oropeza - 76543210</p>
-                <p class="text-sm my-1 font-normal">SEO Carla Vargas - 76543210</p>
+                <p class="text-sm my-1 font-normal">CEO Ricardo Carlos Oropeza Zárate - 76543210</p>
+                <p class="text-sm my-1 font-normal">CFO Carla Ximena Vargas Soto de Oropeza - 76543210</p>
             </div>
             @livewire('web.footer-data')
         </div>
