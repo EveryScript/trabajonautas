@@ -23,6 +23,7 @@ class FormAnnouncement extends Component
     public $id; // Edit
     public AnnouncementForm $announcement;
     public $areas, $locations, $companies, $profesions;
+    public $text_test = 'waiting for cron job...';
 
     public function mount($id = null)
     {
@@ -111,7 +112,7 @@ class FormAnnouncement extends Component
 
     public function testCronJobs()
     {
-        $this->dispatch('job-launched');
+        $this->text_test = 'Cron job launched!';
     }
 
     public function render()

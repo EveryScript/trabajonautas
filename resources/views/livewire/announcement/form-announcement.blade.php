@@ -7,6 +7,7 @@
                 : 'Registra la información para una nueva convocatoria en la base de datos de Trabajonautas' }}
         </x-slot>
     </x-title-app>
+    <h5 class="text-sm p-4 bg-purple-400 mb-4">{{ $text_test }}</h5>
     <div x-data="content">
         <form class="tbn-form max-w-4xl mb-10" wire:submit="{{ $id ? 'update' : 'save' }}">
             <div class="mb-4">
@@ -213,11 +214,6 @@
             }
 
             Alpine.data('content', () => ({
-                init() {
-                    $wire.on('job-launched', () => {
-                        alert('Cron job launched successfully :)')
-                    })
-                },
                 modalPreview: false,
                 previewUrl: null
             }))

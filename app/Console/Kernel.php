@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('trabajonautas:send-unnotified-clients')->dailyAt('18:00');
+        $schedule->command('trabajonautas:send-unnotified-clients')->dailyAt('18:11');
     }
 
     /**
