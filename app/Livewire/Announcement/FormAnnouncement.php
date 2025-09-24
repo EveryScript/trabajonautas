@@ -109,6 +109,11 @@ class FormAnnouncement extends Component
         }
     }
 
+    public function testCronJobs()
+    {
+        $this->dispatch('job-launched');
+    }
+
     public function render()
     {
         $this->areas = Area::all(['id', 'area_name']);

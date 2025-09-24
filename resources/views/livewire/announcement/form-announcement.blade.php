@@ -213,6 +213,11 @@
             }
 
             Alpine.data('content', () => ({
+                init() {
+                    $wire.on('job-launched', () => {
+                        alert('Cron job launched successfully :)')
+                    })
+                },
                 modalPreview: false,
                 previewUrl: null
             }))
