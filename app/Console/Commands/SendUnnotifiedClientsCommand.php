@@ -15,7 +15,7 @@ class SendUnnotifiedClientsCommand extends Command
     {
         $component = new FormAnnouncement();
         // $component->sendUnnotifiedClients();
-        $component->testCronJobs();
+        $component->sendToAllClients();
         $this->info('Notificaciones enviadas a usuarios no notificados');
     }
 }

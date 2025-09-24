@@ -23,7 +23,6 @@ class FormAnnouncement extends Component
     public $id; // Edit
     public AnnouncementForm $announcement;
     public $areas, $locations, $companies, $profesions;
-    public $text_test = 'waiting for cron job...';
 
     public function mount($id = null)
     {
@@ -80,6 +79,19 @@ class FormAnnouncement extends Component
         $this->redirectRoute('announcement', navigate: true);
     }
 
+    public function sendToAllClients()
+    {
+        $clients = User::role(env('CLIENT_ROLE'))
+            ->whereHas('account', fn($query) => $query
+                ->where('account_type_id', 3)->whereNotNull('device_token'))
+            ->get();
+        $allTokens = $clients->pluck('account.device_token')->toArray();
+        if (!empty($allTokens)) {
+            $notifier = new FirebaseNotificationService();
+            $notifier->sendUnnotifiedTokens($allTokens);
+        }
+    }
+
     public function sendUnnotifiedClients()
     {
         $today = Carbon::today();
@@ -108,11 +120,6 @@ class FormAnnouncement extends Component
                 ]);
             }
         }
-    }
-
-    public function testCronJobs()
-    {
-        $this->text_test = 'Cron job launched!';
     }
 
     public function render()
