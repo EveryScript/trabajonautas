@@ -49,6 +49,14 @@ class FirebaseNotificationService
             ]);
 
         $report = $messaging->sendMulticast($message, $device_tokens);
+        // Register tokens in NotificationLog
+        foreach ($device_tokens as $token) {
+            NotificationLog::create([
+                'device_token' => $token,
+                'announcement_id' => null,
+                'sent_at' => now()
+            ]);
+        }
 
         return [
             'success_count' => $report->successes()->count(),

@@ -79,46 +79,24 @@ class FormAnnouncement extends Component
         $this->redirectRoute('announcement', navigate: true);
     }
 
-    public function sendToAllClients()
-    {
-        $clients = User::role(env('CLIENT_ROLE'))
-            ->whereHas('account', fn($query) => $query
-                ->where('account_type_id', 3)->whereNotNull('device_token'))
-            ->get();
-        $allTokens = $clients->pluck('account.device_token')->toArray();
-        if (!empty($allTokens)) {
-            $notifier = new FirebaseNotificationService();
-            $notifier->sendUnnotifiedTokens($allTokens);
-        }
-    }
-
     public function sendUnnotifiedClients()
     {
         $today = Carbon::today();
-        $allTokens = User::role(env('CLIENT_ROLE'))
-            ->whereHas('account', fn($query) => $query->whereNotNull('device_token'))
-            ->pluck('account.device_token')
-            ->unique()
-            ->toArray();
+        $all_clients = User::role(env('CLIENT_ROLE'))
+            ->whereHas('account', fn($query) => $query
+                ->where('account_type_id', 3)->whereNotNull('device_token'))
+            ->get();
 
-        $notified_tokens = NotificationLog::whereDate('sent_at', $today)
-            ->pluck('device_token')
-            ->unique()
-            ->toArray();
+        $notified_clients = NotificationLog::whereDate('sent_at', $today)->get();
+        
+        $all_tokens = $all_clients->pluck('account.device_token')->toArray();
+        $notified_tokens = $notified_clients->pluck('device_token')->toArray();
 
-        $unnotified_tokens = array_diff($allTokens, $notified_tokens);
+        $unnotified_tokens = array_diff($all_tokens, $notified_tokens);
 
         if (!empty($unnotified_tokens)) {
             $notifier = new FirebaseNotificationService();
             $notifier->sendUnnotifiedTokens($unnotified_tokens);
-            // Register tokens in NotificationLog
-            foreach ($unnotified_tokens as $token) {
-                NotificationLog::create([
-                    'device_token' => $token,
-                    'announcement_id' => $this->id ?? null,
-                    'sent_at' => now()
-                ]);
-            }
         }
     }
 
