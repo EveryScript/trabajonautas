@@ -29,4 +29,8 @@ class Area extends Model
     {
         return $this->hasMany(User::class);
     }
+    public function profesions(): BelongsToMany
+    {
+        return $this->belongsToMany(Profesion::class);
+    }
 }

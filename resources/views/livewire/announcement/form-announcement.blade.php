@@ -15,10 +15,10 @@
                     class="mt-1 block w-full" />
                 <x-input-error for="announcement.announce_title" class="mt-2" />
             </div>
-            <div class="tbn-field mb-4">
+            <div class="mb-4">
                 <x-label for="company" value="{{ __('Empresa') }}" />
                 <div wire:ignore>
-                    <x-select id="company" wire:model="announcement.company_id">
+                    <x-select class="tbn-tom-select" id="company" wire:model="announcement.company_id">
                         <option>Seleccionar empresa</option>
                         @forelse ($companies as $company)
                             <option value="{{ $company->id }}">{{ $company->company_name }}</option>
@@ -31,11 +31,12 @@
                     href="{{ route('new-company') }}" wire:navigate> Agregar empresa</a>
                 <x-input-error for="announcement.company_id" class="mt-2" />
             </div>
-            <div class="tbn-field mb-4">
+            <div class="mb-4">
                 <x-label for="area" value="{{ __('Area profesional') }}" />
                 <div wire:ignore>
-                    <x-select id="area" wire:model="announcement.area_id">
-                        <option>Seleccionar areas</option>
+                    <x-select class="tbn-tom-select" id="area" wire:model="announcement.area_id"
+                        @change="onAreaChange">
+                        <option>Seleccionar area</option>
                         @forelse ($areas as $area)
                             <option value="{{ $area->id }}">{{ $area->area_name }}</option>
                         @empty
@@ -45,10 +46,10 @@
                 </div>
                 <x-input-error for="announcement.area_id" class="mt-2" />
             </div>
-            <div class="tbn-field mb-4">
+            <div class="mb-4">
                 <x-label for="profesions" value="{{ __('Profesiones') }}" />
                 <div wire:ignore>
-                    <x-select id="profesions" wire:model="announcement.profesions" multiple>
+                    <x-select class="tbn-tom-select" id="profesions" wire:model="announcement.profesions" multiple>
                         <option>Seleccionar profesiones</option>
                         @forelse ($profesions as $profesion)
                             <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
@@ -59,10 +60,10 @@
                 </div>
                 <x-input-error for="announcement.profesions" class="mt-2" />
             </div>
-            <div class="tbn-field mb-4">
+            <div class="mb-4">
                 <x-label for="locations" value="{{ __('Ubicaciones') }}" />
                 <div wire:ignore>
-                    <x-select id="locations" wire:model="announcement.locations" multiple>
+                    <x-select class="tbn-tom-select" id="locations" wire:model="announcement.locations" multiple>
                         <option>Seleccionar ubicaciones</option>
                         @forelse ($locations as $location)
                             <option value="{{ $location->id }}">{{ $location->location_name }}</option>
@@ -132,8 +133,9 @@
                     <x-input-error for="announcement.salary" class="mt-2" />
                 </div>
             </div>
-            <div class="tbn-field mb-4">
-                <x-label for="description" class="mb-2" value="{{ __('Descripción/Detalles de la convocatoria') }}" />
+            <div class="mb-4">
+                <x-label for="description" class="mb-2"
+                    value="{{ __('Descripción/Detalles de la convocatoria') }}" />
                 <div wire:ignore>
                     <div class="block w-full bg-white" id="description"></div>
                 </div>
@@ -179,10 +181,6 @@
     </div>
 
     @assets
-        <!-- Tom Select -->
-        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
         <!-- Quill Editor -->
         <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
@@ -190,9 +188,15 @@
 
     @script
         <script>
-            new TomSelect('#area', []);
-            new TomSelect('#locations', []);
-            new TomSelect('#profesions', []);
+            new TomSelect('#area', {
+                maxItems: 1
+            });
+            new TomSelect('#locations', {
+                plugins: ['remove_button']
+            });
+            new TomSelect('#profesions', {
+                plugins: ['remove_button']
+            });
             new TomSelect('#company', {
                 maxItems: 1
             });
@@ -214,7 +218,19 @@
 
             Alpine.data('content', () => ({
                 modalPreview: false,
-                previewUrl: null
+                previewUrl: null,
+                profesions: @json($profesions),
+                profesionsSelected: [],
+                // Functions
+                onAreaChange(event) {
+                    const areaId = event.target.value;
+                    this.profesionsSelected = this.profesions.filter(profesion =>
+                        profesion.areas.some(area => area.id == areaId)
+                    )
+                    const profesionsIds = this.profesionsSelected.map(p => p.id)
+                    document.querySelector('#profesions').tomselect.clear();
+                    document.querySelector('#profesions').tomselect.setValue(profesionsIds)
+                }
             }))
         </script>
     @endscript

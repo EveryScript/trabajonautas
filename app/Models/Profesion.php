@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Profesion extends Model
@@ -21,5 +22,9 @@ class Profesion extends Model
     public function announcements(): BelongsToMany
     {
         return $this->belongsToMany(Announcement::class);
+    }
+    public function areas(): BelongsToMany
+    {
+        return $this->belongsToMany(Area::class);
     }
 }

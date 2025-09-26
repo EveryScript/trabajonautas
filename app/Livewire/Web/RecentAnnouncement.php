@@ -33,9 +33,6 @@ class RecentAnnouncement extends Component
                     pro="{{ $announce->pro }}">
                     <x-slot name="area">
                         {{ $announce->area ? $announce->area->area_name : '' }}
-                        @foreach ($announce->profesions as $profesion)
-                            {{ '| ' . $profesion->profesion_name }}
-                        @endforeach
                     </x-slot>
                     <x-slot name="title">{{ $announce->announce_title }}</x-slot>
                     <x-slot name="company">{{ $announce->company ? $announce->company->company_name : '' }}</x-slot>

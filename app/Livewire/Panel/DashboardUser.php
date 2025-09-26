@@ -98,7 +98,7 @@ class DashboardUser extends Component
         $background = [];
         foreach ($locations as $location) {
             array_push($labels, $location->location_name);
-            array_push($data, $location->users()->count());
+            array_push($data, $location->users()->role(env('CLIENT_ROLE'))->count());
             array_push($background,  $this->primary_color);
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];

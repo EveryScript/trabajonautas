@@ -88,7 +88,7 @@ class FormAnnouncement extends Component
             ->get();
 
         $notified_clients = NotificationLog::whereDate('sent_at', $today)->get();
-        
+
         $all_tokens = $all_clients->pluck('account.device_token')->toArray();
         $notified_tokens = $notified_clients->pluck('device_token')->toArray();
 
@@ -105,7 +105,7 @@ class FormAnnouncement extends Component
         $this->areas = Area::all(['id', 'area_name']);
         $this->locations = Location::all(['id', 'location_name']);
         $this->companies = Company::all(['id', 'company_name']);
-        $this->profesions = Profesion::all(['id', 'profesion_name']);
+        $this->profesions = Profesion::with('areas:id')->get();
         return view('livewire.announcement.form-announcement');
     }
 }

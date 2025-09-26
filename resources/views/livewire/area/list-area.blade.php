@@ -8,7 +8,8 @@
                 </x-slot>
                 <x-slot name="search_field">
                     <div class="mt-4">
-                        <x-button-link class="bg-tbn-primary" href="{{ route('new-area') }}" wire:navigate>Nuevo</x-button-link>
+                        <x-button-link class="bg-tbn-primary" href="{{ route('new-area') }}"
+                            wire:navigate>Nuevo</x-button-link>
                     </div>
                 </x-slot>
             </x-title-app>
@@ -20,13 +21,16 @@
                     <div class="h-full flex flex-col justify-between">
                         <div>
                             <span class="text-xs text-tbn-primary">Area profesional</span>
-                            <h5 class="text-lg font-bold">{{ $area->area_name }}</h5>
-                            <p class="text-sm text-tbn-dark">{{ $area->description }}</p>
-                            <p class="text-sm">Creador <span class="text-tbn-primary">{{ $area->user->name }}</span></p>
-                            <p class="text-sm">Convocatorias <span
-                                    class="text-tbn-primary">{{ count($area->announcements) }}</span></p>
-                            <p class="text-sm">Clientes <span
-                                    class="text-tbn-primary">{{ count($area->usersOf) }}</span>
+                            <h5 class="text-lg font-bold mb-2">{{ $area->area_name }}</h5>
+                            <p class="text-xs text-tbn-dark mb-2">{{ $area->description }}</p>
+                            <p class="text-sm">Creador: <span class="text-tbn-primary">
+                                    {{ $area->user->name }}</span></p>
+                            <p class="text-sm">Convocatorias: <span class="text-tbn-primary">
+                                    {{ count($area->announcements) }}</span></p>
+                            <p class="text-sm">Profesiones: <span class="text-tbn-primary">
+                                    {{ count($area->profesions) }}</span>
+                            <p class="text-sm">Clientes: <span class="text-tbn-primary">
+                                    {{ count($area->usersOf) }}</span>
                             </p>
                         </div>
                         <div class="flex flex-row justify-end text-lg">

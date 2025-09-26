@@ -15,7 +15,7 @@ class AccountSeeder extends Seeder
         $users = User::all();
         $profesion_ids = Profesion::pluck('id')->toArray();
         foreach ($users as $user) {
-            if ($user->email != 'admin@email.com' && $user->email != 'user@email.com') {
+            if ($user->email != 'ricardo@email.com' && $user->email != 'carla@email.com') {
                 Account::create([
                     'user_id' => $user->id,
                     'account_type_id' => rand(1, 3),

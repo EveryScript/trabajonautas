@@ -1,10 +1,22 @@
-.tbn-form .tbn-field .ts-control,
-.tbn-form .tbn-field .ts-dropdown-content {
+.tbn-tom-select .ts-control {
+    border: none;
     font-size: 1rem;
-    padding: 0.70rem;
+    padding: 0 !important;
 }
-
-.tbn-form .tbn-field .ql-editor {
-    min-height: 15rem;
-    font-size: 1rem;
+.tbn-tom-select .ts-control input {
+    padding: 10px 0 !important
+}
+.tbn-tom-select .ts-control .item {
+    border-radius: 5px !important;
+    padding: 10px 20px !important;
+    background-color: #dddddd !important;
+}
+.tbn-tom-select .ts-control .item .remove {
+    font-size: 20px;
+    margin-right: 5px;
+    color: #034b8d !important;
+}
+.tbn-tom-select .ts-dropdown {
+    font-size: 1rem !important;
+    padding: 3px 6px !important;
 }

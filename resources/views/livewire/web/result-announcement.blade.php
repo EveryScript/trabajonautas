@@ -108,9 +108,6 @@
                             logo_flag="{{ false }}" pro="{{ $suggest->pro }}">
                             <x-slot name="area">
                                 {{ $suggest->area->area_name }}
-                                @foreach ($suggest->profesions as $profesion)
-                                    {{ '| ' . $profesion->profesion_name }}
-                                @endforeach
                             </x-slot>
                             <x-slot name="title">{{ $suggest->announce_title }}</x-slot>
                             <x-slot name="company">{{ $suggest->company->company_name }}</x-slot>
