@@ -48,8 +48,8 @@
                 <p class="text-sm text-tbn-secondary my-2">&copy; {{ now()->year }} - Todos los derechos reservados
                 </p>
                 <h5 class="font-bold">Contactos</h5>
-                <p class="text-sm my-1 font-normal">CEO Ricardo Carlos Oropeza Zárate - 76543210</p>
-                <p class="text-sm my-1 font-normal">CFO Carla Ximena Vargas Soto de Oropeza - 76543210</p>
+                <p class="text-sm my-1 font-normal">CEO Ricardo Carlos Oropeza Zárate - 73858162</p>
+                <p class="text-sm my-1 font-normal">CFO Carla Ximena Vargas Soto de Oropeza - 69616052</p>
             </div>
             @livewire('web.footer-data')
         </div>
