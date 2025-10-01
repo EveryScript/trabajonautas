@@ -30,7 +30,7 @@
                             <p class="text-sm">Profesiones: <span class="text-tbn-primary">
                                     {{ count($area->profesions) }}</span>
                             <p class="text-sm">Clientes: <span class="text-tbn-primary">
-                                    {{ count($area->usersOf) }}</span>
+                                    {{ $area->usersOf->filter(fn($user) => $user->hasRole(env('CLIENT_ROLE')))->count() }}</span>
                             </p>
                         </div>
                         <div class="flex flex-row justify-end text-lg">

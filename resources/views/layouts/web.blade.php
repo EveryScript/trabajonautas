@@ -20,10 +20,6 @@
     <link href="https://fonts.bunny.net/css?family=baloo-da-2:400,700" rel="stylesheet" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- Tom Select -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
     <!-- Styles -->
     @livewireStyles
 </head>
@@ -41,8 +37,8 @@
         <div
             class="max-w-6xl px-5 py-16 md:py-24 mx-auto flex items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
             <div class="w-full md:w-64 px-5 flex-shrink-0 text-white">
-                <picture class="block mb-4">
-                    <img class="md:max-w-[12rem] max-w-24" src="{{ asset('storage/img/tbn-logo-white.webp') }}"
+                <picture class="block mb-4 pr-10">
+                    <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-logo-white.webp') }}"
                         alt="tbn-logo">
                 </picture>
                 <p class="text-sm text-tbn-secondary my-2">&copy; {{ now()->year }} - Todos los derechos reservados

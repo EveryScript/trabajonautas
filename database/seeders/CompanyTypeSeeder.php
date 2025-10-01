@@ -20,6 +20,10 @@ class CompanyTypeSeeder extends Seeder
         ]);
         CompanyType::create([
             'id' => 3,
+            'company_type_name' => 'Mixta'
+        ]);
+        CompanyType::create([
+            'id' => 4,
             'company_type_name' => 'ONG'
         ]);
     }

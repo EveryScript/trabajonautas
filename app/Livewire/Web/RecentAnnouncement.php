@@ -50,7 +50,12 @@ class RecentAnnouncement extends Component
                 </x-card-announce>
             </a>
             @empty
-                <span class="text-tbn-dark text-sm text-center">No hay elementos para mostrar</span>
+            <div class="col-span-2">
+                <picture class="block mb-2">
+                    <img src="{{ asset('storage/img/empty.webp') }}" alt="empty" class="max-w-[8rem] mx-auto mb-2">
+                </picture>
+                <p class="text-tbn-dark text-sm">Nuevas convocatorias en camino</p>
+            </div>
             @endforelse
         </div>
         HTML;

@@ -16,14 +16,14 @@ class DashboardClient extends Component
     public $client, $free_client = true, $pro_verified = false;
     public $time_left = 'Tiempo expirado';
     public $alert_time_left = false;
-    public $notify_token_actived;
+    public $notify_token_actived = false;
 
     public function mount()
     {
         $this->client = User::with('account.accountType')->find($this->user_id);
         $this->free_client = $this->client->account->account_type_id == 1;
         $this->pro_verified = $this->client->account->account_type_id !== 1 && $this->client->account->verified_payment;
-        // Check Expiration
+        // Check Expiration and update if not
         if ($this->client->account->limit_time) {
             $limit_time = Carbon::parse($this->client->account->limit_time);
             $now = Carbon::now();
@@ -36,7 +36,7 @@ class DashboardClient extends Component
                 $this->free_client = true;
             } else {
                 $this->time_left = $now->longAbsoluteDiffForHumans($limit_time);
-                if($now->diffInDays($limit_time) <= 5)
+                if ($now->diffInDays($limit_time) <= 5)
                     $this->alert_time_left = true;
             }
         }
@@ -45,6 +45,7 @@ class DashboardClient extends Component
     public function verifyHasToken()
     {
         $this->notify_token_actived = $this->client->account->device_token ? true : false;
+        $this->notify_token_actived ? $this->dispatch('token-saved') : $this->dispatch('empty-token');
     }
 
     public function saveClientToken($token)
@@ -54,8 +55,8 @@ class DashboardClient extends Component
                 'device_token' => $token
             ]);
             $this->notify_token_actived = true;
+            $this->dispatch('token-saved');
         }
-        $this->dispatch('token-saved');
     }
 
     public function render()

@@ -53,8 +53,8 @@
                 <form wire:submit='savePersonalData'>
                     <div id="stepContent1" class="step-content">
                         <h3 class="text-lg md:text-2xl font-semibold mb-2">Hola {{ auth()->user()->name }}</h3>
-                        <p class="text-sm text-gray-500 mb-2">Ingresa tus para completar el registro en
-                            Trabajonautas.com</p>
+                        <p class="text-sm text-gray-500 mb-2">
+                            Ingresa tus para completar el registro en Trabajonautas.com</p>
                         <h5 class="text-md font-bold mb-2">¿Cuál es tu genero?</h5>
                         <ul class="grid grid-cols-2 gap-1 mx-auto mb-8">
                             <li class="text-center">
@@ -102,15 +102,17 @@
                             </li>
                         </ul>
                         <h5 class="text-md font-bold mb-1">¿Cuál es tu ubicación actual?</h5>
-                        <span class="block text-tbn-dark text-xs md:text-sm mb-2">Esta información nos servirá para conocer en que
-                            departamento deseas trabajar.</span>
+                        <span class="block text-tbn-dark text-xs md:text-sm mb-2">
+                            Esta información nos servirá para conocer en que departamento deseas trabajar.</span>
                         <x-select wire:model.live.debounce.200ms='location_id' id="location_id" class="mb-8">
                             <option value="">Selecciona tu ubicación</option>
                             @foreach ($locations as $location)
                                 <option value="{{ $location->id }}">{{ $location->location_name }}</option>
                             @endforeach
                         </x-select>
-                        <h5 class="text-md font-bold mb-2">Celular (WhatsApp)</h5>
+                        <h5 class="text-md font-bold mb-1">Celular (WhatsApp)</h5>
+                        <span class="block text-tbn-dark text-xs md:text-sm mb-2">
+                            Nos comunicaremos contigo utilizando este número.</span>
                         <x-input type="number" wire:model.live.debounce.200ms='phone' id="phone"
                             placeholder="Ej. 71234567" />
                     </div>
@@ -170,7 +172,7 @@
                                     class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span class="block font-bold uppercase">Egresado</span>
-                                        <p class="text-xs leading-none m-0">Aprobó todas las materias y solamente le
+                                        <p class="text-xs m-0">Aprobó todas las materias y solamente le
                                             falta la tesis.</p>
                                     </div>
                                 </label>
@@ -211,10 +213,10 @@
             @elseif($step == 3)
                 <form wire:submit='saveAccountData'>
                     <div class="step-content">
-                        <h5 class="text-md font-medium mb-2">Selecciona el tipo de cuenta que vas a utilizar</h5>
+                        <h5 class="text-sm font-medium mb-2">Selecciona el tipo de cuenta que vas a utilizar</h5>
                         <div class="flex flex-wrap">
                             @forelse ($account_types as $account_type)
-                                <div class="w-full sm:w-1/2 lg:w-1/3 px-2 mb-8">
+                                <div class="w-full sm:w-1/2 lg:w-1/3 px-1 mb-8">
                                     <input type="radio" wire:model.live.debounce.200ms='account_type_id'
                                         id="{{ 'account-' . $account_type->name }}" value="{{ $account_type->id }}"
                                         class="hidden peer" name="account_type">
@@ -223,16 +225,13 @@
                                         class="block bg-white p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
                                         <h2 class="text-xl md:text-2xl font-semibold text-tbn-primary capitalize">
                                             {{ $account_type->name }}</h2>
-                                        <div class="mt-2 md:mt-4">
-                                            <span class="text-3xl md:text-5xl font-bold text-gray-900">
+                                        <div class="mt-2 md:mt-2">
+                                            <span class="text-3xl md:text-4xl font-bold text-gray-900">
                                                 {{ $account_type->price }} Bs.</span>
                                             <span class="text-tbn-dark font-medium">
                                                 {{ $account_type->duration_days == 0 ? 'Siempre' : '/ ' . $account_type->duration_days . ' dias' }}</span>
                                         </div>
                                         <ul class="mt-3 md:mt-6 space-y-2 text-xs md:text-sm">
-                                            <li class="flex items-center">
-                                                <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: 30 dias
-                                            </li>
                                             <li class="flex items-center">
                                                 <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
                                             </li>
@@ -277,7 +276,6 @@
         <script>
             Alpine.data('content', () => ({
                 // Models
-                user_area: '',
                 btnAccountFinish: 'Finalizar registro',
                 // Functions
                 changeBtnLabel(accountId) {

@@ -33,7 +33,7 @@
                             <span class="ms-2 text-sm">{{ __('Remember me') }}</span>
                         </label>
                     </div>
-                    <div class="flex items-center justify-between mt-8">
+                    <div class="flex gap-4 items-center justify-between mt-8">
                         <x-button>{{ __('Log in') }}</x-button>
                         <a class="underline text-sm hover:text-tbn-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high cursor-pointer"
                             href="{{ route('register') }}" wire:navigate>

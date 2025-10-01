@@ -75,26 +75,6 @@ class FirstSteps extends Component
             $this->redirectRoute('purchase-account', ['account_type_id' => $this->account_type_id], navigate: true);
         }
     }
-    /*
-    public function saveProAccountData($form_profesions)
-    {
-        $this->user_profesions = $form_profesions;
-        $this->validate([
-            'user_profesions' => 'required|array',
-            'user_profesions.*' => 'exists:profesions,id'
-        ]);
-        $user = User::find($this->user_id);
-        $user->myProfesions()->attach($this->user_profesions);
-        $this->step = 5;
-    }
-    public function completeAndSend()
-    {
-        $this->user->update(['register_completed' => true]);
-        return redirect()->away('https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta '
-            . $this->user->account->accountType->name . '. Mi nombre es ' . $this->user->name . ' y mi número de celular es '
-            . $this->user->phone . '.Aquí está mi comprobante:');
-    }
-    */
     public function stepBack()
     {
         $this->step--;

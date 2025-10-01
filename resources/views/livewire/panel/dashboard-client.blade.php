@@ -1,13 +1,14 @@
 <section class="mt-8">
     <div x-data="content" class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
-        <!-- User Card -->
-        <aside class="w-full md:w-[18rem]">
+        <!-- Aside -->
+        <aside class="w-full md:w-[18rem] relative">
             <div class="bg-white rounded-xl shadow-lg mb-6 px-6 py-8 transition-all duration-300 hover:shadow-xl">
                 <picture class="block relative mb-2">
                     <img src="{{ asset('storage/img/tbn-isologo.webp') }}" alt="avatar"
                         class="w-[3rem] rounded-full mx-auto">
                 </picture>
                 <h5 class="text-lg font-medium text-center mb-1"> {{ $client->name }} </h5>
+                <!-- Client type -->
                 @if ($free_client)
                     <p class="text-center">
                         <span class="text-xs text-white bg-green-500 px-2 py-1 rounded-full">
@@ -19,8 +20,8 @@
                         <div class="flex flex-row gap-4 border border-tbn-primary p-4 rounded-lg">
                             <i class="inline-block fas fa-rocket text-xl text-tbn-primary"></i>
                             <div class="flex-1 text-left mb-3">
-                                <span class="font-medium text-black">Tu cuenta {{ $client->account->accountType->name }}
-                                    está en camino</span>
+                                <span class="font-medium text-black">
+                                    Tu cuenta {{ $client->account->accountType->name }} está en camino</span>
                                 <p class="mb-3">
                                     <span class="inline-block font-medium text-xs text-tbn-dark">
                                         Gracias por adquirir tu cuenta con Trabajonautas.com. Envíanos tu
@@ -38,6 +39,7 @@
                             <p class="inline-block mb-4 text-xs text-white bg-tbn-secondary px-2 py-1 rounded-full">
                                 <i class="fas fa-crown mr-2"></i>{{ $client->account->accountType->name }}
                             </p>
+                            <!-- Time left alert -->
                             @if ($alert_time_left)
                                 <div class="flex flex-row gap-4 border border-tbn-primary p-4 rounded-lg">
                                     <i class="inline-block fas fa-exclamation-triangle text-xl text-red-600"></i>
@@ -62,50 +64,42 @@
                                 </p>
                             @endif
                         </div>
-
-
                         {{-- Verify if notifications is actived --}}
                         @if ($client->account->account_type_id === 3)
-                            <hr class="my-4">
                             @if ($notify_token_actived)
-                                <div class="flex flex-row gap-4 border border-tbn-secondary p-4 rounded-lg">
-                                    <i class="inline-block fas fa-check-circle text-xl text-tbn-secondary"></i>
-                                    <div class="flex-1">
-                                        <p class="mb-1"><span class="font-medium text-black">
-                                                Notificaciones activadas</span></p>
-                                        <p class="mb-1"><span class="inline-block font-medium text-xs text-tbn-dark">
-                                                Recibirás una notificación cuando una nueva convocatoria esteé
-                                                disponible para ti.</span></p>
-                                    </div>
+                                <div class="absolute top-4 right-4">
+                                    <i class="fas fa-bell text-tbn-secondary animate-ping float-right"></i>
+                                    <i class="absolute fas fa-bell text-tbn-secondary"></i>
                                 </div>
                             @else
-                                <div class="flex flex-row gap-4 border border-tbn-primary p-4 rounded-lg">
-                                    <div>
+                                <!-- Modal activate notifications -->
+                                <div x-show="notificationDisplay" x-cloak
+                                    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+                                    style="backdrop-filter: blur(2px);">
+                                    <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center relative">
+                                        <picture class="block mb-4">
+                                            <img src="{{ asset('storage/img/pro.webp') }}" alt="empty"
+                                                class="w-[10rem] h-[10rem] mx-auto">
+                                        </picture>
+                                        <h2 class="text-lg font-bold mb-2 text-tbn-primary">
+                                            Trabajonautas <span class="text-tbn-primary font-bold">PRO-MAX</span>
+                                        </h2>
+                                        <p class="mb-6 text-tbn-dark text-sm">
+                                            <strong class="text-red-700 uppercase">Importante: </strong>
+                                            Activa las notificaciones de tu navegador para recibir una notificación en
+                                            tiempo real cada vez que
+                                            <strong>trabajonautas.com</strong> publique una
+                                            nueva convocatoria adecuada para ti.
+                                        </p>
                                         <template x-if="!loading">
-                                            <i class="fas fa-lightbulb text-xl text-tbn-primary"></i>
+                                            <x-button-link x-on:click="registerAndGetTokenFirebase"
+                                                class="bg-tbn-primary cursor-pointer text-sm select-none w-full">
+                                                Activar notificaciones
+                                            </x-button-link>
                                         </template>
                                         <template x-if="loading">
                                             <i class="text-tbn-dark fas fa-spinner text-xl animate-spin"></i>
                                         </template>
-                                    </div>
-                                    <div class="flex-1 mb-2">
-                                        <p class="mb-1">
-                                            <template x-if="!loading">
-                                                <span class="font-medium text-black">Notificaciones desactivadas</span>
-                                            </template>
-                                            <template x-if="loading">
-                                                <span class="font-medium text-tbn-dark">Cargando...</span>
-                                            </template>
-                                        </p>
-                                        <p class="mb-3">
-                                            <span class="inline-block font-medium text-xs text-tbn-dark">
-                                                Activa las notificaciones para recibir alertas cada vez que
-                                                <strong>Trabajonautas.com</strong>
-                                                publique una nueva convocatoria.</span>
-                                        </p>
-                                        <x-button-link x-on:click="registerAndGetTokenFirebase"
-                                            class="bg-tbn-primary cursor-pointer text-sm select-none">
-                                            Activar</x-button-link>
                                     </div>
                                 </div>
                             @endif
@@ -130,6 +124,7 @@
                 </nav>
             </div>
         </aside>
+        <!-- User dashboard -->
         <main class="flex-1 mb-0 md:mb-24">
             @if ($free_client)
                 <x-dashboard-ad />
@@ -270,34 +265,49 @@
                 btnAd: true,
                 VAPID_KEY: 'BMNaBtUsrS1ops3vvcRqJXlNZ3cdxTlKHMG77c7Y6C1rfe12l5G75AhJYIthEoWJREdwZBGtisKHILPRTok46vU',
                 loading: false,
+                notificationDisplay: false,
                 init() {
                     this.loading = true
-                    if (Notification.permission === 'granted')
+                    // Show allow notification panel
+                    if (Notification.permission === 'granted') {
                         $wire.verifyHasToken().then(() => this.loading = false)
-                    else this.loading = false
+                    } else {
+                        this.notificationDisplay = true
+                        this.loading = false
+                    }
+                    // Function token saved
                     $wire.on('token-saved', () => {
+                        this.notificationDisplay = false
+                        this.loading = false
+                    })
+                    // Function empty token
+                    $wire.on('empty-token', () => {
+                        this.notificationDisplay = true
                         this.loading = false
                     })
                 },
                 registerAndGetTokenFirebase() {
                     this.loading = true
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                            .then(function(registration) {
-                                // console.log('Service Worker registrado:', registration);
-                                messaging.getToken({
-                                    vapidKey: this.VAPID_KEY,
-                                    serviceWorkerRegistration: registration
-                                }).then((currentToken) => {
-                                    if (currentToken)
-                                        $wire.saveClientToken(currentToken)
-                                    else
+                    try {
+                        if ('serviceWorker' in navigator) {
+                            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                                .then(function(registration) {
+                                    messaging.getToken({
+                                        vapidKey: this.VAPID_KEY,
+                                        serviceWorkerRegistration: registration
+                                    }).then((currentToken) => {
+                                        if (currentToken)
+                                            $wire.saveClientToken(currentToken)
+                                        else
+                                            this.loading = false
+                                    }).catch((err) => {
                                         this.loading = false
-                                }).catch((err) => {
-                                    this.loading = false
-                                    // console.error('Error al obtener el token:', err);
+                                        console.error('Error al obtener el token:', err);
+                                    });
                                 });
-                            });
+                        }
+                    } catch (error) {
+                        console.log(error);
                     }
                 }
             }))

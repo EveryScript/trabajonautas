@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\Account;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,12 @@ class CreateNewUser implements CreatesNewUsers
             'password' => Hash::make($input['password']),
         ]);
 
-        $new_user->assignRole(env('CLIENT_ROLE')); // Always user is CLIENT
+        $new_user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
+
+        Account::create([
+            'user_id' => $new_user->id,
+            'account_type_id' => 1
+        ]);
 
         return $new_user;
     }

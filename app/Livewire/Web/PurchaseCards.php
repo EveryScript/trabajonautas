@@ -72,9 +72,6 @@ class PurchaseCards extends Component
                                     </div>
                                     <ul class="my-6 space-y-2 text-sm">
                                         <li class="flex items-center">
-                                            <i class="fas fa-check text-green-500 mr-2"></i> Tiempo de uso: Siempre
-                                        </li>
-                                        <li class="flex items-center">
                                             <i class="fas fa-check text-green-500 mr-2"></i> Convocatorias estandar
                                         </li>
                                         <li class="flex items-center">
@@ -117,10 +114,6 @@ class PurchaseCards extends Component
                                                 class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
                                                 {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                                 <i class="fas fa-arrow-right ml-2"></i></a>
-                                            <!-- <a x-on:click="purchaseShowForm({{ $account_type->id }}, '{{ $account_type->name }}', '{{ $account_type->price }}', '{{ $account_type->duration_days }}');"
-                                                class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
-                                                {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
-                                                <i class="fas fa-arrow-right ml-2"></i></a> -->
                                         @endif
                                     @else
                                         <a href="{{ route('dashboard') }}" wire:navigate
