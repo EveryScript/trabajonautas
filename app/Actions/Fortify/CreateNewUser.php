@@ -31,11 +31,6 @@ class CreateNewUser implements CreatesNewUsers
 
         $new_user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
 
-        Account::create([
-            'user_id' => $new_user->id,
-            'account_type_id' => 1
-        ]);
-
         return $new_user;
     }
 }
