@@ -24,7 +24,7 @@ class GradeProfileSeeder extends Seeder
         ]);
         GradeProfile::create([
             'id' => 4,
-            'profile_name' => 'Egresado (terminó todas las materias y solamente le falta la tesis)'
+            'profile_name' => 'Egresado'
         ]);
         GradeProfile::create([
             'id' => 5,

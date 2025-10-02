@@ -5,6 +5,7 @@ namespace App\Livewire\Panel;
 use App\Models\Account;
 use App\Models\AccountType;
 use App\Models\Area;
+use App\Models\GradeProfile;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Livewire\Component;
 class DashboardUser extends Component
 {
     public $primary_color = "#034b8d";
+    public $secondary_color = "#f29000";
 
     public function getClientsByAccount()
     {
@@ -27,8 +29,7 @@ class DashboardUser extends Component
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
-
-    public function getUsersByAge()
+    public function getClientsByAge()
     {
         $client_ages = [
             ['value' => 1, 'text' => 'de 18 a 25 años'],
@@ -45,21 +46,49 @@ class DashboardUser extends Component
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
-
-    public function getAnnouncesByArea()
+    public function getClientsByGender()
     {
-        $areas = Area::all('id', 'area_name');
+        $client_generes = [
+            ['value' => 'M', 'text' => 'Hombres'],
+            ['value' => 'F', 'text' => 'Mujeres'],
+        ];
+        $labels = [];
+        $data = [];
+        $background = ['#034b8d', '#f29000'];
+        foreach ($client_generes as $client_genere) {
+            array_push($labels, $client_genere['text']);
+            array_push($data, User::role(env('CLIENT_ROLE'))->whereNotNull('gender')->where('gender', $client_genere['value'])->count());
+            array_push($background,  $this->primary_color);
+        }
+        return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
+    }
+    public function getClientsByGrade()
+    {
+        $grades = GradeProfile::whereHas('users', fn($subquery) => $subquery->role(env('CLIENT_ROLE')))->get();
         $labels = [];
         $data = [];
         $background = [];
-        foreach ($areas as $area) {
-            array_push($labels, $area->area_name);
-            array_push($data, $area->announcements()->get()->count());
+        foreach ($grades as $grade) {
+            array_push($labels, $grade->profile_name);
+            array_push($data, $grade->users()->get()->count());
             array_push($background, $this->primary_color);
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
-
+    public function getAnnouncesByArea()
+    {
+        $areas = Area::all('id', 'area_name');
+        $areas = Area::whereHas('announcements')->get();
+        $labels = [];
+        $data = [];
+        $background = [];
+        foreach ($areas as $area) {
+            array_push($labels, strlen($area->area_name) > 25 ? substr($area->area_name, 0, 20) . '...' : $area->area_name);
+            array_push($data, $area->announcements()->get()->count());
+            array_push($background, $this->secondary_color);
+        }
+        return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
+    }
     public function getAnnouncesByUser()
     {
         $users = User::role(['USER', 'ADMIN'])->get();
@@ -69,12 +98,11 @@ class DashboardUser extends Component
         foreach ($users as $user) {
             array_push($labels, $user->name);
             array_push($data, $user->announcements()->get()->count());
-            array_push($background,  $this->primary_color);
+            array_push($background,  $this->secondary_color);
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
-
-    public function getUsersByProfesion()
+    public function getClientsByProfesion()
     {
         $profesions = Profesion::withCount(['users as clients_profesion' => function ($query) {
             $query->role(env('CLIENT_ROLE'));
@@ -83,14 +111,14 @@ class DashboardUser extends Component
         $data = [];
         $background = [];
         foreach ($profesions as $profesion) {
-            array_push($labels, $profesion->profesion_name);
+            array_push($labels, strlen($profesion->profesion_name) > 25 ?
+                substr($profesion->profesion_name, 0, 25) . '...' : $profesion->profesion_name);
             array_push($data, $profesion->clients_profesion);
             array_push($background,  $this->primary_color);
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
-
-    public function getUsersByLocation()
+    public function getClientsByLocation()
     {
         $locations = Location::whereHas('users', fn($subquery) => $subquery->role(env('CLIENT_ROLE')))->get();
         $labels = [];
@@ -103,24 +131,41 @@ class DashboardUser extends Component
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
     }
-
-
+    public function getClientsByArea()
+    {
+        $areas = Area::whereHas('usersOf', fn($subquery) => $subquery->role(env('CLIENT_ROLE')))->get();
+        $labels = [];
+        $data = [];
+        $background = [];
+        foreach ($areas as $area) {
+            array_push($labels, strlen($area->area_name) > 25 ? substr($area->area_name, 0, 20) . '...' : $area->area_name);
+            array_push($data, $area->usersOf()->role(env('CLIENT_ROLE'))->count());
+            array_push($background, $this->primary_color);
+        }
+        return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];
+    }
     public function render()
     {
         $tbn_clients = $this->getClientsByAccount();
         $tbn_announces_area = $this->getAnnouncesByArea();
         $tbn_announces_user = $this->getAnnouncesByUser();
-        $tbn_users_profesion = $this->getUsersByProfesion();
-        $tbn_users_location = $this->getUsersByLocation();
-        $tbn_users_age = $this->getUsersByAge();
+        $tbn_clients_profesion = $this->getClientsByProfesion();
+        $tbn_clients_location = $this->getClientsByLocation();
+        $tbn_clients_age = $this->getClientsByAge();
+        $tbn_clients_gender = $this->getClientsByGender();
+        $tbn_clients_grade = $this->getClientsByGrade();
+        $tbn_clients_area = $this->getClientsByArea();
 
         return view('livewire.panel.dashboard-user', compact(
             'tbn_clients',
             'tbn_announces_area',
             'tbn_announces_user',
-            'tbn_users_profesion',
-            'tbn_users_location',
-            'tbn_users_age'
+            'tbn_clients_profesion',
+            'tbn_clients_location',
+            'tbn_clients_age',
+            'tbn_clients_gender',
+            'tbn_clients_grade',
+            'tbn_clients_area'
         ));
     }
 }

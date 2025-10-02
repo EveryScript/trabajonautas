@@ -29,7 +29,7 @@
                                         por WhatsApp para habilitar tu cuenta hoy mismo.
                                 </p>
                                 <x-button-link
-                                    href="https://api.whatsapp.com/send?phone=59172222222&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $client->phone }} y mi nombre es {{ $client->name }}."
+                                    href="https://api.whatsapp.com/send?phone=59173858162&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $client->phone }} y mi nombre es {{ $client->name }}."
                                     class="bg-tbn-primary cursor-pointer text-sm select-none">
                                     <i class="fab fa-whatsapp mr-1"></i> Enviar</x-button-link>
                             </div>
@@ -76,7 +76,7 @@
                                 <div x-show="notificationDisplay" x-cloak
                                     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
                                     style="backdrop-filter: blur(2px);">
-                                    <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center relative">
+                                    <div class="bg-white rounded-xl shadow-lg p-8 mx-2 max-w-md w-full text-center relative">
                                         <picture class="block mb-4">
                                             <img src="{{ asset('storage/img/pro.webp') }}" alt="empty"
                                                 class="w-[10rem] h-[10rem] mx-auto">
