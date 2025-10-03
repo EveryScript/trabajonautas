@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -48,7 +46,7 @@ class UserSeeder extends Seeder
             'phone' => '69616052',
             'gender' => 'M',
             'age' => 1,
-            'register_completed' => false,
+            'register_completed' => true,
             'location_id' => 1,
             'grade_profile_id' => 1,
             'area_id' => 1,

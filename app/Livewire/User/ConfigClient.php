@@ -29,7 +29,8 @@ class ConfigClient extends Component
         $duration_days = $this->client->account->accountType->duration_days;
         $this->client->account()->update([
             'verified_payment' => $this->client_verified_payment,
-            'limit_time' => Carbon::now()->addDays($duration_days)
+            'limit_time' => Carbon::now()->addDays($duration_days),
+            'verified_by_user_id' => auth()->user()->id
         ]);
         $this->client->update([
             'actived' => $this->client_actived

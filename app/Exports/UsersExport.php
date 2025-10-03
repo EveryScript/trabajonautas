@@ -35,6 +35,7 @@ class UsersExport implements FromCollection, WithHeadings
                 'id' => $client->id,
                 'name' => $client->name,
                 'account_type_name' => $client->account->accountType->name,
+                'verified_by_user_id' => $client->account->verifiedByUser->name,
                 'phone' => $client->phone,
                 'updated_at' => $client->account->updated_at,
                 'price' => $client->account->accountType->price
@@ -43,6 +44,6 @@ class UsersExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return ['ID', 'Nombre', 'Tipo de cuenta', 'Celular', 'Fecha de verificación', 'Ganancia (Bs.)'];
+        return ['ID', 'Nombre', 'Tipo de cuenta', 'Verificado por', 'Celular', 'Fecha de verificación', 'Ganancia (Bs.)'];
     }
 }

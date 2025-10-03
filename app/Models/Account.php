@@ -20,4 +20,8 @@ class Account extends Model
     {
         return $this->belongsTo(AccountType::class);
     }
+    public function verifiedByUser()
+    {
+        return $this->belongsTo(User::class, 'verified_by_user_id');
+    }
 }
