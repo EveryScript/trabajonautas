@@ -22,7 +22,7 @@
         </div>
         <div class="mb-4">
             <x-label for="password" value="{{ $id ? __('Nueva contraseña') : __('Contraseña') }}" />
-            <x-input wire:model="user.password" id="password" type="password" class="mt-1 block w-full" />
+            <x-input-password wire:model="user.password" id="password" type="password" class="mt-1 block w-full" />
             <x-input-error for="user.password" class="mt-2" />
         </div>
         <div class="mb-4">
@@ -67,8 +67,8 @@
                     </div>
                     <div class="ms-3">
                         <p class="text-md font-medium text-black">Habilitar usuario</p>
-                        <span class="text-xs text-tbn-dark">El usuario utiliza el sistema y su cuenta está disponible
-                            actualmente </span>
+                        <span class="text-xs text-tbn-dark">
+                            El usuario utiliza el sistema y su cuenta está disponible actualmente </span>
                     </div>
                 </label>
             </div>
