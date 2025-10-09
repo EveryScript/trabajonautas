@@ -31,6 +31,7 @@ Route::get('/compra/{account_type_id}', fn($account_type_id = null) => view('pur
 // All access logged
 Route::group(['middleware' => ['role:CLIENT|USER|ADMIN']], function () {
     Route::get('/panel', fn() => view('dashboard'))->name('dashboard');
+    Route::get('/prohibido', fn() => view('restricted-area'))->name('restricted-area');
 });
 
 // Only users and admin access

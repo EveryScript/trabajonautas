@@ -87,8 +87,6 @@
                     <tr class="bg-white border-b hover:bg-gray-50">
                         <td class="py-4 text-center font-italic text-gray-600" colspan="5">
                             No se han encontrado datos
-                            <button class="text-tbn-primary underline" wire:click="$set('search', null)">
-                                Aceptar </button>
                         </td>
                     </tr>
                 @endforelse

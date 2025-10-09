@@ -21,10 +21,15 @@ class ResultAnnouncement extends Component
                 if (auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')) {
                     $this->client = User::with('account.accountType')->find(auth()->user()->id);
                     $this->pro_verified = $this->client->account->verified_payment;
+                    // Verify account limit time
                     if ($this->client->account->limit_time) {
                         $limit_time = Carbon::parse($this->client->account->limit_time);
                         if ($limit_time->isBefore(Carbon::now()))
                             $this->redirect('/panel', true);
+                    }
+                    // Verify similar area client to announcement
+                    if (Announcement::find($id)->area->id !== $this->client->area->id) {
+                        $this->redirect('/prohibido', true);
                     }
                     if (Announcement::find($id)->pro && $this->client->account->account_type_id == 1)
                         $this->redirect('/pro', true);
