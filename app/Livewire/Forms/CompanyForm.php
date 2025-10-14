@@ -28,7 +28,7 @@ class CompanyForm extends Form
     {
         $company = Company::find($update_id);
         $rules = [
-            'company_name' => 'required|min:2',
+            'company_name' => 'required|min:2|unique:companies,company_name',
             'description' => 'required',
             'user_id' => 'required',
             'company_type_id' => 'required'
@@ -53,7 +53,7 @@ class CompanyForm extends Form
     public function save()
     {
         $this->validate([
-            'company_name' => 'required|min:2',
+            'company_name' => 'required|min:2|unique:companies,company_name',
             'description' => 'required',
             'company_image' => 'required|image|mimes:jpg,jpeg,png|max:4000',
             'user_id' => 'required',

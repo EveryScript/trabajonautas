@@ -8,7 +8,11 @@ use Livewire\Form;
 
 class ProfesionForm extends Form
 {
-    #[Validate(['profesion_name' => 'required|min:5'], [], ['profesion_name' => 'nombre de la profesión'])]
+    #[Validate(
+        ['profesion_name' => 'required|min:5|unique:profesions,profesion_name'],
+        [],
+        ['profesion_name' => 'nombre de la profesión']
+    )]
     public $profesion_name;
 
     public function edit($id)

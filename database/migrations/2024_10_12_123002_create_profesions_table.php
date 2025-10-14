@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('profesions', function (Blueprint $table) {
             $table->id();
-            $table->string('profesion_name');
+            $table->string('profesion_name')->unique();
             $table->timestamps();
         });
     }

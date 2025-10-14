@@ -41,9 +41,11 @@
                             </div>
                             <div class="mb-2">
                                 <i class="fas fa-money-bill text-red-500 pr-1"></i>
-                                <span class=""> Sueldo
-                                    {{ $announcement->salary }} Bs.
-                                </span>
+                                @if ($announcement->salary > 0)
+                                    <span class=""> Sueldo {{ $announcement->salary }} Bs. </span>
+                                @else
+                                    <span class=""> Sueldo no declarado por la institución. </span>
+                                @endif
                             </div>
                         </div>
                     </div>

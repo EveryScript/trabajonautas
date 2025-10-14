@@ -29,7 +29,7 @@
                                         por WhatsApp para habilitar tu cuenta hoy mismo.
                                 </p>
                                 <x-button-link
-                                    href="https://api.whatsapp.com/send?phone=59173858162&text=Hola, he realizado el pago de mi cuenta PRO por QR. Mi número de celular es {{ $client->phone }} y mi nombre es {{ $client->name }}."
+                                    href="https://api.whatsapp.com/send?phone=59173858162&text=Hola, he realizado el pago de mi cuenta {{ $client->account->accountType->name }} por QR. Mi nombre es {{ $client->name }}."
                                     class="bg-tbn-primary cursor-pointer text-sm select-none">
                                     <i class="fab fa-whatsapp mr-1"></i> Enviar</x-button-link>
                             </div>

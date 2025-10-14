@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('areas', function (Blueprint $table) {
             $table->id();
-            $table->string('area_name');
+            $table->string('area_name')->unique();
             $table->string('description');
             $table->foreignUuid('user_id'); // Foreign key
             $table->timestamps();

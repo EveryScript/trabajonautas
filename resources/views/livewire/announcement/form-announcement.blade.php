@@ -130,6 +130,7 @@
                 <div class="w-1/2">
                     <x-label for="salary" value="{{ __('Sueldo') }}" />
                     <x-input wire:model="announcement.salary" id="salary" type="number" class="mt-1 block w-full" />
+                    <span class="text-xs text-tbn-dark">"0" = sueldo no declarado por la institución.</span>
                     <x-input-error for="announcement.salary" class="mt-2" />
                 </div>
             </div>

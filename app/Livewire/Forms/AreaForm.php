@@ -10,7 +10,7 @@ use Livewire\Form;
 
 class AreaForm extends Form
 {
-    #[Validate('required')]
+    #[Validate('required|unique:areas,area_name')]
     public $area_name;
 
     #[Validate('required|max:200')]
