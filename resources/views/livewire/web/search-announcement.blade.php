@@ -1,7 +1,7 @@
 <section class="max-w-6xl mt-5 mb-10 px-5 mx-auto">
     <div x-data="content">
         <!-- Search fields -->
-        <div class="w-full flex flex-col md:flex-row gap-2 mb-5 tbn-form">
+        <div class="w-full flex flex-col md:flex-row gap-2 mb-4 tbn-form">
             <div class="w-full md:w-1/2">
                 <x-label for="search_title" value="{{ __('¿Cuál es tu profesión?') }}" />
                 <x-input class="px-[12px] py-[6px]" type="search" wire:model='search_title' x-model="search_title"
@@ -38,12 +38,22 @@
                             class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900"></p>
                     </div>
                     <div class="flex flex-col justify-center">
-                        <button class="inline-block w-10 h-10 rounded-full bg-tbn-primary" type="button" wire:click='clearSearch'>
+                        <button class="inline-block w-10 h-10 rounded-full bg-tbn-primary" type="button"
+                            wire:click='clearSearch' @click="clearData">
                             <i class="fas fa-trash text-sm text-white"></i></button>
                     </div>
                 </div>
             </div>
         @endif
+        <div class="mb-5" wire:loading.remove>
+            <div class="flex flex-row flex-wrap gap-2">
+                @foreach ($random_profesions as $profesion)
+                    <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}" wire:navigate
+                        class="px-4 py-2 text-tbn-dark text-xs bg-white shadow-md rounded-full hover:bg-tbn-primary hover:text-white transition-all duration-200">
+                        {{ $profesion->profesion_name }}</a>
+                @endforeach
+            </div>
+        </div>
         <!-- Announcements -->
         <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
             @forelse ($announcements as $announce)
@@ -98,6 +108,11 @@
                 },
                 searchAnnouncements() {
                     $wire.searchAnnounces(this.search_title, this.search_location_id)
+                },
+                clearData(){
+                    this.search_title = ''
+                    this.search_location = ''
+                    this.search_location_id = ''
                 }
             }));
         </script>

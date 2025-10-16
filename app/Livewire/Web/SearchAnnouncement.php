@@ -4,6 +4,7 @@ namespace App\Livewire\Web;
 
 use App\Models\Announcement;
 use App\Models\Location;
+use App\Models\Profesion;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -44,11 +45,18 @@ class SearchAnnouncement extends Component
     {
         if ($this->title) $this->search_title = $this->title;
         else $this->title = null;
+
+        $random_profesions = Profesion::inRandomOrder()->limit(7)->get();
+
         $base_query = Announcement::where('expiration_time', '>=', now())
             ->orderBy('updated_at', 'DESC');
 
         $filter_query = (clone $base_query)
-            ->when($this->search_title, fn($query) => $query->where('announce_title', 'LIKE', '%' . $this->search_title . '%'))
+            ->when($this->search_title, function ($query) {
+                $profesion_ids = Profesion::where('profesion_name', 'LIKE', '%' . $this->search_title . '%')->pluck('id');
+                $query->where('announce_title', 'LIKE', '%' . $this->search_title . '%')
+                    ->orWhereHas('profesions', fn($sub_query) => $sub_query->whereIn('profesion_id', $profesion_ids));
+            })
             ->when($this->search_location, fn($query) => $query->whereHas('locations', fn($sub_query) => $sub_query
                 ->where('location_id', $this->search_location)));
 
@@ -61,7 +69,8 @@ class SearchAnnouncement extends Component
         return view('livewire.web.search-announcement', [
             'announcements' => $announcements,
             'count_results' => $count_results,
-            'search_title' => $this->search_title
+            'search_title' => $this->search_title,
+            'random_profesions' => $random_profesions
         ]);
     }
 }
