@@ -28,31 +28,31 @@
                         <x-input id="email" class="block mt-1 w-full" type="email" name="email"
                             :value="old('email')" required autofocus autocomplete="username" />
                     </div>
-                    <div class="relative mt-6">
+                    <div class="relative mt-6 mb-2">
                         <x-label for="password" value="{{ __('Password') }}" />
                         <x-input-password id="password" class="block mt-1 w-full" type="password" name="password"
                             required autocomplete="current-password" />
                     </div>
-                    <div class="relative mt-6">
+                    {{-- <div class="relative mt-6">
                         <label for="remember_me" class="flex items-center">
                             <x-checkbox id="remember_me" name="remember" />
                             <span class="ms-2 text-sm">{{ __('Remember me') }}</span>
                         </label>
-                    </div>
-                    <div class="flex gap-4 items-center justify-between mt-8">
+                    </div> --}}
+                    @if (Route::has('password.request'))
+                        <a class="underline text-sm hover:text-tbn-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high cursor-pointer"
+                            href="{{ route('password.request') }}">
+                            {{ __('Forgot your password?') }}
+                        </a>
+                    @endif
+                    <div class="flex gap-4 items-center justify-between mt-8 mb-6">
                         <x-button>{{ __('Log in') }}</x-button>
                         <a class="underline text-sm hover:text-tbn-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high cursor-pointer"
                             href="{{ route('register') }}" wire:navigate>
                             {{ __('Crear cuenta') }}
                         </a>
-                        {{-- @if (Route::has('password.request'))
-                            <a
-                                class="underline text-sm hover:text-tbn-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high cursor-pointer
-                                href="{{ route('password.request') }}">
-                                {{ __('Forgot your password?') }}
-                            </a>
-                        @endif --}}
                     </div>
+
                 </div>
             </form>
         </div>
