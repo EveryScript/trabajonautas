@@ -13,6 +13,12 @@
             <div class="mb-4 font-medium text-sm text-green-600">{{ session('status') }}</div>
         @endif
 
+        @if (session('session_expired'))
+            <div class="mb-4 p-3 text-xs bg-yellow-100 border border-tbn-secondary text-yellow-700 rounded">
+                {{ session('session_expired') }}
+            </div>
+        @endif
+
         <div class="w-full flex-1 mt-2">
             <form method="POST" action="{{ route('login') }}">
                 @csrf
@@ -24,8 +30,8 @@
                     </div>
                     <div class="relative mt-6">
                         <x-label for="password" value="{{ __('Password') }}" />
-                        <x-input-password id="password" class="block mt-1 w-full" type="password" name="password" required
-                            autocomplete="current-password" />
+                        <x-input-password id="password" class="block mt-1 w-full" type="password" name="password"
+                            required autocomplete="current-password" />
                     </div>
                     <div class="relative mt-6">
                         <label for="remember_me" class="flex items-center">
