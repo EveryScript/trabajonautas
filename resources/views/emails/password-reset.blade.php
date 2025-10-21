@@ -24,7 +24,7 @@
             text-align: center;
         }
         .header img {
-            max-width: 120px;
+            max-width: 200px;
         }
         .content {
             padding: 30px;
@@ -54,7 +54,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <img src="{{ asset('storage/img/tbn-logo.webp') }}" alt="Logo de la empresa">
+        <img src="{{ asset('storage/img/tbn-logo.png') }}" alt="Logo de la empresa">
     </div>
     <div class="content">
         <h1>Hola, {{ $user->name }} 👋</h1>
