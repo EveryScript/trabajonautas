@@ -27,8 +27,8 @@ class ResultAnnouncement extends Component
                         if ($limit_time->isBefore(Carbon::now()))
                             $this->redirect('/panel', true);
                     }
-                    // Verify similar area client to announcement
-                    if (Announcement::find($id)->area->id !== $this->client->area->id) {
+                    // Verify similar area pro client to announcement
+                    if ($this->client->account->account_type_id > 1 && Announcement::find($id)->pro && Announcement::find($id)->area->id !== $this->client->area->id) {
                         $this->redirect('/prohibido', true);
                     }
                     if (Announcement::find($id)->pro && $this->client->account->account_type_id == 1)

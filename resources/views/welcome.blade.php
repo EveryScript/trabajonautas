@@ -14,8 +14,17 @@
                     <div class="flex flex-col sm:flex-row gap-2 text-center sm:text-left">
                         <x-button-link class="bg-tbn-primary" href="{{ route('search') }}" wire:navigate>
                             Iniciar busqueda</x-button-link>
-                        <x-button-link class="bg-tbn-secondary" href="{{ route('purchase-cards') }}"
-                            wire:navigate>Comprar ahora</x-button-link>
+                        @if (auth()->user())
+                            @if (in_array(env('CLIENT_ROLE'), auth()->user()->getRoleNames()->toArray()))
+                                <x-button-link
+                                    class="bg-tbn-secondary {{ auth()->user()->account->account_type_id > 1 ? 'hidden' : '' }}"
+                                    href="{{ route('purchase-cards') }}" wire:navigate>
+                                    Comprar ahora</x-button-link>
+                            @endif
+                        @else
+                            <x-button-link class="bg-tbn-secondary" href="{{ route('purchase-cards') }}" wire:navigate>
+                                Comprar ahora</x-button-link>
+                        @endif
                     </div>
                 </div>
             </div>
