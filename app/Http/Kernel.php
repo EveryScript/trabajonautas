@@ -36,7 +36,8 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\CheckSessionValidity::class
+            \App\Http\Middleware\CheckSessionValidity::class, // Middleware User Session Validate
+
         ],
 
         'api' => [
@@ -68,6 +69,8 @@ class Kernel extends HttpKernel
         // Laravel Permissions
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        // My Middlewares
+        'user_actived' => \App\Http\Middleware\CheckIfUserEnable::class // Middleware User Enabled Validate
     ];
 }

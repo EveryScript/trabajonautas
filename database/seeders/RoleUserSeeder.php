@@ -18,12 +18,12 @@ class RoleUserSeeder extends Seeder
 
         // Admin role
         $role_admin = Role::create(['name' => env('ADMIN_ROLE')]);
-        $user_admin = User::where('email', 'ricardo@email.com')->first();
+        $user_admin = User::where('email', 'ricardooropeza15@gmail.com')->first();
         $user_admin->assignRole($role_admin);
 
         // User role
         $role_user = Role::create(['name' => env('USER_ROLE')]);
-        $user = User::where('email', 'carla@email.com')->first();
+        $user = User::where('email', 'carlyxime@gmail.com')->first();
         $user->assignRole($role_user);
 
         // Client role

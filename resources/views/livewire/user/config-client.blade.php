@@ -47,44 +47,30 @@
                 <span class="text-xs text-tbn-primary">Fecha de registro</span>
                 <h4 class="text-md font-medium">{{ $this->formatDate($client->created_at) }}</h4>
             </div>
-            @if ($client->account->accountType->id !== 1)
-                <div class="col-span-2">
-                    <span class="text-xs text-tbn-primary">Verificación de pago</span>
-                    <div class="px-4 py-3 border border-tbn-primary rounded-lg mb-4 mt-1">
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="checkbox" wire:model="client_verified_payment" class="sr-only peer"
-                                id="verification" {{ $client->account->verified_payment ? 'checked' : '' }}>
-                            <div
-                                class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
-                            </div>
-                            <div class="ms-3">
-                                <p class="text-md font-medium text-black">Verificación de pago</p>
-                                <p class="text-xs text-tbn-dark">
-                                    El cliente ha realizado el pago de <span class="text-tbn-primary font-bold">
-                                        {{ $client->account->accountType->price }} Bs. </span>
-                                    por cuenta <span class="text-tbn-primary font-bold">
-                                        {{ $client->account->accountType->name }}</span> correctamente.</p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-            @endif
             <div class="col-span-2">
+                @if ($client->account->accountType->id !== 1)
+                    <span class="text-xs text-tbn-primary">Verificación de pago</span>
+                    <x-input-checkbox-block checked="{{ $client->account->verified_payment ? 'checked' : '' }}"
+                        wire:model="client_verified_payment">
+                        <div class="ms-4">
+                            <p class="text-md font-medium text-black">Verificación de pago</p>
+                            <p class="text-xs text-tbn-dark">
+                                El cliente ha realizado el pago de <span class="text-tbn-primary font-bold">
+                                    {{ $client->account->accountType->price }} Bs. </span>
+                                por cuenta <span class="text-tbn-primary font-bold">
+                                    {{ $client->account->accountType->name }}</span> correctamente.</p>
+                        </div>
+                    </x-input-checkbox-block>
+                @endif
                 <span class="text-xs text-red-700">Control de acceso</span>
-                <div class="px-4 py-3 border bg-white border-red-700 rounded-lg mb-4">
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" class="sr-only peer" id="actived" wire:model="client_actived"
-                            {{ $client->actived ? 'checked' : '' }}>
-                        <div
-                            class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
-                        </div>
-                        <div class="ms-3">
-                            <p class="text-md font-medium text-red-700">Habilitar cliente</p>
-                            <span class="text-xs text-tbn-dark">
-                                El cliente utiliza el sistema y su cuenta está disponible actualmente </span>
-                        </div>
-                    </label>
-                </div>
+                <x-input-checkbox-block color="red-700" checked="{{ $client->actived ? 'checked' : '' }}"
+                    wire:model="client_actived">
+                    <div class="ms-4">
+                        <p class="text-md font-medium text-black">Habilitar cliente</p>
+                        <span class="text-xs text-tbn-dark">
+                            El cliente utiliza el sistema y su cuenta está disponible actualmente </span>
+                    </div>
+                </x-input-checkbox-block>
             </div>
         </div>
         <div class="mb-4">

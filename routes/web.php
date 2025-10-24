@@ -14,28 +14,30 @@ use App\Livewire\User\ListClient;
 use App\Livewire\User\ListUser;
 use Illuminate\Support\Facades\Route;
 
-// Home
-Route::get('/', fn() => view('welcome'))->name('welcome');
+Route::group(['middleware' => ['user_actived']], function () {
+    // Home
+    Route::get('/', fn() => view('welcome'))->name('welcome');
 
-// Search
-Route::get('/busqueda/{title?}', fn($title = null) => view('search', ['title' => $title]))->name('search');
+    // Search
+    Route::get('/busqueda/{title?}', fn($title = null) => view('search', ['title' => $title]))->name('search');
 
-// Announcement
-Route::get('/convocatoria/{id?}', fn($id = null) => view('result', ['id' => $id]))->name('result');
+    // Announcement
+    Route::get('/convocatoria/{id?}', fn($id = null) => view('result', ['id' => $id]))->name('result');
 
-// Purchase
-Route::get('/pro', fn() => view('purchase-cards'))->name('purchase-cards');
-Route::get('/compra/{account_type_id}', fn($account_type_id = null) => view('purchase-account', ['account_type_id' => $account_type_id]))
-    ->name('purchase-account');
+    // Purchase
+    Route::get('/pro', fn() => view('purchase-cards'))->name('purchase-cards');
+    Route::get('/compra/{account_type_id}', fn($account_type_id = null) => view('purchase-account', ['account_type_id' => $account_type_id]))
+        ->name('purchase-account');
+});
 
 // All access logged
-Route::group(['middleware' => ['role:CLIENT|USER|ADMIN']], function () {
+Route::group(['middleware' => ['role:CLIENT|USER|ADMIN', 'user_actived']], function () {
     Route::get('/panel', fn() => view('dashboard'))->name('dashboard');
     Route::get('/prohibido', fn() => view('restricted-area'))->name('restricted-area');
 });
 
 // Only users and admin access
-Route::group(['middleware' => ['role:USER|ADMIN']], function () {
+Route::group(['middleware' => ['role:USER|ADMIN', 'user_actived']], function () {
     // Announcements
     Route::get('/admin/convocatoria', ListAnnouncement::class)->name('announcement');
     Route::get('/admin/nueva-convocatoria/{id?}', FormAnnouncement::class)->name('new-announcement');
@@ -64,3 +66,6 @@ Route::group(['middleware' => ['role:ADMIN']], function () {
     // Reports
     Route::get('/admin/report', ReportClient::class)->name('report');
 });
+
+// Disabled
+Route::get('/inactivo', fn() => view('auth.disabled'))->name('disabled');

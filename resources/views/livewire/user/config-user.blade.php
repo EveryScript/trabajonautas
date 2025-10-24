@@ -58,21 +58,16 @@
         </div>
         @if ($id)
             <span class="text-xs text-tbn-primary">Control de acceso</span>
-            <div class="px-4 py-3 border bg-white border-tbn-primary rounded-lg mb-4">
-                <label class="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" class="sr-only peer" id="actived" wire:model="user.actived"
-                        {{ $user->actived ? 'checked' : '' }}>
-                    <div
-                        class="relative w-14 h-7 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-tbn-primary">
-                    </div>
-                    <div class="ms-3">
-                        <p class="text-md font-medium text-black">Habilitar usuario</p>
-                        <span class="text-xs text-tbn-dark">
-                            El usuario utiliza el sistema y su cuenta está disponible actualmente </span>
-                    </div>
-                </label>
-            </div>
+            <x-input-checkbox-block checked="{{ $user->actived ? 'checked' : '' }}"
+                disabled="{{ auth()->user()->id === $id ? 'disabled' : '' }}" wire:model="user.actived">
+                <div class="ms-4">
+                    <p class="text-md font-medium text-black">Habilitar usuario</p>
+                    <span class="text-xs text-tbn-dark">
+                        El usuario utiliza el sistema y su cuenta está disponible actualmente</span>
+                </div>
+            </x-input-checkbox-block>
         @endif
+
         <div class="mb-4">
             <x-button type="submit">{{ $id ? 'Acualizar usuario' : 'Crear usuario' }}</x-button>
             <x-secondary-button type="button" href="{{ route('user') }}" wire:navigate>Cancelar</x-secondary-button>

@@ -18,7 +18,7 @@ class AnnouncementSeeder extends Seeder
     public function run(): void
     {
         /*
-        $user = User::where('email', 'ricardo@email.com')->first();
+        $user = User::where('email', 'ricardooropeza15@gmail.com')->first();
         $announcement = Announcement::create([
             'announce_title' => 'Se solicita trabajador',
             'description' => 'Bienvenido a trabajonautas.com, el portal de convocatorias de empleo más grande de toda Bolivia',

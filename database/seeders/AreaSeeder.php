@@ -18,7 +18,7 @@ class AreaSeeder extends Seeder
     public function run(): void
     {
         $this->now = Carbon::now()->format('Y-m-d H:i:s');
-        $this->admin_id = User::where('email', 'ricardo@email.com')->first()->id;
+        $this->admin_id = User::where('email', 'ricardooropeza15@gmail.com')->first()->id;
 
         Area::create([
             'id' => 1,
