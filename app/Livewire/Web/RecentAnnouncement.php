@@ -3,23 +3,32 @@
 namespace App\Livewire\Web;
 
 use App\Models\Announcement;
-use App\Models\User;
+use App\Traits\CheckClientsProVerified;
 use Livewire\Component;
 
 class RecentAnnouncement extends Component
 {
-    public $client, $pro_verified = false;
+    use CheckClientsProVerified;
+
     public $announcements;
+    public $client_pro_verified = false;
 
     public function mount()
     {
-        if (auth()->check()) {
-            $this->client = User::with('account.accountType')->find(auth()->user()->id);
-            $this->pro_verified = auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')
-                ? $this->client->account->verified_payment : true;
-        }
+        $this->client_pro_verified = $this->isClientProVerified();
         $this->announcements = Announcement::where('expiration_time', '>=', now())
             ->orderBy('updated_at', 'DESC')->limit(6)->get();
+    }
+
+    public function isAnnouncePro($pro)
+    {
+        if ($pro) {
+            if ($this->isClientRole())
+                return $this->isClientProVerified() ? true : false;
+            else
+                return true;
+        } else
+            return true;
     }
 
     public function render()
@@ -27,7 +36,7 @@ class RecentAnnouncement extends Component
         return <<<'HTML'
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-12">
             @forelse ($announcements as $announce)
-            <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
+            <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                     wire:navigate wire:key='announce-{{ $announce->id }}'>
                 <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
                     pro="{{ $announce->pro }}">

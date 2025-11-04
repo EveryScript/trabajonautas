@@ -4,12 +4,15 @@ namespace App\Livewire\Web;
 
 use App\Models\Announcement;
 use App\Models\User;
+use App\Traits\CheckClientsProVerified;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class ResultAnnouncement extends Component
 {
+    use CheckClientsProVerified;
+
     public $id; // Announce id component
     public $client, $pro_verified = false;
 
@@ -18,7 +21,7 @@ class ResultAnnouncement extends Component
         if ($id && Announcement::find($id)) {
             $this->id = $id;
             if (auth()->check()) {
-                if (auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')) {
+                if ($this->isClientRole()) {
                     $this->client = User::with('account.accountType')->find(auth()->user()->id);
                     $this->pro_verified = $this->client->account->verified_payment;
                     // Verify account limit time
@@ -27,11 +30,12 @@ class ResultAnnouncement extends Component
                         if ($limit_time->isBefore(Carbon::now()))
                             $this->redirect('/panel', true);
                     }
-                    // Verify similar area pro client to announcement
+                    // Verify announce pro, client pro and diferent area
                     if ($this->client->account->account_type_id > 1 && Announcement::find($id)->pro && Announcement::find($id)->area->id !== $this->client->area->id) {
                         $this->redirect('/prohibido', true);
                     }
-                    if (Announcement::find($id)->pro && $this->client->account->account_type_id == 1)
+                    // Verify announce pro and client FREE
+                    if (Announcement::find($id)->pro && $this->client->account->account_type_id === 1)
                         $this->redirect('/pro', true);
                 }
             } elseif (Announcement::find($id)->pro) {

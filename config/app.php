@@ -172,7 +172,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
-        Kudashevs\ShareButtons\Providers\ShareButtonsServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class
     ])->toArray(),
 

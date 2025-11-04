@@ -153,7 +153,7 @@
                 @endif
                 <div class="flex flex-col gap-4">
                     @forelse ($suggests as $announce)
-                        <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
+                        <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                             wire:navigate wire:key='announce-{{ $announce->id }}'>
                             <x-card-announce logo_url="{{ $announce->company->company_image }}"
                                 pro="{{ $announce->pro }}">
@@ -186,7 +186,7 @@
                 <h3 class="text-lg font-medium mb-3">Mis convocatorias</h3>
                 <div class="flex flex-col gap-4">
                     @forelse ($client->myAnnounces as $announce)
-                        <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
+                        <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                             wire:navigate wire:key='announce-{{ $announce->id }}'>
                             <x-card-announce logo_url="{{ $announce->company->company_image }}"
                                 pro="{{ $announce->pro }}">

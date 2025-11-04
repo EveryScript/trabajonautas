@@ -58,7 +58,7 @@
         <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
             @forelse ($announcements as $announce)
                 <div wire:loading.remove>
-                    <a href="{{ $announce->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
+                    <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                         wire:navigate wire:key='announce-{{ $announce->id }}'>
                         <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
                             pro="{{ $announce->pro }}">
@@ -109,7 +109,7 @@
                 searchAnnouncements() {
                     $wire.searchAnnounces(this.search_title, this.search_location_id)
                 },
-                clearData(){
+                clearData() {
                     this.search_title = ''
                     this.search_location = ''
                     this.search_location_id = ''

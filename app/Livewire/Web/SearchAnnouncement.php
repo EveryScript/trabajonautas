@@ -6,24 +6,23 @@ use App\Models\Announcement;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\User;
+use App\Traits\CheckClientsProVerified;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class SearchAnnouncement extends Component
 {
     use WithPagination;
+    use CheckClientsProVerified;
+
     public $title;  // Component parameter
-    public $client, $pro_verified = false;
+    public $client_pro_verified = false;
     public $locations, $companies;
     public $search_title, $search_location;
 
     public function mount()
     {
-        if (auth()->check()) {
-            $this->client = User::with('account.accountType')->find(auth()->user()->id);
-            $this->pro_verified = auth()->user()->roles->pluck('name')->first() === env('CLIENT_ROLE')
-                ? $this->client->account->verified_payment : true;
-        }
+        $this->client_pro_verified = $this->isClientProVerified();
         $this->locations = Location::select(['id', 'location_name'])->get();
     }
 
@@ -39,6 +38,17 @@ class SearchAnnouncement extends Component
         $this->search_title = null;
         $this->search_location = null;
         $this->title = null;
+    }
+
+    public function isAnnouncePro($pro)
+    {
+        if ($pro) {
+            if ($this->isClientRole())
+                return $this->isClientProVerified() ? true : false;
+            else
+                return true;
+        } else
+            return true;
     }
 
     public function render()

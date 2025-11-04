@@ -5,6 +5,7 @@ namespace App\Livewire\Panel;
 use App\Models\Announcement;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
+use App\Traits\CheckClientsProVerified;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -12,6 +13,8 @@ use Livewire\WithPagination;
 class DashboardClient extends Component
 {
     use WithPagination;
+    use CheckClientsProVerified;
+
     public $user_id;            // Parameter
     public $client, $free_client = true, $pro_verified = false;
     public $time_left = 'Tiempo expirado';
@@ -57,6 +60,17 @@ class DashboardClient extends Component
             $this->notify_token_actived = true;
             $this->dispatch('token-saved');
         }
+    }
+
+    public function isAnnouncePro($pro)
+    {
+        if ($pro) {
+            if ($this->isClientRole())
+                return $this->isClientProVerified() ? true : false;
+            else
+                return true;
+        } else
+            return true;
     }
 
     public function render()
