@@ -54,9 +54,9 @@
                 @forelse ($companies as $company)
                     <tr class="border-b hover:bg-gray-300">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            <div class="flex flex-row gap-2">
+                            <div class="flex flex-row gap-3">
                                 <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
-                                    class="w-10 mr-2">
+                                    class="flex-shrink-0 rounded-lg w-10 h-10 object-cover object-center sm:mb-0 mb-4">
                                 <div class="max-w-[20rem] truncate">
                                     <h5 class="text-md font-bold">{{ $company->company_name }}</h5>
                                     <span class="text-sm text-gray-600 font-normal">{{ $company->description }}</span>

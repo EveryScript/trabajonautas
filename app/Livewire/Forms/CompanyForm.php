@@ -3,7 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Company;
-use Livewire\Attributes\Validate;
+use Illuminate\Validation\Rule;
 use Livewire\Form;
 
 class CompanyForm extends Form
@@ -28,7 +28,11 @@ class CompanyForm extends Form
     {
         $company = Company::find($update_id);
         $rules = [
-            'company_name' => 'required|min:2|unique:companies,company_name',
+            'company_name' => [
+                'required',
+                'min:2',
+                Rule::unique('companies', 'company_name')->ignore($update_id)
+            ],
             'description' => 'required',
             'user_id' => 'required',
             'company_type_id' => 'required'

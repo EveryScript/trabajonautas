@@ -35,6 +35,7 @@
             </div>
             <div class="mb-4">
                 <x-label for="company_image" value="{{ __('Logotipo de la empresa') }}" />
+                <span class="text-xs text-tbn-dark">Utilizar una imagen de proporción 1:1 (recomendado 300x300px)</span>
                 <input type="file" wire:model.live="company.company_image" id="company_image"
                     class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white file:cursor-pointer cursor-pointer file:border-0 file:py-2 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-dark file:text-white rounded"
                     accept="image/png, image/jpeg, image/jpg" @change="imageChange" />

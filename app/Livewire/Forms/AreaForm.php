@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Models\Area;
 use App\Models\Profesion;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
@@ -34,7 +35,13 @@ class AreaForm extends Form
     public function update($update_id)
     {
         $this->user_id = Auth::user()->id;
-        $this->validate();
+        $rules = [
+            'area_name' => Rule::unique('areas', 'area_name')->ignore($update_id),
+            'description' => 'required|max:200',
+            'user_id' => 'required',
+            'profesions' => 'required'
+        ];
+        $this->validate($rules);
         $area = Area::find($update_id);
         $area->update([
             'area_name' => $this->area_name,

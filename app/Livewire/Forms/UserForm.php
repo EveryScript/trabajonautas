@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
@@ -46,7 +47,13 @@ class UserForm extends Form
     {
         $this->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . auth()->user()->id,
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user_id)
+            ],
             'password' => 'nullable|min:8',
             'role' => 'required|in:' . implode(',', [
                 env('USER_ROLE'),

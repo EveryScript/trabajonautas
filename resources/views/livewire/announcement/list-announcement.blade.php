@@ -51,8 +51,8 @@
                     <tr class="border-b hover:bg-gray-300">
                         <th scope="row" class="px-6 py-4 font-medium  whitespace-nowrap">
                             <div class="flex flex-row gap-2">
-                                <div class="max-w-[20rem] truncate">
-                                    <h5 class="text-md font-bold">
+                                <div class="max-w-[30rem]">
+                                    <h5 class="text-md font-bold truncate">
                                         @if ($announcement->pro)
                                             <i class="fas fa-crown pr-1 text-sm text-tbn-secondary"></i>
                                         @endif

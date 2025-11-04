@@ -39,7 +39,8 @@
                             </tr>
                         </tbody>
                     </table>
-                    <x-button type="button" wire:click='exportData' x-bind:disabled="{{ count($clients) == 0 }}">
+                    <x-button type="button" wire:click='exportData'
+                        x-bind:disabled="{{ count($clients) === 0 ? 'true' : 'false' }}">
                         <span wire:loading.remove wire:target="exportData">Exportar</span>
                         <span wire:loading wire:target="exportData">Exportando...</span>
                     </x-button>

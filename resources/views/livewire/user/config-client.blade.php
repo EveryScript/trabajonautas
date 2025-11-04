@@ -62,13 +62,13 @@
                         </div>
                     </x-input-checkbox-block>
                 @endif
-                <span class="text-xs text-red-700">Control de acceso</span>
-                <x-input-checkbox-block color="red-700" checked="{{ $client->actived ? 'checked' : '' }}"
+                <span class="text-xs text-tbn-primary">Control de acceso</span>
+                <x-input-checkbox-block checked="{{ $client->actived ? 'checked' : '' }}"
                     wire:model="client_actived">
                     <div class="ms-4">
                         <p class="text-md font-medium text-black">Habilitar cliente</p>
-                        <span class="text-xs text-tbn-dark">
-                            El cliente utiliza el sistema y su cuenta está disponible actualmente </span>
+                        <p class="text-xs text-tbn-dark">
+                            El cliente utiliza el sistema y su cuenta está disponible actualmente </p>
                     </div>
                 </x-input-checkbox-block>
             </div>
