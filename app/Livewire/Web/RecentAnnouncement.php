@@ -38,7 +38,7 @@ class RecentAnnouncement extends Component
             @forelse ($announcements as $announce)
             <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                     wire:navigate wire:key='announce-{{ $announce->id }}'>
-                <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
+                <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : 'empresas/tbn-default.webp' }}"
                     pro="{{ $announce->pro }}">
                     <x-slot name="area">
                         {{ $announce->area ? $announce->area->area_name : '' }}

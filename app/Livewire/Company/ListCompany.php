@@ -19,7 +19,8 @@ class ListCompany extends Component
 
     public function delete($id)
     {
-        Company::find($id)->delete();
+        $company = Company::findOrFail($id);
+        $company->delete();
     }
 
     public function render()
@@ -34,7 +35,7 @@ class ListCompany extends Component
         $companies = $count_results > 0
             ? $filter_query->simplePaginate(7)
             : $base_query->simplePaginate(7);
-            
+
         return view('livewire.company.list-company', [
             'companies' => $companies,
             'count_results' => $count_results,

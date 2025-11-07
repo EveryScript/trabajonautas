@@ -19,7 +19,8 @@ class ListArea extends Component
 
     public function delete($id)
     {
-        Area::find($id)->delete();
+        $area = Area::findOrFail($id);
+        $area->delete();
     }
 
     public function render()

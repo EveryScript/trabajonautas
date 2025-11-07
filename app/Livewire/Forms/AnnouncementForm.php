@@ -108,7 +108,7 @@ class AnnouncementForm extends Form
         $announce_files_data = [];
         if ($this->announce_files && count($this->announce_files)) {
             foreach ($this->announce_files as $index => $file) {
-                $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->getClientOriginalName());
+                $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->hashName());
                 $announce_files_data[] = [
                     'announcement_id' => $announcement->id,
                     'url' => $file_url
