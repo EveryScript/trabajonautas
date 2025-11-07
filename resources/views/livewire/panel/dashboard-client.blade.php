@@ -76,7 +76,8 @@
                                 <div x-show="notificationDisplay" x-cloak
                                     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
                                     style="backdrop-filter: blur(2px);">
-                                    <div class="bg-white rounded-xl shadow-lg p-8 mx-2 max-w-md w-full text-center relative">
+                                    <div
+                                        class="bg-white rounded-xl shadow-lg p-8 mx-2 max-w-md w-full text-center relative">
                                         <picture class="block mb-4">
                                             <img src="{{ asset('storage/img/pro.webp') }}" alt="empty"
                                                 class="w-[10rem] h-[10rem] mx-auto">
@@ -155,18 +156,18 @@
                     @forelse ($suggests as $announce)
                         <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                             wire:navigate wire:key='announce-{{ $announce->id }}'>
-                            <x-card-announce logo_url="{{ $announce->company->company_image }}"
-                                pro="{{ $announce->pro }}">
-                                <x-slot name="area">
-                                    {{ $announce->area->area_name }}
-                                </x-slot>
-                                <x-slot name="title">{{ $announce->announce_title }}</x-slot>
-                                <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
+                            <x-card-announce
+                                logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
+                                area="{{ $announce->area ? $announce->area->area_name : '(sin area)' }}"
+                                title="{{ $announce->announce_title }}" pro="{{ $announce->pro }}">
+                                @if ($announce->company)
+                                    <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
+                                @endif
                                 <x-slot name="locations">
                                     {{ $announce->locations[0]->location_name }}
                                     @if ($announce->locations->count() > 1)
-                                        <i
-                                            class="fas fa-ellipsis-h inline-block px-1 text-xs bg-gray-200 rounded-lg"></i>
+                                        <span class="text-xs text-gray-400">
+                                            ({{ $announce->locations->count() - 1 }} más)</span>
                                     @endif
                                 </x-slot>
                             </x-card-announce>
@@ -175,8 +176,8 @@
                         <x-section-empty class="col-span-2" title="No hay sugerencias disponibles"
                             description="Las sugerencias de convocatorias de trabajo estarán visibles en esta sección.">
                             <x-button-link href="{{ route('search') }}" class="bg-tbn-primary inline-block mt-5"
-                                wire:navigate>Buscar
-                                convocatorias</x-button-link>
+                                wire:navigate>
+                                Buscar convocatorias</x-button-link>
                         </x-section-empty>
                     @endforelse
                 </div>
@@ -188,18 +189,18 @@
                     @forelse ($client->myAnnounces as $announce)
                         <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                             wire:navigate wire:key='announce-{{ $announce->id }}'>
-                            <x-card-announce logo_url="{{ $announce->company->company_image }}"
-                                pro="{{ $announce->pro }}">
-                                <x-slot name="area">
-                                    {{ $announce->area->area_name }}
-                                </x-slot>
-                                <x-slot name="title">{{ $announce->announce_title }}</x-slot>
-                                <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
+                            <x-card-announce
+                                logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
+                                area="{{ $announce->area ? $announce->area->area_name : '(sin area)' }}"
+                                title="{{ $announce->announce_title }}" pro="{{ $announce->pro }}">
+                                @if ($announce->company)
+                                    <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
+                                @endif
                                 <x-slot name="locations">
                                     {{ $announce->locations[0]->location_name }}
                                     @if ($announce->locations->count() > 1)
-                                        <i
-                                            class="fas fa-ellipsis-h inline-block px-1 text-xs bg-gray-200 rounded-lg"></i>
+                                        <span class="text-xs text-gray-400">
+                                            ({{ $announce->locations->count() - 1 }} más)</span>
                                     @endif
                                 </x-slot>
                             </x-card-announce>

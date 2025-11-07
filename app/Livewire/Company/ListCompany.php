@@ -23,9 +23,15 @@ class ListCompany extends Component
         $company->delete();
     }
 
+    public function restore($id)
+    {
+        $company = Company::withTrashed()->find($id);
+        $company->restore();
+    }
+
     public function render()
     {
-        $base_query = Company::orderBy('company_name', 'ASC');
+        $base_query = Company::withTrashed()->orderBy('company_name', 'ASC');
 
         $filter_query = (clone $base_query)
             ->when($this->search, fn($query)  => $query->where('company_name', 'LIKE', '%' . $this->search . '%'));

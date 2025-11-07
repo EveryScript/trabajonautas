@@ -100,16 +100,12 @@ class ResultAnnouncement extends Component
 
     public function render()
     {
-        $user = auth()->check() ? User::find(auth()->user()->id) : null;
-        $announcement = Announcement::with('company.companyType')->find($this->id);
+        $announcement = Announcement::with('company.companyType')
+            ->find($this->id);
         $suggests = Announcement::whereHas('area', fn($query) => $query->where('id', $announcement->area->id))
             ->where('id', '<>', $announcement->id)
             ->where('expiration_time', '>=', now())
             ->get();
-        // $share_buttons = (app(ShareButtons::class))->page(FacadesURL::full(), 'Trabajonautas tiene una convocatoria para ti')
-        //     ->whatsapp()
-        //     ->telegram()
-        //     ->render();
         return view('livewire.web.result-announcement', compact(
             'announcement',
             'suggests'

@@ -53,7 +53,8 @@
                 @endif
                 @forelse ($companies as $company)
                     <tr class="border-b hover:bg-gray-300">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        <th scope="row"
+                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap {{ $company->trashed() ? 'opacity-40' : '' }}">
                             <div class="flex flex-row gap-3">
                                 <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
                                     class="flex-shrink-0 rounded-lg w-10 h-10 object-cover object-center sm:mb-0 mb-4">
@@ -63,19 +64,25 @@
                                 </div>
                             </div>
                         </th>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 {{ $company->trashed() ? 'opacity-40' : '' }}">
                             {{ $company->companyType->company_type_name }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 {{ $company->trashed() ? 'opacity-40' : '' }}">
                             {{ \Carbon\Carbon::parse($company->updated_at)->diffForHumans() }}
                         </td>
                         <td class="flex flex-row justify-end items-center h-20 px-6 py-4 text-lg">
-                            <a href="{{ route('new-company', ['id' => $company->id]) }}" wire:navigate
-                                class="font-medium text-blue-600 hover:underline cursor-pointer mr-3">
-                                <i class="far fa-edit"></i></a>
-                            <a x-on:click="confirmModal({{ $company->id }})"
-                                class="font-medium text-red-600 hover:underline cursor-pointer">
-                                <i class="far fa-trash-alt"></i></a>
+                            @if ($company->trashed())
+                                <a x-on:click="confirmRestoreModal({{ $company->id }})"
+                                    class="font-medium text-tbn-primary hover:underline cursor-pointer">
+                                    <i class="fa fa-toggle-off"></i></a>
+                            @else
+                                <a href="{{ route('new-company', ['id' => $company->id]) }}" wire:navigate
+                                    class="font-medium text-tbn-primary hover:underline cursor-pointer mr-3">
+                                    <i class="far fa-edit"></i></a>
+                                <a x-on:click="confirmDeleteModal({{ $company->id }})"
+                                    class="font-medium text-tbn-primary hover:underline cursor-pointer">
+                                    <i class="fa fa-toggle-on"></i></a>
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -98,10 +105,10 @@
     @script
         <script>
             Alpine.data('content', () => ({
-                confirmModal(id) {
+                confirmDeleteModal(id) {
                     Swal.fire({
-                        title: "¿Eliminar empresa?",
-                        text: "Las convocatorias vinculadas a esta empresa aún estarán disponibles.",
+                        title: "¿Desactivar empresa?",
+                        text: "Las convocatorias vinculadas a esta empresa aún estarán visibles en el sitio web.",
                         showDenyButton: true,
                         confirmButtonText: "Si",
                         denyButtonText: "No"
@@ -109,6 +116,20 @@
                         /* Read more about isConfirmed, isDenied below */
                         if (result.isConfirmed) {
                             $wire.delete(id)
+                        }
+                    });
+                },
+                confirmRestoreModal(id) {
+                    Swal.fire({
+                        title: "¿Activar empresa?",
+                        text: "La empresa estará disponible en el sitio web y aparecerá en los formularios de creación de convocatorias:",
+                        showDenyButton: true,
+                        confirmButtonText: "Si",
+                        denyButtonText: "No"
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            $wire.restore(id)
                         }
                     });
                 }

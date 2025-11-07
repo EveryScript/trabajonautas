@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('user_id'); // Foreign key
             $table->unsignedBigInteger('company_type_id'); // Foreign key
             $table->timestamps();
+            $table->softDeletes(); // Soft Deletes
         });
     }
 
