@@ -6,7 +6,7 @@
                 <div class="mb-4">
                     <x-application-logo />
                 </div>
-                <h5 class="font-medium text-2xl">
+                <h5 class="font-bold text-2xl">
                     @if (auth()->user()->register_completed)
                         Renueva tu cuenta <span class="text-tbn-primary">{{ $account_type->name }}</span>
                     @else
@@ -101,7 +101,7 @@
                     <p class="text-sm text-gray-500 mb-6 text-center">
                         Escanea el código QR para realizar el pago</p>
                     <picture class="block max-w-[10rem] mx-auto mb-2">
-                        <img class="w-full" src="{{ asset('storage/img/tbn-qr.png') }}" alt="qr-code">
+                        <img class="w-full" src="{{ asset('storage/img/tbn-new-qr.webp') }}" alt="qr-code">
                     </picture>
                     <div class="text-center mb-10">
                         <button wire:click='downloadQR'

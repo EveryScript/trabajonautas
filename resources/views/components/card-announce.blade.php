@@ -11,10 +11,10 @@
     class="w-full h-full relative flex md:flex-row flex-col justify-start gap-4 md:gap-6 text-start
             bg-white shadow-md px-6 py-5 rounded-lg border border-gray-300 hover:border-tbn-primary cursor-pointer">
     <img class="flex-shrink-0 rounded-lg w-16 h-16 object-cover object-center {{ $logo_flag ? '' : 'hidden' }}"
-        src="{{ !empty($logo_url) ? asset('storage/' . $logo_url) : asset('storage/empresas/tbn-default.webp') }}">
+        src="{{ !empty($logo_url) ? asset('storage/' . $logo_url) : asset('storage/empresas/tbn-new-default.webp') }}">
     <div class="flex-1 text-sm">
         <p class="absolute top-4 right-6 {{ $pro ? '' : 'hidden' }}">
-            <i class="fas fa-crown text-sm text-tbn-secondary"></i>
+            <i class="fas fa-crown text-sm text-tbn-primary"></i>
         </p>
         <p class="text-xs font-normal text-tbn-dark">
             <span class="pr-5">{{ $area }}</span>

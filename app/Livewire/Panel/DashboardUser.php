@@ -14,15 +14,16 @@ use Livewire\Component;
 
 class DashboardUser extends Component
 {
-    public $primary_color = "#034b8d";
-    public $secondary_color = "#f29000";
+    public $primary_color = "#ff420a";
+    public $secondary_color = "#485054";
+    public $default_color = "#768289";
 
     public function getClientsByAccount()
     {
         $account_types = AccountType::all('id', 'name');
         $labels = [];
         $data = [];
-        $background = ['#22c55e', '#034b8d', '#f29000'];
+        $background = [$this->default_color, $this->secondary_color, $this->primary_color];
         foreach ($account_types as $account_type) {
             array_push($labels, $account_type->name);
             array_push($data, Account::where('account_type_id', $account_type->id)->count());
@@ -38,7 +39,7 @@ class DashboardUser extends Component
         ];
         $labels = [];
         $data = [];
-        $background = ['#034b8d', '#f29000', '#22c55e'];
+        $background = [$this->default_color, $this->secondary_color, $this->primary_color];
         foreach ($client_ages as $client_age) {
             array_push($labels, $client_age['text']);
             array_push($data, User::role(env('CLIENT_ROLE'))->whereNotNull('age')->where('age', $client_age['value'])->count());
@@ -54,7 +55,7 @@ class DashboardUser extends Component
         ];
         $labels = [];
         $data = [];
-        $background = ['#034b8d', '#f29000'];
+        $background = [$this->secondary_color, $this->primary_color];
         foreach ($client_generes as $client_genere) {
             array_push($labels, $client_genere['text']);
             array_push($data, User::role(env('CLIENT_ROLE'))->whereNotNull('gender')->where('gender', $client_genere['value'])->count());

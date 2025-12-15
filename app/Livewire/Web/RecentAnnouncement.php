@@ -57,7 +57,7 @@ class RecentAnnouncement extends Component
             @empty
             <div class="col-span-2">
                 <picture class="block mb-2">
-                    <img src="{{ asset('storage/img/empty.webp') }}" alt="empty" class="max-w-[8rem] mx-auto mb-2">
+                    <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty" class="max-w-[8rem] mx-auto mb-2">
                 </picture>
                 <p class="text-tbn-dark text-sm">Nuevas convocatorias en camino</p>
             </div>

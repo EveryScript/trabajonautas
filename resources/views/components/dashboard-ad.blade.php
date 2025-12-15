@@ -2,8 +2,8 @@
     <button x-on:click="btnAd = false" class="absolute top-4 right-6 text-md text-tbn-primary">
         <i class="fas fa-times"></i>
     </button>
-    <div class="w-full mx-auto rounded-lg shadow-lg overflow-hidden lg:max-w-none lg:flex bg-white">
-        <div class="flex-1 px-4 py-6 sm:p-10">
+    <div class="w-full mx-auto rounded-lg shadow-lg overflow-hidden p-6 lg:max-w-none lg:flex sm:p-10 bg-white">
+        <div class="flex-1">
             <h3 class="text-2xl font-extrabold text-tbn-primary sm:text-3xl">Trabajonautas PRO-MAX</h3>
             <p class="mt-4 text-base text-tbn-dark sm:text-md">
                 Las mejores convocatorias para conseguir tu próximo empleo están aqui.</p>
@@ -31,8 +31,8 @@
             </div>
         </div>
         <div
-            class="px-4 py-6 text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center lg:p-10 bg-gray-00 hidden">
-            <img src="{{ asset('storage/img/pro.webp') }}" alt="empty" class="w-[12rem] h-[12rem] mx-auto mb-4">
+            class="text-center lg:flex-shrink-0 lg:flex lg:flex-col lg:justify-center bg-gray-00 hidden">
+            <img src="{{ asset('storage/img/tbn-starship.webp') }}" alt="empty" class="w-[16rem] h-[16rem] mx-auto mb-4">
         </div>
     </div>
 </div>

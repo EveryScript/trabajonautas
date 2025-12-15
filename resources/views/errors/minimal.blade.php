@@ -16,7 +16,7 @@
         <div class="container mx-auto px-4 py-32 flex-1 flex flex-col items-center justify-center">
             <div class="max-w-md w-full text-center">
                 <div class="mb-8">
-                    <img src="{{ asset('storage/img/empty.webp') }}" alt="empty"
+                    <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty"
                         class="max-w-[5rem] mx-auto mb-2">
                 </div>
                 <h1 class="text-5xl font-bold mb-4 text-tbn-primary">@yield('code')</h1>

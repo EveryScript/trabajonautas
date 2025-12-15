@@ -58,7 +58,7 @@
                     <picture class="block mb-0 md:mb-2">
                         <img alt="company-logo"
                             class="flex-shrink-0 rounded-lg w-24 h-24 object-cover object-center sm:mb-0 mb-4"
-                            src="{{ asset($preview_image ? 'storage/' . $preview_image : 'storage/empresas/tbn-default.webp') }}">
+                            src="{{ asset($preview_image ? 'storage/' . $preview_image : 'storage/empresas/tbn-new-default.webp') }}">
                     </picture>
                 </template>
                 <h5 x-text="company_name" class="font-medium text-lg mb-2 text-tbn-primary"></h5>

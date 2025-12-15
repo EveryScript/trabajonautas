@@ -54,11 +54,11 @@
                                 <div class="max-w-[30rem]">
                                     <h5 class="text-md font-bold truncate">
                                         @if ($announcement->pro)
-                                            <i class="fas fa-crown pr-1 text-sm text-tbn-secondary"></i>
+                                            <i class="fas fa-crown mr-1 text-xs text-tbn-primary"></i>
                                         @endif
                                         {{ $announcement->announce_title }}
                                     </h5>
-                                    <span class="font-normal text-tbn-dark">
+                                    <span class="font-normal {{ $announcement->pro ? 'ml-5' : '' }} text-tbn-dark">
                                         {{ $announcement->area ? $announcement->area->area_name : '(Area eliminada)' }}</span>
                                 </div>
                             </div>
@@ -79,7 +79,7 @@
                                 class="font-medium text-tbn-primary hover:underline cursor-pointer mr-3">
                                 <i class="far fa-edit"></i></a>
                             <a x-on:click="confirmModal({{ $announcement->id }})"
-                                class="font-medium text-red-600 hover:underline cursor-pointer">
+                                class="font-medium text-tbn-primary hover:underline cursor-pointer">
                                 <i class="far fa-trash-alt"></i></a>
                         </td>
                     </tr>
@@ -107,6 +107,7 @@
                         text: "La convocatoria se eliminará para todos los clientes del sistema Trabajonautas",
                         showDenyButton: true,
                         confirmButtonText: "Si",
+                        confirmButtonColor: '#ff420a',
                         denyButtonText: "No"
                     }).then((result) => {
                         if (result.isConfirmed) {

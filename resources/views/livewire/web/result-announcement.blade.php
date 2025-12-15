@@ -6,7 +6,7 @@
             <div class=" w-full flex sm:flex-row flex-col gap-2 sm:gap-6">
                 <img alt="team"
                     class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
-                    src="{{ $announcement->company ? asset('storage/' . $announcement->company->company_image) : asset('storage/empresas/tbn-default.webp') }}">
+                    src="{{ $announcement->company ? asset('storage/' . $announcement->company->company_image) : asset('storage/empresas/tbn-new-default.webp') }}">
                 <div class="flex-grow">
                     <h2 class="text-xl font-bold uppercase leading-6">{{ $announcement->announce_title }}</h2>
                     @if ($announcement->company)

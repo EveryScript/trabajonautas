@@ -111,7 +111,9 @@
                         text: "Las convocatorias vinculadas a esta empresa aún estarán visibles en el sitio web.",
                         showDenyButton: true,
                         confirmButtonText: "Si",
-                        denyButtonText: "No"
+                        confirmButtonColor: '#ff420a',
+                        denyButtonText: "No",
+                        denyButtonColor: '#484848'
                     }).then((result) => {
                         /* Read more about isConfirmed, isDenied below */
                         if (result.isConfirmed) {
@@ -125,7 +127,9 @@
                         text: "La empresa estará disponible en el sitio web y aparecerá en los formularios de creación de convocatorias:",
                         showDenyButton: true,
                         confirmButtonText: "Si",
-                        denyButtonText: "No"
+                        confirmButtonColor: '#ff420a',
+                        denyButtonText: "No",
+                        denyButtonColor: '#484848'
                     }).then((result) => {
                         /* Read more about isConfirmed, isDenied below */
                         if (result.isConfirmed) {

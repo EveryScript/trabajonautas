@@ -3,7 +3,7 @@
     <section class="max-w-2xl mx-auto my-8">
         <div class="relative bg-white rounded-lg shadow-md p-5 sm:p-10 text-center">
             <picture class="block mb-4">
-                <img src="{{ asset('storage/img/empty.webp') }}" alt="empty" class="max-w-[8rem] mx-auto mb-2">
+                <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty" class="max-w-[8rem] mx-auto mb-2">
             </picture>
             <h2 class="text-2xl font-bold text-tbn-primary">
                 Vaya, parece que no puedes acceder a esta convocatoria.</h2>

@@ -20,6 +20,11 @@
 
     <!-- Styles -->
     @livewireStyles
+    <style>
+        #nprogress .bar {
+            background: #ff420a;
+        }
+    </style>
 </head>
 
 <body>

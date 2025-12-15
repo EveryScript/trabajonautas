@@ -35,7 +35,7 @@
                         </div>
                         <div class="flex flex-row justify-end text-lg">
                             <a href="{{ route('new-area', ['id' => $area->id]) }}" wire:navigate
-                                class="font-medium text-blue-600 hover:underline cursor-pointer mr-3">
+                                class="font-medium text-tbn-secondary hover:underline cursor-pointer mr-3">
                                 <i class="far fa-edit"></i></a>
                             <a class="font-medium text-red-600 hover:underline cursor-pointer"
                                 x-on:click="confirmModal({{ $area->id }})">
@@ -64,6 +64,7 @@
                         text: "Las convocatorias vinculadas a esta area aún estarán disponibles.",
                         showDenyButton: true,
                         confirmButtonText: "Si",
+                        confirmButtonColor: '#ff420a',
                         denyButtonText: "No"
                     }).then((result) => {
                         /* Read more about isConfirmed, isDenied below */

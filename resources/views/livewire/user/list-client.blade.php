@@ -81,7 +81,7 @@
                                             {{ $client->account->accountType->name }}</span>
                                     @else
                                         <span
-                                            class="bg-tbn-dark text-white animate-pulse text-xs px-2 py-1 rounded-full">
+                                            class="bg-tbn-secondary text-white animate-pulse text-xs px-2 py-1 rounded-full">
                                             Pendiente</span>
                                     @endif
                                 @endif
@@ -110,9 +110,9 @@
                     if (actived) {
                         return parseInt(accountId) == 1 ?
                             '<i class="fas fa-leaf text-green-500"></i>' :
-                            '<i class="fas fa-crown text-tbn-secondary"></i>';
+                            '<i class="fas fa-crown text-tbn-primary"></i>';
                     } else {
-                        return '<i class="fas fa-ban text-red-700"></i>';
+                        return '<i class="fas fa-ban text-red-800"></i>';
                     }
                 },
                 confirmModal(id) {

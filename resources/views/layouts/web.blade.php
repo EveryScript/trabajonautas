@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Trabajonautas') }}</title>
-    <link rel="icon" href="{{ asset('storage/img/tbn-icon.ico') }}">
+    <link rel="icon" href="{{ asset('storage/img/tbn-new-icon.webp') }}">
 
     <!-- Scripts & css -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -15,13 +15,25 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <!-- Fonts
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://fonts.bunny.net/css?family=baloo-da-2:400,700" rel="stylesheet" />
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"> -->
 
     <!-- Styles -->
     @livewireStyles
+    <style>
+        #nprogress .bar {
+            background: #ff420a;
+        }
+    </style>
 </head>
 
 <body class="font-figtree antialiased bg-gray-50">
@@ -33,22 +45,11 @@
         {{ $slot }}
     </main>
     <!-- Footer Content -->
-    <footer class="bg-tbn-primary body-font">
-        <div
-            class="max-w-6xl px-5 py-16 md:py-24 mx-auto flex items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
-            <div class="w-full md:w-64 px-5 flex-shrink-0 text-white">
-                <picture class="block mb-4 pr-10">
-                    <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-logo-white.webp') }}"
-                        alt="tbn-logo">
-                </picture>
-                <p class="text-sm text-tbn-secondary my-2">&copy; {{ now()->year }} - Todos los derechos reservados
-                </p>
-                <h5 class="font-bold">Contactos</h5>
-                <p class="text-sm my-1 font-normal">CEO Ricardo Carlos Oropeza Zárate - 73858162</p>
-                <p class="text-sm my-1 font-normal">CFO Carla Ximena Vargas Soto de Oropeza - 69616052</p>
-            </div>
-            @livewire('web.footer-data')
-        </div>
+    <footer class="bg-tbn-secondary body-font py-20 px-5">
+        <picture class="block max-w-6xl mb-5 mx-auto">
+            <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-white.webp') }}" alt="tbn-logo">
+        </picture>
+        @livewire('web.footer-data')
     </footer>
     @livewireScripts
 </body>

@@ -14,15 +14,15 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                figtree: ["Figtree", 'sans-serif'],
-                baloo: ['"Baloo Da 2"', 'sans-serif']
+                sans: ["DM Sans", "sans-serif"],
+                tbn: ['"Rubik"', "sans-serif"],
             },
             colors: {
-                "tbn-primary": "#034b8d",
-                "tbn-secondary": "#f29000",
+                "tbn-primary": "#ff420a",
+                "tbn-secondary": "#485054",
                 "tbn-light": "#888888",
                 "tbn-dark": "#484848",
-            }
+            },
         },
     },
 

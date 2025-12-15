@@ -96,7 +96,7 @@
                             html: "Los datos del cliente <strong>" +
                                 this.userName + "</strong> se han guardado correctamente.",
                             showDenyButton: true,
-                            confirmButtonColor: '#034b8d',
+                            confirmButtonColor: '#ff420a',
                             confirmButtonText: "Enviar Whatsapp",
                             denyButtonColor: '#484848',
                             denyButtonText: "Salir",

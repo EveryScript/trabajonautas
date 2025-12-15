@@ -66,11 +66,11 @@
                             </th>
                             <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-lg">
                                 <a wire:click="edit({{ $profesion->id }})"
-                                    class="font-medium text-blue-600 hover:underline cursor-pointer mr-3">
+                                    class="font-medium text-tbn-primary hover:underline cursor-pointer mr-3">
                                     <i class="far fa-edit"></i></a>
                                 @role('ADMIN')
                                     <a x-on:click="confirmModal({{ $profesion->id }})"
-                                        class="font-medium text-red-600 hover:underline cursor-pointer">
+                                        class="font-medium text-tbn-primary hover:underline cursor-pointer">
                                         <i class="far fa-trash-alt"></i></a>
                                 @endrole
                             </td>
@@ -115,6 +115,7 @@
                         text: "Los usuarios registrados con esta profesión NO serán eliminados.",
                         showDenyButton: true,
                         confirmButtonText: "Si",
+                        confirmButtonColor: '#ff420a',
                         denyButtonText: "No"
                     }).then((result) => {
                         if (result.isConfirmed) {

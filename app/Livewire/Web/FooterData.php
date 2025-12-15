@@ -19,13 +19,19 @@ class FooterData extends Component
     public function render()
     {
         return <<<'HTML'
-        <div class="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10 text-white">
-            <div class="lg:w-1/3 md:w-1/2 w-full px-4">
-                <h2 class="title-font font-medium text-tbn-secondary tracking-widest text-sm mb-3 uppercase">Profesiones
-                </h2>
+        <div class="max-w-6xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mx-auto">
+            <div class="text-white">
+                <h5 class="font-bold text-lg">Contactos</h5>
+                <p class="text-sm my-1">CEO Ricardo Carlos Oropeza Zárate</p>
+                <p class="text-sm my-1">CFO Carla Ximena Vargas Soto de Oropeza</p>
+                <p class="text-sm my-1">73858162 - 69616052</p>
+                <p class="text-xs my-2">&copy; {{ now()->year }} - Todos los derechos reservados</p>
+            </div>
+            <div class="text-white">
+                <h5 class="font-bold text-lg">Profesiones</h5>
                 <nav class="list-none mb-10 text-sm">
                     @forelse($profesions as $profesion)
-                        <li class="hover:text-tbn-secondary">
+                        <li class="hover:text-tbn-light">
                             <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}" wire:navigate>{{ $profesion->profesion_name }}</a>
                         </li>
                     @empty
@@ -33,11 +39,11 @@ class FooterData extends Component
                     @endforelse
                 </nav>
             </div>
-            <div class="lg:w-1/3 md:w-1/2 w-full px-4">
-                <h2 class="title-font font-medium text-tbn-secondary tracking-widest text-sm mb-3 uppercase">Areas</h2>
+            <div class="text-white">
+                <h5 class="font-bold text-lg">Áreas</h5>
                 <nav class="list-none mb-10 text-sm">
                     @forelse($areas as $area)
-                        <li class="hover:text-tbn-secondary">
+                        <li class="hover:text-tbn-light">
                             <a href="{{ route('search', ['title' => $area->area_name]) }}">{{ $area->area_name }}</a>
                         </li>
                     @empty
@@ -45,21 +51,20 @@ class FooterData extends Component
                     @endforelse
                 </nav>
             </div>
-            <div class="lg:w-1/3 md:w-1/2 w-full px-4">
-                <h2 class="title-font font-medium text-tbn-secondary tracking-widest text-sm mb-3 uppercase">Redes
-                    sociales</h2>
+            <div class="text-white">
+                <h5 class="font-bold text-lg">Redes sociales</h5>
                 <nav class="list-none mb-10 text-sm">
-                    <li>
-                        <a class="hover:text-tbn-high">Facebook</a>
+                    <li class="hover:text-tbn-light">
+                        <a href="www.facebook.com">Facebook</a>
+                    </li>    
+                    <li class="hover:text-tbn-light">
+                        <a href="www.whatsapp.com">WhatsApp</a>
                     </li>
-                    <li>
-                        <a class="hover:text-tbn-high">YouTube</a>
+                    <li class="hover:text-tbn-light">
+                        <a href="www.instagram.com">Instagram</a>
                     </li>
-                    <li>
-                        <a class="hover:text-tbn-high">TikTok</a>
-                    </li>
-                    <li>
-                        <a class="hover:text-tbn-high">Instagram</a>
+                    <li class="hover:text-tbn-light">
+                        <a href="www.tiktok.com">Tiktok</a>
                     </li>
                 </nav>
             </div>

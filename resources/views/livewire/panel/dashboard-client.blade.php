@@ -4,7 +4,7 @@
         <aside class="w-full md:w-[18rem] relative">
             <div class="bg-white rounded-xl shadow-lg mb-6 px-6 py-8 transition-all duration-300 hover:shadow-xl">
                 <picture class="block relative mb-2">
-                    <img src="{{ asset('storage/img/tbn-isologo.webp') }}" alt="avatar"
+                    <img src="{{ asset('storage/img/tbn-new-isologo.webp') }}" alt="avatar"
                         class="w-[3rem] rounded-full mx-auto">
                 </picture>
                 <h5 class="text-lg font-medium text-center mb-1"> {{ $client->name }} </h5>
@@ -37,25 +37,25 @@
                     @else
                         <div class="text-center">
                             <p class="inline-block mb-4 text-xs text-white bg-tbn-secondary px-2 py-1 rounded-full">
-                                <i class="fas fa-crown mr-2"></i>{{ $client->account->accountType->name }}
+                                <i class="fas text-xs fa-crown mr-2"></i>{{ $client->account->accountType->name }}
                             </p>
                             <!-- Time left alert -->
                             @if ($alert_time_left)
-                                <div class="flex flex-row gap-4 border border-tbn-primary p-4 rounded-lg">
-                                    <i class="inline-block fas fa-exclamation-triangle text-xl text-red-600"></i>
-                                    <div class="flex-1 text-left">
-                                        <span class="font-medium text-black">Atención</span>
-                                        <p class="mb-3">
-                                            <span class="inline-block font-medium text-xs text-tbn-dark">
-                                                Tu cuenta va a expirar en <strong class="text-tbn-primary">
-                                                    {{ $time_left }}</strong>.
-                                                Renueva tu cuenta para seguir recibiendo las mejores convocatorias.
-                                        </p>
-                                        <x-button-link
-                                            href="{{ route('purchase-account', ['account_type_id' => $client->account->account_type_id]) }}"
-                                            class="bg-tbn-primary cursor-pointer text-sm select-none">
-                                            Renovar ahora</x-button-link>
-                                    </div>
+                                <div class="relative max-w-md mx-auto text-left border border-tbn-primary p-4 rounded-lg">
+                                    <span class="absolute -top-4 -left-2 bg-white p-2 rounded-full">
+                                        <i class="inline-block fas fa-exclamation-triangle text-sm text-tbn-primary"></i>
+                                    </span>
+                                    <span class="font-medium text-black">Atención</span>
+                                    <p class="mb-3">
+                                        <span class="inline-block font-medium text-xs text-tbn-dark">
+                                            Tu cuenta va a expirar en <strong class="text-tbn-primary">
+                                                {{ $time_left }}</strong>.
+                                            Renueva tu cuenta para seguir recibiendo las mejores convocatorias.
+                                    </p>
+                                    <x-button-link
+                                        href="{{ route('purchase-account', ['account_type_id' => $client->account->account_type_id]) }}"
+                                        class="inline-block bg-tbn-primary cursor-pointer text-sm select-none">
+                                        Renovar ahora</x-button-link>
                                 </div>
                             @else
                                 <p class="text-center text-xs text-gray-900">
@@ -78,15 +78,18 @@
                                     style="backdrop-filter: blur(2px);">
                                     <div
                                         class="bg-white rounded-xl shadow-lg p-8 mx-2 max-w-md w-full text-center relative">
+                                        <button x-on:click="closeNotificationModal" class="absolute top-4 right-5"
+                                            type="button">
+                                            <i class="fas fa-times text-tbn-primary text-lg"></i></button>
                                         <picture class="block mb-4">
-                                            <img src="{{ asset('storage/img/pro.webp') }}" alt="empty"
+                                            <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="empty"
                                                 class="w-[10rem] h-[10rem] mx-auto">
                                         </picture>
                                         <h2 class="text-lg font-bold mb-2 text-tbn-primary">
                                             Trabajonautas <span class="text-tbn-primary font-bold">PRO-MAX</span>
                                         </h2>
                                         <p class="mb-6 text-tbn-dark text-sm">
-                                            <strong class="text-red-700 uppercase">Importante: </strong>
+                                            <strong class="uppercase">Importante: </strong>
                                             Activa las notificaciones de tu navegador para recibir una notificación en
                                             tiempo real cada vez que
                                             <strong>trabajonautas.com</strong> publique una
@@ -108,7 +111,7 @@
                     @endif
                 @endif
                 <hr class="my-4">
-                {{-- User navigation --}}
+                <!-- User navigation -->
                 <nav class="text-sm select-none">
                     <a x-on:click="btnNavigation = 1"
                         class="flex items-center text-gray-600 hover:text-tbn-primary py-2 transition-all duration-300 hover:translate-x-1 cursor-pointer">
@@ -167,7 +170,8 @@
                                     {{ $announce->locations[0]->location_name }}
                                     @if ($announce->locations->count() > 1)
                                         <span class="text-xs text-gray-400">
-                                            ({{ $announce->locations->count() - 1 }} más)</span>
+                                            ({{ $announce->locations->count() - 1 }} más)
+                                        </span>
                                     @endif
                                 </x-slot>
                             </x-card-announce>
@@ -200,7 +204,8 @@
                                     {{ $announce->locations[0]->location_name }}
                                     @if ($announce->locations->count() > 1)
                                         <span class="text-xs text-gray-400">
-                                            ({{ $announce->locations->count() - 1 }} más)</span>
+                                            ({{ $announce->locations->count() - 1 }} más)
+                                        </span>
                                     @endif
                                 </x-slot>
                             </x-card-announce>
@@ -209,8 +214,8 @@
                         <x-section-empty class="col-span-2" title="No has guardado ninguna convocatoria"
                             description="Las convocatorias guardadas en la sección de busqueda aparecerán aqui.">
                             <x-button-link href="{{ route('search') }}" class="bg-tbn-primary inline-block mt-5"
-                                wire:navigate>Iniciar
-                                busqueda</x-button-link>
+                                wire:navigate>
+                                Iniciar busqueda</x-button-link>
                         </x-section-empty>
                     @endforelse
                 </div>
@@ -310,6 +315,9 @@
                     } catch (error) {
                         console.log(error);
                     }
+                },
+                closeNotificationModal() {
+                    this.notificationDisplay = false
                 }
             }))
         </script>

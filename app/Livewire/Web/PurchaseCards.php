@@ -27,7 +27,7 @@ class PurchaseCards extends Component
         <div>
             <section class="max-w-6xl mx-auto my-10">
                 <div class="text-center mb-4 px-4">
-                    <i class="fas fa-crown text-[3rem] text-tbn-secondary mb-4"></i>
+                    <i class="fas fa-crown text-[3rem] text-tbn-primary mb-4"></i>
                     <h5 class="font-medium text-xl">Adquiere tu cuenta de <span class="text-tbn-primary">Trabajonautas
                             PRO</span> ahora mismo</h5>
                     <p class="text-tbn-dark text-sm">Convocatorías exclusivas y nuevas opciones de búsqueda cada día al
@@ -39,14 +39,14 @@ class PurchaseCards extends Component
                             @if ($account_type->id == 2)
                                 <div class="absolute left-0 right-0 flex justify-center -top-4">
                                     <span
-                                        class="flex items-center gap-1 px-4 py-1 text-sm font-medium text-white rounded-full bg-gradient-to-r from-tbn-primary to-blue-800">
+                                        class="flex items-center gap-1 px-4 py-1 text-sm font-medium text-white rounded-full bg-gradient-to-r from-tbn-primary to-tbn-secondary">
                                         <i class="fas fa-star"></i> Mejor opción
                                     </span>
                                 </div>
                             @endif
                             <div
                                 class="flex flex-col justify-between h-full bg-white border border-gray-200 rounded-lg shadow-sm
-                                {{ $account_type->id == 2 ? 'border-2 border-tbn-primary' : '' }}">
+                                {{ $account_type->id == 2 ? 'border-2 border-tbn-secondary' : '' }}">
                                 <div class="p-6">
                                     <h3 class="text-2xl font-semibold text-gray-900 capitalize">{{ $account_type->name }}</h3>
                                     <p class="mt-2 text-sm text-gray-600">
@@ -95,29 +95,29 @@ class PurchaseCards extends Component
                                 <div class="p-6 border-t border-gray-200 rounded-b-lg bg-gray-50">
                                     @if (!$client)
                                         <a href="{{ route('register') }}" wire:navigate
-                                            class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
+                                            class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-tbn-secondary hover:bg-tbn-primary">
                                             {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                             <i class="fas fa-arrow-right ml-2"></i></a>
                                     @elseif($client->roles->pluck('name')->first() !== env('CLIENT_ROLE'))
                                         <a href="{{ route('dashboard') }}" wire:navigate
-                                            class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
+                                            class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-tbn-secondary hover:bg-tbn-primary">
                                             {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                             <i class="fas fa-arrow-right ml-2"></i></a>
                                     @elseif($pro_verified || $client->account->account_type_id == 1)
                                         @if ($account_type->id == 1)
                                             <a href="{{ route('dashboard') }}" wire:navigate
-                                                class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
+                                                class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-tbn-secondary hover:bg-tbn-primary">
                                                 {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                                 <i class="fas fa-arrow-right ml-2"></i></a>
                                         @else
                                             <a href="{{ route('purchase-account', ['account_type_id' => $account_type->id]) }}"
-                                                class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
+                                                class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-tbn-secondary hover:bg-tbn-primary">
                                                 {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                                 <i class="fas fa-arrow-right ml-2"></i></a>
                                         @endif
                                     @else
                                         <a href="{{ route('dashboard') }}" wire:navigate
-                                            class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-gradient-to-r from-tbn-primary to-blue-800 hover:from-blue-800 hover:to-blue-900">
+                                            class="block w-full px-4 py-2 font-medium text-center text-white transition-colors rounded-lg bg-tbn-secondary hover:bg-tbn-primary">
                                             {{ $account_type->id == 1 ? 'Iniciar ahora' : 'Comprar ahora' }}
                                             <i class="fas fa-arrow-right ml-2"></i></a>
                                     @endif
