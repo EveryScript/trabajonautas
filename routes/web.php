@@ -31,7 +31,7 @@ Route::group(['middleware' => ['user_actived']], function () {
 });
 
 // All access logged
-Route::group(['middleware' => ['role:CLIENT|USER|ADMIN', 'user_actived']], function () {
+Route::group(['middleware' => ['role:CLIENT|USER|ADMIN', 'user_actived', 'auth', 'verified']], function () {
     Route::get('/panel', fn() => view('dashboard'))->name('dashboard');
     Route::get('/prohibido', fn() => view('restricted-area'))->name('restricted-area');
 });

@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Notifications\CustomResetPasswordNotification;
+use App\Notifications\CustomVerifyEmailNotification;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +20,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
     use HasFactory;
@@ -93,9 +95,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Profesion::class);
     }
-    // Reset password notification (email)
+    // Reset password notification (mail content)
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new CustomResetPasswordNotification($token));
+    }
+    // Email verification notification (mail content)
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmailNotification());
     }
 }

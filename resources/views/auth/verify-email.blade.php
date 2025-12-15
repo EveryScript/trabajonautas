@@ -4,8 +4,10 @@
             <x-authentication-card-logo />
         </x-slot>
 
+        <h5 class="font-bold text-center lg:text-left text-lg mb-4">Confirmación de correo electrónico</h5>
+
         <div class="mb-4 text-sm text-gray-600">
-            {{ __('Before continuing, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+            {{ __("Hemos enviado un enlace para verificar tu correo electrónico. Si aún no recibiste el enlace puedes volverlo a enviar.") }}
         </div>
 
         @if (session('status') == 'verification-link-sent')
@@ -14,7 +16,7 @@
             </div>
         @endif
 
-        <div class="mt-4 flex items-center justify-between">
+        <div class="mt-4 flex flex-col gap-4 items-center justify-between">
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
 
@@ -26,15 +28,15 @@
             </form>
 
             <div>
+                <!--
                 <a
                     href="{{ route('profile.show') }}"
                     class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                     {{ __('Edit Profile') }}</a>
-
+                -->
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-
                     <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2">
                         {{ __('Log Out') }}
                     </button>
