@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
             'gender' => 'M',
             'age' => 3,
             'register_completed' => true,
+            'email_verified_at' => now(), // Email verified now
             'location_id' => 1,
             'grade_profile_id' => 5,
             'area_id' => 1,
@@ -33,6 +34,7 @@ class UserSeeder extends Seeder
             'gender' => 'F',
             'age' => 3,
             'register_completed' => true,
+            'email_verified_at' => now(), // Email verified now
             'location_id' => 1,
             'grade_profile_id' => 5,
             'area_id' => 1,
@@ -46,7 +48,8 @@ class UserSeeder extends Seeder
             'phone' => '69616052',
             'gender' => 'M',
             'age' => 1,
-            'register_completed' => true,
+            'register_completed' => false,
+            'email_verified_at' => now(), // Email verified now
             'location_id' => 1,
             'grade_profile_id' => 1,
             'area_id' => 1,

@@ -147,6 +147,7 @@ return [
     'uppercase'            => 'El campo :attribute debe estar en mayúscula.',
     'url'                  => 'El campo :attribute debe ser una URL válida.',
     'uuid'                 => 'El campo :attribute debe ser un UUID válido.',
+    'disposable_email'     => 'El correo electrónico ingresado no está permitido.',
     'attributes'           => [
         'address'                  => 'dirección',
         'affiliate_url'            => 'URL de afiliado',

@@ -14,8 +14,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["DM Sans", "sans-serif"],
-                tbn: ['"Rubik"', "sans-serif"],
+                sans: ["Google Sans Flex", "sans-serif"],
+                tbn: ["Google Sans Flex", "sans-serif"],
             },
             colors: {
                 "tbn-primary": "#ff420a",

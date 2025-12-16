@@ -4,22 +4,21 @@
             <h1 class="text-2xl xl:text-2xl">
                 <x-authentication-card-logo />
             </h1>
-            <span class="text-center text-sm text-tbn-dark">Inicia sesión con tu email y tu contraseña</span>
         </x-slot>
 
-        <x-validation-errors class="mb-4" />
+        <x-validation-errors class="max-w-xs mb-2 text-tbn-primary" />
 
         @if (session('status'))
-            <div class="mb-4 font-medium text-sm text-green-600">{{ session('status') }}</div>
+            <div class="max-w-xs mb-4 p-4 text-xs bg-gray-500 border text-white rounded">
+                {{ session('status') }}</div>
         @endif
 
         @if (session('session_expired'))
-            <div class="mb-4 p-3 text-xs bg-yellow-100 border border-tbn-secondary text-yellow-700 rounded">
-                {{ session('session_expired') }}
-            </div>
+            <div class="max-w-xs mb-4 p-4 text-xs bg-gray-500 border text-white rounded">
+                {{ session('session_expired') }}</div>
         @endif
 
-        <div class="w-full flex-1 mt-2">
+        <div class="w-full flex-1">
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="mx-auto max-w-xs">
@@ -39,7 +38,7 @@
                             {{ __('Forgot your password?') }}
                         </a>
                     @endif
-                    <div class="relative mt-6">
+                    <div class="relative mt-4">
                         <label for="remember_me" class="flex items-center">
                             <x-checkbox id="remember_me" name="remember" />
                             <span class="ms-2 text-sm">{{ __('Remember me') }}</span>
@@ -52,9 +51,22 @@
                             {{ __('Crear cuenta') }}
                         </a>
                     </div>
-
                 </div>
             </form>
+            <hr class="mx-auto max-w-xs my-4">
+            <div class="mx-auto max-w-xs">
+                {{-- <a href="{{ route('social.redirect', 'google') }}"
+                    class="w-full flex items-center justify-center px-4 py-2 border border-tbn-primary rounded-md text-sm font-medium">
+                    <i class="fa-brands fa-google text-tbn-primary mr-3"></i>
+                    Iniciar sesión con <span class="text-tbn-primary font-bold ml-1">Google</span>
+                </a> --}}
+                <a href="{{ route('social.redirect', 'google') }}"
+                    class="px-4 py-2 border flex justify-center gap-2 border-slate-200 rounded-lg text-slate-700 hover:border-slate-400  hover:text-slate-900 hover:shadow transition duration-150">
+                    <img class="w-6 h-6" src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy"
+                        alt="google logo">
+                    <span>Iniciar sesión con Google</span>
+                </a>
+            </div>
         </div>
     </x-authentication-card>
 </x-guest-layout>

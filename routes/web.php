@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Livewire\Announcement\FormAnnouncement;
 use App\Livewire\Announcement\ListAnnouncement;
 use App\Livewire\Area\FormArea;
@@ -13,6 +14,8 @@ use App\Livewire\User\ConfigUser;
 use App\Livewire\User\ListClient;
 use App\Livewire\User\ListUser;
 use Illuminate\Support\Facades\Route;
+
+
 
 Route::group(['middleware' => ['user_actived']], function () {
     // Home
@@ -69,3 +72,9 @@ Route::group(['middleware' => ['role:ADMIN']], function () {
 
 // Disabled
 Route::get('/inactivo', fn() => view('auth.disabled'))->name('disabled');
+
+// Google Autenticate
+Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+    ->name('social.redirect');
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+    ->name('social.callback');

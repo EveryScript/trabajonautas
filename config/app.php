@@ -172,7 +172,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+        EragLaravelDisposableEmail\LaravelDisposableEmailServiceProvider::class
     ])->toArray(),
 
     /*

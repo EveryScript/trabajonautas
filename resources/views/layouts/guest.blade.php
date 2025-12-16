@@ -10,10 +10,11 @@
     <link rel="icon" href="{{ asset('storage/img/tbn-icon.ico') }}">
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.bunny.net/css?family=baloo-da-2:400,700" rel="stylesheet" />
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -22,7 +23,9 @@
     @livewireStyles
     <style>
         #nprogress .bar {
-            background: #ff420a;
+            background: #ff420a !important;
+            border: none !important;
+            box-shadow: none !important;
         }
     </style>
 </head>
