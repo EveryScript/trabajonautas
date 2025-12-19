@@ -56,6 +56,9 @@
                 </div>
             </div>
             <div class="my-3">
+                @foreach ($announcement->profesions as $profesion)
+                    {{ $profesion->profesion_name }}
+                @endforeach
                 <h3 class="text-lg font-medium mb-1 tbn-special text-tbn-primary">Descripción</h3>
                 <div
                     class="font-normal [&_ol]:list-disc [&_ol]:ml-4 [&_span]:bg-transparent [&_a]:underline [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg text-sm">
@@ -120,8 +123,8 @@
                     <a href="{{ $suggest->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $suggest->id]) }}"
                         wire:navigate wire:key='suggest-{{ $suggest->id }}'>
                         <x-card-announce logo_url="{{ $suggest->company ? $suggest->company->company_image : '' }}"
-                            area="{{ $suggest->area ? $suggest->area->area_name : '(sin area)' }}"
-                            title="{{ $suggest->announce_title }}" pro="{{ $suggest->pro }}" logo_flag="{{ false }}">
+                            title="{{ $suggest->announce_title }}" pro="{{ $suggest->pro }}"
+                            created_at="{{ $suggest->created_at }}" logo_flag="{{ false }}">
                             @if ($suggest->company)
                                 <x-slot name="company">{{ $suggest->company->company_name }}</x-slot>
                             @endif

@@ -1,10 +1,10 @@
 @props([
     'logo_flag' => true,
     'logo_url' => '',
-    'area' => '',
     'title' => '',
     'pro' => false,
     'locations' => [],
+    'created_at' => '',
 ])
 
 <article
@@ -17,7 +17,7 @@
             <i class="fas fa-crown text-sm text-tbn-primary"></i>
         </p>
         <p class="text-xs font-normal text-tbn-dark">
-            <span class="pr-5">{{ $area }}</span>
+            <span class="pr-5">Publicado {{ Carbon\Carbon::parse($created_at)->diffForHumans() }}</span>
         </p>
         <h2 class="font-bold text-lg leading-6 my-1">{{ $title }}</h2>
         <div class="w-full grid grid-cols-2 mt-1">

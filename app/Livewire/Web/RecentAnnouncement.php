@@ -40,8 +40,7 @@ class RecentAnnouncement extends Component
                     wire:navigate wire:key='announce-{{ $announce->id }}'>
                 <x-card-announce
                     logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
-                    area="{{ $announce->area ? $announce->area->area_name : '(sin area)' }}"
-                    title="{{ $announce->announce_title }}" pro="{{ $announce->pro }}">
+                    title="{{ $announce->announce_title }}" created_at="{{ $announce->created_at }}" pro="{{ $announce->pro }}">
                     @if ($announce->company)
                         <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
                     @endif

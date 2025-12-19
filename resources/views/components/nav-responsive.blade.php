@@ -1,21 +1,29 @@
-<nav class="bg-white border-gray-200">
+<header class="bg-white h-[5rem]">
+<nav class="max-w-6xl h-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-row justify-between align-middle">
     <div x-data="{ open: false, dropdown: false }" @click.away="open = false, dropdown = false"
-        class="max-w-6xl flex flex-wrap items-center justify-between mx-auto p-4 relative">
-        <x-nav-logo />
+        class="w-full flex flex-wrap items-center justify-between mx-auto relative">
+        @role(env('CLIENT_ROLE'))
+            <x-nav-logo />
+        @endrole
+        @role([env('USER_ROLE'), env('ADMIN_ROLE')])
+            <a href="{{ route('welcome') }}" wire:navigate>
+                <img class="inline-block max-w-12" src="{{ asset('storage/img/tbn-new-isologo.webp') }}" alt="tbn-logo">
+            </a>
+        @endrole
         <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse relative">
             @auth
                 <!-- Dropdown button -->
                 <button @click="open = !open" type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0"
                     id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
                     data-dropdown-placement="bottom">
-                    <span class="sr-only">Open user menu</span>
-                    <span class="px-3 py-2 font-bold text-white bg-tbn-primary rounded-md focus:ring-2 ring-tbn-primary">
-                        Mi cuenta</span>
+                    <span class="px-3 py-2 font-semibold text-white bg-tbn-primary rounded-md focus:ring-2">
+                        Mi Panel
+                    </span>
                 </button>
 
                 <!-- Dropdown menu -->
                 <div x-show="open"
-                    class="absolute top-5 right-0 z-50 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow"
+                    class="absolute top-6 right-0 z-50 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow"
                     id="user-dropdown">
                     <div class="px-4 py-3">
                         <span class="block text-sm text-gray-900">{{ Auth::user()->name }}</span>
@@ -27,7 +35,7 @@
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Mi panel</a>
                         </li>
-                        <li>
+                        <li class="hidden">
                             <a href="{{ route('profile.show') }}" wire:navigate
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Configuración</a>
@@ -113,3 +121,4 @@
         @endauth
     </div>
 </nav>
+</header>

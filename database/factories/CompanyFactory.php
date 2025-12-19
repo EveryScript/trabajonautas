@@ -14,7 +14,7 @@ class CompanyFactory extends Factory
             'description' => fake()->sentence(20),
             'company_image' => 'empresas/tbn-new-default.webp',
             'company_type_id' => fake()->numberBetween(1, 3),
-            'user_id' => User::where('email', 'admin@email.com')->first()->id
+            'user_id' => User::where('email', 'ricardooropeza15@gmail.com')->first()->id
         ];
     }
 }

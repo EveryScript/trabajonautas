@@ -3,9 +3,9 @@
     <x-authentication-card>
         <x-slot name="logo">
             <h1 class="text-2xl xl:text-2xl">
-                <x-authentication-card-logo />
+                <img src="{{ asset('storage/img/tbn-new-isologo.webp') }}" alt="logo"
+                    class="w-[3rem] rounded-full mx-auto">
             </h1>
-            <span class="text-center text-sm text-tbn-dark">Ingresa tus datos y regístrate ahora.</span>
         </x-slot>
 
         <x-validation-errors class="mb-2" />
@@ -26,8 +26,8 @@
                     </div>
                     <div class="relative mt-6">
                         <x-label for="password" value="{{ __('Password') }}" />
-                        <x-input-password id="password" class="block mt-1 w-full" type="password" name="password" required
-                            autocomplete="new-password" />
+                        <x-input-password id="password" class="block mt-1 w-full" type="password" name="password"
+                            required autocomplete="new-password" />
                     </div>
 
                     <div class="flex gap-4 items-center justify-between mt-8">
@@ -39,25 +39,15 @@
                     </div>
                 </div>
             </form>
-        </div>
-        <!-- Google registration -->
-        {{-- <div class="flex justify-evenly items-center space-x-2 w-80 mt-4">
-            <span class="bg-gray-300 h-px flex-grow t-2 relative top-2"></span>
-        </div>
-        <div class="mt-4 w-full flex flex-col items-center gap-3">
-            <div class="w-full flex-1 mt-4">
-                <div class="flex flex-col items-center">
-                    <button
-                        class="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">
-                        <div class="bg-white p-2 rounded-full">
-                            <i class="fab fa-google"></i>
-                        </div>
-                        <span class="ml-4">
-                            Google
-                        </span>
-                    </button>
-                </div>
+            <hr class="mx-auto max-w-xs my-4">
+            <div class="mx-auto max-w-xs">
+                <a href="{{ route('social.redirect', 'google') }}"
+                    class="px-4 py-2 border flex justify-center gap-2 border-slate-200 rounded-lg text-slate-700 hover:border-slate-400  hover:text-slate-900 hover:shadow transition duration-150">
+                    <img class="w-6 h-6" src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy"
+                        alt="google logo">
+                    <span>Iniciar sesión con Google</span>
+                </a>
             </div>
-        </div> --}}
+        </div>
     </x-authentication-card>
 </x-guest-layout>

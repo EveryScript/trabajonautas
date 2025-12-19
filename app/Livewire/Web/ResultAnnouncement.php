@@ -31,9 +31,9 @@ class ResultAnnouncement extends Component
                             $this->redirect('/panel', true);
                     }
                     // Verify announce pro, client pro and diferent area
-                    if ($this->client->account->account_type_id > 1 && Announcement::find($id)->pro && Announcement::find($id)->area->id !== $this->client->area->id) {
-                        $this->redirect('/prohibido', true);
-                    }
+                    // if ($this->client->account->account_type_id > 1 && Announcement::find($id)->pro && Announcement::find($id)->area->id !== $this->client->area->id) {
+                    //     $this->redirect('/prohibido', true);
+                    // }
                     // Verify announce pro and client FREE
                     if (Announcement::find($id)->pro && $this->client->account->account_type_id === 1)
                         $this->redirect('/pro', true);

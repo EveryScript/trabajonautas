@@ -62,8 +62,12 @@
                     <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
                         wire:navigate wire:key='announce-{{ $announce->id }}'>
                         <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
-                            area="{{ $announce->area ? $announce->area->area_name : '(sin area)' }}"
                             title="{{ $announce->announce_title }}" pro="{{ $announce->pro }}">
+                            <x-slot name="profesions">
+                                @foreach ($announce->profesions as $profesion)
+                                    {{ $profesion->profesion_name }}
+                                @endforeach
+                            </x-slot>
                             @if ($announce->company)
                                 <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
                             @endif

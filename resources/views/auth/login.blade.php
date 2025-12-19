@@ -55,11 +55,6 @@
             </form>
             <hr class="mx-auto max-w-xs my-4">
             <div class="mx-auto max-w-xs">
-                {{-- <a href="{{ route('social.redirect', 'google') }}"
-                    class="w-full flex items-center justify-center px-4 py-2 border border-tbn-primary rounded-md text-sm font-medium">
-                    <i class="fa-brands fa-google text-tbn-primary mr-3"></i>
-                    Iniciar sesión con <span class="text-tbn-primary font-bold ml-1">Google</span>
-                </a> --}}
                 <a href="{{ route('social.redirect', 'google') }}"
                     class="px-4 py-2 border flex justify-center gap-2 border-slate-200 rounded-lg text-slate-700 hover:border-slate-400  hover:text-slate-900 hover:shadow transition duration-150">
                     <img class="w-6 h-6" src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy"

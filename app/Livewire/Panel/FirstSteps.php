@@ -3,7 +3,6 @@
 namespace App\Livewire\Panel;
 
 use App\Models\AccountType;
-use App\Models\Area;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\User;
@@ -13,76 +12,56 @@ use Livewire\Component;
 class FirstSteps extends Component
 {
     public $user_id;                            // Component parameter
-    public $gender, $age, $location_id, $phone; // Step 1
-    public $grade_profile_id, $area_id;         // Step 2
-    public $account_type_id;                    // Step 3
-    public $user_profesions;                    // Step 4
+    public $gender, $age, $phone;               // Step 1
+    public $grade_profile_id;                   // Step 2
+    public $profesion_id;                       // Step 3
+    public $location_id;                        // Step 4
+    public $account_type_id;                    // Step 5
     public $user;                               // Current user
-    public $areas, $locations, $account_types; // Data to use in the view
-    public $step = 0;
+    public $locations, $profesions, $account_types; // Data to use in the view
+    public $country_code = '+591';
 
     public function mount()
     {
         if (Auth::check()) {
-            $this->user = User::with('account.accountType')->find($this->user_id);
+            $this->user = User::with('account.accountType')->select('id', 'name', 'phone')->find($this->user_id);
+        } else {
+            redirect()->route('login');
         }
     }
-
-    public function savePersonalData()
+    public function confirmAndSave()
     {
         $this->validate([
             'gender' => 'required|in:M,F',
             'age' => 'required|numeric|in:1,2,3',
-            'location_id' => 'required|exists:locations,id',
-            'phone' => 'required|numeric'
-        ]);
-        $user = User::find($this->user_id);
-        $user->update([
-            'gender' => $this->gender,
-            'age' => $this->age,
-            'location_id' => $this->location_id,
-            'phone' => $this->phone
-        ]);
-        $this->step = 2;
-    }
-    public function saveProfesionalData()
-    {
-        $this->validate([
+            'phone' => 'required|numeric|digits_between:8,10',
+            'country_code' => 'required|string|in:+591',
             'grade_profile_id' => 'required|exists:grade_profiles,id',
-            'area_id' => 'required|exists:areas,id'
-        ]);
-        $user = User::find($this->user_id);
-        $user->update([
-            'grade_profile_id' => intval($this->grade_profile_id),
-            'area_id' => intval($this->area_id)
-        ]);
-        $this->step = 3;
-    }
-    public function saveAccountData()
-    {
-        $this->validate([
+            'profesion_id' => 'required|exists:profesions,id',
+            'location_id' => 'required|exists:locations,id',
             'account_type_id' => 'required|exists:account_types,id'
         ]);
-        $user = User::find($this->user_id);
-        $user->account()->create([
+        $this->user->update([
+            'gender' => $this->gender,
+            'age' => intval($this->age),
+            'phone' => $this->country_code . $this->phone,
+            'location_id' => $this->location_id,
+            'grade_profile_id' => intval($this->grade_profile_id),
+            'register_completed' => true
+        ]);
+        $this->user->account()->create([
             'user_id' => $this->user_id,
             'account_type_id' => intval($this->account_type_id)
         ]);
-        if (intval($this->account_type_id) == 1) {
-            $user->update(['register_completed' => true]);
-            $this->redirectRoute('dashboard', navigate: true);
-        } else {
-            $this->redirectRoute('purchase-account', ['account_type_id' => $this->account_type_id], navigate: true);
-        }
+        $this->user->myProfesions()->sync([$this->profesion_id]);
+        
+        $this->redirectRoute('dashboard', navigate: true);
     }
-    public function stepBack()
-    {
-        $this->step--;
-    }
+
     public function render()
     {
-        $this->areas = Area::orderBy('area_name', 'ASC')->get();
         $this->locations = Location::all();
+        $this->profesions = Profesion::all();
         $this->account_types = AccountType::all();
         return view('livewire.panel.first-steps');
     }

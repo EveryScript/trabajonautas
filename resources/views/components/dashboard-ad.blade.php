@@ -25,7 +25,7 @@
                 <span class="text-4xl font-bold">30 Bs.</span>
             </div>
             <div class="mt-6">
-                <x-button-link class="bg-tbn-primary" href="{{ route('purchase-cards', ['account_type_id' => 3]) }}"
+                <x-button-link class="bg-tbn-primary" href="{{ route('purchase-account', ['account_type_id' => 3]) }}"
                     wire:navigate>
                     Adquirir PRO ahora</x-button-link>
             </div>

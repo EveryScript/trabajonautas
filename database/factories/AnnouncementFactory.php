@@ -14,7 +14,7 @@ class AnnouncementFactory extends Factory
 {
     public function definition(): array
     {
-        $admin = User::where('email', 'admin@email.com')->first();
+        $admin = User::where('email', 'ricardooropeza15@gmail.com')->first();
 
         return [
             'announce_title' => fake()->sentence(5),

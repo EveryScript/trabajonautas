@@ -40,6 +40,7 @@ class AnnouncementSeeder extends Seeder
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
+        */
         Announcement::factory()
             ->count(20)
             ->create()
@@ -49,6 +50,5 @@ class AnnouncementSeeder extends Seeder
                 $locations_ids = Location::inRandomOrder()->limit(rand(1, 2))->pluck('id');
                 $announcement->locations()->sync($locations_ids);
             });
-        */
     }
 }
