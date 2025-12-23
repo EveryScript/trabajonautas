@@ -5,7 +5,8 @@
             client_account_type_id="{{ $client->account->accountType->id }}"
             client_account_type_name="{{ $client->account->accountType->name }}"
             client_pro_verified="{{ $client->account->verified_payment }}"
-            client_account_expire_days="{{ $client_account_expiration_days }}" />
+            client_account_expire_days="{{ $client_account_expiration_days }}"
+            client_account_expired="{{ $client_account_expired }}" />
         <!-- Main content -->
         <main class="flex-1 mb-0 md:mb-24">
             @if ($client->account->accountType->id == 1)
@@ -203,7 +204,9 @@
                         ('Notification' in window);
                 },
                 isNotificationsActived() {
-                    this.aside_error_notifications = Notification.permission === 'granted'
+                    if(Notification.permission === 'granted' && $wire.checkIfTokenExists()){
+                        this.aside_error_notifications = false
+                    }
                 }
             }))
         </script>

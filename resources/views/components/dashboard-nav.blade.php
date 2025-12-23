@@ -4,6 +4,7 @@
     'client_account_type_name',
     'client_pro_verified',
     'client_account_expire_days',
+    'client_account_expired',
 ])
 <aside class="w-full md:w-[18rem] relative">
     <div class="bg-white rounded-xl shadow-lg mb-6 px-6 py-8 transition-all duration-300 hover:shadow-xl">
@@ -17,12 +18,24 @@
                 <span class="inline-block mb-4 text-xs text-white bg-green-600 px-2 py-1 rounded-full">
                     <i class="fas fa-leaf mr-2"></i> {{ $client_account_type_name }}
                 </span>
+                <!-- Alert expired account -->
+                @if ($client_account_expired)
+                    <div class="text-left border border-tbn-primary p-4 rounded-lg mt-1">
+                        <h5 class="font-semibold mb-2">Tu cuenta ha expirado.</h5>
+                        <p class="font-medium text-xs mb-3 text-tbn-dark">
+                            Renueva tu cuenta ahora mismo para disfrutar de los beneficios de Trabajonautas.com.
+                        </p>
+                        <a href="{{ route('purchase-account', ['account_type_id' => intval($client_account_type_id)]) }}"
+                            class="inline-block px-3 py-2 text-xs rounded text-white bg-tbn-primary border border-tbn-primary hover:bg-gray-50 hover:text-tbn-primary cursor-pointer transition-colors duration-300">
+                            <i class="fa-solid fa-arrow-rotate-right mr-1"></i> Renovar cuenta</a>
+                    </div>
+                @endif
             @elseif(intval($client_account_type_id) === 2 || intval($client_account_type_id) === 3)
                 <!-- Alert verified client -->
                 @if (!$client_pro_verified)
                     <!-- Message: Verify account -->
                     <div class="text-left border border-tbn-primary p-4 rounded-lg mt-6">
-                        <p class="font-medium mb-2">
+                        <p class="font-semibold mb-2">
                             Verificación en proceso</p>
                         <p class="inline-block font-medium text-xs mb-3 text-tbn-dark">
                             Envíanos tu <span class="font-bold text-tbn-primary">comprobante de
@@ -44,12 +57,13 @@
                         </p>
                     @else
                         <div class="text-left border border-tbn-primary p-4 rounded-lg mt-1">
-                            <p class="font-medium mb-2">Tu cuenta expira en 
+                            <p class="font-medium mb-2">Tu cuenta expira en
                                 {{ $client_account_expire_days > 1 ? $client_account_expire_days . ' dias.' : $client_account_expire_days . ' día.' }}
                             </p>
                             <p class="font-medium text-xs mb-3 text-tbn-dark">
                                 Renueva tu cuenta <span
-                                    class="font-bold text-tbn-primary">{{ $client_account_type_name }}</span> ahora mismo
+                                    class="font-bold text-tbn-primary">{{ $client_account_type_name }}</span> ahora
+                                mismo
                                 para seguir disfrutando de todos sus beneficios.</p>
                             <a href="{{ route('purchase-account', ['account_type_id' => intval($client_account_type_id)]) }}"
                                 class="inline-block px-3 py-2 text-xs rounded text-white bg-tbn-primary border border-tbn-primary hover:bg-gray-50 hover:text-tbn-primary cursor-pointer transition-colors duration-300">
@@ -58,7 +72,7 @@
                     @endif
                 @endif
                 <!-- Notifications -->
-                @if ($client_account_type_id === 3)
+                @if (intval($client_account_type_id) === 3)
                     <hr class="my-4">
                     <div x-show="!aside_error_notifications" class="text-center text-xs">
                         <i class="far fa-check-circle text-green-500 mr-1"></i> Notificaciones activadas

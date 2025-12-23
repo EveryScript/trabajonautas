@@ -17,23 +17,23 @@ class DashboardClient extends Component
     // Parameter
     public $user_id;
     // Data
-    public $client, $client_account_expiration_days;
+    public $client, $client_account_expiration_days, $client_account_expired = false;
     public $VAPID_KEY;
 
     public function mount()
     {
         $this->client = User::with(['account.accountType'])->find($this->user_id);
-        if(intval($this->client->account->accountType->id) !== 1 && $this->client->account->verified_payment)
+        if (intval($this->client->account->accountType->id) !== 1 && $this->client->account->verified_payment)
             $this->checkIfAccountPROIsExpired();
+        $this->client_account_expired = $this->client->account->limit_time ? Carbon::parse($this->client->account->limit_time)->isBefore(Carbon::now()) : false;
         $this->client_account_expiration_days = Carbon::now()->diffInDays(Carbon::parse($this->client->account->limit_time));
         $this->VAPID_KEY = env('VAPID_KEY');
     }
 
     public function checkIfAccountPROIsExpired()
     {
-        if (Carbon::parse($this->client->account->limit_time)->isBefore(Carbon::now())) {
+        if ($this->client_account_expired) {
             $this->client->account->update([
-                'limit_time' => null,
                 'verified_payment' => false,
                 'account_type_id' => 1
             ]);
