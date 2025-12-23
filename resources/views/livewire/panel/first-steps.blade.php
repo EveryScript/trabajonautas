@@ -151,7 +151,7 @@
                                 <input type="radio" x-on:click="profesion_id = profesion.id" :value="profesion.id"
                                     :id="'profesion-' + profesion.id" name="profesion" class="hidden peer">
                                 <label :for="'profesion-' + profesion.id"
-                                    class="flex justify-center items-center h-12 sm:h-[5rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                                    class="flex justify-center items-center h-14 sm:h-[5rem] px-5 py-3 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
                                     <div>
                                         <span
                                             x-text="profesion.profesion_name"class="block font-medium text-sm"></span>

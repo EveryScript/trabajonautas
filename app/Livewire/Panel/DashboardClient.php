@@ -23,7 +23,7 @@ class DashboardClient extends Component
     public function mount()
     {
         $this->client = User::with(['account.accountType'])->find($this->user_id);
-        if(intval($this->client->account->accountType->id) !== 1)
+        if(intval($this->client->account->accountType->id) !== 1 && $this->client->account->verified_payment)
             $this->checkIfAccountPROIsExpired();
         $this->client_account_expiration_days = Carbon::now()->diffInDays(Carbon::parse($this->client->account->limit_time));
         $this->VAPID_KEY = env('VAPID_KEY');
