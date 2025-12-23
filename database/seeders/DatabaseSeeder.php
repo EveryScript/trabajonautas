@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
             RoleUserSeeder::class,
             GradeProfileSeeder::class,
             AccountTypeSeeder::class,
-            AccountSeeder::class
         ]);
     }
 }

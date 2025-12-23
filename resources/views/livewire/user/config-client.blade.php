@@ -20,15 +20,7 @@
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Profesion(es)</span>
-                <ul>
-                    @forelse ($client->myProfesions as $profesion)
-                        <li class="inline text-md font-medium">
-                            <h4 class="">{{ $profesion->profesion_name }}</h4>
-                        </li>
-                    @empty
-                        <li class="text-tbn-dark italic text-sm">(vacio)</li>
-                    @endforelse
-                </ul>
+                <h4 class="text-lg font-medium">{{ $client->profesion->profesion_name }}</h4>
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Celular</span>

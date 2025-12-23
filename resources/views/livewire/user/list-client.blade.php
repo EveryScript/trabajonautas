@@ -20,7 +20,7 @@
                         Ubicación
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Profesiones
+                        Profesión
                     </th>
                     <th scope="col" class="px-6 py-3">
                         Registro
@@ -61,13 +61,7 @@
                             {{ $client->location->location_name }}
                         </td>
                         <td class="px-6 py-4 {{ !$client->actived ? 'opacity-50' : '' }}">
-                            @forelse ($client->myProfesions as $profesion)
-                                <span
-                                    class="inline-block px-2 py-1 rounded-sm bg-gray-200 text-black text-[.8rem] leading-4 mb-1">
-                                    {{ $profesion->profesion_name }}</span>
-                            @empty
-                                <span class="text-sm text-gray-400">(Sin registrar)</span>
-                            @endforelse
+                            {{ $client->profesion->profesion_name }}
                         </td>
                         <td class="px-6 py-4 {{ !$client->actived ? 'opacity-50' : '' }}">
                             {{ \Carbon\Carbon::parse($client->created_at)->diffForHumans() }}

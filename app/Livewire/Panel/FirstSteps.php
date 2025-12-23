@@ -45,7 +45,8 @@ class FirstSteps extends Component
             'gender' => $this->gender,
             'age' => intval($this->age),
             'phone' => $this->country_code . $this->phone,
-            'location_id' => $this->location_id,
+            'location_id' => intval($this->location_id),
+            'profesion_id' => intval($this->profesion_id),
             'grade_profile_id' => intval($this->grade_profile_id),
             'register_completed' => true
         ]);
@@ -53,7 +54,6 @@ class FirstSteps extends Component
             'user_id' => $this->user_id,
             'account_type_id' => intval($this->account_type_id)
         ]);
-        $this->user->myProfesions()->sync([$this->profesion_id]);
         
         $this->redirectRoute('dashboard', navigate: true);
     }

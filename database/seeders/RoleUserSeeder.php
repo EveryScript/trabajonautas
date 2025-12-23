@@ -30,16 +30,5 @@ class RoleUserSeeder extends Seeder
         $role_client = Role::create(['name' => env('CLIENT_ROLE')]);
         $user_client = User::where('email', 'cliente@email.com')->first();
         $user_client->assignRole($role_client);
-
-        /*
-        $user_glenn = User::where('email', 'free@email.com')->first();
-        $user_glenn->assignRole($role_client);
-        $user_glenn = User::where('email', 'eugene@email.com')->first();
-        $user_glenn->assignRole($role_client);
-        $user_glenn = User::where('email', 'carl@email.com')->first();
-        $user_glenn->assignRole($role_client);
-        $user_glenn = User::where('email', 'maggie@email.com')->first();
-        $user_glenn->assignRole($role_client);
-        */
     }
 }

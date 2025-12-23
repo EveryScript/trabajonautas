@@ -41,7 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'actived',
         'phone',
         'location_id',
-        'area_id',
+        'profesion_id',
         'grade_profile_id',
         'account_id',
         'provider', // Laravel Socialite
@@ -74,10 +74,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Company::class);
     }
-    public function area(): BelongsTo
-    {
-        return $this->belongsTo(Area::class);
-    }
     public function gradeProfile(): BelongsTo
     {
         return $this->belongsTo(GradeProfile::class);
@@ -90,13 +86,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Account::class);
     }
+    public function profesion(): BelongsTo
+    {
+        return $this->belongsTo(Profesion::class);
+    }
     public function myAnnounces(): BelongsToMany
     {
         return $this->belongsToMany(Announcement::class);
-    }
-    public function myProfesions(): BelongsToMany
-    {
-        return $this->belongsToMany(Profesion::class);
     }
     // Reset password notification (mail content)
     public function sendPasswordResetNotification($token)

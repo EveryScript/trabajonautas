@@ -22,7 +22,6 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(), // Email verified now
             'location_id' => 1,
             'grade_profile_id' => 5,
-            'area_id' => 1,
         ]);
 
         User::create([
@@ -37,7 +36,6 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(), // Email verified now
             'location_id' => 1,
             'grade_profile_id' => 5,
-            'area_id' => 1,
         ]);
 
         User::create([
@@ -52,7 +50,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(), // Email verified now
             'location_id' => 1,
             'grade_profile_id' => 1,
-            'area_id' => 1,
+            'profesion_id' => 1,
         ]);
     }
 }

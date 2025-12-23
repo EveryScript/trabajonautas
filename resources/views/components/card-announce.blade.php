@@ -1,10 +1,10 @@
 @props([
     'logo_flag' => true,
-    'logo_url' => '',
-    'title' => '',
+    'logo_url' => '#',
+    'title' => 'Mi título',
     'pro' => false,
-    'locations' => [],
-    'created_at' => '',
+    'locations' => 'Mis ubicaciones',
+    'created_at' => now(),
 ])
 
 <article

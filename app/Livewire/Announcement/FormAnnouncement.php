@@ -46,7 +46,7 @@ class FormAnnouncement extends Component
                 ->whereHas('location', fn($query) => $query
                     ->whereIn('location_id', $this->announcement->locations))
                 // Clients with just one announcement profesion
-                ->whereHas('myProfesions', fn($query)  => $query
+                ->whereHas('profesion', fn($query)  => $query
                     ->whereIn('profesion_id', $this->announcement->profesions))
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();
@@ -69,7 +69,7 @@ class FormAnnouncement extends Component
                 ->whereHas('location', fn($query) => $query
                     ->whereIn('location_id', $this->announcement->locations))
                 // Clients with just one announcement profesion
-                ->whereHas('myProfesions', fn($query)  => $query
+                ->whereHas('profesion', fn($query)  => $query
                     ->whereIn('profesion_id', $this->announcement->profesions))
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('register_completed')->default(false); // New field
             $table->boolean('actived')->default(true); // New field
             $table->unsignedBigInteger('location_id')->nullable(); // Foreign
-            $table->unsignedBigInteger('area_id')->nullable(); // Foreign
+            $table->unsignedBigInteger('profesion_id')->nullable(); // Foreign
             $table->unsignedBigInteger('grade_profile_id')->nullable(); // Foreign
             $table->string('provider')->nullable(); // Google Auth
             $table->string('provider_id')->nullable(); // Google Auth

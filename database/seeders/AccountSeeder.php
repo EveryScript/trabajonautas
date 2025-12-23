@@ -12,18 +12,6 @@ class AccountSeeder extends Seeder
 {
     public function run(): void
     {
-        $users = User::all();
-        $profesion_ids = Profesion::pluck('id')->toArray();
-        foreach ($users as $user) {
-            if ($user->email === 'cliente@email.com') {
-                Account::create([
-                    'user_id' => $user->id,
-                    'account_type_id' => 1,
-                ]);
-
-                $user_profesions = collect($profesion_ids)->random(rand(1, 3))->toArray();
-                $user->myProfesions()->sync($user_profesions);
-            }
-        }
+        
     }
 }

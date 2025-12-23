@@ -105,9 +105,10 @@ class DashboardUser extends Component
     }
     public function getClientsByProfesion()
     {
-        $profesions = Profesion::withCount(['users as clients_profesion' => function ($query) {
-            $query->role(env('CLIENT_ROLE'));
-        }])->orderBy('clients_profesion', 'DESC')->take(10)->get();
+        // $profesions = Profesion::withCount(['users as clients_profesion' => function ($query) {
+        //     $query->role(env('CLIENT_ROLE'));
+        // }])->orderBy('clients_profesion', 'DESC')->take(10)->get();
+        $profesions = Profesion::take(10)->get();
         $labels = [];
         $data = [];
         $background = [];
@@ -134,13 +135,15 @@ class DashboardUser extends Component
     }
     public function getClientsByArea()
     {
-        $areas = Area::whereHas('usersOf', fn($subquery) => $subquery->role(env('CLIENT_ROLE')))->get();
+        // $areas = Area::whereHas('usersOf', fn($subquery) => $subquery->role(env('CLIENT_ROLE')))->get();
+        $areas = Area::where('id', 1)->get();
         $labels = [];
         $data = [];
         $background = [];
         foreach ($areas as $area) {
             array_push($labels, strlen($area->area_name) > 25 ? substr($area->area_name, 0, 20) . '...' : $area->area_name);
-            array_push($data, $area->usersOf()->role(env('CLIENT_ROLE'))->count());
+            // array_push($data, $area->usersOf()->role(env('CLIENT_ROLE'))->count());
+            array_push($data, 99);
             array_push($background, $this->primary_color);
         }
         return ['labels' => $labels, 'data' => $data, 'backgroundColor' => $background];

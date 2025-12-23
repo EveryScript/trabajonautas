@@ -25,10 +25,6 @@ class Area extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function usersOf(): HasMany
-    {
-        return $this->hasMany(User::class);
-    }
     public function profesions(): BelongsToMany
     {
         return $this->belongsToMany(Profesion::class);

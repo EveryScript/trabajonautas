@@ -32,7 +32,7 @@
                                         <td class="p-2 whitespace-nowrap font-medium">Ubicación</td>
                                         <td class="p-2 whitespace-wrap">
                                             <p x-text="client.location.location_name" class="inline mr-1"></p>
-                                            <button type="button" x-on:click="step = 2"
+                                            <button type="button" x-on:click="changeLocation"
                                                 class="inline-block border border-tbn-primary hover:bg-tbn-primary transition-all duration-100 hover:text-white rounded-full px-2 py-1 text-xs text-tbn-primary">
                                                 Cambiar
                                             </button>
@@ -41,10 +41,8 @@
                                     <tr>
                                         <td class="p-2 whitespace-nowrap font-medium">Profesion</td>
                                         <td class="p-2 whitespace-wrap">
-                                            <template x-for="profesion in client.my_profesions">
-                                                <p x-text="profesion.profesion_name" class="inline mr-1"></p>
-                                            </template>
-                                            <button type="button" x-on:click="step = 3"
+                                            <p x-text="client.profesion.profesion_name" class="inline mr-1"></p>
+                                            <button type="button" x-on:click="changeProfesion"
                                                 class="inline-block border border-tbn-primary hover:bg-tbn-primary transition-all duration-100 hover:text-white rounded-full px-2 py-1 text-xs text-tbn-primary">
                                                 Cambiar
                                             </button>
@@ -89,7 +87,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-center gap-1 mt-4">
+                <div class="flex justify-between gap-1 mt-4">
                     <x-btn-secondary type="button" wire:click='backToDashboard'>
                         Volver al panel</x-btn-secondary>
                     <x-btn-primary type="button" wire:click="confirmAndSave">
@@ -161,8 +159,8 @@
             Alpine.data('content', () => ({
                 // Models
                 step: 1,
-                profesion_id: @entangle('profesion_id'),
-                location_id: @entangle('location_id'),
+                profesion_id: null,
+                location_id: null,
                 searchProfesion: '',
                 // Data
                 client: @json($client),
@@ -171,12 +169,22 @@
                 locations: @json($locations),
                 // Functions
                 setLocation() {
+                    $wire.location_id = this.location_id
                     this.client.location = this.locations.find(item => item.id === this.location_id)
                     this.step = 1
                 },
                 setProfesion() {
-                    this.client.my_profesions = this.profesions.filter(item => item.id === this.profesion_id)
+                    $wire.profesion_id = this.profesion_id
+                    this.client.profesion = this.profesions.find(item => item.id === this.profesion_id)
                     this.step = 1
+                },
+                changeProfesion(){
+                    this.profesion_id = null
+                    this.step = 3
+                },
+                changeLocation(){
+                    this.location_id = null
+                    this.step = 2
                 },
                 filteredProfesions() {
                     return this.profesions.filter(

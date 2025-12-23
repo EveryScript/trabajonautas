@@ -3,21 +3,26 @@
         <!-- Navigation -->
         <x-dashboard-nav client_name="{{ $client->name }}"
             client_account_type_id="{{ $client->account->accountType->id }}"
-            client_account_name="{{ $client->account->accountType->name }}"
+            client_account_type_name="{{ $client->account->accountType->name }}"
             client_pro_verified="{{ $client->account->verified_payment }}"
-            client_account_expire_days="{{ $expiration_days }}" />
+            client_account_expire_days="{{ $client_account_expiration_days }}" />
         <!-- Main content -->
         <main class="flex-1 mb-0 md:mb-24">
             @if ($client->account->accountType->id == 1)
                 <x-dashboard-ad />
             @endif
+            <!-- Suggests component -->
             <div x-show="btnNavigation == 1">
                 @livewire('panel.dashboard-card', [
-                    'client_account_id' => $client->account->id,
-                    'client_location_id' => $client->location->id,
-                    'client_profesion_ids' => $client->myProfesions->pluck('id')->toArray(),
+                    'title' => 'Convocatorias de trabajo para ti',
+                    'description' => 'Te presentamos las convocatorias más recientes del país.',
+                    'my_announces_mode' => false,
+                    'client_account_id' => $client->account->accountType->id,
+                    'client_location_id' => $client->location_id,
+                    'client_profesion_id' => $client->profesion_id,
                 ])
             </div>
+            <!-- Notifications -->
             <div x-show="btnNavigation == 2">
                 <div class="text-center">
                     <picture class="w-full mb-2">
@@ -32,7 +37,19 @@
                         Obtener PRO-MAX ahora</x-button-link>
                 </div>
             </div>
+            <!-- Client -->
             <div x-show="btnNavigation == 3">
+                @livewire('panel.dashboard-card', [
+                    'title' => 'Mis convocatorias',
+                    'description' => 'Encuentra todas las convocatorias que guardaste en tu cuenta.',
+                    'my_announces_mode' => true,
+                    'client_account_id' => $client->account->accountType->id,
+                    'client_location_id' => $client->location_id,
+                    'client_profesion_id' => $client->profesion_id,
+                ])
+            </div>
+            <!-- Profile -->
+            <div x-show="btnNavigation == 4">
                 <header>
                     <h3 class="text-lg font-medium mb-1">Mi perfil</h3>
                 </header>
@@ -57,11 +74,7 @@
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Profesion</p>
-                            <p class="text-gray-900">
-                                @foreach ($client->myProfesions as $profesion)
-                                    {{ $profesion->profesion_name }}
-                                @endforeach
-                            </p>
+                            <p class="text-gray-900">{{ $client->profesion->profesion_name }}</p>
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Cuenta</p>
@@ -73,10 +86,11 @@
         </main>
         <!-- Modal: Verify account -->
         @if ($client->account->accountType->id >= 2 && !$client->account->verified_payment)
-            <div x-show="modal_verify" x-cloak>
+            <div x-show="modal_verify_account" x-cloak>
                 <x-dashboard-modal title="Tu cuenta {{ $client->account->accountType->name }} está en camino">
                     <x-slot name="close">
-                        <i x-on:click="modal_verify = false" class="fas fa-times text-tbn-primary text-lg"></i></x-slot>
+                        <i x-on:click="modal_verify_account = false"
+                            class="fas fa-times text-tbn-primary text-lg"></i></x-slot>
                     <x-slot name="image">
                         <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="empty"
                             class="w-[10rem] h-[10rem] mx-auto"></x-slot>
@@ -95,12 +109,15 @@
             </div>
         @endif
         <!-- Modal: Activate notifications -->
-        @if ($client->account->accountType->id == 3 && $client->account->verified_payment && !$client->account->device_token)
-            <div x-show="modal_token" x-cloak>
-                <x-dashboard-modal x-show="modal_token" x-cloak
-                    title="Bienvenido a Trabajonautas {{ $client->account->accountType->name }}">
+        @if (
+            $client->account->accountType->id == 3 &&
+                $client->account->verified_payment &&
+                empty($client->account->device_token))
+            <div x-show="modal_notifications" x-cloak>
+                <x-dashboard-modal title="Bienvenido a Trabajonautas {{ $client->account->accountType->name }}">
                     <x-slot name="close">
-                        <i x-on:click="modal_token = false" class="fas fa-times text-tbn-primary text-lg"></i></x-slot>
+                        <i x-on:click="modal_notifications = false"
+                            class="fas fa-times text-tbn-primary text-lg"></i></x-slot>
                     <x-slot name="image">
                         <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="empty"
                             class="w-[10rem] h-[10rem] mx-auto">
@@ -111,8 +128,11 @@
                         para que te enviemos las mejores convocatorias en tiempo real.
                     </x-slot>
                     <x-slot name="buttons">
-                        <x-button-link x-on:click="getPermissionAndRegisterToken" class="bg-tbn-primary cursor-pointer text-sm select-none">
-                            <i class="fa-solid fa-bell mr-1"></i> Activar</x-button-link>
+                        <x-button-link x-on:click="activateNotificationsAndSaveCurrentToken"
+                            class="bg-tbn-primary cursor-pointer text-sm select-none">
+                            <span wire:loading.remove><i class="fa-solid fa-bell mr-1"></i> Activar</span>
+                            <span wire:loading><i class="fas fa-spinner text-sm animate-spin"></i></span>
+                        </x-button-link>
                     </x-slot>
                 </x-dashboard-modal>
             </div>
@@ -124,35 +144,67 @@
                 // Propeties
                 btnNavigation: 1,
                 btnAd: true,
-                modal_verify: true,
-                modal_token: true,
-                VAPID_KEY: @json('VAPID_KEY'),
-                getPermissionAndRegisterToken() {
-                    try {
-                        if ('serviceWorker' in navigator) {
-                            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                                .then(function(registration) {
-                                    messaging.getToken({
-                                        vapidKey: this.VAPID_KEY,
-                                        serviceWorkerRegistration: registration
-                                    }).then((currentToken) => {
-                                        if (currentToken) {
-                                            console.log(currentToken)
-                                            console.log(this.VAPID_KEY)
-                                            // $wire.saveClientToken(currentToken)
-                                        } else {
-                                            this.loading = false
-                                        }
-                                    }).catch((err) => {
-                                        this.loading = false
-                                        console.error('Error al obtener el token:', err);
-                                    });
-                                });
+                modal_verify_account: true,
+                // Notifications propeties
+                modal_notifications: true,
+                aside_error_notifications: true,
+                VAPID_KEY: @json($VAPID_KEY),
+                // Functions
+                async init() {
+                    // Dispatch events: Token Saved
+                    this.isNotificationsActived();
+
+                    $wire.on('token-saved', () => {
+                        console.info('Current token saved succesfully')
+                        this.modal_notifications = false
+                        this.aside_error_notifications = false
+                    })
+                },
+                async activateNotificationsAndSaveCurrentToken() {
+                    if (this.isServiceWorkerSupported()) {
+                        // Request client activate notifications
+                        const permission = await Notification.requestPermission();
+                        if (permission !== 'granted') {
+                            console.warn('El usuario bloqueó o no aceptó activar las notificaciones.');
+                            this.modal_notifications = false
+                            return;
                         }
-                    } catch (error) {
-                        console.log(error);
+                        // Save current token with Service Worker registration
+                        try {
+                            console.log('Getting current token...')
+                            const registration = await navigator.serviceWorker.register(
+                                '/firebase-messaging-sw.js')
+                            const currentToken = await messaging.getToken({
+                                vapidKey: this.VAPID_KEY,
+                                serviceWorkerRegistration: registration,
+                            })
+                            this.saveCurrentToken(currentToken);
+                        } catch (error) {
+                            console.error('Error en Firebase Messaging:', error)
+                        } finally {
+                            this.modal_notifications = false
+                        }
+                    } else {
+                        console.warn('Service Worker no soportado en este navegador')
+                        this.modal_notifications = false
                     }
                 },
+                async saveCurrentToken(currentToken) {
+                    if (currentToken) {
+                        await $wire.saveClientToken(currentToken);
+                    } else {
+                        console.warn('No se pudo obtener el token. Revisa los permisos.');
+                    }
+                },
+                // Helpers
+                isServiceWorkerSupported() {
+                    return ('serviceWorker' in navigator) &&
+                        ('PushManager' in window) &&
+                        ('Notification' in window);
+                },
+                isNotificationsActived() {
+                    this.aside_error_notifications = Notification.permission === 'granted'
+                }
             }))
         </script>
     @endscript

@@ -21,11 +21,11 @@ class PurchaseAccount extends Component
     public function mount()
     {
         if (intval($this->account_type_id) !== 1 && AccountType::where('id', $this->account_type_id)->exists() && auth()->check()) {
-            $this->client = User::with(['myProfesions', 'location'])
-                ->select('id', 'name', 'phone', 'location_id')
+            $this->client = User::with(['profesion', 'location'])
+                ->select('id', 'name', 'phone', 'location_id', 'profesion_id')
                 ->find(auth()->user()->id);
             $this->location_id = $this->client->location->id;
-            $this->profesion_id = $this->client->myProfesions->first()->id;
+            $this->profesion_id = $this->client->location->id;
             $this->account_type = AccountType::find($this->account_type_id);
         } else {
             $this->redirect('/', true);
@@ -39,8 +39,10 @@ class PurchaseAccount extends Component
             'location_id' => 'required|exists:locations,id',
             'account_type_id' => 'required|exists:account_types,id'
         ]);
-        $this->client->myProfesions()->sync([intval($this->profesion_id)]);
-        $this->client->update(['location_id' => intval($this->location_id)]);
+        $this->client->update([
+            'location_id' => intval($this->location_id),
+            'profesion_id' => intval($this->profesion_id)
+        ]);
         $this->client->account->update([
             'account_type_id' => intval($this->account_type_id),
             'verified_payment' => false

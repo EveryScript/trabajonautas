@@ -9,7 +9,7 @@
             <p class="text-sm text-tbn-secondary mb-4">Estamos listos para despegar contigo. Ingresa tu información para
                 completar tu registro.</p>
             <!-- Step 1 -->
-            <div x-show="step === 1">
+            <div x-show="step === 1" x-transition:enter.duration.300ms>
                 <h5 class="text-md font-bold mb-2">¿Cuál es tu genero?</h5>
                 <ul class="grid grid-cols-2 gap-1 mx-auto mb-8">
                     <li class="text-center">
@@ -73,7 +73,7 @@
                 </div>
             </div>
             <!-- Step 2 -->
-            <div x-show="step === 2" x-cloak>
+            <div x-show="step === 2" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="text-md font-bold mb-2">¿Cuál es tu grado académico?</h5>
                 <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 mx-auto mb-8">
                     <li class="text-center">
@@ -140,7 +140,7 @@
                 </div>
             </div>
             <!-- Step 3 -->
-            <div x-show="step === 3" x-cloak>
+            <div x-show="step === 3" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="text-md font-bold mb-2">¿Cuál es tu profesión?</h5>
                 <x-input type="search" x-model="searchProfesion" class="mb-2" id="searchProfesion"
                     placeholder="Busca una profesión" />
@@ -172,7 +172,7 @@
                 </div>
             </div>
             <!-- Step 4 -->
-            <div x-show="step === 4" x-cloak>
+            <div x-show="step === 4" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="text-md font-bold mb-2">¿Cuál es tu ubicación actual?</h5>
                 <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
                     <template x-for="location in locations">
@@ -196,7 +196,7 @@
                 </div>
             </div>
             <!-- Step 5 -->
-            <div x-show="step === 5" x-cloak>
+            <div x-show="step === 5" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="text-md font-bold mb-2">Elige una cuenta</h5>
                 <ul class=" grid grid-cols-1 md:grid-cols-3 gap-1">
                     <template x-for="accountType in accountTypes">
@@ -248,7 +248,7 @@
                 </div>
             </div>
             <!-- Step 6 -->
-            <div x-show="step === 6" x-cloak>
+            <div x-show="step === 6" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="text-md font-bold mb-1">Resumen de la compra</h5>
                 <span class="block mb-2 text-xs text-tbn-dark">
                     Revisa tus datos y escanea el código QR para realizar tu depósito.</span>
