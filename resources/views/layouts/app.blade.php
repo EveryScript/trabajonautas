@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Firebase SDK --}}
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
     <script>
@@ -36,14 +36,9 @@
 
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
-
-        // if ('serviceWorker' in navigator) {
-        //     navigator.serviceWorker.register('/firebase-messaging-sw.js')
-        //         .then(function(registration) {
-        //             console.log('Service Worker registrado:', registration);
-        //         });
-        // }
     </script>
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Styles -->
     @livewireStyles

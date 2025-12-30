@@ -306,7 +306,10 @@
                 <div class="flex justify-between mt-4">
                     <x-btn-secondary type="button" x-on:click="step = 5">
                         Anterior</x-btn-secondary>
-                    <x-btn-primary type="button" wire:click='confirmAndSave'>Finalizar</x-btn-primary>
+                    <x-btn-primary type="button" wire:click='confirmAndSave'>
+                        <span wire:loading.remove>Finalizar</span>
+                        <span wire:loading><i class="fas fa-spinner text-sm animate-spin"></i></span>
+                    </x-btn-primary>
                 </div>
             </div>
         </div>
