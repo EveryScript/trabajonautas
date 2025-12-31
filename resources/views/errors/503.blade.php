@@ -23,25 +23,25 @@
         style="background-image:url({{ asset('storage/img/tbn-space-reverse.webp') }});">
         <div class="absolute top-0 right-0 bottom-0 left-0 bg-gray-900 opacity-75"></div>
         <div class="z-50 flex flex-col justify-center text-white w-full h-screen">
-            <h1 class="text-3xl md:text-5xl mb-4">Estamos listos para despegar al futuro</h1>
+            <h1 class="text-3xl font-semibold md:text-5xl mb-4">Estamos listos para despegar al futuro</h1>
             <p class="mb-8">Próximamente, las mejores convocatorias de empleo para toda Bolivia.</p>
             <picture class="mx-auto max-w-64 mb-4">
                 <img class="w-full" src="{{ asset('storage/img/tbn-white-logo.webp') }}" alt="logo-white">
             </picture>
             <div class="mb-6">
                 <div class="shadow w-full bg-white mt-2 max-w-2xl mx-auto rounded-full">
-                    <div class="rounded-full bg-tbn-primary text-xs leading-none text-center text-white py-1"
+                    <div class="rounded-full bg-[#ff420a] text-xs leading-none text-center text-white py-1"
                         style="width: 85%">85%</div>
                 </div>
             </div>
-            <div class="flex flex-row gap-4 text-tbn-primary mx-auto text-2xl">
-                <a href="#">
+            <div class="flex flex-row gap-4  mx-auto text-2xl">
+                <a href="#" class="hover:text-[#ff420a]">
                     <i class="fa-brands fa-facebook"></i>
                 </a>
-                <a href="#">
+                <a href="#" class="hover:text-[#ff420a]">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
-                <a href="#">
+                <a href="#" class="hover:text-[#ff420a]">
                     <i class="fa-brands fa-youtube"></i>
                 </a>
             </div>
