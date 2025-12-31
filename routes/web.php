@@ -7,6 +7,7 @@ use App\Livewire\Area\FormArea;
 use App\Livewire\Area\ListArea;
 use App\Livewire\Company\FormCompany;
 use App\Livewire\Company\ListCompany;
+use App\Livewire\Notices\ListNotices;
 use App\Livewire\Profesion\Profesions;
 use App\Livewire\Report\ReportClient;
 use App\Livewire\User\ConfigClient;
@@ -67,7 +68,10 @@ Route::group(['middleware' => ['role:ADMIN']], function () {
     Route::get('/admin/config-usuario/{id?}', ConfigUser::class)->name('config-user');
 
     // Reports
-    Route::get('/admin/report', ReportClient::class)->name('report');
+    Route::get('/admin/reportes', ReportClient::class)->name('report');
+    
+    // Notices
+    Route::get('/admin/noticias', ListNotices::class)->name('notice');
 });
 
 // Disabled

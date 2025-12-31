@@ -94,6 +94,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Announcement::class);
     }
+    public function notices(): BelongsToMany
+    {
+        return $this->belongsToMany(Notice::class);
+    }
     // Reset password notification (mail content)
     public function sendPasswordResetNotification($token)
     {

@@ -111,6 +111,10 @@
                             <span class="sm:block md:hidden lg:block">{{ __('Reportes') }}</span>
                             <i class="sm:hidden md:block lg:hidden fas fa-clipboard-list text-md"></i>
                         </x-nav-link-responsive>
+                        <x-nav-link-responsive href="{{ route('notice') }}" wire:navigate :active="request()->routeIs('notice')">
+                            <span class="sm:block md:hidden lg:block">{{ __('Noticias') }}</span>
+                            <i class="sm:hidden md:block lg:hidden fas fa-clipboard-list text-md"></i>
+                        </x-nav-link-responsive>
                         <x-nav-link-responsive href="{{ route('user') }}" wire:navigate :active="request()->routeIs('user')">
                             <span class="sm:block md:hidden lg:block">{{ __('Usuarios') }}</span>
                             <i class="sm:hidden md:block lg:hidden fas fa-users-cog text-md"></i>
