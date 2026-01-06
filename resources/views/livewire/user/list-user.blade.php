@@ -11,16 +11,16 @@
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        <table class="w-full bg-white rounded-md shadow-md mb-5 text-sm text-left rtl:text-right">
-            <thead class="text-xs uppercase text-tbn-dark">
+        <table class="w-full bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 text-sm text-left rtl:text-right">
+            <thead class="text-xs uppercase text-tbn-secondary dark:text-tbn-light">
                 <tr>
                     <th scope="col" class="px-6 py-3">
                         Nombre
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="px-6 py-3 hidden md:table-cell">
                         Email
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="px-6 py-3 hidden md:table-cell">
                         Actualización
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -31,19 +31,19 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="text-tbn-secondary dark:text-tbn-light">
                 @forelse ($users as $user)
-                    <tr class="border-b hover:bg-gray-300">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    <tr wire:click='{{ $user->id }}' class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                        <th scope="row" class="px-6 py-4 font-medium text-tbn-dark dark:text-white whitespace-nowrap">
                             <span class="mr-2" x-html="setUserRole({{ $user->getRoleNames() }})"></span>
                             <h5
-                                class="inline text-lg font-medium {{ !$user->actived ? 'line-through text-gray-400' : '' }}">
+                                class="inline text-md md:text-lg font-medium {{ !$user->actived ? 'line-through text-tbn-light dark:text-white' : '' }}">
                                 {{ $user->name }}</h5>
                         </th>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 hidden md:table-cell">
                             {{ $user->email }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 hidden md:table-cell">
                             {{ (new Carbon\Carbon($user->updated_at))->diffForHumans() }}
                         </td>
                         <td class="px-6 py-4">
@@ -56,7 +56,7 @@
                             @endif
                         </td>
                         <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-xl">
-                            <a href="{{ route('config-user', ['id' => $user->id]) }}" class="text-tbn-dark"
+                            <a href="{{ route('config-user', ['id' => $user->id]) }}" class="text-tbn-dark dark:text-tbn-light"
                                 wire:navigate><i class="fas fa-cog"></i></a>
                         </td>
                     </tr>

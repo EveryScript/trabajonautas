@@ -1,45 +1,49 @@
-<section class="max-w-6xl mt-5 mb-10 px-5 mx-auto">
+<section class="max-w-6xl p-10 mx-auto">
     <div x-data="content">
         <!-- Search fields -->
         <div class="w-full flex flex-col md:flex-row gap-2 mb-4 tbn-form">
             <div class="w-full md:w-1/2">
-                <x-label for="search_title" value="{{ __('¿Cuál es tu profesión?') }}" />
-                <x-input class="px-[12px] py-[6px]" type="search" wire:model='search_title' x-model="search_title"
-                    @keyup.enter="searchAnnouncements" placeholder='Arquitecto, ingeniero ...' />
+                <x-label class="mb-1" for="search_title" value="{{ __('¿Cuál es tu profesión?') }}" />
+                <x-input class="w-full" type="search" x-model="search_title" placeholder='Arquitecto, ingeniero ...' />
             </div>
             <div class="w-full md:w-1/2" wire:ignore>
-                <x-label for="search_location" value="{{ __('Departamento o región') }}" />
-                <x-select @change="setLocationName($event.target.value)" id="locations" wire:model="search_location">
+                <x-label class="mb-1" for="search_location" value="{{ __('Departamento o región') }}" />
+                <x-select class="w-full" id="locations" x-on:change="setLocation($event.target.value)">
                     <option value="0" selected>Cualquier lugar</option>
                     @forelse ($locations as $location)
-                        <option value="{{ $location->id }}">{{ $location->location_name }}</option>
+                        <option wire:key='{{ $location->id }}' value="{{ $location->id }}">
+                            {{ $location->location_name }}</option>
                     @empty
                         <option>Hay opciones disponibles</option>
                     @endforelse
                 </x-select>
             </div>
             <div class="pt-1 md:pt-5">
-                <x-button @click="searchAnnouncements" class="md:w-auto w-full mt-1"
-                    x-bind:disabled="!search_title && !search_location">Buscar</x-button>
+                <x-button x-on:click="searchAnnouncements" class="md:w-auto w-full mt-1"
+                    x-bind:disabled="!search_title && !search_location_id">Buscar</x-button>
             </div>
         </div>
         <!-- Results numbers -->
-        @if ($search_title || $search_location)
-            <div class="p-5 rounded-md bg-gray-100 mb-4" wire:loading.remove>
+        @if ($search_title || $search_location_id)
+            <div class="bg-tbn-light dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary p-5 rounded-md shadow-sm mb-4"
+                wire:loading.remove>
                 <div class="flex flex-row align-center">
                     <div class="flex-1">
                         <h5 class="text-tbn-primary text-sm font-semibold mb-1">
                             Resultados encontrados: {{ $count_results }}</h5>
                         @if ($search_title)
-                            <p class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900">
+                            <p
+                                class="px-2 py-1 text-sm rounded-md bg-gray-200 dark:bg-neutral-900 inline-block text-tbn-dark dark:text-tbn-light">
                                 {{ $search_title }}</p>
                         @endif
                         <p x-text="search_location" x-show="search_location"
-                            class="px-2 py-1 text-sm rounded-md bg-gray-200 inline-block text-gray-900"></p>
+                            class="px-2 py-1 text-sm rounded-md bg-gray-200 dark:bg-neutral-900 inline-block text-tbn-dark dark:text-tbn-light">
+                        </p>
                     </div>
                     <div class="flex flex-col justify-center">
-                        <button class="inline-block w-10 h-10 rounded-full bg-tbn-primary" type="button"
-                            wire:click='clearSearch' @click="clearData">
+                        <button
+                            class="inline-block w-10 h-10 rounded-full bg-tbn-primary hover:bg-tbn-secondary transition-colors duration-150"
+                            type="button" wire:click='clearSearch' x-on:click="clearData">
                             <i class="fas fa-trash text-sm text-white"></i></button>
                     </div>
                 </div>
@@ -50,7 +54,7 @@
             <div class="flex flex-row flex-wrap gap-2">
                 @foreach ($random_profesions as $profesion)
                     <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}" wire:navigate
-                        class="px-4 py-2 text-tbn-dark text-xs bg-white shadow-md rounded-full hover:bg-tbn-primary hover:text-white transition-all duration-200">
+                        class="px-4 py-2 bg-white dark:bg-neutral-800 text-tbn-dark dark:text-tbn-light text-xs shadow-md rounded-full hover:bg-tbn-primary dark:hover:bg-neutral-900 hover:text-white transition-all duration-200">
                         {{ $profesion->profesion_name }}</a>
                 @endforeach
             </div>
@@ -95,21 +99,13 @@
     @script
         <script>
             Alpine.data('content', () => ({
-                search_title: '',
-                search_location: '',
-                search_location_id: '',
-                locations: {!! $locations !!},
-                init() {
-                    this.search_title = $wire.search_title
-                },
-                setLocationName(id) {
-                    if (id == 0) {
-                        this.search_location = null
-                        this.search_location_id = null
-                    } else {
-                        this.search_location_id = id
-                        this.search_location = this.locations.find(item => item.id == id).location_name
-                    }
+                search_title: null,
+                search_location_id: null,
+                search_location: null,
+                locations: @json($locations),
+                setLocation(id) {
+                    this.search_location_id = id
+                    this.search_location = this.locations.find(item => item.id == id).location_name
                 },
                 searchAnnouncements() {
                     $wire.searchAnnounces(this.search_title, this.search_location_id)
@@ -120,13 +116,6 @@
                     this.search_location_id = ''
                 }
             }));
-        </script>
-    @endscript
-    @script
-        <script>
-            new TomSelect('#locations', {
-                controlInput: null
-            });
         </script>
     @endscript
 </section>

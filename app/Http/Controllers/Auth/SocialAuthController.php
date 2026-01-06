@@ -35,7 +35,8 @@ class SocialAuthController extends Controller
                 'password' => bcrypt(Str::random(32)),
                 'provider' => $provider,
                 'provider_id' => $socialUser->getId(),
-                'email_verified_at' => now() // Email verified now
+                'email_verified_at' => now(), // Email verified now
+                'terms_accepted_at' => now()
             ]);
             $user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
         }

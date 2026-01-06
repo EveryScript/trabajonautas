@@ -1,179 +1,258 @@
 <x-web-layout>
     <!-- Landing -->
-    <section class="bg-cover" style="background-image: url({{ asset('storage/img/tbn-space.webp') }})">
+    <section class="bg-bottom bg-cover" style="background-image: url({{ asset('storage/img/tbn-space-reverse.webp') }})">
         <div class="max-w-6xl md:h-[35rem] h-[30rem] flex flex-row justify-center items-center gap-4 mx-auto">
-            <div class="lg:w-7/12 px-6 mx-auto">
-                <h4 class="text-white text-center sm:text-left sm:text-5xl text-3xl font-bold title-font mb-2">
+            <div class="px-6 mx-auto lg:w-7/12">
+                <h4 class="mb-2 text-3xl font-bold text-center text-white sm:text-left sm:text-5xl title-font"
+                    data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     Un universo de oportunidades de empleo para toda Bolivia</h4>
-                <p class="text-white text-center sm:text-left mb-5">
+                <p class="max-w-sm mb-5 text-center text-white sm:text-left" data-aos="fade-up" data-aos-delay="400"
+                    data-aos-once="true">
                     Bienvenido(a) al portal líder de oportunidades laborales en Bolivia. Encuentra la convocatoria
                     ideal
                     para tu perfil y da el siguiente
                     paso en tu carrera profesional con nosotros.</p>
-                <div class="mx-auto sm:mx-0">
-                    <div class="flex flex-col sm:flex-row gap-2 text-center sm:text-left">
+                <div class="mx-auto sm:mx-0" data-aos="fade-up" data-aos-delay="600" data-aos-once="true">
+                    <div class="flex flex-col gap-2 text-center sm:flex-row sm:text-left">
                         <div>
-                            <x-button-link class="bg-tbn-primary inline-block" href="{{ route('search') }}" wire:navigate>
-                                Iniciar busqueda</x-button-link>
+                            <x-button type="button" class="inline-block bg-tbn-primary" href="{{ route('search') }}"
+                                wire:navigate>
+                                Iniciar busqueda</x-button>
                         </div>
                         @if (auth()->user())
                             @if (in_array(env('CLIENT_ROLE'), auth()->user()->getRoleNames()->toArray()))
                                 <div>
-                                    <x-button-link
+                                    <x-button type="button"
                                         class="bg-tbn-secondary inline-block {{ auth()->user()->account->account_type_id > 1 ? 'hidden' : '' }}"
                                         href="{{ route('purchase-cards') }}" wire:navigate>
-                                        Comprar ahora</x-button-link>
+                                        Comprar ahora</x-button>
                                 </div>
                             @endif
                         @else
                             <div>
-                                <x-button-link class="bg-tbn-secondary inline-block"
+                                <x-secondary-button type="button" class="inline-block bg-tbn-secondary"
                                     href="{{ route('purchase-cards') }}" wire:navigate>
-                                    Comprar ahora</x-button-link>
+                                    Comprar ahora</x-secondary-button>
                             </div>
                         @endif
                     </div>
                 </div>
             </div>
-            <picture class="lg:w-5/12 hidden lg:block">
+            <picture class="hidden lg:w-5/12 lg:block" data-aos="zoom-in" data-aos-delay="800" data-aos-once="true">
                 <img class="mx-auto md:max-w-[25rem]" src="{{ asset('storage/img/tbn-new-astro.webp') }}"
                     alt="">
             </picture>
         </div>
     </section>
     <!-- Latest announcements -->
-    <section class="max-w-6xl sm:px-6 px-5 py-24 mx-auto">
-        <div class="text-center py-5">
-            <h4 class="font-baloo text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">
+    <section class="max-w-6xl px-5 py-24 mx-auto sm:px-6" data-aos="zoom-in" data-aos-delay="1000" data-aos-once="true">
+        <div class="py-5 text-center">
+            <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font">
                 Las mejores convocatorias laborales de Bolivia a tu alcance</h4>
-            <p class="text-center text-tbn-secondary mb-5">
+            <p class="mb-5 text-center text-tbn-secondary dark:text-tbn-light">
                 Cada convocatoria es una oportunidad única para ti y en Trabajonautas.com las tenemos todas.</p>
             @livewire('web.recent-announcement')
             <div class="mt-5">
-                <x-button-link class="bg-tbn-primary" href="{{ route('search') }}" wire:navigate>
-                    Ver más</x-button-link>
+                <x-button class="bg-tbn-primary" href="{{ route('search') }}" wire:navigate>
+                    Ver más</x-button>
             </div>
         </div>
     </section>
     <!-- Latest Notices -->
-    <section class="max-w-6xl sm:px-6 px-5 py-24 mx-auto">
-        <div class="text-center py-5">
-            <h4 class="font-baloo text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">
+    <section class="max-w-6xl px-5 py-24 mx-auto sm:px-6" data-aos="zoom-in" data-aos-delay="200" data-aos-once="true">
+        <div class="py-5 text-center">
+            <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font">
                 Últimas noticias</h4>
-            <p class="text-center text-tbn-secondary mb-5">
+            <p class="mb-5 text-center text-tbn-secondary dark:text-tbn-light">
                 Tenemos las noticias más destacadas de las últimas horas</p>
             <!-- Livewire components -->
             <livewire:web.recent-notices />
         </div>
     </section>
     <!-- Photo section -->
-    <section class="width-full">
-        <div class="grid grid-cols-1 lg:grid-cols-2 text-tbn-secondary">
-            <picture class="h-auto">
-                <img class="w-full" src="{{ asset('storage/img/tbn-photo-1.webp') }}" alt="photo-1">
-            </picture>
-            <div class="w-full lg:w-4/5 px-5 py-20 lg:px-20 lg:py-12 flex flex-col justify-center relative">
-                <span class="text-tbn-primary bg-gray-50 p-9 rounded-full absolute -left-14 hidden lg:block">
-                    <i class="fas fa-paper-plane text-5xl"></i>
-                </span>
-                <h3 class="text-3xl font-bold mb-2">Lorem ipsum</h3>
-                <p class="text-sm text-tbn-primary italic mb-2">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                </p>
-                <p class="text-md">Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima dignissimos veritatis
-                    magnam et laboriosam est ut atque id placeat! Quod dolores ipsum quaerat esse. Maxime accusamus,
-                    esse accusantium sed recusandae veniam a fugit officia alias!</p>
+    <section class="max-w-6xl py-12 mx-auto sm:px-6">
+        <div class="py-24 mx-auto">
+            <div class="flex flex-col items-center gap-12 md:flex-row">
+                <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
+                    <div class="relative">
+                        <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
+                        <img src="{{ asset('storage/img/tbn-photo-1.webp') }}" alt="photo-1"
+                            class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
+
+                        <div
+                            class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
+                            <p class="text-xl font-bold text-white">Tu portunidad</p>
+                            <p class="text-sm text-orange-100">ahora mismo</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2" data-aos="zoom-in" data-aos-delay="400" data-aos-once="true">
+                    <div
+                        class="inline-block px-4 py-1.5 mb-4 text-sm font-semibold tracking-wider text-tbn-primary uppercase bg-orange-100 dark:text-white dark:bg-tbn-primary/70 rounded-full">
+                        Oportunidades infinitas
+                    </div>
+
+                    <h2 class="mb-6 text-3xl font-extrabold leading-tight text-tbn-dark dark:text-white md:text-5xl">
+                        ¡Tu profesión está lista para <span class="text-tbn-primary">despegar</span>!
+                    </h2>
+
+                    <p class="mb-8 text-lg leading-relaxed text-tbn-secondary dark:text-tbn-light">
+                        Tu próximo gran desafío profesional no está a años luz de distancia. Explora cada una de las
+                        convocatorias que tenemos para ti y aterriza en las mejores empresas de Bolivia.
+                    </p>
+                </div>
             </div>
-            <picture class="h-auto">
-                <img class="w-full" src="{{ asset('storage/img/tbn-photo-2.webp') }}" alt="photo-1">
-            </picture>
-            <div class="w-full lg:w-4/5 px-5 py-20 lg:px-20 lg:py-12 flex flex-col justify-center relative">
-                <span class="text-tbn-primary bg-gray-50 p-9 rounded-full absolute -left-14 hidden lg:block">
-                    <i class="fas fa-rocket text-5xl"></i>
-                </span>
-                <h3 class="text-3xl font-bold mb-2">Lorem ipsum</h3>
-                <p class="text-sm text-tbn-primary italic mb-2">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                </p>
-                <p class="text-md">Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima dignissimos veritatis
-                    magnam et laboriosam est ut atque id placeat! Quod dolores ipsum quaerat esse. Maxime accusamus,
-                    esse accusantium sed recusandae veniam a fugit officia alias!</p>
+        </div>
+        <div class="py-24 mx-auto">
+            <div class="flex flex-col items-center gap-12 md:flex-row-reverse">
+                <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
+                    <div class="relative">
+                        <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
+                        <img src="{{ asset('storage/img/tbn-photo-2.webp') }}" alt="photo-2"
+                            class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
+
+                        <div
+                            class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
+                            <p class="text-xl font-bold text-white">Explora en el</p>
+                            <p class="text-sm text-orange-100">universo</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2" data-aos="zoom-in" data-aos-delay="400" data-aos-once="true">
+                    <div
+                        class="inline-block px-4 py-1.5 mb-4 text-sm font-semibold tracking-wider text-tbn-primary uppercase bg-orange-100 dark:text-white dark:bg-tbn-primary/70 rounded-full">
+                        convocatorias a tu alcance
+                    </div>
+
+                    <h2 class="mb-6 text-3xl font-extrabold leading-tight text-tbn-dark dark:text-white md:text-5xl">
+                        Un gran paso para tu carrera <span class="text-tbn-primary">profesional</span>
+                    </h2>
+
+                    <p class="mb-8 text-lg leading-relaxed text-tbn-secondary dark:text-tbn-light">
+                        Tenemos el radar configurado para detectar las mejores convocatorias de empleo. Deja de flotar
+                        en la incertidumbre y encuentra tu base de operaciones ideal.
+                    </p>
+                </div>
             </div>
-            <picture class="h-auto">
-                <img class="w-full" src="{{ asset('storage/img/tbn-photo-3.webp') }}" alt="photo-1">
-            </picture>
-            <div class="w-full lg:w-4/5 px-5 py-20 lg:px-20 lg:py-12 lg:flex flex-col justify-center hidden relative">
-                <span class="text-tbn-primary bg-gray-50 p-9 rounded-full absolute -left-14 hidden lg:block">
-                    <i class="fas fa-compass text-5xl"></i>
-                </span>
-                <h3 class="text-3xl font-bold mb-2">Lorem ipsum</h3>
-                <p class="text-sm text-tbn-primary italic mb-2">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                </p>
-                <p class="text-md">Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima dignissimos veritatis
-                    magnam et laboriosam est ut atque id placeat! Quod dolores ipsum quaerat esse. Maxime accusamus,
-                    esse accusantium sed recusandae veniam a fugit officia alias!</p>
+        </div>
+        <div class="py-24 mx-auto">
+            <div class="flex flex-col items-center gap-12 md:flex-row">
+                <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
+                    <div class="relative">
+                        <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
+                        <img src="{{ asset('storage/img/tbn-photo-3.webp') }}" alt="photo-3"
+                            class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
+                        <div
+                            class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
+                            <p class="text-xl font-bold text-white">Impulsa tus</p>
+                            <p class="text-sm text-orange-100">capacidades</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2" data-aos="zoom-in" data-aos-delay="400" data-aos-once="true">
+                    <div
+                        class="inline-block px-4 py-1.5 mb-4 text-sm font-semibold tracking-wider text-tbn-primary uppercase dark:text-white dark:bg-tbn-primary/70 bg-orange-100 rounded-full">
+                        Información actualizadas
+                    </div>
+
+                    <h2 class="mb-6 text-3xl font-extrabold leading-tight text-tbn-dark dark:text-white md:text-5xl">
+                        ¿Listo para dar el <span class="text-tbn-primary">gran salto</span>?
+                    </h2>
+
+                    <p class="mb-8 text-lg leading-relaxed text-tbn-secondary dark:text-tbn-light">
+                        Un pequeño paso para tu carrera, un gran salto para tu vida profesional. Informate cada día de
+                        las mejores convocatorias de empleo de Bolivia.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
-    <!-- Instrucions -->
+    <!-- Instrucions cards -->
     <section class="body-font">
         <div class="max-w-6xl px-5 py-24 mx-auto">
-            <div class="mb-8">
-                <h4 class="font-baloo text-tbn-primary sm:text-3xl text-2xl font-bold title-font text-center mb-2">
+
+            <div class="mb-8" >
+                <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font"  data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     Un mundo de oportunidades laborales en tus manos.</h4>
-                <p class="text-tbn-dark text-center text-sm mb-10">
+                <p class="mb-10 text-center text-md text-tbn-dark dark:text-tbn-light" data-aos="fade-up" data-aos-delay="400" data-aos-once="true">
                     Sigue las instrucciones y forma parte de la comunidad más grande de profesionales para encontrar tu
                     próximo trabajo.</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div
-                    class="mt-10 p-8 flex hover:shadow-2xl shadow-gray-900 transition-all duration-200 rounded-md relative">
-                    <div
-                        class="absolute -top-8 left-10 w-12 h-12 inline-flex items-center justify-center rounded-full bg-tbn-primary mb-4 flex-shrink-0">
-                        <i class="fas fa-user text-white"></i>
-                    </div>
-                    <div class="flex-grow pl-2">
-                        <h2 class=" text-lg title-font font-medium mb-2">Registra tus datos</h2>
-                        <p class="leading-relaxed text-sm md:text-base text-tbn-dark">
-                            Ingresa tu correo y contraseña para que te enviemos información sobre nuestras convocatorias
-                            diariamente.</p>
-                    </div>
-                </div>
-                <div
-                    class="mt-10 p-8 flex hover:shadow-2xl shadow-gray-900 transition-all duration-200 rounded-md relative">
-                    <div
-                        class="absolute -top-8 left-10 w-12 h-12 inline-flex items-center justify-center rounded-full bg-tbn-primary mb-4 flex-shrink-0">
-                        <i class="fas fa-search text-white"></i>
-                    </div>
-                    <div class="flex-grow pl-2">
-                        <h2 class=" text-lg title-font font-medium mb-2">Inicia la busqueda</h2>
-                        <p class="leading-relaxed text-sm md:text-base text-tbn-dark">
-                            Encuentra información sobre convocatorias laborales de toda Bolivia y de todo tipo de
-                            empresas que trabajan con nosotros.</p>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 dark:text-tbn-light">
+                <div data-aos="fade-up" data-aos-delay="600" data-aos-once="true"
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    <span
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                    <div class="relative z-10 max-w-md mx-auto">
+                        <span
+                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
+                            <i class="text-2xl text-white fas fa-user"></i>
+                        </span>
+                        <div
+                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            <h2 class="text-lg font-medium dark:text-white title-font">Registra tus datos</h2>
+                            <p
+                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
+                                Ingresa tu correo y contraseña para que te enviemos
+                                información sobre nuestras convocatorias diariamente.</p>
+                        </div>
                     </div>
                 </div>
-                <div
-                    class="mt-10 p-8 flex hover:shadow-2xl shadow-gray-900 transition-all duration-200 rounded-md relative">
-                    <div
-                        class="absolute -top-8 left-10 w-12 h-12 inline-flex items-center justify-center rounded-full bg-tbn-primary mb-4 flex-shrink-0">
-                        <i class="fas fa-suitcase text-white"></i>
-                    </div>
-                    <div class="flex-grow pl-2">
-                        <h2 class=" text-lg title-font font-medium mb-2">Guarda tus resultados</h2>
-                        <p class="leading-relaxed text-sm md:text-base text-tbn-dark">
-                            Agrega tus convocatorias favoritas en tu perfil y compártelas en las redes sociales de
-                            manera fácil y cómoda.</p>
+                <div data-aos="fade-up" data-aos-delay="800" data-aos-once="true"
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    <span
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                    <div class="relative z-10 max-w-md mx-auto">
+                        <span
+                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
+                            <i class="text-2xl text-white fas fa-search"></i>
+                        </span>
+                        <div
+                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            <h2 class="text-lg font-medium dark:text-white title-font">Inicia la busqueda</h2>
+                            <p
+                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
+                                Encuentra información sobre convocatorias laborales de toda Bolivia y de todo tipo de
+                                empresas que trabajan con nosotros.</p>
+                        </div>
                     </div>
                 </div>
-                <div
-                    class="mt-10 p-8 flex hover:shadow-2xl shadow-gray-900 transition-all duration-200 rounded-md relative">
-                    <div
-                        class="absolute -top-8 left-10 w-12 h-12 inline-flex items-center justify-center rounded-full bg-tbn-primary mb-4 flex-shrink-0">
-                        <i class="fas fa-crown text-white"></i>
+                <div data-aos="fade-up" data-aos-delay="1000" data-aos-once="true"
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    <span
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                    <div class="relative z-10 max-w-md mx-auto">
+                        <span
+                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
+                            <i class="text-2xl text-white fas fa-suitcase"></i>
+                        </span>
+                        <div
+                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            <h2 class="text-lg font-medium dark:text-white title-font">Guarda tus resultados</h2>
+                            <p
+                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
+                                Agrega tus convocatorias favoritas en tu perfil y compártelas en las redes sociales de
+                                manera fácil y cómoda.</p>
+                        </div>
                     </div>
-                    <div class="flex-grow pl-2">
-                        <h2 class=" text-lg title-font font-medium mb-2">Convocatorias PRO</h2>
-                        <p class="leading-relaxed text-sm md:text-base text-tbn-dark">
-                            Desbloquea todas las convocatorias para enterarte de las últimas contrataciones y encontrar
-                            tu trabajo hoy mismo.</p>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="1200" data-aos-once="true"
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    <span
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                    <div class="relative z-10 max-w-md mx-auto">
+                        <span
+                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
+                            <i class="text-2xl text-white fas fa-crown"></i>
+                        </span>
+                        <div
+                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            <h2 class="text-lg font-medium dark:text-white title-font">Convocatorias PRO</h2>
+                            <p
+                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
+                                Desbloquea todas las convocatorias para enterarte de las últimas contrataciones y
+                                encontrar tu trabajo hoy mismo.</p>
+                        </div>
                     </div>
                 </div>
             </div>

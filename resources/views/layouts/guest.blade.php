@@ -31,7 +31,7 @@
 </head>
 
 <body>
-    <div class="font-figtree antialiased bg-gray-50">
+    <div class="font-figtree antialiased bg-gray-50 dark:bg-[#333333]">
         {{ $slot }}
     </div>
 

@@ -1,15 +1,13 @@
-<div class="flex flex-col md:flex-row justify-between mb-4">
-    <div class="flex-grow">
+<header class="flex flex-col gap-4 md:flex-row justify-between mb-8">
+    <div class="flex-1">
         <h4 class="text-2xl text-tbn-primary font-medium">
             {{ $title_page }}
         </h4>
-        <p class="text-tbn-dark text-sm">
+        <p class="text-tbn-dark dark:text-tbn-light text-sm">
             {{ $description_page }}
         </p>
     </div>
     @if (isset($search_field))
-        <div class="flex flex-col sm:flex-row gap-2 min-w-[30rem] mt-2 justify-end">
-            {{ $search_field }}
-        </div>
+        {{ $search_field }}
     @endif
-</div>
+</header>

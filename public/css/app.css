@@ -1,22 +1,73 @@
-.tbn-tom-select .ts-control {
+/* Tom Select Input */
+.tbn-tom-select .ts-wrapper {
+    padding: 0.5rem !important;
+    border-radius: 0.5rem !important;
+    border-width: 1px !important;
+    border-color: #bbbbbb !important;
+    color: #242424 !important;
+    background-color: #ffffff !important;
+    transition-property: color, background-color, border-color,
+        text-decoration-color, fill, stroke !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition-duration: 300ms !important;
+}
+.tbn-tom-select .ts-wrapper .ts-control {
     border: none;
-    font-size: 1rem;
+    font-size: 16px;
     padding: 0 !important;
 }
-.tbn-tom-select .ts-control input {
-    padding: 10px 0 !important
+.tbn-tom-select .ts-wrapper .ts-control input {
+    min-height: 2rem !important;
 }
 .tbn-tom-select .ts-control .item {
     border-radius: 5px !important;
-    padding: 10px 20px !important;
+    padding: 8px 20px !important;
+    font-size: 14px !important;
     background-color: #dddddd !important;
 }
 .tbn-tom-select .ts-control .item .remove {
-    font-size: 20px;
+    font-size: 18px;
     margin-right: 5px;
-    color: #034b8d !important;
+    color: #ff420a !important;
 }
 .tbn-tom-select .ts-dropdown {
     font-size: 1rem !important;
     padding: 3px 6px !important;
+}
+
+/* Quill Editor */
+.tbn-quill-editor .ql-editor {
+    font-size: 16px !important;
+}
+.tbn-quill-editor .ql-container {
+    font-family: "Google Sans Flex", "sans-serif";
+    border-color: #bbbbbb !important;
+}
+
+/* Dark mode  */
+@media (prefers-color-scheme: dark) {
+    .tbn-tom-select .ts-control {
+        background-color: #242424 !important;
+    }
+    .tbn-tom-select .ts-wrapper {
+        background-color: #242424 !important;
+        border-color: #485054 !important;
+    }
+    .tbn-tom-select .ts-control .item {
+        color: white !important;
+        background-color: #485054 !important;
+    }
+    .tbn-tom-select .ts-control input {
+        color: white !important;
+    }
+    .tbn-quill-editor .ql-editor {
+        background-color: #242424 !important;
+        color: white !important;
+    }
+    .tbn-quill-editor .ql-toolbar {
+        background-color: #bbbbbb;
+    }
+    .tbn-quill-editor .ql-container {
+        border-color: #485054 !important;
+    }
 }

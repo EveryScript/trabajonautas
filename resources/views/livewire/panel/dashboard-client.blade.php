@@ -30,12 +30,12 @@
                         <img src="{{ asset('storage/img/tbn-new-astro.webp') }}" alt="rocket"
                             class="w-[14rem] h-[14rem] mx-auto">
                     </picture>
-                    <h5 class="font-medium text-lg mb-1">Notificaciones en tiempo real</h5>
-                    <p class="mx-auto max-w-lg text-tbn-dark text-sm mb-6">
+                    <h5 class="font-medium text-lg mb-1 text-tbn-dark dark:text-white">Notificaciones en tiempo real</h5>
+                    <p class="mx-auto max-w-lg text-tbn-dark dark:text-tbn-light text-sm mb-6">
                         Entérate de las mejores convocatorias en cuanto son publicadas en nuestra plataforma.</p>
-                    <x-button-link class="inlne-block bg-tbn-primary"
+                    <x-button type="button" class="inlne-block bg-tbn-primary"
                         href="{{ route('purchase-account', ['account_type_id' => 3]) }}" wire:navigate>
-                        Obtener PRO-MAX ahora</x-button-link>
+                        Obtener PRO-MAX ahora</x-button>
                 </div>
             </div>
             <!-- Client -->
@@ -52,34 +52,34 @@
             <!-- Profile -->
             <div x-show="btnNavigation == 4">
                 <header>
-                    <h3 class="text-lg font-medium mb-1">Mi perfil</h3>
+                    <h3 class="text-lg font-medium mb-1 text-tbn-dark dark:text-white">Mi perfil</h3>
                 </header>
-                <div class="bg-white rounded-xl shadow-lg mb-6 p-5 transition-all duration-300 hover:shadow-xl">
+                <div class="bg-white dark:bg-tbn-dark rounded-xl shadow-lg mb-6 p-5 transition-all duration-300 hover:shadow-xl">
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Nombre del cliente</p>
-                            <p class="text-gray-900">{{ $client->name }}</p>
+                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->name }}</p>
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Ubicación</p>
-                            <p class="text-gray-900">{{ $client->location->location_name }}</p>
+                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->location->location_name }}</p>
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Celular</p>
-                            <p class="text-gray-900">{{ $client->phone }}</p>
+                            <p class="text-gray-900 dark:text-tbn-light">{{ substr($client->phone, 4, 10) }}</p>
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Grado Académico</p>
-                            <p class="text-gray-900">{{ $client->gradeProfile->profile_name }}</p>
+                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->gradeProfile->profile_name }}</p>
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Profesion</p>
-                            <p class="text-gray-900">{{ $client->profesion->profesion_name }}</p>
+                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->profesion->profesion_name }}</p>
                         </div>
                         <div class="mb-4">
                             <p class="text-tbn-primary text-xs">Cuenta</p>
-                            <p class="text-gray-900 font-semibold">{{ $client->account->accountType->name }}</p>
+                            <p class="text-gray-900 dark:text-tbn-light font-semibold">{{ $client->account->accountType->name }}</p>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                             class="w-[10rem] h-[10rem] mx-auto"></x-slot>
                     <x-slot name="description">
                         Gracias por adquirir tu cuenta con Trabajonautas.com. Envíanos tu
-                        <strong class="font-bold text-tbn-primary">comprobante de pago</strong>
+                        <strong class="font-bold text-tbn-primary">comprobante de pago (imagen) </strong>
                         por WhatsApp para habilitar tu cuenta hoy mismo.
                     </x-slot>
                     <x-slot name="buttons">

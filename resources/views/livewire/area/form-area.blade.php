@@ -8,7 +8,7 @@
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        <form class="grid grid-cols-2 gap-4" wire:submit="{{ $id ? 'update' : 'save' }}">
+        <form class="w-full md:w-1/2 gap-4" wire:submit="{{ $id ? 'update' : 'save' }}">
             <div>
                 <div class="mb-4">
                     <x-label for="area_name" value="{{ __('Nombre del area') }}" />
@@ -17,31 +17,30 @@
                     <x-input-error for="area.area_name" class="mt-2" />
                 </div>
                 <div class="mb-4">
+                    <x-label for="profesions" value="{{ __('Profesiones') }}" />
+                    <div class="tbn-tom-select" wire:ignore>
+                        <x-select class="py-2" id="profesions" wire:model="area.profesions" multiple>
+                            <option>Seleccionar profesiones</option>
+                            @forelse ($profesions as $profesion)
+                                <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
+                            @empty
+                                <option>No hay opciones para mostrar</option>
+                            @endforelse
+                        </x-select>
+                        <x-input-error for="area.profesions" class="mt-2" />
+                    </div>
+                </div>
+                <div class="mb-4">
                     <x-label for="description" value="{{ __('Descripción (corta)') }}" />
                     <x-textarea x-model="area_description" wire:model="area.description" rows="4"
-                        class="resize-none" name="description" placeholder="Descripción corta" />
+                        class="w-full resize-none" name="description" placeholder="Descripción corta" />
                     <x-input-error for="area.description" class="mt-2" />
                 </div>
-
                 <div class="mb-4">
                     <x-button type="submit">{{ $id ? 'Acualizar area' : 'Crear area' }}</x-button>
                     <x-secondary-button type="button" href="{{ route('area') }}"
                         wire:navigate>Cancelar</x-secondary-button>
                 </div>
-            </div>
-            <div>
-                <x-label for="profesions" value="{{ __('Profesiones') }}" />
-                <div wire:ignore>
-                    <x-select class="tbn-tom-select py-2" id="profesions" wire:model="area.profesions" multiple>
-                        <option>Seleccionar profesiones</option>
-                        @forelse ($profesions as $profesion)
-                            <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
-                        @empty
-                            <option>No hay opciones para mostrar</option>
-                        @endforelse
-                    </x-select>
-                </div>
-                <x-input-error for="area.profesions" class="mt-2" />
             </div>
         </form>
     </div>

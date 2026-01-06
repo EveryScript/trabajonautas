@@ -4,10 +4,10 @@
             <x-authentication-card-logo />
         </x-slot>
 
-        <h5 class="font-bold text-center lg:text-left text-lg mb-4">Confirmación de correo electrónico</h5>
+        <h5 class="font-bold text-center lg:text-left text-lg my-4">Confirmación de correo electrónico</h5>
 
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __("Hemos enviado un enlace para verificar tu correo electrónico. Si aún no recibiste el enlace puedes volverlo a enviar.") }}
+        <div class="mb-4 text-sm text-tbn-dark dark:text-tbn-light">
+            {{ __('Hemos enviado un enlace para verificar tu correo electrónico. Si aún no recibiste el enlace puedes volverlo a enviar.') }}
         </div>
 
         @if (session('status') == 'verification-link-sent')
@@ -37,7 +37,8 @@
                 -->
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2">
+                    <button type="submit"
+                        class="underline text-sm text-tbn-dark hover:text-tbn-secondary dark:text-tbn-light rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2 transition-colors duration-150">
                         {{ __('Log Out') }}
                     </button>
                 </form>

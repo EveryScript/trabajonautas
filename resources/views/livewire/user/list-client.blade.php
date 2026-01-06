@@ -5,24 +5,26 @@
             Administra la información de todos los clientes de Trabajonautas
         </x-slot>
         <x-slot name="search_field">
-            <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
+            <div>
+                <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)" class="w-full"
                 placeholder="Buscar cliente" />
+            </div>
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        <table class="w-full bg-white rounded-md shadow-md mb-5 text-sm text-left rtl:text-right">
-            <thead class="text-xs uppercase text-tbn-dark">
+        <table class="w-full bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 text-sm text-left rtl:text-right">
+            <thead class="text-xs uppercase text-tbn-secondary">
                 <tr>
                     <th scope="col" class="px-6 py-3">
                         Nombre
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="px-6 py-3 hidden md:table-cell">
                         Ubicación
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="px-6 py-3 hidden md:table-cell">
                         Profesión
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="px-6 py-3 hidden md:table-cell">
                         Registro
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -50,40 +52,47 @@
                     </tr>
                 @endif
                 @forelse ($clients as $client)
-                    <tr class="border-b hover:bg-gray-300 ">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                            <span class="mr-2"
-                                x-html="setAccountIcon({{ $client->actived }}, {{ $client->account->account_type_id }})"></span>
-                            <h5 class="inline text-lg font-medium {{ !$client->actived ? 'opacity-50' : '' }}">
+                    <tr wire:key='{{ $client->id }}'
+                        class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                        <th scope="row"
+                            class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                            <h5
+                                class="inline text-md md:text-lg font-medium {{ !$client->actived ? 'opacity-50' : '' }}">
                                 {{ $client->name }}</h5>
                         </th>
-                        <td class="px-6 py-4 {{ !$client->actived ? 'opacity-50' : '' }}">
+                        <td
+                            class="px-6 py-4 dark:text-tbn-light hidden md:table-cell {{ !$client->actived ? 'opacity-50' : '' }}">
                             {{ $client->location->location_name }}
                         </td>
-                        <td class="px-6 py-4 {{ !$client->actived ? 'opacity-50' : '' }}">
+                        <td
+                            class="px-6 py-4 dark:text-tbn-light hidden md:table-cell {{ !$client->actived ? 'opacity-50' : '' }}">
                             {{ $client->profesion->profesion_name }}
                         </td>
-                        <td class="px-6 py-4 {{ !$client->actived ? 'opacity-50' : '' }}">
+                        <td
+                            class="px-6 py-4 dark:text-tbn-light hidden md:table-cell {{ !$client->actived ? 'opacity-50' : '' }}">
                             {{ \Carbon\Carbon::parse($client->created_at)->diffForHumans() }}
                         </td>
                         <td class="px-6 py-4">
-                            @if ($client->actived)
-                                @if ($client->account && $client->account->account_type_id != 1)
+                            @if ($client->account)
+                                @if (intval($client->account->account_type_id) === 1)
+                                    <span
+                                        class="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">
+                                        {{ $client->account->accountType->name }}</span>
+                                @else
                                     @if ($client->account->verified_payment)
                                         <span
                                             class="inline-block bg-tbn-primary text-white text-xs px-2 py-1 rounded-full whitespace-nowrap">
                                             {{ $client->account->accountType->name }}</span>
                                     @else
                                         <span
-                                            class="bg-tbn-secondary text-white animate-pulse text-xs px-2 py-1 rounded-full">
-                                            Pendiente</span>
+                                            class="bg-tbn-secondary text-white animate-pulse text-xs px-2 py-1 rounded-full">Pendiente</span>
                                     @endif
                                 @endif
                             @endif
                         </td>
                         <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-xl">
                             <a href="{{ route('config-client', ['id' => $client->id]) }}" wire:navigate
-                                class="text-tbn-dark"><i class="fas fa-cog"></i></a>
+                                class="text-tbn-dark dark:text-tbn-light"><i class="fas fa-cog"></i></a>
                         </td>
                     </tr>
                 @empty
@@ -100,15 +109,6 @@
     @script
         <script>
             Alpine.data('content', () => ({
-                setAccountIcon(actived, accountId) {
-                    if (actived) {
-                        return parseInt(accountId) == 1 ?
-                            '<i class="fas fa-leaf text-green-500"></i>' :
-                            '<i class="fas fa-crown text-tbn-primary"></i>';
-                    } else {
-                        return '<i class="fas fa-ban text-red-800"></i>';
-                    }
-                },
                 confirmModal(id) {
                     console.log(id)
                 }

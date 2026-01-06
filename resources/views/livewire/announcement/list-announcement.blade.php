@@ -5,15 +5,15 @@
             Todas las convocatorias de trabajo registradas en el portal de empleos Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
-            <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
-                placeholder="Buscar convocatoria" />
-            <x-button-link class="pt-2.5 bg-tbn-primary" href="{{ route('new-announcement') }}"
-                wire:navigate>Nuevo</x-button-link>
+            <div class="h-full sm:h-10 flex flex-row gap-1">
+                <x-input type="search" name="search" wire:keydown.enter="$set('search', $event.target.value)" class="w-full" placeholder="Buscar convocatoria" />
+                <x-button type="button" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button>
+            </div>
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        <table class="bg-white rounded-md shadow-md mb-5 w-full text-sm text-left rtl:text-right">
-            <thead class="text-xs uppercase text-tbn-dark">
+        <table class="bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 w-full text-sm text-left rtl:text-right">
+            <thead class="text-xs uppercase text-tbn-secondary">
                 <tr>
                     <th scope="col" class="px-6 py-3">
                         <div class="flex items-center">
@@ -21,9 +21,12 @@
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        PRO
+                    </th>
+                    <th scope="col" class="px-6 py-3 hidden lg:table-cell">
                         Ubicación
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="px-6 py-3 hidden lg:table-cell">
                         Empresa
                     </th>
                     <th scope="col" class="px-6 py-3 text-right">
@@ -48,38 +51,37 @@
                     </tr>
                 @endif
                 @forelse ($announcements as $announcement)
-                    <tr class="border-b hover:bg-gray-300">
-                        <th scope="row" class="px-6 py-4 font-medium  whitespace-nowrap">
-                            <div class="flex flex-row gap-2">
-                                <div class="max-w-[30rem]">
-                                    <h5 class="text-md font-bold truncate">
-                                        @if ($announcement->pro)
-                                            <i class="fas fa-crown mr-1 text-xs text-tbn-primary"></i>
-                                        @endif
-                                        {{ $announcement->announce_title }}
-                                    </h5>
-                                    <span class="font-normal {{ $announcement->pro ? 'ml-5' : '' }} text-tbn-dark">
-                                        {{ $announcement->area ? $announcement->area->area_name : '(Area eliminada)' }}</span>
-                                </div>
-                            </div>
+                    <tr wire:key='{{ $announcement->id }}'
+                        class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                        <th scope="row" class="px-6 py-4 max-w-60 sm:max-w-md lg:max-w-2xl font-medium whitespace-wrap">
+                            <h5 class="text-md font-bold truncate dark:text-white">
+                                {{ $announcement->announce_title }}
+                            </h5>
+                            <span class="font-normal text-xs text-tbn-dark dark:text-tbn-light">
+                                {{ $announcement->area->area_name }}</span>
                         </th>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 dark:text-tbn-light">
+                            @if ($announcement->pro)
+                                <i class="fas fa-crown text-tbn-primary text-xs"></i>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell">
                             @forelse ($announcement->locations as $location)
                                 <span
-                                    class="inline-block px-2 py-1 rounded-md bg-gray-200 text-black text-[.8rem] leading-4 mb-1">{{ $location->location_name }}</span>
+                                    class="inline-block px-2 py-1 dark:bg-tbn-secondary rounded-md text-[.8rem] leading-4 mb-1">{{ $location->location_name }}</span>
                             @empty
-                                <span class="text-sm text-gray-400">No items</span>
+                                <span class="text-sm">No items</span>
                             @endforelse
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell">
                             {{ $announcement->company ? $announcement->company->company_name : '(Empresa eliminada)' }}
                         </td>
                         <td class="flex flex-row justify-end items-center h-20 px-6 py-4 text-lg">
                             <a href="{{ route('new-announcement', ['id' => $announcement->id]) }}" wire:navigate
-                                class="font-medium text-tbn-primary hover:underline cursor-pointer mr-3">
+                                class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer mr-3">
                                 <i class="far fa-edit"></i></a>
                             <a x-on:click="confirmModal({{ $announcement->id }})"
-                                class="font-medium text-tbn-primary hover:underline cursor-pointer">
+                                class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer">
                                 <i class="far fa-trash-alt"></i></a>
                         </td>
                     </tr>
@@ -108,7 +110,8 @@
                         showDenyButton: true,
                         confirmButtonText: "Si",
                         confirmButtonColor: '#ff420a',
-                        denyButtonText: "No"
+                        denyButtonText: "No",
+                        denyButtonColor: '#485054',
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $wire.delete(id)

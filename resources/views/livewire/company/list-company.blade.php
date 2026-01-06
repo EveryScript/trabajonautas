@@ -5,30 +5,25 @@
             Administra la información sobre las empresas registradas en Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
-            <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
-                placeholder="Buscar empresa" />
-            <x-button-link class="bg-tbn-primary pt-2.5" href="{{ route('new-company') }}"
-                wire:navigate>Nuevo</x-button-link>
+            <div class="h-full sm:h-10 flex flex-row gap-1">
+                <x-input type="search" name="search" wire:keydown.enter="$set('search', $event.target.value)"
+                    class="w-full" placeholder="Buscar empresa" />
+                <x-button type="button" href="{{ route('new-company') }}" wire:navigate>Nuevo</x-button>
+            </div>
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        <table class="w-full bg-white rounded-md shadow-md mb-5 text-sm text-left rtl:text-right">
-            <thead class="text-xs uppercase text-tbn-dark">
+        <table class="bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 w-full text-sm text-left rtl:text-right">
+            <thead class="text-xs uppercase text-tbn-secondary">
                 <tr>
                     <th scope="col" class="px-6 py-3">
-                        <div class="flex items-center">
-                            Nombre empresa
-                        </div>
+                        Nombre empresa
                     </th>
-                    <th scope="col" class="px-6 py-3">
-                        <div class="flex items-center">
-                            Tipo de empresa
-                        </div>
+                    <th scope="col" class="px-6 py-3 hidden lg:table-cell">
+                        Tipo de empresa
                     </th>
-                    <th scope="col" class="px-6 py-3">
-                        <div class="flex items-center">
-                            Última actualización
-                        </div>
+                    <th scope="col" class="px-6 py-3 hidden lg:table-cell">
+                        Última actualización
                     </th>
                     <th scope="col" class="px-6 py-3 text-right">
                         Opciones
@@ -52,35 +47,37 @@
                     </tr>
                 @endif
                 @forelse ($companies as $company)
-                    <tr class="border-b hover:bg-gray-300">
+                    <tr wire:key='{{ $company->id }}'
+                        class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
                         <th scope="row"
-                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap {{ $company->trashed() ? 'opacity-40' : '' }}">
+                            class="px-6 py-4 max-w-60 sm:max-w-md lg:max-w-2xl font-medium whitespace-wrap {{ $company->trashed() ? 'opacity-40' : '' }}">
                             <div class="flex flex-row gap-3">
                                 <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
                                     class="flex-shrink-0 rounded-lg w-10 h-10 object-cover object-center sm:mb-0 mb-4">
-                                <div class="max-w-[20rem] truncate">
-                                    <h5 class="text-md font-bold">{{ $company->company_name }}</h5>
-                                    <span class="text-sm text-gray-600 font-normal">{{ $company->description }}</span>
+                                <div class="truncate">
+                                    <h5 class="text-md font-bold dark:text-white">{{ $company->company_name }}</h5>
+                                    <span
+                                        class="text-sm text-tbn-secondary dark:text-tbn-light font-normal">{{ $company->description }}</span>
                                 </div>
                             </div>
                         </th>
-                        <td class="px-6 py-4 {{ $company->trashed() ? 'opacity-40' : '' }}">
+                        <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell {{ $company->trashed() ? 'opacity-40' : '' }}">
                             {{ $company->companyType->company_type_name }}
                         </td>
-                        <td class="px-6 py-4 {{ $company->trashed() ? 'opacity-40' : '' }}">
+                        <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell {{ $company->trashed() ? 'opacity-40' : '' }}">
                             {{ \Carbon\Carbon::parse($company->updated_at)->diffForHumans() }}
                         </td>
                         <td class="flex flex-row justify-end items-center h-20 px-6 py-4 text-lg">
                             @if ($company->trashed())
                                 <a x-on:click="confirmRestoreModal({{ $company->id }})"
-                                    class="font-medium text-tbn-primary hover:underline cursor-pointer">
+                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer">
                                     <i class="fa fa-toggle-off"></i></a>
                             @else
                                 <a href="{{ route('new-company', ['id' => $company->id]) }}" wire:navigate
-                                    class="font-medium text-tbn-primary hover:underline cursor-pointer mr-3">
+                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer mr-3">
                                     <i class="far fa-edit"></i></a>
                                 <a x-on:click="confirmDeleteModal({{ $company->id }})"
-                                    class="font-medium text-tbn-primary hover:underline cursor-pointer">
+                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer">
                                     <i class="fa fa-toggle-on"></i></a>
                             @endif
                         </td>

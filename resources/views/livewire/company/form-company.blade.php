@@ -7,7 +7,7 @@
                 : 'Registra una nueva empresa que ofrece convocatorias de trabajo.' }}
         </x-slot>
     </x-title-app>
-    <div class="grid grid-cols-2 gap-8" x-data="content">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8" x-data="content">
         <form wire:submit="{{ $id ? 'update' : 'save' }}">
             <div class="mb-4">
                 <x-label for="company_name" value="{{ __('Nombre de la empresa') }}" />
@@ -18,7 +18,7 @@
             <div class="mb-4">
                 <x-label for="company_type_id" value="{{ __('Tipo de empresa') }}" />
                 <x-select @change="setTypeName($event.target.value || 1)" wire:model="company.company_type_id"
-                    id="company_type_id">
+                    id="company_type_id" class="w-full">
                     @forelse ($company_types as $company_type)
                         <option value="{{ $company_type->id }}">{{ $company_type->company_type_name }}</option>
                     @empty
@@ -29,15 +29,15 @@
             </div>
             <div class="mb-4">
                 <x-label for="description" value="{{ __('Descripción de la empresa') }}" />
-                <x-textarea x-model="company_description" wire:model="company.description" rows="6"
+                <x-textarea class="w-full" x-model="company_description" wire:model="company.description" rows="6"
                     name="description" />
                 <x-input-error for="company.description" class="mt-2" />
             </div>
             <div class="mb-4">
                 <x-label for="company_image" value="{{ __('Logotipo de la empresa') }}" />
-                <span class="text-xs text-tbn-dark">Utilizar una imagen de proporción 1:1 (recomendado 300x300px)</span>
+                <span class="text-xs text-tbn-dark dark:text-tbn-light">Utilizar una imagen de proporción 1:1 (recomendado 300x300px)</span>
                 <input type="file" wire:model.live="company.company_image" id="company_image"
-                    class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white file:cursor-pointer cursor-pointer file:border-0 file:py-2 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-dark file:text-white rounded"
+                    class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-secondary dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-secondary file:text-white rounded-lg file:transition-all file:duration-300"
                     accept="image/png, image/jpeg, image/jpg" @change="imageChange" />
                 <x-input-error for="company.company_image" class="mt-2" />
             </div>
@@ -45,8 +45,8 @@
             <x-secondary-button type="button" href="{{ route('company') }}"
                 wire:navigate>Cancelar</x-secondary-button>
         </form>
-        <div x-show="company_name || company_type || company_description">
-            <div class="bg-white rounded-lg shadow-md p-5">
+        <div x-show="company_name || company_type || company_description" class="hidden sm:block">
+            <div class="bg-white dark:bg-tbn-dark rounded-lg shadow-md p-5">
                 <template x-if="imageUrl">
                     <picture class="block mb-0 md:mb-2">
                         <img alt="company-logo"
@@ -63,9 +63,9 @@
                 </template>
                 <h5 x-text="company_name" class="font-medium text-lg mb-2 text-tbn-primary"></h5>
                 <template x-if="typeText">
-                    <p x-text="typeText" class="inline-block bg-gray-200 px-3 py-1 mb-2 rounded-lg text-sm"></p>
+                    <p x-text="typeText" class="inline-block bg-tbn-light dark:bg-tbn-secondary dark:text-white px-3 py-1 mb-2 rounded-lg text-sm"></p>
                 </template>
-                <p x-text="company_description" class="text-tbn-dark text-sm"></p>
+                <p x-text="company_description" class="text-tbn-dark dark:text-white text-sm"></p>
             </div>
         </div>
     </div>

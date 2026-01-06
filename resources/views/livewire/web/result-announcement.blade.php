@@ -1,14 +1,16 @@
 <div class="flex flex-col md:flex-row gap-6 px-4">
     <section class="w-full md:w-3/5 select-none" x-data="content">
-        <div class="relative bg-white rounded-lg shadow-md p-5 sm:p-10">
+        <div
+            class="relative bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg shadow-md p-5 sm:p-10">
             <span class="absolute top-6 right-6 {{ $announcement->pro ? '' : 'hidden' }}">
-                <i class="fas fa-crown text-md text-tbn-secondary"></i></span>
+                <i class="fas fa-crown text-md text-tbn-primary"></i></span>
             <div class=" w-full flex sm:flex-row flex-col gap-2 sm:gap-6">
                 <img alt="team"
                     class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
                     src="{{ $announcement->company ? asset('storage/' . $announcement->company->company_image) : asset('storage/empresas/tbn-new-default.webp') }}">
                 <div class="flex-grow">
-                    <h2 class="text-xl font-bold uppercase leading-6">{{ $announcement->announce_title }}</h2>
+                    <h2 class="text-tbn-dark dark:text-white text-xl font-bold uppercase leading-6">
+                        {{ $announcement->announce_title }}</h2>
                     @if ($announcement->company)
                         <h3 class="inline-block text-md font-medium mb-2 text-tbn-primary">
                             {{ $announcement->company->company_name }}
@@ -19,7 +21,8 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2">
                         <div class="flex flex-col gap-1 text-sm text-tbn-dark font-normal mb-2">
                             @forelse ($announcement->locations as $location)
-                                <span><i class="fas fa-map-marker-alt text-red-500 pr-1"></i>
+                                <span class="text-tbn-dark dark:text-white"><i
+                                        class="fas fa-map-marker-alt text-tbn-primary pr-1"></i>
                                     {{ $location->location_name }}</span>
                             @empty
                                 <span>Sin ubicación</span>
@@ -27,8 +30,8 @@
                         </div>
                         <div class="text-sm text-tbn-dark font-normal">
                             <div class="mb-2">
-                                <i class="fas fa-calendar-alt text-red-500 pr-1"></i>
-                                <span class="">
+                                <i class="fas fa-calendar-alt text-tbn-primary pr-1"></i>
+                                <span class="text-tbn-dark dark:text-white">
                                     @if ($announcement->expiration_time > Carbon\Carbon::now())
                                         Postula hasta el
                                     @else
@@ -38,17 +41,19 @@
                                 </span>
                             </div>
                             <div class="mb-2">
-                                <i class="fas fa-calendar-alt text-red-500 pr-1"></i>
-                                <span class=""> Publicado
+                                <i class="fas fa-calendar-alt text-tbn-primary pr-1"></i>
+                                <span class="text-tbn-dark dark:text-white"> Publicado
                                     {{ \Carbon\Carbon::parse($announcement->updated_at)->diffForHumans() }}
                                 </span>
                             </div>
                             <div class="mb-2">
-                                <i class="fas fa-money-bill text-red-500 pr-1"></i>
+                                <i class="fas fa-money-bill text-tbn-primary pr-1"></i>
                                 @if ($announcement->salary > 0)
-                                    <span class=""> Sueldo {{ $announcement->salary }} Bs. </span>
+                                    <span class="text-tbn-dark dark:text-white"> Sueldo {{ $announcement->salary }} Bs.
+                                    </span>
                                 @else
-                                    <span class=""> Sueldo no declarado por la institución. </span>
+                                    <span class="text-tbn-dark dark:text-white"> Sueldo no declarado por la institución.
+                                    </span>
                                 @endif
                             </div>
                         </div>
@@ -56,12 +61,9 @@
                 </div>
             </div>
             <div class="my-3">
-                @foreach ($announcement->profesions as $profesion)
-                    {{ $profesion->profesion_name }}
-                @endforeach
                 <h3 class="text-lg font-medium mb-1 tbn-special text-tbn-primary">Descripción</h3>
                 <div
-                    class="font-normal [&_ol]:list-disc [&_ol]:ml-4 [&_span]:bg-transparent [&_a]:underline [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg text-sm">
+                    class="text-tbn-dark dark:text-white font-normal [&_ol]:list-disc [&_ol]:ml-4 [&_span]:bg-transparent [&_a]:underline [&_a]:text-tbn-primary [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg text-sm">
                     {!! $announcement->description !!}
                 </div>
             </div>
@@ -82,19 +84,18 @@
                     </x-button>
                 @endif
                 <!-- Return -->
-                <a href="{{ route('search') }}" wire:navigate>
-                    <x-secondary-button class="w-full sm:w-auto my-1">
-                        <i class="fas fa-arrow-left pr-2 text-sm"></i> Volver
-                    </x-secondary-button>
-                </a>
+                <x-secondary-button type="button" onclick="history.back()" class="w-full sm:w-auto my-1">
+                    <i class="fas fa-arrow-left pr-2 text-sm"></i> Volver
+                </x-secondary-button>
             </div>
         </div>
     </section>
     <section class="w-full md:w-2/5">
         {{-- Company info --}}
         <div class="mb-4">
-            <h3 class="text-tbn-dark text-md font-medium mb-1">Información de la empresa</h3>
-            <div class="bg-white rounded-lg shadow-md p-5">
+            <h3 class="text-tbn-dark dark:text-white text-md font-medium mb-1">Información de la empresa</h3>
+            <div
+                class="bg-white dark:bg-tbn-dark rounded-lg border border-tbn-light dark:border-tbn-secondary shadow-md p-5">
                 @if ($announcement->company)
                     <picture class="block mb-0 md:mb-2">
                         <img alt="company-logo"
@@ -105,19 +106,20 @@
                         class="inline font-bold mb-2 {{ $announcement->company->trashed() ? 'line-through opacity-40 ' : 'text-tbn-primary' }}">
                         {{ $announcement->company->company_name }}
                     </h5>
-                    <span class="bg-gray-200 px-2 rounded-lg text-xs"> Empresa:
+                    <span class="bg-tbn-light dark:bg-tbn-secondary px-2 rounded-lg text-xs"> Empresa:
                         {{ $announcement->company->companyType->company_type_name }}</span>
-                    <p class="text-tbn-dark text-sm">
+                    <p class="text-tbn-dark dark:text-white text-sm">
                         {{ $announcement->company->description }}</p>
                 @else
-                    <p class="text-tbn-dark italic text-sm">La empresa no tiene información disponible</p>
+                    <p class="text-tbn-dark dark:text-tbn-light italic text-sm">La empresa no tiene información
+                        disponible</p>
                 @endif
 
             </div>
         </div>
         {{-- Suggest --}}
         <div class="mb-4">
-            <h3 class="text-tbn-dark text-md font-medium mb-1">Convocatorias similares</h3>
+            <h3 class="text-tbn-dark dark:text-white text-md font-medium mb-1">Convocatorias similares</h3>
             <div class="flex flex-col gap-2">
                 @forelse ($suggests as $suggest)
                     <a href="{{ $suggest->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $suggest->id]) }}"

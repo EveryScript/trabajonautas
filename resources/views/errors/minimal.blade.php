@@ -11,7 +11,7 @@
 </head>
 
 <body class="antialiased">
-    <div class="relative min-h-screen">
+    <div class="relative min-h-screen bg-gray-100 dark:bg-neutral-700 text-tbn-dark dark:text-tbn-light">
         <x-navigation-web />
         <div class="container mx-auto px-4 py-32 flex-1 flex flex-col items-center justify-center">
             <div class="max-w-md w-full text-center">
@@ -19,9 +19,9 @@
                     <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty"
                         class="max-w-[5rem] mx-auto mb-2">
                 </div>
-                <h1 class="text-5xl font-bold mb-4 text-tbn-primary">@yield('code')</h1>
-                <h2 class="text-2xl font-semibold mb-4">@yield('title')</h2>
-                <p class="mb-8 text-gray-600 dark:text-gray-400">
+                <h1 class="text-6xl font-bold mb-4 text-tbn-primary">@yield('code')</h1>
+                <h2 class="text-2xl font-semibold mb-4 text-tbn-dark dark:text-white">@yield('title')</h2>
+                <p class="mb-8 text-tbn-dark dark:text-tbn-light">
                     @yield('message')
                 </p>
 

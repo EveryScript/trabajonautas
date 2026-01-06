@@ -4,8 +4,8 @@
         <x-slot name="description_page">
             Realiza acciones para controlar el estado de un cliente.</x-slot>
     </x-title-app>
-    <form class="bg-white rounded-lg shadow-md px-10 py-8 max-w-3xl" x-data="content">
-        <div class="grid grid-cols-2 gap-4 mb-4">
+    <form class="bg-white dark:bg-tbn-dark rounded-lg shadow-md px-10 py-8 max-w-3xl" x-data="content">
+        <div class="block md:grid grid-cols-2 gap-4 mb-4 dark:text-white">
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Nombre del cliente</span>
                 <h4 class="text-lg font-medium">{{ $client->name }}</h4>
@@ -19,7 +19,7 @@
                 <h4 class="text-lg font-medium">{{ $client->email }}</h4>
             </div>
             <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Profesion(es)</span>
+                <span class="text-xs text-tbn-primary">Profesion</span>
                 <h4 class="text-lg font-medium">{{ $client->profesion->profesion_name }}</h4>
             </div>
             <div class="mb-1">
@@ -45,8 +45,8 @@
                     <x-input-checkbox-block checked="{{ $client->account->verified_payment ? 'checked' : '' }}"
                         wire:model="client_verified_payment">
                         <div class="ms-4">
-                            <p class="text-md font-medium text-black">Verificación de pago</p>
-                            <p class="text-xs text-tbn-dark">
+                            <p class="text-md font-medium text-tbn-dark dark:text-white">Verificación de pago</p>
+                            <p class="text-xs text-tbn-dark dark:text-tbn-light">
                                 El cliente ha realizado el pago de <span class="text-tbn-primary font-bold">
                                     {{ $client->account->accountType->price }} Bs. </span>
                                 por cuenta <span class="text-tbn-primary font-bold">
@@ -58,16 +58,15 @@
                 <x-input-checkbox-block checked="{{ $client->actived ? 'checked' : '' }}"
                     wire:model="client_actived">
                     <div class="ms-4">
-                        <p class="text-md font-medium text-black">Habilitar cliente</p>
-                        <p class="text-xs text-tbn-dark">
+                        <p class="text-md font-medium text-tbn-dark dark:text-white">Habilitar cliente</p>
+                        <p class="text-xs text-tbn-dark dark:text-tbn-light">
                             El cliente utiliza el sistema y su cuenta está disponible actualmente </p>
                     </div>
                 </x-input-checkbox-block>
             </div>
         </div>
         <div class="mb-4">
-            <x-button type="button" @click="saveSettings">Guardar configuración</x-button>
-            {{-- <x-button type="button" @click="dangerModal">Guardar configuración</x-button> --}}
+            <x-button type="button" x-on:click="saveSettings">Guardar configuración</x-button>
             <x-secondary-button href="{{ route('client') }}" wire:navigate>Salir</x-button>
         </div>
     </form>

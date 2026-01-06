@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
             'age' => 3,
             'register_completed' => true,
             'email_verified_at' => now(), // Email verified now
+            'terms_accepted_at' => now(), // Terms and condition accepted now
             'location_id' => 1,
             'grade_profile_id' => 5,
         ]);
@@ -34,6 +35,7 @@ class UserSeeder extends Seeder
             'age' => 3,
             'register_completed' => true,
             'email_verified_at' => now(), // Email verified now
+            'terms_accepted_at' => now(), // Terms and condition accepted now
             'location_id' => 1,
             'grade_profile_id' => 5,
         ]);
@@ -48,6 +50,7 @@ class UserSeeder extends Seeder
             'age' => 1,
             'register_completed' => false,
             'email_verified_at' => now(), // Email verified now
+            'terms_accepted_at' => now(), // Terms and condition accepted now
             'location_id' => 1,
             'grade_profile_id' => 1,
             'profesion_id' => 1,

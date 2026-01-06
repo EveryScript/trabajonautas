@@ -22,6 +22,7 @@ class ListNotices extends Component
         $this->notice->user_id = Auth::id();
         $this->notice->save();
         $this->dispatch('notice-saved');
+        $this->notice->reset();
     }
 
     public function delete($id)

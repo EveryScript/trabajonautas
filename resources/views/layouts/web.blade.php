@@ -30,23 +30,37 @@
             box-shadow: none !important;
         }
     </style>
-    
+
     <!-- Splide Carousel -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <!-- AOS Animations -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        document.addEventListener('livewire:navigated', () => {
+            AOS.init();
+        });
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.hook('morph.updated', (el, component) => {
+                AOS.refresh();
+            });
+        });
+    </script>
+
 </head>
 
-<body class="font-figtree antialiased bg-gray-50">
+<body class="antialiased font-figtree bg-gray-50">
     <!-- NavBar -->
     <x-navigation-web />
     {{-- <x-nav-responsive /> --}}
     <!-- Main Content -->
-    <main>
+    <main class="bg-white dark:bg-tbn-dark">
         {{ $slot }}
     </main>
     <!-- Footer Content -->
-    <footer class="bg-tbn-secondary body-font py-20 px-5">
-        <picture class="block max-w-6xl mb-5 mx-auto">
+    <footer class="px-5 py-20 bg-tbn-secondary body-font">
+        <picture class="block max-w-6xl mx-auto mb-5">
             <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-white.webp') }}" alt="tbn-logo">
         </picture>
         @livewire('web.footer-data')

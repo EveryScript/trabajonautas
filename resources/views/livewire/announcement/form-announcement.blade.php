@@ -12,13 +12,14 @@
             <div class="mb-4">
                 <x-label for="announce_title" value="{{ __('Título') }}" />
                 <x-input wire:model="announcement.announce_title" id="announce_title" type="text"
-                    class="mt-1 block w-full" />
+                    class="w-full dark:bg-tbn-dark dark:text-white" />
                 <x-input-error for="announcement.announce_title" class="mt-2" />
             </div>
             <div class="mb-4">
                 <x-label for="company" value="{{ __('Empresa') }}" />
-                <div wire:ignore>
-                    <x-select class="tbn-tom-select" id="company" wire:model="announcement.company_id">
+                <div class="tbn-tom-select" wire:ignore>
+                    <x-select class=" dark:bg-tbn-dark dark:text-white" id="company"
+                        wire:model="announcement.company_id">
                         <option>Seleccionar empresa</option>
                         @forelse ($companies as $company)
                             <option value="{{ $company->id }}">{{ $company->company_name }}</option>
@@ -33,9 +34,8 @@
             </div>
             <div class="mb-4">
                 <x-label for="area" value="{{ __('Area profesional') }}" />
-                <div wire:ignore>
-                    <x-select class="tbn-tom-select" id="area" wire:model="announcement.area_id"
-                        @change="onAreaChange">
+                <div class="tbn-tom-select" wire:ignore>
+                    <x-select id="area" wire:model="announcement.area_id" @change="onAreaChange">
                         <option>Seleccionar area</option>
                         @forelse ($areas as $area)
                             <option value="{{ $area->id }}">{{ $area->area_name }}</option>
@@ -48,8 +48,8 @@
             </div>
             <div class="mb-4">
                 <x-label for="profesions" value="{{ __('Profesiones') }}" />
-                <div wire:ignore>
-                    <x-select class="tbn-tom-select" id="profesions" wire:model="announcement.profesions" multiple>
+                <div class="tbn-tom-select" wire:ignore>
+                    <x-select id="profesions" wire:model="announcement.profesions" multiple>
                         <option>Seleccionar profesiones</option>
                         @forelse ($profesions as $profesion)
                             <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
@@ -62,7 +62,7 @@
             </div>
             <div class="mb-4">
                 <x-label for="locations" value="{{ __('Ubicaciones') }}" />
-                <div wire:ignore>
+                <div class="tbn-tom-select" wire:ignore>
                     <x-select class="tbn-tom-select" id="locations" wire:model="announcement.locations" multiple>
                         <option>Seleccionar ubicaciones</option>
                         @forelse ($locations as $location)
@@ -77,7 +77,7 @@
             <div class="flex-grow mb-4">
                 <x-label for="announce_file" value="{{ __('Archivos de la convocatoria') }}" />
                 <input wire:model="announcement.announce_files"
-                    class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white file:cursor-pointer cursor-pointer file:border-0 file:py-2 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-dark file:text-white rounded"
+                    class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-secondary dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-dark file:text-white rounded-lg file:transition-all file:duration-300"
                     id="announce_files" type="file" multiple accept="image/*,.pdf,.docx" />
                 <x-input-error for="announcement.announce_files.*" class="mt-2" />
                 @if ($announcement->announce_urls)
@@ -130,15 +130,15 @@
                 <div class="w-1/2">
                     <x-label for="salary" value="{{ __('Sueldo') }}" />
                     <x-input wire:model="announcement.salary" id="salary" type="number" class="mt-1 block w-full" />
-                    <span class="text-xs text-tbn-dark">"0" = sueldo no declarado por la institución.</span>
+                    <span class="text-xs text-tbn-dark dark:text-tbn-light">"0" = sueldo no declarado por la institución.</span>
                     <x-input-error for="announcement.salary" class="mt-2" />
                 </div>
             </div>
             <div class="mb-4">
                 <x-label for="description" class="mb-2"
                     value="{{ __('Descripción/Detalles de la convocatoria') }}" />
-                <div wire:ignore>
-                    <div class="block w-full bg-white" id="description"></div>
+                <div class="tbn-quill-editor" wire:ignore>
+                    <div class="block w-full" id="description"></div>
                 </div>
                 <x-input-error for="announcement.description" class="mt-2" />
             </div>
@@ -146,10 +146,13 @@
                 <x-input-checkbox-block checked="{{ $announcement->pro ? 'checked' : '' }}"
                     wire:model="announcement.pro">
                     <div class="ms-4">
-                        <p class="text-md font-medium text-black">Convocatoria PRO</p>
-                        <p class="text-xs text-tbn-dark">
-                            Esta convocatoria es exclusiva para los clientes que tengan una cuenta PRO o PRO-MAX. Se enviará una
-                            <strong>notificación</strong> a los clientes PRO-MAX cuando guarde o actualice esta convocatoria.</p>
+                        <p class="text-md font-medium text-black dark:text-tbn-primary">Convocatoria PRO</p>
+                        <p class="text-xs text-tbn-dark dark:text-white">
+                            Esta convocatoria es exclusiva para los clientes que tengan una cuenta PRO o PRO-MAX. Se
+                            enviará una
+                            <strong class="dark:text-tbn-primary">notificación</strong> a los clientes PRO-MAX cuando guarde o actualice esta
+                            convocatoria.
+                        </p>
                     </div>
                 </x-input-checkbox-block>
                 <x-input-error for="announcement.pro" class="mt-2" />
@@ -199,7 +202,15 @@
             });
 
             const quill = new Quill('#description', {
-                theme: 'snow'
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{
+                            'header': [1, 2, 3, 4, 5, 6, false]
+                        }],
+                        ['bold', 'italic', 'underline', 'strike', 'link']
+                    ]
+                }
             });
             quill.on('text-change', (range, oldRange, source) => {
                 $wire.announcement.description = source == 'user' ? quill.root.innerHTML : ''

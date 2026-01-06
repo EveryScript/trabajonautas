@@ -6,7 +6,7 @@
         <title>Trabajonautas @yield('title')</title>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
+        <div class="flex-center position-ref full-height bg-gray-100 dark:bg-neutral-800 text-tbn-dark dark:text-tbn-light">
             <div class="content">
                 <div class="title">
                     @yield('message')

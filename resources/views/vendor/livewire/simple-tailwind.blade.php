@@ -16,17 +16,33 @@ $scrollIntoViewJsSnippet = ($scrollTo !== false)
             <span>
                 {{-- Previous Page Link --}}
                 @if ($paginator->onFirstPage())
-                    <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                    <button class="text-white bg-tbn-primary box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none rounded-lg transition-colors duration-300 ease-in-out opacity-50 cursor-not-allowed">
                         {!! __('pagination.previous') !!}
-                    </span>
+                    </button>
                 @else
                     @if(method_exists($paginator,'getCursorName'))
-                        <button type="button" dusk="previousPage" wire:key="cursor-{{ $paginator->getCursorName() }}-{{ $paginator->previousCursor()->encode() }}" wire:click="setPage('{{$paginator->previousCursor()->encode()}}','{{ $paginator->getCursorName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" wire:loading.attr="disabled" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-tbn-primary hover:bg-gray-200 focus:outline-none focus:ring ring-orange-300 focus:border-orange-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 disabled:cursor-not-allowed">
+                        <button type="button" dusk="previousPage"
+                            wire:key="cursor-{{ $paginator->getCursorName() }}-{{ $paginator->previousCursor()->encode() }}"
+                            wire:click="setPage('{{$paginator->previousCursor()->encode()}}','{{ $paginator->getCursorName() }}')"
+                            x-on:click="{{ $scrollIntoViewJsSnippet }}"
+                            wire:loading.attr="disabled"
+                            class="text-white bg-tbn-primary box-border border border-transparent hover:bg-orange-500 focus:ring-2
+                                focus:ring-orange-600 shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none
+                                rounded-lg transition-colors duration-300 ease-in-out dark:hover:bg-orange-800 dark:focus:ring-orange-800
+                                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-tbn-primary disabled:hover:text-white">
                                 {!! __('pagination.previous') !!}
                         </button>
                     @else
                         <button
-                            type="button" wire:click="previousPage('{{ $paginator->getPageName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" wire:loading.attr="disabled" dusk="previousPage{{ $paginator->getPageName() == 'page' ? '' : '.' . $paginator->getPageName() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-tbn-primary hover:bg-gray-200 focus:outline-none focus:ring ring-orange-300 focus:border-orange-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                            type="button"
+                            wire:click="previousPage('{{ $paginator->getPageName() }}')"
+                            x-on:click="{{ $scrollIntoViewJsSnippet }}"
+                            wire:loading.attr="disabled"
+                            dusk="previousPage{{ $paginator->getPageName() == 'page' ? '' : '.' . $paginator->getPageName() }}" 
+                            class="text-white bg-tbn-primary box-border border border-transparent hover:bg-orange-500 focus:ring-2
+                                focus:ring-orange-600 shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none
+                                rounded-lg transition-colors duration-300 ease-in-out dark:hover:bg-orange-800 dark:focus:ring-orange-800
+                                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-tbn-primary disabled:hover:text-white">
                                 {!! __('pagination.previous') !!}
                         </button>
                     @endif
@@ -37,18 +53,33 @@ $scrollIntoViewJsSnippet = ($scrollTo !== false)
                 {{-- Next Page Link --}}
                 @if ($paginator->hasMorePages())
                     @if(method_exists($paginator,'getCursorName'))
-                        <button type="button" dusk="nextPage" wire:key="cursor-{{ $paginator->getCursorName() }}-{{ $paginator->nextCursor()->encode() }}" wire:click="setPage('{{$paginator->nextCursor()->encode()}}','{{ $paginator->getCursorName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" wire:loading.attr="disabled" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-tbn-primary hover:bg-gray-200 focus:outline-none focus:ring ring-orange-300 focus:border-orange-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                        <button type="button"
+                            dusk="nextPage"
+                            wire:key="cursor-{{ $paginator->getCursorName() }}-{{ $paginator->nextCursor()->encode() }}"
+                            wire:click="setPage('{{$paginator->nextCursor()->encode()}}','{{ $paginator->getCursorName() }}')"
+                            x-on:click="{{ $scrollIntoViewJsSnippet }}" wire:loading.attr="disabled"
+                            class="text-white bg-tbn-primary box-border border border-transparent hover:bg-orange-500 focus:ring-2
+                                focus:ring-orange-600 shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none
+                                rounded-lg transition-colors duration-300 ease-in-out dark:hover:bg-orange-800 dark:focus:ring-orange-800
+                                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-tbn-primary disabled:hover:text-white">
                                 {!! __('pagination.next') !!}
                         </button>
                     @else
-                        <button type="button" wire:click="nextPage('{{ $paginator->getPageName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" wire:loading.attr="disabled" dusk="nextPage{{ $paginator->getPageName() == 'page' ? '' : '.' . $paginator->getPageName() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-tbn-primary hover:bg-gray-200 focus:outline-none focus:ring ring-orange-300 focus:border-orange-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                        <button type="button" wire:click="nextPage('{{ $paginator->getPageName() }}')"
+                            x-on:click="{{ $scrollIntoViewJsSnippet }}"
+                            wire:loading.attr="disabled"
+                            dusk="nextPage{{ $paginator->getPageName() == 'page' ? '' : '.' . $paginator->getPageName() }}"
+                            class="text-white bg-tbn-primary box-border border border-transparent hover:bg-orange-500 focus:ring-2
+                                focus:ring-orange-600 shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none
+                                rounded-lg transition-colors duration-300 ease-in-out dark:hover:bg-orange-800 dark:focus:ring-orange-800
+                                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-tbn-primary disabled:hover:text-white">
                                 {!! __('pagination.next') !!}
                         </button>
                     @endif
                 @else
-                    <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-tbn-secondary bg-white border border-tbn-secondary cursor-default leading-5 rounded-md">
+                    <button class="text-white bg-tbn-primary box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none rounded-lg transition-colors duration-300 ease-in-out opacity-50 cursor-not-allowed">
                         {!! __('pagination.next') !!}
-                    </span>
+                    </button>
                 @endif
             </span>
         </nav>

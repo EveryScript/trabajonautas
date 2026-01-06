@@ -18,7 +18,7 @@ class SearchAnnouncement extends Component
     public $title;  // Component parameter
     public $client_pro_verified = false;
     public $locations, $companies;
-    public $search_title, $search_location;
+    public $search_title, $search_location_id;
 
     public function mount()
     {
@@ -29,14 +29,14 @@ class SearchAnnouncement extends Component
     public function searchAnnounces($title, $location_id)
     {
         $this->search_title = $title;
-        $this->search_location = $location_id;
+        $this->search_location_id = intval($location_id);
         $this->title = null;
     }
 
     public function clearSearch()
     {
         $this->search_title = null;
-        $this->search_location = null;
+        $this->search_location_id = null;
         $this->title = null;
     }
 
@@ -67,8 +67,8 @@ class SearchAnnouncement extends Component
                 $query->where('announce_title', 'LIKE', '%' . $this->search_title . '%')
                     ->orWhereHas('profesions', fn($sub_query) => $sub_query->whereIn('profesion_id', $profesion_ids));
             })
-            ->when($this->search_location, fn($query) => $query->whereHas('locations', fn($sub_query) => $sub_query
-                ->where('location_id', $this->search_location)));
+            ->when($this->search_location_id, fn($query) => $query->whereHas('locations', fn($sub_query) => $sub_query
+                ->where('location_id', $this->search_location_id)));
 
         $count_results = $filter_query->count();
 

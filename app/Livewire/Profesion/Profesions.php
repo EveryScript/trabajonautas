@@ -20,34 +20,24 @@ class Profesions extends Component
         $this->update_id = $id;
         $this->profesion->edit($id);
         $this->update_mode = true;
-        $this->render();
     }
 
     public function update()
     {
         $this->profesion->update($this->update_id);
-        $this->reset(['update_mode', 'profesion.profesion_name']);
-        $this->render();
+        $this->dispatch('profesion-saved');
     }
 
     public function delete($id)
     {
         $this->profesion->delete($id);
-        $this->render();
         $this->search = null;
-        $this->cancelForm();
     }
 
     public function save()
     {
         $this->profesion->save();
         $this->dispatch('profesion-saved');
-    }
-
-    public function cancelForm()
-    {
-        $this->profesion->profesion_name = null;
-        $this->update_mode = false;
     }
 
     public function render()

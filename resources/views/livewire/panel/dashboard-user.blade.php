@@ -1,64 +1,61 @@
 <section class="mt-4">
-    <div x-data="content" class="bg-white rounded-md shadow-md px-7 py-5">
-        <header class="flex flex-col md:flex-row mb-4">
-            <div class="flex-1">
-                <h4 class="text-2xl text-tbn-primary font-semibold">Bienvenido {{ Auth::user()->name }}</h4>
-                <p class="mb-5 text-tbn-dark text-sm">Esta es la actividad más reciente en Trabajonautas.com</p>
-            </div>
-            <!-- Dropdown Date range filter -->
-            <div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <x-input type="date" x-model="startDate" />
-                    <x-input type="date" x-model="endDate" />
+    <div x-data="content" class="bg-white dark:bg-tbn-dark rounded-md shadow-md px-7 py-5">
+        <x-title-app>
+            <x-slot name="title_page">Bienvenido {{ Auth::user()->name }}</x-slot>
+            <x-slot name="description_page">Esta es la actividad más reciente en Trabajonautas.com</x-slot>
+            <x-slot name="search_field">
+                <div class="h-full sm:h-10 flex flex-col sm:flex-row gap-1">
+                    <x-input class="dark:bg-tbn-dark dark:text-white" type="date" x-model="startDate" />
+                    <x-input class="dark:bg-tbn-dark dark:text-white" type="date" x-model="endDate" />
                     <x-button type="button" x-on:click="processData" x-bind:disabled="!startDate || !endDate">
                         <span wire:loading.remove>Procesar</span>
                         <span wire:loading><i class="fas fa-spinner text-sm animate-spin"></i></span>
                     </x-button>
                 </div>
-            </div>
-        </header>
+            </x-slot>
+        </x-title-app>
         <div class="flex flex-col lg:flex-row gap-4">
             <!-- Tab menu -->
-            <ul class="min-w-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1">
+            <ul class="min-w-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 dark:text-tbn-light">
                 <li x-on:click="tab_option = 1" class="mb-px transition-colors duration-200 text-center">
                     <a href="#" :class="tab_option === 1 ? tab_active_class : tab_inactive_class"
-                        class="bg-white min-w-60 inline-block text-sm py-3 px-6 font-medium">
+                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
                         Clientes según cuenta
                     </a>
                 </li>
                 <li x-on:click="tab_option = 2" class="mb-px transition-colors duration-200 text-center">
                     <a href="#" :class="tab_option === 2 ? tab_active_class : tab_inactive_class"
-                        class="bg-white min-w-60 inline-block text-sm py-3 px-6 font-medium">
+                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
                         Clientes según edad
                     </a>
                 </li>
                 <li x-on:click="tab_option = 3" class="mb-px transition-colors duration-200 text-center">
                     <a href="#" :class="tab_option === 3 ? tab_active_class : tab_inactive_class"
-                        class="bg-white min-w-60 inline-block text-sm py-3 px-6 font-medium">
+                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
                         Clientes según género
                     </a>
                 </li>
                 <li x-on:click="tab_option = 4" class="mb-px transition-colors duration-200 text-center">
                     <a href="#" :class="tab_option === 4 ? tab_active_class : tab_inactive_class"
-                        class="bg-white min-w-60 inline-block text-sm py-3 px-6 font-medium">
+                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
                         Clientes según grado académico
                     </a>
                 </li>
                 <li x-on:click="tab_option = 5" class="mb-px transition-colors duration-200 text-center">
                     <a href="#" :class="tab_option === 5 ? tab_active_class : tab_inactive_class"
-                        class="bg-white min-w-60 inline-block text-sm py-3 px-6 font-medium">
+                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
                         Clientes por ubicación
                     </a>
                 </li>
                 <li x-on:click="tab_option = 6" class="mb-px transition-colors duration-200 text-center">
                     <a href="#" :class="tab_option === 6 ? tab_active_class : tab_inactive_class"
-                        class="bg-white min-w-60 inline-block text-sm py-3 px-6 font-medium">
+                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
                         Clientes por profesión
                     </a>
                 </li>
             </ul>
             <!-- Tab content -->
-            <div class="flex-1">
+            <div class="flex-1 dark:text-tbn-light">
                 <!-- Clients by account type chart -->
                 <div x-show="tab_option === 1" x-transition:enter.duration.300ms>
                     <livewire:Charts.ClientsAccount :startDate="$start_date" :endDate="$end_date" :labels="$labels"
@@ -99,7 +96,7 @@
             // Base
             tab_option: 1,
             tab_active_class: 'border border-tbn-primary rounded text-tbn-primary',
-            tab_inactive_class: 'text-gray-500 hover:text-tbn-secondary',
+            tab_inactive_class: 'hover:text-tbn-secondary',
             show_dropdown: false,
             startDate: '',
             endDate: '',

@@ -39,8 +39,8 @@ class ListCompany extends Component
         $count_results = $filter_query->count();
 
         $companies = $count_results > 0
-            ? $filter_query->simplePaginate(7)
-            : $base_query->simplePaginate(7);
+            ? $filter_query->simplePaginate(5)
+            : $base_query->simplePaginate(5);
 
         return view('livewire.company.list-company', [
             'companies' => $companies,

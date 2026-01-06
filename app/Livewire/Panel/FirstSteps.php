@@ -24,7 +24,8 @@ class FirstSteps extends Component
     public function mount()
     {
         if (Auth::check()) {
-            $this->user = User::with('account.accountType')->select('id', 'name', 'phone')->find($this->user_id);
+            $this->user = User::with(['account.accountType'])
+                ->select('id', 'name', 'phone')->find($this->user_id);
         } else {
             redirect()->route('login');
         }
@@ -54,7 +55,7 @@ class FirstSteps extends Component
             'user_id' => $this->user_id,
             'account_type_id' => intval($this->account_type_id)
         ]);
-        
+
         $this->redirectRoute('dashboard', navigate: true);
     }
 

@@ -32,10 +32,10 @@
                     <input type="radio" wire:model='user.role' id="user-account" class="hidden peer"
                         value="{{ USER }}" {{ $user->role == USER ? 'checked' : '' }}>
                     <label for="user-account"
-                        class="inline-flex items-center justify-between w-full p-5 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                        class="inline-flex items-center justify-between w-full p-5 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                         <div class="w-2/3">
                             <div class="w-full text-lg font-semibold">Usuario</div>
-                            <p class="w-full text-xs text-tbn-dark">Utiliza las funciones básicas del sistema
+                            <p class="w-full text-xs text-tbn-dark dark:text-white">Utiliza las funciones básicas del sistema
                                 Trabajonautas</p>
                         </div>
                         <i class="fas fa-user text-tbn-primary text-2xl"></i>
@@ -45,13 +45,13 @@
                     <input type="radio" wire:model='user.role' id="admin-account" class="hidden peer"
                         value="{{ ADMIN }}" {{ $user->role == ADMIN ? 'checked' : '' }} />
                     <label for="admin-account"
-                        class="inline-flex items-center justify-between w-full p-5 text-gray-700 bg-white border border-gray-200 rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:text-gray-600 hover:bg-gray-100">
+                        class="inline-flex items-center justify-between w-full p-5 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                         <div class="w-2/3">
                             <div class="w-full text-lg font-semibold">Administrador</div>
-                            <p class="w-full text-xs text-tbn-dark">Utiliza todas las funciones del sistema
+                            <p class="w-full text-xs text-tbn-dark dark:text-white">Utiliza todas las funciones del sistema
                                 Trabajonautas.</p>
                         </div>
-                        <i class="fas fa-user-cog text-tbn-dark text-2xl"></i>
+                        <i class="fas fa-user-cog text-tbn-dark dark:text-white text-2xl"></i>
                     </label>
                 </li>
             </ul>

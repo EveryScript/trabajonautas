@@ -46,7 +46,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'account_id',
         'provider', // Laravel Socialite
         'provider_id', // Laravel Socialite
-        'email_verified_at' // Laravel Socialite
+        'email_verified_at', // Laravel Socialite
+        'terms_accepted_at' // Terms and conditions
     ];
 
     protected $hidden = [

@@ -1,6 +1,9 @@
 @props(['disabled' => false])
 
 <input {{ $disabled ? 'disabled' : '' }} {!! $attributes->merge([
-    'class' =>
-        'w-full bg-white rounded border border-gray-300 focus:border-tbn-primary focus:ring-2 focus:ring-orange-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out',
+    'class' => 'bg-white border border-tbn-light text-gray-900 placeholder-gray-400
+        focus:outline-none focus:border-tbn-primary focus:ring-tbn-primary
+        dark:bg-tbn-dark dark:border-tbn-secondary dark:text-white dark:focus:ring-tbn-primary
+        dark:focus:border-tbn-primary dark:placeholder-gray-500
+        px-3 py-2 rounded-lg transition-colors duration-300',
 ]) !!}>

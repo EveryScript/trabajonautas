@@ -1,39 +1,40 @@
-<section x-data="subcontent" class="flex flex-col gap-4">
+<section x-data="subcontent" class="flex flex-col gap-4 ">
     <header class="flex flex-row">
         <div class="flex-1">
-            <h3 class="text-lg font-medium">{{ $title }}</h3>
-            <small class="text-tbn-secondary text-xs">{{ $description }}</small>
+            <h3 class="text-lg font-medium text-tbn-dark dark:text-white">{{ $title }}</h3>
+            <small class="text-xs text-tbn-secondary dark:text-tbn-light">{{ $description }}</small>
         </div>
         <!-- Filter suggests -->
         <div class="relative">
             <button x-on:click="show_dropdown = true" type="button"
-                class="flex px-3 py-2 text-sm font-medium text-tbn-secondary border border-gray-300 bg-white rounded-md"
+                class="flex px-3 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md dark:bg-tbn-dark text-tbn-secondary dark:text-tbn-light dark:border-tbn-secondary"
                 id="suggest-menu" aria-expanded="false" data-dropdown-toggle="suggest-dropdown"
                 data-dropdown-placement="bottom">
-                <span x-text="filter_text"></span><i class="fa-solid fa-sort-down ml-2 text-xs"></i>
+                <span x-text="filter_text"></span><i class="ml-2 text-xs fa-solid fa-sort-down"></i>
             </button>
             <div x-show="show_dropdown" x-on:click.outside="show_dropdown = false"
-                class="absolute w-40 shadow-lg top-6 right-0 z-50 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg"
+                class="absolute right-0 z-50 w-40 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-lg top-6 dark:text-tbn-dark dark:divide-tbn-secondary"
                 id="suggest-dropdown">
-                <ul x-on:click="show_dropdown = false" class="py-2" aria-labelledby="user-menu-button">
+                <ul class="bg-white dark:bg-tbn-dark" x-on:click="show_dropdown = false" class="py-2"
+                    aria-labelledby="user-menu-button">
                     <li class="cursor-pointer">
                         <a x-on:click="setFilterAnnounce('all')"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                             Todas</a>
                     </li>
                     <li class="cursor-pointer">
                         <a x-on:click="setFilterAnnounce('today')"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                             Publicado hoy</a>
                     </li>
                     <li class="cursor-pointer">
                         <a x-on:click="setFilterAnnounce('week')"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                             Publicado esta semana</a>
                     </li>
                     <li class="cursor-pointer">
                         <a x-on:click="setFilterAnnounce('month')"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                             Publicado este mes</a>
                     </li>
                 </ul>
@@ -47,10 +48,13 @@
                 week: {{ $announce->created_at->isCurrentWeek() ? 'true' : 'false' }},
                 month: {{ $announce->created_at->isCurrentMonth() ? 'true' : 'false' }}
             }
-        }" x-show="filter_option === 'all' || 
-            (filter_option === 'today' && info.today) ||
+        }"
+            x-show="filter_option === 'all' || 
+            (filter_option === 'today' && info.today)
+||
             (filter_option === 'week' && info.week) ||
-            (filter_option === 'month' && info.month)" x-transition:enter.duration.300ms x-transition:leave.duration.300ms
+            (filter_option === 'month' && info.month)"
+            x-transition:enter.duration.300ms x-transition:leave.duration.300ms
             href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
             wire:navigate wire:key='announce-{{ $announce->id }}'>
             <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
@@ -72,8 +76,9 @@
     @empty
         <x-section-empty class="col-span-2" title="No hay sugerencias disponibles"
             description="Las sugerencias de convocatorias de trabajo estarán visibles en esta sección.">
-            <x-button-link href="{{ route('search') }}" class="bg-tbn-primary inline-block mt-5" wire:navigate>
-                Buscar convocatorias</x-button-link>
+            <x-button type="button" href="{{ route('search') }}" class="inline-block mt-5 bg-tbn-primary"
+                wire:navigate>
+                Buscar convocatorias</x-button>
         </x-section-empty>
     @endforelse
 </section>

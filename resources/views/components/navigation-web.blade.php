@@ -1,4 +1,4 @@
-<header class="bg-white h-[5rem]">
+<header class="bg-white dark:bg-tbn-dark h-[5rem]">
     <div class="h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-row justify-between align-middle">
         <div class="mt-5">
             <x-nav-logo />
@@ -9,12 +9,12 @@
                     Mi Panel
                 </a>
             @else
-                <a href="{{ route('login') }}" class=" hover:text-tbn-primary transition-all duration-200 px-2 py-1">
+                <a href="{{ route('login') }}" class="text-tbn-dark dark:text-tbn-light hover:text-tbn-primary transition-all duration-200 px-2 py-1">
                     Iniciar sesión</a>
 
                 @if (Route::has('register'))
                     <a href="{{ route('register') }}"
-                        class="text-white bg-tbn-primary hover:bg-tbn-dark transition-all duration-200 px-4 py-2 rounded-md">
+                        class="text-white bg-tbn-primary hover:bg-tbn-secondary transition-all duration-200 px-4 py-2 rounded-md">
                         Registrarse</a>
                 @endif
             @endauth

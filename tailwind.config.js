@@ -20,8 +20,8 @@ export default {
             colors: {
                 "tbn-primary": "#ff420a",
                 "tbn-secondary": "#485054",
-                "tbn-light": "#888888",
-                "tbn-dark": "#484848",
+                "tbn-dark": "#242424",
+                "tbn-light": "#bbbbbb",
             },
         },
     },

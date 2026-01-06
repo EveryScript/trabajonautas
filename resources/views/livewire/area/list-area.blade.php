@@ -14,15 +14,15 @@
                 </x-slot>
             </x-title-app>
         </div>
-        <div class="grid grid-cols-3 gap-5">
+        <div class="block md:grid grid-cols-2 lg:grid-cols-3 gap-5">
             @forelse ($areas as $area)
                 <article
-                    class="bg-white rounded-md shadow-lg px-6 py-5 border border-transparent hover:border-tbn-primary transition duration-200">
+                    class="bg-white dark:bg-tbn-dark rounded-md shadow-lg px-6 py-5 mb-3 md:mb-0 border border-transparent hover:border-tbn-primary transition duration-200">
                     <div class="h-full flex flex-col justify-between">
-                        <div>
+                        <div class="dark:text-white">
                             <span class="text-xs text-tbn-primary">Area profesional</span>
                             <h5 class="text-lg font-bold mb-2">{{ $area->area_name }}</h5>
-                            <p class="text-xs text-tbn-dark mb-2">{{ $area->description }}</p>
+                            <p class="text-xs text-tbn-dark dark:text-tbn-light mb-2">{{ $area->description }}</p>
                             <p class="text-sm">Creador: <span class="text-tbn-primary">
                                     {{ $area->user->name }}</span></p>
                             <p class="text-sm">Convocatorias: <span class="text-tbn-primary">
@@ -30,21 +30,21 @@
                             <p class="text-sm">Profesiones: <span class="text-tbn-primary">
                                     {{ count($area->profesions) }}</span>
                             <p class="text-sm">Clientes: <span class="text-tbn-primary">
-                                    {{ $area->usersOf->filter(fn($user) => $user->hasRole(env('CLIENT_ROLE')))->count() }}</span>
+                                    users</span>
                             </p>
                         </div>
                         <div class="flex flex-row justify-end text-lg">
                             <a href="{{ route('new-area', ['id' => $area->id]) }}" wire:navigate
-                                class="font-medium text-tbn-secondary hover:underline cursor-pointer mr-3">
+                                class="font-medium text-tbn-secondary dark:text-tbn-primary dark:hover:text-tbn-secondary cursor-pointer transition-colors duration-150 mr-3">
                                 <i class="far fa-edit"></i></a>
-                            <a class="font-medium text-red-600 hover:underline cursor-pointer"
+                            <a class="font-medium text-tbn-secondary dark:text-tbn-primary dark:hover:text-tbn-secondary cursor-pointer transition-colors duration-150"
                                 x-on:click="confirmModal({{ $area->id }})">
                                 <i class="far fa-trash-alt"></i></a>
                         </div>
                     </div>
                 </article>
             @empty
-                <div class="text-tbn-dark text-center">
+                <div class="text-tbn-dark dark:text-tbn-light text-center">
                     <span class="text-sm">No hay areas profesionales aún</span>
                 </div>
             @endforelse
