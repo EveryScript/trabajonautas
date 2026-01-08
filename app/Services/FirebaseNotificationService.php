@@ -9,13 +9,13 @@ use Kreait\Laravel\Firebase\Facades\Firebase;
 class FirebaseNotificationService
 {
     // Send notifications to devices custom
-    public function sendBatchTokens(array $device_tokens, $announce_id)
+    public function sendBatchTokens(array $device_tokens, $announce_id, $company_name)
     {
         $messaging = Firebase::messaging();
         $message = CloudMessage::new()
             ->withData([
                 'title' => 'Nueva convocatoria',
-                'body' => 'Trabajonautas.com ha publicado una convocatoria ideal para ti.',
+                'body' => $company_name . ' ha publicado una nueva convocatoria para ti en Trabajonautas.com.',
                 'click_action' => 'https://trabajonautas.com/convocatoria/' . $announce_id,
                 'icon' => 'storage/img/tbn-icon.ico'
             ]);

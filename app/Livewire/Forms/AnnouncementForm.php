@@ -138,6 +138,7 @@ class AnnouncementForm extends Form
             'company_id' => 'empresa',
             'user_id' => 'usuario',
             'area_id' => 'area profesional',
+            'announce_files' => 'archivos de la convocatoria',
             'locations' => 'ubicaciones',
             'profesions' => 'profesiones'
         ];

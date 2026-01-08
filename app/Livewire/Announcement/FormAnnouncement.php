@@ -33,9 +33,11 @@ class FormAnnouncement extends Component
 
     public function save()
     {
+
         $this->announcement->user_id = Auth::id();
         $announce_saved = $this->announcement->save();
         if ($this->announcement->pro) {
+            $company_name = Company::where('id', $this->announcement->company_id)->first()->company_name;
             $notifier = new FirebaseNotificationService();
             $clients = User::role(env('CLIENT_ROLE'))
                 // Clients PRO-MAX and with TOKEN registered
@@ -50,7 +52,7 @@ class FormAnnouncement extends Component
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();
             if ($array_tokens !== [])
-                $notifier->sendBatchTokens($array_tokens, $announce_saved->id);
+                $notifier->sendBatchTokens($array_tokens, $announce_saved->id, $company_name);
         }
         $this->redirectRoute('announcement', navigate: true);
     }
@@ -59,6 +61,7 @@ class FormAnnouncement extends Component
     {
         $this->announcement->update($this->id);
         if ($this->announcement->pro) {
+            $company_name = Company::where('id', $this->announcement->company_id)->first()->company_name;
             $notifier = new FirebaseNotificationService();
             $clients = User::role(env('CLIENT_ROLE'))
                 // Clients PRO-MAX and with TOKEN registered
@@ -73,7 +76,7 @@ class FormAnnouncement extends Component
                 ->get();
             $array_tokens = $clients->pluck('account.device_token')->toArray();
             if ($array_tokens !== [])
-                $notifier->sendBatchTokens($array_tokens, $this->id);
+                $notifier->sendBatchTokens($array_tokens, $this->id, $company_name);
         }
         $this->redirectRoute('announcement', navigate: true);
     }
