@@ -73,8 +73,8 @@ class SearchAnnouncement extends Component
         $count_results = $filter_query->count();
 
         $announcements = $count_results > 0
-            ? $filter_query->simplePaginate(12)
-            : $base_query->simplePaginate(12);
+            ? $filter_query->simplePaginate(10)
+            : $base_query->simplePaginate(10);
 
         return view('livewire.web.search-announcement', [
             'announcements' => $announcements,

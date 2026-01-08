@@ -1,4 +1,4 @@
-<section class="max-w-6xl p-10 mx-auto">
+<section class="max-w-6xl px-3 py-5 mx-auto sm:px-6">
     <div x-data="content">
         <!-- Search fields -->
         <div class="flex flex-col w-full gap-2 mb-4 md:flex-row tbn-form">

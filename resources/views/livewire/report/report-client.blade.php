@@ -17,8 +17,9 @@
             </x-slot>
         </x-title-app>
         <div class="flex flex-col gap-4 lg:flex-row">
-            <div class="w-full lg:w-3/12">
-                <div class="flex flex-col gap-4 sm:flex-row lg:flex-col">
+            <div class="w-full lg:w-4/12">
+                <!-- Sidebar -->
+                <div class="flex flex-col gap-4">
                     <!-- Info card -->
                     <div class="px-6 py-5 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
                         <h5 class="mb-2 text-lg font-medium text-tbn-primary">
@@ -51,20 +52,13 @@
                             <span wire:loading.remove wire:target="exportData">Exportar</span>
                             <span wire:loading wire:target="exportData">Exportando...</span>
                         </x-button>
-                    </div>
-                    <!-- QR Image info -->
-                    <div class="px-6 py-5 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
-                        <h5 class="mb-2 text-lg font-medium text-tbn-primary">
-                            Imagen de QR</h5>
-                        <p class="mb-2 text-sm text-tbn-secondary dark:text-tbn-light">
-                            Esta imagen se utiliza en el formulario de registro de todos los clientes.</p>
-                        <x-button type="button" x-on:click="modalForm = true">
-                            <span>Cambiar imagen QR</span>
-                        </x-button>
+                        <x-secondary-button type="button" x-on:click="modalForm = true">
+                            <span>Cambiar QR</span>
+                        </x-secondary-button>
                     </div>
                 </div>
             </div>
-            <div class="w-full lg:w-9/12">
+            <div class="w-full lg:w-8/12">
                 <!-- Data to export -->
                 <table
                     class="w-full mb-5 overflow-x-auto text-sm text-left bg-white rounded-md shadow-md dark:bg-tbn-dark rtl:text-right">
@@ -73,13 +67,13 @@
                             <th scope="col" class="px-6 py-3">
                                 Cliente
                             </th>
-                            <th scope="col" class="hidden px-6 py-3 lg:table-cell">
+                            <th scope="col" class="hidden px-6 py-3 md:table-cell">
                                 Cuenta
                             </th>
-                            <th scope="col" class="hidden px-6 py-3 lg:table-cell">
+                            <th scope="col" class="hidden px-6 py-3 md:table-cell">
                                 Celular
                             </th>
-                            <th scope="col" class="hidden px-6 py-3 lg:table-cell">
+                            <th scope="col" class="hidden px-6 py-3 md:table-cell">
                                 Verificación
                             </th>
                             <th scope="col" class="px-6 py-3">
@@ -140,7 +134,7 @@
                     </div>
                 @endif
                 <div class="mb-2">
-                    <x-label for="image" value="{{ __('Imagen') }}" />
+                    <x-label for="image">Imagen / Código QR</x-label>
                     <input type="file" wire:model.live="qr_new_image" id="image"
                         class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-dark dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-secondary file:text-white rounded-lg file:transition-all file:duration-300"
                         accept="image/png, image/jpeg, image/jpg" x-on:change="previewQRImage" />

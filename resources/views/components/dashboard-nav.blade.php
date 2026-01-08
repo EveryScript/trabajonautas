@@ -46,7 +46,7 @@
                                 depósito</span> por WhatsApp para HABILITAR tu cuenta hoy mismo.</p>
                         <a class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-gray-50 hover:text-tbn-primary"
                             target="_blank"
-                            href="https://wa.me/59173858162?text=Hola%20Trabajonauas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client_account_type_name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client_name }}.">
+                            href="https://wa.me/59173858162?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client_account_type_name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client_name }}.">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar mensaje</a>
                     </div>
                 @else
