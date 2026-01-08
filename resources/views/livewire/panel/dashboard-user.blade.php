@@ -1,55 +1,56 @@
 <section class="mt-4">
-    <div x-data="content" class="bg-white dark:bg-tbn-dark rounded-md shadow-md px-7 py-5">
+    <div x-data="content"
+        class="bg-transparent sm:py-5 sm:rounded-md sm:shadow-md sm:bg-white dark:bg-transparent sm:dark:bg-tbn-dark sm:px-7">
         <x-title-app>
             <x-slot name="title_page">Bienvenido {{ Auth::user()->name }}</x-slot>
             <x-slot name="description_page">Esta es la actividad más reciente en Trabajonautas.com</x-slot>
             <x-slot name="search_field">
-                <div class="h-full sm:h-10 flex flex-col sm:flex-row gap-1">
-                    <x-input class="dark:bg-tbn-dark dark:text-white" type="date" x-model="startDate" />
-                    <x-input class="dark:bg-tbn-dark dark:text-white" type="date" x-model="endDate" />
+                <div class="flex flex-col h-full gap-1 sm:h-10 sm:flex-row">
+                    <x-input class="w-full dark:bg-tbn-dark dark:text-white" type="date" x-model="startDate" placeholder="Fecha inicio"/>
+                    <x-input class="w-full dark:bg-tbn-dark dark:text-white" type="date" x-model="endDate" placeholder="Fecha final"/>
                     <x-button type="button" x-on:click="processData" x-bind:disabled="!startDate || !endDate">
                         <span wire:loading.remove>Procesar</span>
-                        <span wire:loading><i class="fas fa-spinner text-sm animate-spin"></i></span>
+                        <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 </div>
             </x-slot>
         </x-title-app>
-        <div class="flex flex-col lg:flex-row gap-4">
+        <div class="flex flex-col gap-4 lg:flex-row">
             <!-- Tab menu -->
-            <ul class="min-w-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 dark:text-tbn-light">
-                <li x-on:click="tab_option = 1" class="mb-px transition-colors duration-200 text-center">
+            <ul class="grid grid-cols-1 min-w-lg sm:grid-cols-2 lg:grid-cols-1 dark:text-tbn-light">
+                <li x-on:click="tab_option = 1" class="mb-px text-center transition-colors duration-200">
                     <a href="#" :class="tab_option === 1 ? tab_active_class : tab_inactive_class"
-                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
+                        class="block px-6 py-3 text-sm font-medium bg-white dark:bg-tbn-dark">
                         Clientes según cuenta
                     </a>
                 </li>
-                <li x-on:click="tab_option = 2" class="mb-px transition-colors duration-200 text-center">
+                <li x-on:click="tab_option = 2" class="mb-px text-center transition-colors duration-200">
                     <a href="#" :class="tab_option === 2 ? tab_active_class : tab_inactive_class"
-                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
+                        class="block px-6 py-3 text-sm font-medium bg-white dark:bg-tbn-dark">
                         Clientes según edad
                     </a>
                 </li>
-                <li x-on:click="tab_option = 3" class="mb-px transition-colors duration-200 text-center">
+                <li x-on:click="tab_option = 3" class="mb-px text-center transition-colors duration-200">
                     <a href="#" :class="tab_option === 3 ? tab_active_class : tab_inactive_class"
-                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
+                        class="block px-6 py-3 text-sm font-medium bg-white dark:bg-tbn-dark">
                         Clientes según género
                     </a>
                 </li>
-                <li x-on:click="tab_option = 4" class="mb-px transition-colors duration-200 text-center">
+                <li x-on:click="tab_option = 4" class="mb-px text-center transition-colors duration-200">
                     <a href="#" :class="tab_option === 4 ? tab_active_class : tab_inactive_class"
-                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
+                        class="block px-6 py-3 text-sm font-medium bg-white dark:bg-tbn-dark">
                         Clientes según grado académico
                     </a>
                 </li>
-                <li x-on:click="tab_option = 5" class="mb-px transition-colors duration-200 text-center">
+                <li x-on:click="tab_option = 5" class="mb-px text-center transition-colors duration-200">
                     <a href="#" :class="tab_option === 5 ? tab_active_class : tab_inactive_class"
-                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
+                        class="block px-6 py-3 text-sm font-medium bg-white dark:bg-tbn-dark">
                         Clientes por ubicación
                     </a>
                 </li>
-                <li x-on:click="tab_option = 6" class="mb-px transition-colors duration-200 text-center">
+                <li x-on:click="tab_option = 6" class="mb-px text-center transition-colors duration-200">
                     <a href="#" :class="tab_option === 6 ? tab_active_class : tab_inactive_class"
-                        class="bg-white dark:bg-tbn-dark block text-sm py-3 px-6 font-medium">
+                        class="block px-6 py-3 text-sm font-medium bg-white dark:bg-tbn-dark">
                         Clientes por profesión
                     </a>
                 </li>

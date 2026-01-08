@@ -62,7 +62,7 @@
         <x-nav-responsive />
 
         <!-- Page Content -->
-        <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        <main class="max-w-6xl mx-auto px-3 sm:px-6 py-6">
             {{ $slot }}
         </main>
     </div>

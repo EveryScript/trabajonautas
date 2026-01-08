@@ -5,7 +5,7 @@
             Administra la información sobre las empresas registradas en Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
-            <div class="h-full sm:h-10 flex flex-row gap-1">
+            <div class="flex flex-row h-full gap-1 sm:h-10">
                 <x-input type="search" name="search" wire:keydown.enter="$set('search', $event.target.value)"
                     class="w-full" placeholder="Buscar empresa" />
                 <x-button type="button" href="{{ route('new-company') }}" wire:navigate>Nuevo</x-button>
@@ -13,85 +13,89 @@
         </x-slot>
     </x-title-app>
     <div x-data="content">
-        <table class="bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 w-full text-sm text-left rtl:text-right">
-            <thead class="text-xs uppercase text-tbn-secondary">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        Nombre empresa
-                    </th>
-                    <th scope="col" class="px-6 py-3 hidden lg:table-cell">
-                        Tipo de empresa
-                    </th>
-                    <th scope="col" class="px-6 py-3 hidden lg:table-cell">
-                        Última actualización
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-right">
-                        Opciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @if ($search)
-                    <tr class="text-center text-tbn-dark text-sm bg-gray-200">
-                        <td class="px-6 py-2" colspan="4">
-                            <div class="flex flex-row justify-between items-center">
-                                <div>
-                                    <span class="font-bold">"{{ $search }}"</span>
-                                    <i class="fas fa-arrow-right text-xs px-2"></i>
-                                    {{ $count_results }} Resultados encontrados
-                                </div>
-                                <button type="button" wire:click="$set('search', null)">
-                                    <i class="fas fa-times text-tbn-primary text-lg"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                @endif
-                @forelse ($companies as $company)
-                    <tr wire:key='{{ $company->id }}'
-                        class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
-                        <th scope="row"
-                            class="px-6 py-4 max-w-60 sm:max-w-md lg:max-w-2xl font-medium whitespace-wrap {{ $company->trashed() ? 'opacity-40' : '' }}">
-                            <div class="flex flex-row gap-3">
-                                <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
-                                    class="flex-shrink-0 rounded-lg w-10 h-10 object-cover object-center sm:mb-0 mb-4">
-                                <div class="truncate">
-                                    <h5 class="text-md font-bold dark:text-white">{{ $company->company_name }}</h5>
-                                    <span
-                                        class="text-sm text-tbn-secondary dark:text-tbn-light font-normal">{{ $company->description }}</span>
-                                </div>
-                            </div>
+        <div class="overflow-x-auto">
+            <table class="w-full mb-5 text-sm text-left bg-white rounded-md shadow-md dark:bg-tbn-dark rtl:text-right">
+                <thead class="text-xs uppercase text-tbn-secondary">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Nombre empresa
                         </th>
-                        <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell {{ $company->trashed() ? 'opacity-40' : '' }}">
-                            {{ $company->companyType->company_type_name }}
-                        </td>
-                        <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell {{ $company->trashed() ? 'opacity-40' : '' }}">
-                            {{ \Carbon\Carbon::parse($company->updated_at)->diffForHumans() }}
-                        </td>
-                        <td class="flex flex-row justify-end items-center h-20 px-6 py-4 text-lg">
-                            @if ($company->trashed())
-                                <a x-on:click="confirmRestoreModal({{ $company->id }})"
-                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer">
-                                    <i class="fa fa-toggle-off"></i></a>
-                            @else
-                                <a href="{{ route('new-company', ['id' => $company->id]) }}" wire:navigate
-                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer mr-3">
-                                    <i class="far fa-edit"></i></a>
-                                <a x-on:click="confirmDeleteModal({{ $company->id }})"
-                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer">
-                                    <i class="fa fa-toggle-on"></i></a>
-                            @endif
-                        </td>
+                        <th scope="col" class="hidden px-6 py-3 lg:table-cell">
+                            Tipo de empresa
+                        </th>
+                        <th scope="col" class="hidden px-6 py-3 lg:table-cell">
+                            Última actualización
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right">
+                            Opciones
+                        </th>
                     </tr>
-                @empty
-                    <tr
-                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="py-4 text-center font-italic text-gray-600" colspan="4">
-                            No se han encontrado datos
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if ($search)
+                        <tr class="text-sm text-center bg-gray-200 text-tbn-dark">
+                            <td class="px-6 py-2" colspan="4">
+                                <div class="flex flex-row items-center justify-between">
+                                    <div>
+                                        <span class="font-bold">"{{ $search }}"</span>
+                                        <i class="px-2 text-xs fas fa-arrow-right"></i>
+                                        {{ $count_results }} Resultados encontrados
+                                    </div>
+                                    <button type="button" wire:click="$set('search', null)">
+                                        <i class="text-lg fas fa-times text-tbn-primary"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
+                    @forelse ($companies as $company)
+                        <tr wire:key='{{ $company->id }}'
+                            class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                            <th scope="row"
+                                class="px-6 py-4 max-w-60 sm:max-w-md lg:max-w-2xl font-medium whitespace-wrap {{ $company->trashed() ? 'opacity-40' : '' }}">
+                                <div class="flex flex-row gap-3">
+                                    <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
+                                        class="flex-shrink-0 object-cover object-center w-10 h-10 mb-4 rounded-lg sm:mb-0">
+                                    <div class="truncate">
+                                        <h5 class="font-bold text-md dark:text-white">{{ $company->company_name }}</h5>
+                                        <span
+                                            class="text-sm font-normal text-tbn-secondary dark:text-tbn-light">{{ $company->description }}</span>
+                                    </div>
+                                </div>
+                            </th>
+                            <td
+                                class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell {{ $company->trashed() ? 'opacity-40' : '' }}">
+                                {{ $company->companyType->company_type_name }}
+                            </td>
+                            <td
+                                class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell {{ $company->trashed() ? 'opacity-40' : '' }}">
+                                {{ \Carbon\Carbon::parse($company->updated_at)->diffForHumans() }}
+                            </td>
+                            <td class="flex flex-row items-center justify-end h-20 px-6 py-4 text-lg">
+                                @if ($company->trashed())
+                                    <a x-on:click="confirmRestoreModal({{ $company->id }})"
+                                        class="font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
+                                        <i class="fa fa-toggle-off"></i></a>
+                                @else
+                                    <a href="{{ route('new-company', ['id' => $company->id]) }}" wire:navigate
+                                        class="mr-3 font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
+                                        <i class="far fa-edit"></i></a>
+                                    <a x-on:click="confirmDeleteModal({{ $company->id }})"
+                                        class="font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
+                                        <i class="fa fa-toggle-on"></i></a>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr
+                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="py-4 text-center text-gray-600 font-italic" colspan="4">
+                                No se han encontrado datos
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         <div> {{ $companies->links() }} </div>
     </div>
 

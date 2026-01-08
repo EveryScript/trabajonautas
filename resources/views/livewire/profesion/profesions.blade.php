@@ -7,13 +7,13 @@
             </x-slot>
             <x-slot name="search_field">
                 <div class="h-full sm:h-10 flex flex-row gap-1">
-                    <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)"
-                        class="w-full" placeholder="Buscar profesion" />
+                    <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)" class="w-full"
+                        placeholder="Buscar profesion" />
                     <x-button type="button" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button-link>
                 </div>
             </x-slot>
         </x-title-app>
-        <!-- Profesions form -->
+        <!-- Profesions modal form -->
         <div x-show="modalForm"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 dark:bg-opacity-80">
             <form class="max-w-lg bg-white dark:bg-tbn-dark rounded-lg px-6 py-5 shadow-lg mx-4"
@@ -38,64 +38,66 @@
             </form>
         </div>
         <!-- Profesions table -->
-        <table class="w-full bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 text-sm text-left rtl:text-right">
-            <thead class="text-xs uppercase text-tbn-dark dark:text-tbn-secondary">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        Nombre de profesión
-                    </th>
-                    <th scope="col" class="px-6 py-3 hidden lg:table-cell">
-                        Creación
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-right">
-                        Opciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @if ($search)
-                    <tr class="text-center text-tbn-dark text-sm bg-gray-200 dark:border-b-tbn-secondary">
-                        <td class="px-6 py-2" colspan="3">
-                            <div class="flex flex-row justify-between items-center">
-                                <div>
-                                    <span class="font-bold">"{{ $search }}"</span>
-                                    <i class="fas fa-arrow-right text-xs px-2"></i>
-                                    {{ $count_results }} Resultados encontrados
-                                </div>
-                                <button type="button" wire:click="$set('search', null)">
-                                    <i class="fas fa-times text-tbn-primary text-lg"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                @endif
-                @forelse ($profesions as $profesion)
-                    <tr class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
-                        <th scope="row" class="px-6 py-4 font-medium dark:text-white whitespace-wrap">
-                            <h5 class="text-md font-bold">{{ $profesion->profesion_name }}</h5>
+        <div class="overflow-x-auto">
+            <table class="w-full bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 text-sm text-left rtl:text-right">
+                <thead class="text-xs uppercase text-tbn-dark dark:text-tbn-secondary">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Nombre de profesión
                         </th>
-                        <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell">
-                            {{ \Carbon\Carbon::parse($profesion->created_at)->diffForHumans() }}
-                        </td>
-                        <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-lg">
-                            <a x-on:click="editProfesion({{ $profesion->id }})"
-                                class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer mr-3">
-                                <i class="far fa-edit"></i></a>
-                            @role('ADMIN')
-                                <a x-on:click="confirmModal({{ $profesion->id }})"
-                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer">
-                                    <i class="far fa-trash-alt"></i></a>
-                            @endrole
-                        </td>
+                        <th scope="col" class="px-6 py-3 hidden lg:table-cell">
+                            Creación
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right">
+                            Opciones
+                        </th>
                     </tr>
-                @empty
-                    <tr class="bg-white border-b hover:bg-gray-50 ">
-                        <td class="py-4 text-center font-italic text-gray-600" colspan="4">
-                            No se han encontrado datos
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if ($search)
+                        <tr class="text-center text-tbn-dark text-sm bg-gray-200 dark:border-b-tbn-secondary">
+                            <td class="px-6 py-2" colspan="3">
+                                <div class="flex flex-row justify-between items-center">
+                                    <div>
+                                        <span class="font-bold">"{{ $search }}"</span>
+                                        <i class="fas fa-arrow-right text-xs px-2"></i>
+                                        {{ $count_results }} Resultados encontrados
+                                    </div>
+                                    <button type="button" wire:click="$set('search', null)">
+                                        <i class="fas fa-times text-tbn-primary text-lg"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
+                    @forelse ($profesions as $profesion)
+                        <tr class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                            <th scope="row" class="px-6 py-4 font-medium dark:text-white whitespace-wrap">
+                                <h5 class="text-md font-bold">{{ $profesion->profesion_name }}</h5>
+                            </th>
+                            <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell">
+                                {{ \Carbon\Carbon::parse($profesion->created_at)->diffForHumans() }}
+                            </td>
+                            <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-lg">
+                                <a x-on:click="editProfesion({{ $profesion->id }})"
+                                    class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer mr-3">
+                                    <i class="far fa-edit"></i></a>
+                                @role('ADMIN')
+                                    <a x-on:click="confirmModal({{ $profesion->id }})"
+                                        class="font-medium text-tbn-primary hover:text-tbn-secondary transition-colors duration-300 cursor-pointer">
+                                        <i class="far fa-trash-alt"></i></a>
+                                @endrole
+                            </td>
+                        </tr>
+                    @empty
+                        <tr class="bg-white border-b hover:bg-gray-50 ">
+                            <td class="py-4 text-center font-italic text-gray-600" colspan="4">
+                                No se han encontrado datos
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         <div> {{ $profesions->links() }} </div>
     </div>
 

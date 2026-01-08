@@ -46,73 +46,76 @@
                 </div>
             </x-slot>
         </x-title-app>
-        <table class="w-full mb-5 text-sm text-left bg-white rounded-md shadow-md dark:bg-tbn-dark rtl:text-right">
-            <thead class="text-xs uppercase text-tbn-secondary dark:text-tbn-light">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        Nombre
-                    </th>
-                    <th scope="col" class="hidden px-6 py-3 md:table-cell">
-                        Email
-                    </th>
-                    <th scope="col" class="hidden px-6 py-3 md:table-cell">
-                        Actualización
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Estado
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-right">
-                        Opciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="text-tbn-secondary dark:text-tbn-light">
-                @forelse ($users as $user)
-                    <tr wire:key='{{ $user->id }}' x-data="{
-                        info: {
-                            admin: {{ $user->actived && $user->hasRole('ADMIN') ? 'true' : 'false' }},
-                            user: {{ $user->actived && $user->hasRole('USER') ? 'true' : 'false' }},
-                            actived: {{ $user->actived ? 'true' : 'false' }}
-                        }
-                    }"
-                        x-show="(filter_option === 'all' && info.actived) || (filter_option === 'admin' && info.admin) || (filter_option === 'user' && info.user) || (filter_option === 'inactived' && !info.actived)"
-                        x-transition:enter.duration.300ms x-transition:leave.duration.300ms
-                        class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
-                        <th scope="row"
-                            class="px-6 py-4 font-medium text-tbn-dark dark:text-white whitespace-nowrap">
-                            <span class="mr-2" x-html="setUserRole({{ $user->getRoleNames() }})"></span>
-                            <h5 class="inline font-medium text-md md:text-lg">{{ $user->name }}</h5>
+        <div class="overflow-x-auto">
+            <table class="w-full mb-5 text-sm text-left bg-white rounded-md shadow-md dark:bg-tbn-dark rtl:text-right">
+                <thead class="text-xs uppercase text-tbn-secondary dark:text-tbn-light">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Nombre
                         </th>
-                        <td class="hidden px-6 py-4 md:table-cell">
-                            {{ $user->email }}
-                        </td>
-                        <td class="hidden px-6 py-4 md:table-cell">
-                            {{ date('d/m/Y - H:i', strtotime($user->updated_at)) }}
-                        </td>
-                        <td class="px-6 py-4">
-                            @if ($user->actived)
-                                <span class="px-2 py-1 text-xs text-white rounded-full bg-tbn-primary">
-                                    Activo</span>
-                            @else
-                                <span class="px-2 py-1 text-xs text-white rounded-full bg-tbn-dark">
-                                    Inactivo</span>
-                            @endif
-                        </td>
-                        <td class="flex flex-row items-center justify-end px-6 py-4 text-xl h-15">
-                            <a href="{{ route('config-user', ['id' => $user->id]) }}"
-                                class="text-tbn-dark dark:text-tbn-light" wire:navigate><i class="fas fa-cog"></i></a>
-                        </td>
+                        <th scope="col" class="hidden px-6 py-3 md:table-cell">
+                            Email
+                        </th>
+                        <th scope="col" class="hidden px-6 py-3 md:table-cell">
+                            Actualización
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Estado
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right">
+                            Opciones
+                        </th>
                     </tr>
-                @empty
-                    <tr
-                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="py-4 text-center text-gray-600 font-italic" colspan="4">No se han encontrado
-                            datos
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="text-tbn-secondary dark:text-tbn-light">
+                    @forelse ($users as $user)
+                        <tr wire:key='{{ $user->id }}' x-data="{
+                            info: {
+                                admin: {{ $user->actived && $user->hasRole('ADMIN') ? 'true' : 'false' }},
+                                user: {{ $user->actived && $user->hasRole('USER') ? 'true' : 'false' }},
+                                actived: {{ $user->actived ? 'true' : 'false' }}
+                            }
+                        }"
+                            x-show="(filter_option === 'all' && info.actived) || (filter_option === 'admin' && info.admin) || (filter_option === 'user' && info.user) || (filter_option === 'inactived' && !info.actived)"
+                            x-transition:enter.duration.300ms x-transition:leave.duration.300ms
+                            class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                            <th scope="row"
+                                class="px-6 py-4 font-medium text-tbn-dark dark:text-white whitespace-nowrap">
+                                <span class="mr-2" x-html="setUserRole({{ $user->getRoleNames() }})"></span>
+                                <h5 class="inline font-medium text-md md:text-lg">{{ $user->name }}</h5>
+                            </th>
+                            <td class="hidden px-6 py-4 md:table-cell">
+                                {{ $user->email }}
+                            </td>
+                            <td class="hidden px-6 py-4 md:table-cell">
+                                {{ date('d/m/Y - H:i', strtotime($user->updated_at)) }}
+                            </td>
+                            <td class="px-6 py-4">
+                                @if ($user->actived)
+                                    <span class="px-2 py-1 text-xs text-white rounded-full bg-tbn-primary">
+                                        Activo</span>
+                                @else
+                                    <span class="px-2 py-1 text-xs text-white rounded-full bg-tbn-dark">
+                                        Inactivo</span>
+                                @endif
+                            </td>
+                            <td class="flex flex-row items-center justify-end px-6 py-4 text-xl h-15">
+                                <a href="{{ route('config-user', ['id' => $user->id]) }}"
+                                    class="text-tbn-dark dark:text-tbn-light" wire:navigate><i
+                                        class="fas fa-cog"></i></a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr
+                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="py-4 text-center text-gray-600 font-italic" colspan="4">No se han encontrado
+                                datos
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
     @script
         <script>
