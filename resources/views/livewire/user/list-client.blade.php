@@ -22,27 +22,27 @@
                             <ul class="bg-white dark:bg-tbn-dark" x-on:click="show_dropdown = false" class="py-2"
                                 aria-labelledby="user-menu-button">
                                 <li class="cursor-pointer">
-                                    <a x-on:click="setFilterAnnounce('all')"
+                                    <a x-on:click="setFilterClient('all')"
                                         class="block px-4 py-2 text-sm text-gray-700 rounded-t-lg hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                                         Todos los clientes</a>
                                 </li>
                                 <li class="cursor-pointer">
-                                    <a x-on:click="setFilterAnnounce('free')"
+                                    <a x-on:click="setFilterClient('free')"
                                         class="block px-4 py-2 text-sm text-gray-700 rounded-t-lg hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                                         Clientes FREE</a>
                                 </li>
                                 <li class="cursor-pointer">
-                                    <a x-on:click="setFilterAnnounce('pro')"
+                                    <a x-on:click="setFilterClient('pro')"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                                         Clientes PRO</a>
                                 </li>
                                 <li class="cursor-pointer">
-                                    <a x-on:click="setFilterAnnounce('max')"
+                                    <a x-on:click="setFilterClient('max')"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                                         Clientes PRO-MAX</a>
                                 </li>
                                 <li class="cursor-pointer">
-                                    <a x-on:click="setFilterAnnounce('inactived')"
+                                    <a x-on:click="setFilterClient('inactived')"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                                         Clientes deshabilitados</a>
                                 </li>
@@ -162,7 +162,7 @@
                 filter_option: 'all',
                 filter_text: 'Filtrar',
                 // Functions
-                setFilterAnnounce(option) {
+                setFilterClient(option) {
                     this.filter_option = option
                     switch (option) {
                         case 'all':

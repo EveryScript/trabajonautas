@@ -1,6 +1,33 @@
 <x-web-layout>
+    <!-- Popup Ad Quimeras Bolivia -->
+    <div x-data="{ open: true }" x-show="open">
+        <div x-transition:enter.duration.300ms x-transition:leave.duration.300ms
+            class="fixed z-50 max-w-lg p-5 ml-8 transition-all duration-300 bg-white border shadow-2xl bottom-6 right-6 dark:bg-tbn-dark border-tbn-light rounded-2xl hover:shadow-tbn-secondary hover:scale-105 group">
+            <div class="flex flex-col items-center gap-6 sm:flex-row">
+                <picture class="min-w-24">
+                    <img src="https://www.quimerasbolivia.com/img/circle-quim.png" class="w-[6rem] h-[6rem]"
+                        alt="quimeras-logo">
+                </picture>
+                <div>
+                    <h3 class="text-sm font-semibold leading-tight text-tbn-dark dark:text-white md:text-base">
+                        ¿Tienes problemas para mejorar tu curriculum?
+                    </h3>
+                    <p class="my-2 text-xs text-tbn-dark dark:text-tbn-light md:text-sm">
+                        No te preocupes, tenemos la solución. <br>
+                        <span class="font-semibold text-tbn-primary">Quimeras Bolivia</span> tiene los mejores cursos
+                        para tí.
+                    </p>
+                    <a href="https://quimerasbolivia.com" target="_blank">
+                        <x-button>Sí, por favor</x-button>
+                    </a>
+                    <x-secondary-button x-on:click="open = false">No gracias</x-secondary-button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Landing -->
-    <section class="bg-bottom bg-cover" style="background-image: url({{ asset('storage/img/tbn-space-reverse.webp') }})">
+    <section class="bg-bottom bg-cover"
+        style="background-image: url({{ asset('storage/img/tbn-space-reverse.webp') }})">
         <div class="max-w-6xl md:h-[35rem] h-[30rem] flex flex-row justify-center items-center gap-4 mx-auto">
             <div class="px-6 mx-auto lg:w-7/12">
                 <h4 class="mb-2 text-3xl font-bold text-center text-white sm:text-left sm:text-5xl title-font"
