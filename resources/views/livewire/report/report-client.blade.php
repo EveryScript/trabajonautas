@@ -6,64 +6,80 @@
                 Obtener información sobre las cuentas de los clientes.
             </x-slot>
             <x-slot name="search_field">
-                <div class="h-full sm:h-10 flex flex-col sm:flex-row gap-1">
+                <div class="flex flex-col h-full gap-1 sm:h-10 sm:flex-row">
                     <x-input name="start" type="date" x-model="startDate" class="w-full" />
                     <x-input name="end" type="date" x-model="endDate" class="w-full" />
                     <x-button type="button" x-on:click="processData" x-bind:disabled="!startDate || !endDate">
-                        <span wire:loading wire:target="searchData"><i class="fas fa-spinner text-sm text-white animate-spin"></i></span>
+                        <span wire:loading wire:target="searchData"><i
+                                class="text-sm text-white fas fa-spinner animate-spin"></i></span>
                         <span wire:loading.remove wire:target='searchData'>Procesar</span></x-button>
                 </div>
             </x-slot>
         </x-title-app>
-        <div class="flex flex-col lg:flex-row gap-4">
-            <div class="w-full lg:w-1/3">
-                <div class="bg-white dark:bg-tbn-dark rounded-lg px-6 py-5 shadow-lg">
-                    <h5 class="text-lg font-medium mb-2 text-tbn-primary">
-                        Información general</h5>
-                    <table class="min-w-full divide-y divide-gray-200 mb-4">
-                        <tbody class="divide-y text-tbn-dark dark:text-tbn-light text-sm divide-tbn-light dark:divide-tbn-secondary">
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Fecha inicio</td>
-                                <td class="py-1 whitespace-nowrap text-right">
-                                    {{ date('d/M/Y', strtotime($start_date)) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Fecha final</td>
-                                <td class="py-1 whitespace-nowrap text-right">
-                                    {{ date('d/M/Y', strtotime($end_date)) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Cantidad de clientes</td>
-                                <td class="py-1 whitespace-nowrap text-right">{{ count($clients) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 whitespace-nowrap font-medium">Ganancia total</td>
-                                <td class="py-1 whitespace-nowrap text-right">{{ $sum_prices }} Bs.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <x-button type="button" wire:click='exportData'
-                        x-bind:disabled="{{ count($clients) === 0 ? 'true' : 'false' }}">
-                        <span wire:loading.remove wire:target="exportData">Exportar</span>
-                        <span wire:loading wire:target="exportData">Exportando...</span>
-                    </x-button>
+        <div class="flex flex-col gap-4 lg:flex-row">
+            <div class="w-full lg:w-3/12">
+                <div class="flex flex-col gap-4 sm:flex-row lg:flex-col">
+                    <!-- Info card -->
+                    <div class="px-6 py-5 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
+                        <h5 class="mb-2 text-lg font-medium text-tbn-primary">
+                            Información general</h5>
+                        <table class="min-w-full mb-4 divide-y divide-gray-200">
+                            <tbody
+                                class="text-sm divide-y text-tbn-dark dark:text-tbn-light divide-tbn-light dark:divide-tbn-secondary">
+                                <tr>
+                                    <td class="py-1 font-medium whitespace-nowrap">Fecha inicio</td>
+                                    <td class="py-1 text-right whitespace-nowrap">
+                                        {{ date('d/M/Y', strtotime($start_date)) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 font-medium whitespace-nowrap">Fecha final</td>
+                                    <td class="py-1 text-right whitespace-nowrap">
+                                        {{ date('d/M/Y', strtotime($end_date)) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 font-medium whitespace-nowrap">Cantidad de clientes</td>
+                                    <td class="py-1 text-right whitespace-nowrap">{{ count($clients) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 font-medium whitespace-nowrap">Ganancia total</td>
+                                    <td class="py-1 text-right whitespace-nowrap">{{ $sum_prices }} Bs.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <x-button type="button" wire:click='exportData'
+                            x-bind:disabled="{{ count($clients) === 0 ? 'true' : 'false' }}">
+                            <span wire:loading.remove wire:target="exportData">Exportar</span>
+                            <span wire:loading wire:target="exportData">Exportando...</span>
+                        </x-button>
+                    </div>
+                    <!-- QR Image info -->
+                    <div class="px-6 py-5 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
+                        <h5 class="mb-2 text-lg font-medium text-tbn-primary">
+                            Imagen de QR</h5>
+                        <p class="mb-2 text-sm text-tbn-secondary dark:text-tbn-light">
+                            Esta imagen se utiliza en el formulario de registro de todos los clientes.</p>
+                        <x-button type="button" x-on:click="modalForm = true">
+                            <span>Cambiar imagen QR</span>
+                        </x-button>
+                    </div>
                 </div>
             </div>
-            <div class="w-full lg:w-2/3">
+            <div class="w-full lg:w-9/12">
+                <!-- Data to export -->
                 <table
-                    class="w-full bg-white dark:bg-tbn-dark rounded-md shadow-md mb-5 text-sm text-left rtl:text-right overflow-x-auto">
+                    class="w-full mb-5 overflow-x-auto text-sm text-left bg-white rounded-md shadow-md dark:bg-tbn-dark rtl:text-right">
                     <thead class="text-xs uppercase text-tbn-dark dark:text-tbn-secondary">
                         <tr>
                             <th scope="col" class="px-6 py-3">
                                 Cliente
                             </th>
-                            <th scope="col" class="px-6 py-3 hidden lg:table-cell">
+                            <th scope="col" class="hidden px-6 py-3 lg:table-cell">
                                 Cuenta
                             </th>
-                            <th scope="col" class="px-6 py-3 hidden lg:table-cell">
+                            <th scope="col" class="hidden px-6 py-3 lg:table-cell">
                                 Celular
                             </th>
-                            <th scope="col" class="px-6 py-3 hidden lg:table-cell">
+                            <th scope="col" class="hidden px-6 py-3 lg:table-cell">
                                 Verificación
                             </th>
                             <th scope="col" class="px-6 py-3">
@@ -73,17 +89,19 @@
                     </thead>
                     <tbody wire:loading.class="opacity-50">
                         @forelse ($clients as $client)
-                            <tr wire:key='{{ $client->id }}' class="border-b dark:text-tbn-light hover:bg-gray-300 dark:border-b-tbn-secondary dark:hover:bg-neutral-900">
-                                <th scope="row" class="px-6 py-4 font-medium text-tbn-dark dark:text-white whitespace-nowrap">
-                                    <h5 class="text-md font-bold">{{ $client->name }}</h5>
+                            <tr wire:key='{{ $client->id }}'
+                                class="border-b dark:text-tbn-light hover:bg-gray-300 dark:border-b-tbn-secondary dark:hover:bg-neutral-900">
+                                <th scope="row"
+                                    class="px-6 py-4 font-medium text-tbn-dark dark:text-white whitespace-nowrap">
+                                    <h5 class="font-bold text-md">{{ $client->name }}</h5>
                                 </th>
-                                <td class="px-6 py-4 uppercase hidden md:table-cell">
+                                <td class="hidden px-6 py-4 uppercase md:table-cell">
                                     {{ $client->account->accountType->name }}
                                 </td>
-                                <td class="px-6 py-4 hidden md:table-cell">
+                                <td class="hidden px-6 py-4 md:table-cell">
                                     {{ $client->phone }}
                                 </td>
-                                <td class="px-6 py-4 hidden md:table-cell">
+                                <td class="hidden px-6 py-4 md:table-cell">
                                     {{ date('d/M/Y - H:i', strtotime($client->account->updated_at)) }}
                                 </td>
                                 <td class="px-6 py-4">
@@ -91,8 +109,10 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr class="bg-white dark:bg-tbn-dark border-b dark:border-b-tbn-secondary dark:hover:bg-neutral-900">
-                                <td class="py-4 text-center font-italic text-tbn-dark dark:text-tbn-light" colspan="5">
+                            <tr
+                                class="bg-white border-b dark:bg-tbn-dark dark:border-b-tbn-secondary dark:hover:bg-neutral-900">
+                                <td class="py-4 text-center font-italic text-tbn-dark dark:text-tbn-light"
+                                    colspan="5">
                                     No se han encontrado datos</td>
                             </tr>
                         @endforelse
@@ -100,15 +120,67 @@
                 </table>
             </div>
         </div>
+        <!-- Change QR form -->
+        <div x-show="modalForm"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 dark:bg-opacity-80">
+            <form wire:submit='saveQRImage'
+                class="max-w-lg px-6 py-5 mx-4 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
+                @if ($qr_new_image)
+                    <div class="mb-2">
+                        <picture class="block w-full mx-auto sm:w-1/2">
+                            <img src="{{ $qr_new_image->temporaryUrl() }}" alt="qr-image" class="rounded">
+                        </picture>
+                    </div>
+                @else
+                    <div class="mb-2">
+                        <picture class="block w-full mx-auto sm:w-1/2">
+                            <img wire:target='qr_new_image' src="{{ asset('storage/' . $qr_image->value) }}"
+                                alt="qr-image" class="rounded">
+                        </picture>
+                    </div>
+                @endif
+                <div class="mb-2">
+                    <x-label for="image" value="{{ __('Imagen') }}" />
+                    <input type="file" wire:model.live="qr_new_image" id="image"
+                        class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-dark dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-secondary file:text-white rounded-lg file:transition-all file:duration-300"
+                        accept="image/png, image/jpeg, image/jpg" x-on:change="previewQRImage" />
+                    <x-input-error for="qr_new_image" class="mt-2" />
+                    <small wire:loading wire:target='qr_new_image'
+                        class="text-xs text-tbn-secondary dark:text-tbn-light">Subiendo imagen...</small>
+                </div>
+                <x-button class="mb-4" type="submit">
+                    <span wire:loading.remove wire:target="saveQRImage">Publicar</span>
+                    <span wire:loading wire:target="saveQRImage">
+                        <i class="text-sm fas fa-spinner animate-spin"></i></span>
+                </x-button>
+                <x-secondary-button type="button" class="mb-4"
+                    x-on:click="modalForm = false">Cancelar</x-secondary-button>
+                <div class="text-xs text-tbn-dark dark:text-tbn-light">
+                    ATENCIÓN. Una vez guardada, la imagen del código QR se actualizará en el formulario de registro de
+                    clientes de Trabajonautas.com
+                </div>
+            </form>
+        </div>
     </div>
     @script
         <script>
             Alpine.data('content', () => ({
                 startDate: '',
                 endDate: '',
+                modalForm: false,
+                previewImage: null,
+                // Functions
+                init() {
+                    $wire.on('qr-image-saved', () => {
+                        this.modalForm = false
+                    })
+                },
                 processData() {
                     if (this.startDate && this.endDate)
                         $wire.searchData(this.startDate, this.endDate)
+                },
+                previewQRImage() {
+
                 }
             }))
         </script>

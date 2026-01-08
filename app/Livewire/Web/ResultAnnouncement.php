@@ -3,6 +3,7 @@
 namespace App\Livewire\Web;
 
 use App\Models\Announcement;
+use App\Models\Location;
 use App\Models\User;
 use App\Traits\CheckClientsProVerified;
 use Carbon\Carbon;
@@ -106,9 +107,11 @@ class ResultAnnouncement extends Component
             ->where('id', '<>', $announcement->id)
             ->where('expiration_time', '>=', now())
             ->get();
+        $total_locations = Location::count();
         return view('livewire.web.result-announcement', compact(
             'announcement',
-            'suggests'
+            'suggests',
+            'total_locations'
         ));
     }
 }

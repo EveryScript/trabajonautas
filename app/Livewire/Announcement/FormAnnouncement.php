@@ -22,7 +22,6 @@ class FormAnnouncement extends Component
 
     public $id; // Edit
     public AnnouncementForm $announcement;
-    public $areas, $locations, $companies, $profesions;
 
     public function mount($id = null)
     {
@@ -102,10 +101,15 @@ class FormAnnouncement extends Component
 
     public function render()
     {
-        $this->areas = Area::all(['id', 'area_name']);
-        $this->locations = Location::all(['id', 'location_name']);
-        $this->companies = Company::all(['id', 'company_name']);
-        $this->profesions = Profesion::with('areas:id')->get();
-        return view('livewire.announcement.form-announcement');
+        $areas = Area::all(['id', 'area_name']);
+        $locations = Location::all(['id', 'location_name']);
+        $companies = Company::all(['id', 'company_name']);
+        $profesions = Profesion::with('areas:id')->get();
+        return view('livewire.announcement.form-announcement', [
+            'areas' => $areas,
+            'locations' => $locations,
+            'companies' => $companies,
+            'profesions' => $profesions,
+        ]);
     }
 }

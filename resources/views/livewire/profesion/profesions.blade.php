@@ -121,7 +121,7 @@
                 },
                 confirmModal(id) {
                     Swal.fire({
-                        title: "¿Eliminar profesion?",
+                        title: "¿Eliminar profesión?",
                         text: "Los usuarios registrados con esta profesión NO serán eliminados.",
                         showDenyButton: true,
                         confirmButtonText: "Si",

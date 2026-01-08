@@ -85,8 +85,8 @@
                 @empty
                     <tr
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="py-4 text-center font-italic text-gray-600" colspan="4">No se han encontrado
-                            datos
+                        <td class="py-4 text-center font-italic text-gray-600" colspan="4">
+                            No se han encontrado datos
                         </td>
                     </tr>
                 @endforelse

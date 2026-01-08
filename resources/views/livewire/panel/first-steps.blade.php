@@ -1,17 +1,17 @@
-<section class="min-h-screen flex items-start justify-center py-10">
+<section class="flex items-start justify-center min-h-screen py-10">
     <div x-data="content" class="w-full max-w-xl md:max-w-3xl">
-        <div class="p-6 md:p-10 bg-white dark:bg-tbn-dark rounded-lg shadow-lg mx-2">
-            <div class="max-w-60 mb-3">
+        <div class="p-6 mx-2 bg-white rounded-lg shadow-lg md:p-10 dark:bg-tbn-dark">
+            <div class="mb-3 max-w-60">
                 <x-application-logo />
             </div>
-            <h3 class="dark:text-white text-lg md:text-xl font-semibold mb-1">
+            <h3 class="mb-1 text-lg font-semibold dark:text-white md:text-xl">
                 Hola {{ auth()->user()->name }}</h3>
-            <p class="text-sm text-tbn-secondary dark:text-tbn-light mb-4">Estamos listos para despegar contigo. Ingresa
+            <p class="mb-4 text-sm text-tbn-secondary dark:text-tbn-light">Estamos listos para despegar contigo. Ingresa
                 tu información para
                 completar tu registro.</p>
             <!-- Step 1 : Gender, Age, Phone -->
             <div x-show="step === 1" x-transition:enter.duration.300ms>
-                <h5 class="dark:text-white text-md font-bold mb-2">¿Cuál es tu genero?</h5>
+                <h5 class="mb-2 font-bold dark:text-white text-md">¿Cuál es tu genero?</h5>
                 <ul class="grid grid-cols-2 gap-1 mx-auto mb-8">
                     <li class="text-center">
                         <input type="radio" x-model='gender' value="M" id="gender-1" name="gender"
@@ -31,8 +31,8 @@
                         </label>
                     </li>
                 </ul>
-                <h5 class="dark:text-white text-md font-bold mb-2">¿Cuál es tu edad?</h5>
-                <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
+                <h5 class="mb-2 font-bold dark:text-white text-md">¿Cuál es tu edad?</h5>
+                <ul class="grid grid-cols-2 gap-1 mx-auto mb-8 md:grid-cols-3">
                     <li class="text-center">
                         <input type="radio" x-model='age' value="1" id="age-1" name="age"
                             class="hidden peer">
@@ -58,28 +58,33 @@
                         </label>
                     </li>
                 </ul>
-                <h5 class="dark:text-white text-md font-bold mb-1">Celular (WhatsApp)</h5>
-                <div class="flex gap-1 items-center">
+                <h5 class="mb-1 font-bold dark:text-white text-md">Celular (WhatsApp)</h5>
+                <div class="flex items-center gap-1 mb-1">
                     <select id="country-code" name="country-code" disabled
-                        class="ps-3 pe-8 py-2 border border-gray-300 rounded-md focus:outline-none text-tbn-secondary bg-white disabled:cursor-not-allowed">
+                        class="py-2 bg-white border border-gray-300 rounded-md ps-3 pe-8 focus:outline-none text-tbn-secondary disabled:cursor-not-allowed">
                         <option value="+591" selected>+591</option>
                     </select>
-                    <x-input type="number" x-model="phone" inputmode="numeric" class="w-full" id="phone"
-                        placeholder="67891011" />
+                    <x-input type="tel" x-model="phone" inputmode="numeric" class="w-full" id="phone"
+                        pattern="[0-9]*" placeholder="67891011" />
                 </div>
-                <small class="text-tbn-secondary dark:text-tbn-light text-xs mb-1">Asegúrate de ingresar tu número
-                    de celular con Whatsapp.</small>
+                <p x-show="!isValidPhone()" class="mb-1 text-xs text-tbn-secondary dark:text-tbn-primary">
+                    <i class="fa-solid fa-circle-info"></i> Asegúrate de ingresar tu número de celular con
+                    WhatsApp.
+                </p>
+                <p x-show="isValidPhone()" class="mb-1 text-xs text-green-500">
+                    <i class="fa-solid fa-check"></i> El número de WhatsApp es válido.
+                    <a :href="url_whatsapp" target="_blank" class="underline cursor-pointer">Verificar</a>
+                </p>
                 <div class="flex justify-between mt-4">
                     <x-secondary-button type="button" disabled>Anterior</x-secondary-button>
-                    <x-button type="button" x-on:click="step = 2"
-                        x-bind:disabled="!gender || !age || !isValidPhone()">
+                    <x-button type="button" x-on:click="step = 2" x-bind:disabled="!gender || !age || !isValidPhone()">
                         Siguiente</x-button>
                 </div>
             </div>
             <!-- Step 2 : Grade profile -->
             <div x-show="step === 2" x-cloak x-transition:enter.duration.300ms>
-                <h5 class="text-md font-bold mb-2 dark:text-white">¿Cuál es tu grado académico?</h5>
-                <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 mx-auto mb-8">
+                <h5 class="mb-2 font-bold text-md dark:text-white">¿Cuál es tu grado académico?</h5>
+                <ul class="grid grid-cols-1 gap-1 mx-auto mb-8 md:grid-cols-2 lg:grid-cols-3">
                     <li class="text-center">
                         <input type="radio"x-model='grade_profile_id' value="1" id="profile-1"
                             name="grade-profile" class="hidden peer">
@@ -87,7 +92,7 @@
                             class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                             <div>
                                 <span class="block font-bold uppercase">Estudiante</span>
-                                <p class="text-xs dark:text-tbn-light">Bachiller o cursante de instituto o universidad</p>
+                                <p class="text-xs dark:text-tbn-light">Bachiller o en instituto o universidad</p>
                             </div>
                         </label>
                     </li>
@@ -98,7 +103,7 @@
                             class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                             <div>
                                 <span class="block font-bold uppercase">Técnico Medio</span>
-                                <p class="text-xs dark:text-tbn-light">Profesional titulado a nivel tecnico medio</p>
+                                <p class="text-xs dark:text-tbn-light">Profesional titulado a nivel técnico medio</p>
                             </div>
                         </label>
                     </li>
@@ -109,7 +114,8 @@
                             class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                             <div>
                                 <span class="block font-bold uppercase">Técnico Superior</span>
-                                <p class="text-xs dark:text-tbn-light">Profesional titulado a nivel tecnico superior</p>
+                                <p class="text-xs dark:text-tbn-light">Profesional titulado a nivel técnico superior
+                                </p>
                             </div>
                         </label>
                     </li>
@@ -120,7 +126,7 @@
                             class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                             <div>
                                 <span class="block font-bold uppercase">Egresado</span>
-                                <p class="text-xs dark:text-tbn-light m-0">Aprobó todas las materias y solamente le
+                                <p class="m-0 text-xs dark:text-tbn-light">Aprobó todas las materias y solamente le
                                     falta la tesis.</p>
                             </div>
                         </label>
@@ -132,7 +138,8 @@
                             class="flex justify-center items-center h-24 sm:h-[8rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                             <div>
                                 <span class="block font-bold uppercase">Titulado</span>
-                                <p class="text-xs dark:text-tbn-light">Actualmente con titulo en provisión nacional.</p>
+                                <p class="text-xs dark:text-tbn-light">Actualmente con titulo en provisión nacional.
+                                </p>
                             </div>
                         </label>
                     </li>
@@ -145,11 +152,12 @@
             </div>
             <!-- Step 3 : Profesion -->
             <div x-show="step === 3" x-cloak x-transition:enter.duration.300ms>
-                <h5 class="text-md font-bold mb-2 dark:text-white">¿Cuál es tu profesión?</h5>
+                <h5 class="mb-2 font-bold text-md dark:text-white">¿Cuál es tu profesión?</h5>
                 <x-input type="search" x-model="searchProfesion" class="mb-2" id="searchProfesion"
                     class="w-full" placeholder="Busca una profesión" />
-                <div class="h-[18rem] overflow-y-auto bg-white dark:bg-neutral-900 border border-gray-200 dark:border-tbn-secondary p-2 rounded-lg scrollbar-none">
-                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-1 mx-auto mb-8">
+                <div
+                    class="h-[18rem] overflow-y-auto bg-white dark:bg-neutral-900 border border-gray-200 dark:border-tbn-secondary p-2 rounded-lg scrollbar-none">
+                    <ul class="grid grid-cols-1 gap-1 mx-auto mb-8 md:grid-cols-2">
                         <template x-for="profesion in filteredProfesions">
                             <li class="text-center" :key="'profesion' + profesion.id">
                                 <input type="radio" x-on:click="profesion_id = profesion.id" :value="profesion.id"
@@ -158,13 +166,13 @@
                                     class="flex justify-center items-center h-14 sm:h-[5rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                                     <div>
                                         <span
-                                            x-text="profesion.profesion_name"class="block font-medium text-sm"></span>
+                                            x-text="profesion.profesion_name"class="block text-sm font-medium"></span>
                                     </div>
                                 </label>
                             </li>
                         </template>
                         <li x-show="filteredProfesions().length === 0 && searchProfesion.length > 0"
-                            class="text-center text-xs text-tbn-secondary py-20 md:col-span-2">
+                            class="py-20 text-xs text-center text-tbn-secondary md:col-span-2">
                             No se encontraron resultados</li>
                     </ul>
                 </div>
@@ -177,8 +185,8 @@
             </div>
             <!-- Step 4 : Locations -->
             <div x-show="step === 4" x-cloak x-transition:enter.duration.300ms>
-                <h5 class="text-md font-bold mb-2 dark:text-white">¿Cuál es tu ubicación actual?</h5>
-                <ul class="grid grid-cols-2 md:grid-cols-3 gap-1 mx-auto mb-8">
+                <h5 class="mb-2 font-bold text-md dark:text-white">¿Cuál es tu ubicación actual?</h5>
+                <ul class="grid grid-cols-2 gap-1 mx-auto mb-8 md:grid-cols-3">
                     <template x-for="location in locations">
                         <li class="text-center" :key="'location-' + location.id">
                             <input type="radio" x-on:click="setLocation(location.id)" :value="location.id"
@@ -186,7 +194,7 @@
                             <label :for="'location-' + location.id"
                                 class="flex justify-center items-center h-12 sm:h-[4rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                                 <div>
-                                    <span x-text="location.location_name" class="block font-medium text-sm"></span>
+                                    <span x-text="location.location_name" class="block text-sm font-medium"></span>
                                 </div>
                             </label>
                         </li>
@@ -201,39 +209,40 @@
             </div>
             <!-- Step 5 : Select your account -->
             <div x-show="step === 5" x-cloak x-transition:enter.duration.300ms>
-                <h5 class="text-md font-bold mb-2 dark:text-white">Elige una cuenta</h5>
-                <ul class=" grid grid-cols-1 md:grid-cols-3 gap-1">
+                <h5 class="mb-2 font-bold text-md dark:text-white">Elige una cuenta</h5>
+                <ul class="grid grid-cols-1 gap-1 md:grid-cols-3">
                     <template x-for="accountType in accountTypes">
                         <li :key="'account-' + accountType.id">
                             <input type="radio" x-on:click="account_type_id = accountType.id"
                                 :id="'account-' + accountType.id" :value="accountType.id" class="hidden peer"
                                 name="account_type">
                             <label :for="'account-' + accountType.id"
-                                class="block cursor-pointer bg-white dark:bg-tbn-dark dark:text-white dark:border-tbn-secondary dark:hover:bg-neutral-900 p-6 rounded-lg shadow-lg border-2 border-gray-200 peer-checked:border-tbn-primary">
+                                class="block p-6 bg-white border-2 border-gray-200 rounded-lg shadow-lg cursor-pointer dark:bg-tbn-dark dark:text-white dark:border-tbn-secondary dark:hover:bg-neutral-900 peer-checked:border-tbn-primary">
                                 <h2 x-text="accountType.name"
-                                    class="text-xl font-semibold text-tbn-secondary hover:bg-tbn-dark dark:text-tbn-primary capitalize"></h2>
+                                    class="text-xl font-semibold capitalize text-tbn-secondary hover:bg-tbn-dark dark:text-tbn-primary">
+                                </h2>
                                 <div class="mt-2 md:mt-2">
                                     <span x-text="accountType.price+' Bs.'"
-                                        class="text-3xl md:text-4xl font-bold text-tbn-secondary dark:text-tbn-light"></span>
+                                        class="text-3xl font-bold md:text-4xl text-tbn-secondary dark:text-tbn-light"></span>
                                     <span
                                         x-text="accountType.duration_days == 0 ? '/ Siempre' : '/ '+accountType.duration_days+' dias'"
-                                        class="text-tbn-dark dark:text-tbn-light font-medium"></span>
+                                        class="font-medium text-tbn-dark dark:text-tbn-light"></span>
                                 </div>
-                                <ul class="mt-3 md:mt-6 space-y-2 text-xs md:text-sm">
+                                <ul class="mt-3 space-y-2 text-xs md:mt-6 md:text-sm">
                                     <li class="flex items-center">
-                                        <i class="fas fa-check text-green-500 mr-2"></i>
-                                        Convocatorias estandar
+                                        <i class="mr-2 text-green-500 fas fa-check"></i>
+                                        Convocatorias estándar
                                     </li>
                                     <li class="flex items-center">
-                                        <i x-show="accountType.id == 1" class="fas fa-times text-red-500 mr-2"></i>
+                                        <i x-show="accountType.id == 1" class="mr-2 text-red-500 fas fa-times"></i>
                                         <i x-show="accountType.id == 2 || accountType.id == 3"
-                                            class="fas fa-check text-green-500 mr-2"></i>
+                                            class="mr-2 text-green-500 fas fa-check"></i>
                                         Convocatorias PRO
                                     </li>
                                     <li class="flex items-center">
                                         <i x-show="accountType.id == 1 || accountType.id == 2"
-                                            class="fas fa-times text-red-500 mr-2"></i>
-                                        <i x-show="accountType.id == 3" class="fas fa-check text-green-500 mr-2"></i>
+                                            class="mr-2 text-red-500 fas fa-times"></i>
+                                        <i x-show="accountType.id == 3" class="mr-2 text-green-500 fas fa-check"></i>
                                         Notificaciones en tiempo real
                                     </li>
                                 </ul>
@@ -244,68 +253,68 @@
                 <div class="flex justify-between mt-4">
                     <x-secondary-button type="button" x-on:click="step = 4">
                         Anterior</x-secondary-button>
-                    <x-button type="submit" x-on:click="isProAccountSelected"
-                        x-bind:disabled="!account_type_id">
+                    <x-button type="submit" x-on:click="isProAccountSelected" x-bind:disabled="!account_type_id">
                         <span wire:loading.remove>Siguiente</span>
-                        <span wire:loading><i class="fas fa-spinner text-sm animate-spin"></i></span>
+                        <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 </div>
             </div>
             <!-- Step 6 : Purchase review -->
             <div x-show="step === 6" x-cloak x-transition:enter.duration.300ms>
-                <h5 class="text-md font-bold mb-1 dark:text-white">Resumen de la compra</h5>
+                <h5 class="mb-1 font-bold text-md dark:text-white">Resumen de la compra</h5>
                 <span class="block mb-2 text-xs text-tbn-dark dark:text-tbn-light">
                     Revisa tus datos y escanea el código QR para realizar tu depósito.</span>
-                <div class="w-full flex flex-col md:flex-row gap-6">
-                    <div class="w-full md:w-3/5 text-sm">
-                        <div class="bg-gray-50 dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary dark:text-tbn-light rounded-md p-2 mb-4">
+                <div class="flex flex-col w-full gap-6 md:flex-row">
+                    <div class="w-full text-sm md:w-3/5">
+                        <div
+                            class="p-2 mb-4 border rounded-md bg-gray-50 dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary dark:text-tbn-light">
                             <table class="divide-y divide-gray-200 dark:divide-tbn-secondary">
                                 <tbody class="divide-y divide-gray-200 dark:divide-tbn-secondary">
                                     <tr>
-                                        <td class="p-2 whitespace-nowrap font-medium">Nombre</td>
+                                        <td class="p-2 font-medium whitespace-nowrap">Nombre</td>
                                         <td x-text="user.name" class="p-2 whitespace-wrap"></td>
                                     </tr>
                                     <tr>
-                                        <td class="p-2 whitespace-nowrap font-medium">Celular</td>
+                                        <td class="p-2 font-medium whitespace-nowrap">Celular</td>
                                         <td x-text="user.phone" class="p-2 whitespace-nowrap"></td>
                                     </tr>
                                     <tr>
-                                        <td class="p-2 whitespace-nowrap font-medium">Ubicación</td>
+                                        <td class="p-2 font-medium whitespace-nowrap">Ubicación</td>
                                         <td x-text="location_name" class="p-2 whitespace-nowrap"></td>
                                     </tr>
                                     <tr>
-                                        <td class="p-2 whitespace-nowrap font-medium">Tipo de cuenta</td>
-                                        <td x-text="user.account_name" class="p-2 whitespace-nowrap uppercase">
+                                        <td class="p-2 font-medium whitespace-nowrap">Tipo de cuenta</td>
+                                        <td x-text="user.account_name" class="p-2 uppercase whitespace-nowrap">
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="p-2 whitespace-nowrap font-medium">Costo</td>
+                                        <td class="p-2 font-medium whitespace-nowrap">Costo</td>
                                         <td x-text="user.account_price +' Bs.'" class="p-2 whitespace-nowrap"></td>
                                     </tr>
                                     <tr>
-                                        <td class="p-2 whitespace-nowrap font-medium">Duración</td>
+                                        <td class="p-2 font-medium whitespace-nowrap">Duración</td>
                                         <td x-text="user.account_duration +' días'" class="p-2 whitespace-nowrap">
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <p class="text-xs text-tbn-dark dark:text-white text-justify">
-                            Una vez realizado el depósito nuestros operadores se comunicarán contigo para confirmar
-                            el
+                        <p class="text-xs text-justify text-tbn-dark dark:text-white">
+                            Una vez realizado el depósito nuestros operadores se comunicarán contigo para confirmar el
                             depósito y habilitar tu cuenta.</p>
                     </div>
-                    <div class="w-full md:w-2/5 text-sm">
+                    <div class="w-full text-sm md:w-2/5">
                         <picture class="block max-w-[10rem] mx-auto mb-2">
-                            <img class="w-full" src="{{ asset('storage/img/tbn-new-qr.webp') }}" alt="qr-code">
+                            <img class="w-full" src="{{ asset('storage/' . $qr_image->value) }}" alt="qr-code">
                         </picture>
-                        <div class="text-center mb-8">
-                            <button wire:click='downloadQR'
-                                class="text-tbn-primary text-xs px-3 py-2 rounded-full border border-tbn-primary hover:bg-tbn-primary hover:text-white transition-all duration-200">
-                                Descargar QR</button>
+                        <div class="mb-8 text-center">
+                            <a href="{{ asset('storage/' . $qr_image->value) }}" download
+                                class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
+                                Descargar QR</a>
                         </div>
-                        <div class="relative px-4 py-3 bg-gray-100 dark:bg-tbn-secondary mb-4 rounded-md">
-                            <span class="absolute -top-3 text-xs text-tbn-primary bg-gray-100 dark:bg-tbn-secondary px-4 py-1 rounded-full">
+                        <div class="relative px-4 py-3 mb-4 bg-gray-100 rounded-md dark:bg-tbn-secondary">
+                            <span
+                                class="absolute px-4 py-1 text-xs bg-gray-100 rounded-full -top-3 text-tbn-primary dark:bg-tbn-secondary">
                                 Banco Bisa</span>
                             <span class="dark:text-white">36621-54481-29402-6598</span>
                         </div>
@@ -316,7 +325,7 @@
                         Anterior</x-secondary-button>
                     <x-button type="button" wire:click='confirmAndSave'>
                         <span wire:loading.remove>Finalizar</span>
-                        <span wire:loading><i class="fas fa-spinner text-sm animate-spin"></i></span>
+                        <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 </div>
             </div>
@@ -329,6 +338,7 @@
                 step: 1,
                 searchProfesion: '',
                 location_name: '',
+                url_whatsapp: '',
                 // Propeties
                 gender: @entangle('gender'),
                 age: @entangle('age'),
@@ -359,7 +369,8 @@
                     }
                 },
                 isValidPhone() {
-                    return /^[67]\d{7,}$/.test(this.phone)
+                    this.url_whatsapp = 'https://wa.me/591' + this.phone
+                    return /^[67]\d{7}$/.test(this.phone)
                 },
                 filteredProfesions() {
                     return this.profesions.filter(
@@ -370,6 +381,9 @@
                 setLocation(id) {
                     this.location_id = id
                     this.location_name = this.locations.find(location => location.id == id).location_name
+                },
+                verifyWhatsappNumber() {
+                    window.open(this.url_whatsapp)
                 }
             }))
         </script>

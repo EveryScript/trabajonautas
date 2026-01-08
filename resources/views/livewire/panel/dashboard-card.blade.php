@@ -1,25 +1,28 @@
-<section x-data="subcontent" class="flex flex-col gap-4 ">
-    <header class="flex flex-row">
+<section x-data="subcontent" class="flex flex-col gap-4">
+    <header class="flex flex-col justify-between gap-4 lg:flex-row">
         <div class="flex-1">
             <h3 class="text-lg font-medium text-tbn-dark dark:text-white">{{ $title }}</h3>
             <small class="text-xs text-tbn-secondary dark:text-tbn-light">{{ $description }}</small>
         </div>
         <!-- Filter suggests -->
         <div class="relative">
-            <button x-on:click="show_dropdown = true" type="button"
-                class="flex px-3 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md dark:bg-tbn-dark text-tbn-secondary dark:text-tbn-light dark:border-tbn-secondary"
-                id="suggest-menu" aria-expanded="false" data-dropdown-toggle="suggest-dropdown"
-                data-dropdown-placement="bottom">
-                <span x-text="filter_text"></span><i class="ml-2 text-xs fa-solid fa-sort-down"></i>
-            </button>
+            <div class="flex flex-row justify-end gap-1">
+                <x-secondary-button type="button" id="search" href="{{ route('search')}}" wire:navigate>
+                    <i class="mr-2 text-xs fa-solid fa-search"></i> Búsqueda avanzada
+                </x-secondary-button>
+                <x-secondary-button x-on:click="show_dropdown = true" type="button" id="suggest-menu"
+                    aria-expanded="false" data-dropdown-toggle="suggest-dropdown" data-dropdown-placement="bottom">
+                    <span x-text="filter_text"></span><i class="ml-2 text-xs fa-solid fa-sort-down"></i>
+                </x-secondary-button>
+            </div>
             <div x-show="show_dropdown" x-on:click.outside="show_dropdown = false"
-                class="absolute right-0 z-50 w-40 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-lg top-6 dark:text-tbn-dark dark:divide-tbn-secondary"
+                class="absolute right-0 z-50 w-40 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-lg top-8 dark:text-tbn-dark dark:divide-tbn-secondary"
                 id="suggest-dropdown">
                 <ul class="bg-white dark:bg-tbn-dark" x-on:click="show_dropdown = false" class="py-2"
                     aria-labelledby="user-menu-button">
-                    <li class="cursor-pointer">
+                    <li class="cursor-pointer ">
                         <a x-on:click="setFilterAnnounce('all')"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
+                            class="block px-4 py-2 text-sm text-gray-700 rounded-t-lg hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                             Todas</a>
                     </li>
                     <li class="cursor-pointer">
@@ -34,7 +37,7 @@
                     </li>
                     <li class="cursor-pointer">
                         <a x-on:click="setFilterAnnounce('month')"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
+                            class="block px-4 py-2 text-sm text-gray-700 rounded-t-lg hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                             Publicado este mes</a>
                     </li>
                 </ul>

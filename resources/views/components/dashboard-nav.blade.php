@@ -4,13 +4,17 @@
     'client_account_type_name',
     'client_pro_verified',
     'client_account_expire_days',
+    'client_account_expire_time',
     'client_account_expired',
 ])
 <aside class="w-full md:w-[18rem] relative">
-    <div class="px-6 py-8 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark dark:text-tbn-light rounded-xl hover:shadow-xl">
+    <div
+        class="px-6 py-8 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark dark:text-tbn-light rounded-xl hover:shadow-xl">
         <picture class="relative block mb-2">
             <img src="{{ asset('storage/img/tbn-new-isologo.webp') }}" alt="avatar"
-                class="w-[3rem] rounded-full mx-auto">
+                class="block dark:hidden w-[3rem] rounded-full mx-auto">
+            <img src="{{ asset('storage/img/tbn-white-isologo.webp') }}" alt="avatar"
+                class="hidden dark:block w-[3rem] rounded-full mx-auto">
         </picture>
         <div class="text-center">
             <h5 class="mb-1 text-lg font-medium"> {{ $client_name }} </h5>
@@ -48,12 +52,18 @@
                 @else
                     <span class="inline-block px-2 py-1 mb-4 text-xs text-white rounded-full bg-tbn-primary">
                         <i class="mr-2 text-xs fas fa-crown"></i> {{ $client_account_type_name }}
-                    </span> 
+                    </span>
                     <!-- Alert time Left -->
                     @if ($client_account_expire_days > 5)
                         <p class="text-xs text-center text-tbn-dark dark:text-tbn-light">
                             <i class="mr-1 fa-solid fa-clock text-tbn-secondary"></i>
-                            Tu cuenta expira en {{ $client_account_expire_days }} dias
+                            Tu cuenta expira en <span class="relative cursor-pointer text-tbn-primary group">
+                                {{ $client_account_expire_days }} días.
+                                <span
+                                    class="absolute z-20 px-3 py-2 mb-2 text-xs text-white transition-opacity -translate-x-1/2 rounded-lg opacity-0 pointer-events-none bg-tbn-secondary dark:bg-neutral-900 bottom-full left-1/2 w-max whitespace-nowrap group-hover:opacity-100">
+                                    Fecha de expiración: {{ $client_account_expire_time }}
+                                </span>
+                            </span>
                         </p>
                     @else
                         <div class="p-4 mt-1 text-left border rounded-lg border-tbn-primary">
@@ -73,7 +83,9 @@
                 @endif
                 <!-- Notifications -->
                 @if (intval($client_account_type_id) === 3)
-                    <div x-show="!aside_error_notifications" class="text-xs text-center text-tbn-dark dark:text-tbn-light">
+                    <hr class="my-4 fill-tbn-light dark:fill-tbn-secondary">
+                    <div x-show="!aside_error_notifications"
+                        class="text-xs text-center text-tbn-dark dark:text-tbn-light">
                         <i class="mr-1 text-green-500 far fa-check-circle"></i> Notificaciones activadas
                     </div>
                     <div x-show="aside_error_notifications"

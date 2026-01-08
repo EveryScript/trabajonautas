@@ -1,10 +1,11 @@
 <section class="mt-8">
-    <div x-data="content" class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+    <div x-data="content" class="flex flex-col gap-8 mx-auto max-w-7xl md:flex-row">
         <!-- Navigation -->
         <x-dashboard-nav client_name="{{ $client->name }}"
             client_account_type_id="{{ $client->account->accountType->id }}"
             client_account_type_name="{{ $client->account->accountType->name }}"
             client_pro_verified="{{ $client->account->verified_payment }}"
+            client_account_expire_time="{{ $client->account->limit_time }}"
             client_account_expire_days="{{ $client_account_expiration_days }}"
             client_account_expired="{{ $client_account_expired }}" />
         <!-- Main content -->
@@ -30,8 +31,8 @@
                         <img src="{{ asset('storage/img/tbn-new-astro.webp') }}" alt="rocket"
                             class="w-[14rem] h-[14rem] mx-auto">
                     </picture>
-                    <h5 class="font-medium text-lg mb-1 text-tbn-dark dark:text-white">Notificaciones en tiempo real</h5>
-                    <p class="mx-auto max-w-lg text-tbn-dark dark:text-tbn-light text-sm mb-6">
+                    <h5 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Notificaciones en tiempo real</h5>
+                    <p class="max-w-lg mx-auto mb-6 text-sm text-tbn-dark dark:text-tbn-light">
                         Entérate de las mejores convocatorias en cuanto son publicadas en nuestra plataforma.</p>
                     <x-button type="button" class="inlne-block bg-tbn-primary"
                         href="{{ route('purchase-account', ['account_type_id' => 3]) }}" wire:navigate>
@@ -52,34 +53,37 @@
             <!-- Profile -->
             <div x-show="btnNavigation == 4">
                 <header>
-                    <h3 class="text-lg font-medium mb-1 text-tbn-dark dark:text-white">Mi perfil</h3>
+                    <h3 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Mi perfil</h3>
                 </header>
-                <div class="bg-white dark:bg-tbn-dark rounded-xl shadow-lg mb-6 p-5 transition-all duration-300 hover:shadow-xl">
+                <div class="p-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="mb-4">
-                            <p class="text-tbn-primary text-xs">Nombre del cliente</p>
+                            <p class="text-xs text-tbn-primary">Nombre del cliente</p>
                             <p class="text-gray-900 dark:text-tbn-light">{{ $client->name }}</p>
                         </div>
                         <div class="mb-4">
-                            <p class="text-tbn-primary text-xs">Ubicación</p>
+                            <p class="text-xs text-tbn-primary">Ubicación</p>
                             <p class="text-gray-900 dark:text-tbn-light">{{ $client->location->location_name }}</p>
                         </div>
                         <div class="mb-4">
-                            <p class="text-tbn-primary text-xs">Celular</p>
-                            <p class="text-gray-900 dark:text-tbn-light">{{ substr($client->phone, 4, 10) }}</p>
+                            <p class="text-xs text-tbn-primary">Celular</p>
+                            <p class="text-gray-900 dark:text-tbn-light">
+                                {{ substr($client->phone, 4, 10) }}
+                                <a href="http://wa.me/{{ $client->phone }}" target="_blank" rel="phone-verify" class="text-green-500 underline">Verificar</a>
+                            </p>
                         </div>
                         <div class="mb-4">
-                            <p class="text-tbn-primary text-xs">Grado Académico</p>
+                            <p class="text-xs text-tbn-primary">Grado Académico</p>
                             <p class="text-gray-900 dark:text-tbn-light">{{ $client->gradeProfile->profile_name }}</p>
                         </div>
                         <div class="mb-4">
-                            <p class="text-tbn-primary text-xs">Profesion</p>
+                            <p class="text-xs text-tbn-primary">Profesion</p>
                             <p class="text-gray-900 dark:text-tbn-light">{{ $client->profesion->profesion_name }}</p>
                         </div>
                         <div class="mb-4">
-                            <p class="text-tbn-primary text-xs">Cuenta</p>
-                            <p class="text-gray-900 dark:text-tbn-light font-semibold">{{ $client->account->accountType->name }}</p>
+                            <p class="text-xs text-tbn-primary">Cuenta</p>
+                            <p class="font-semibold text-gray-900 dark:text-tbn-light">{{ $client->account->accountType->name }}</p>
                         </div>
                     </div>
                 </div>
@@ -91,7 +95,7 @@
                 <x-dashboard-modal title="Tu cuenta {{ $client->account->accountType->name }} está en camino">
                     <x-slot name="close">
                         <i x-on:click="modal_verify_account = false"
-                            class="fas fa-times text-tbn-primary text-lg"></i></x-slot>
+                            class="text-lg fas fa-times text-tbn-primary"></i></x-slot>
                     <x-slot name="image">
                         <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="empty"
                             class="w-[10rem] h-[10rem] mx-auto"></x-slot>
@@ -103,8 +107,9 @@
                     <x-slot name="buttons">
                         <x-button-link
                             href="https://wa.me/59173858162?text=Hola%20Trabajonauas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->account->accountType->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}."
-                            class="bg-tbn-primary cursor-pointer text-sm select-none">
-                            <i class="fab fa-whatsapp mr-1"></i> Enviar</x-button-link>
+                            target="_blank"
+                            class="text-sm cursor-pointer select-none bg-tbn-primary">
+                            <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>
                 </x-dashboard-modal>
             </div>
@@ -118,7 +123,7 @@
                 <x-dashboard-modal title="Bienvenido a Trabajonautas {{ $client->account->accountType->name }}">
                     <x-slot name="close">
                         <i x-on:click="modal_notifications = false"
-                            class="fas fa-times text-tbn-primary text-lg"></i></x-slot>
+                            class="text-lg fas fa-times text-tbn-primary"></i></x-slot>
                     <x-slot name="image">
                         <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="empty"
                             class="w-[10rem] h-[10rem] mx-auto">
@@ -130,9 +135,9 @@
                     </x-slot>
                     <x-slot name="buttons">
                         <x-button-link x-on:click="activateNotificationsAndSaveCurrentToken"
-                            class="bg-tbn-primary cursor-pointer text-sm select-none">
-                            <span wire:loading.remove><i class="fa-solid fa-bell mr-1"></i> Activar</span>
-                            <span wire:loading><i class="fas fa-spinner text-sm animate-spin"></i></span>
+                            class="text-sm cursor-pointer select-none bg-tbn-primary">
+                            <span wire:loading.remove><i class="mr-1 fa-solid fa-bell"></i> Activar</span>
+                            <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
                         </x-button-link>
                     </x-slot>
                 </x-dashboard-modal>

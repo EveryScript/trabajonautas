@@ -4,8 +4,8 @@
         <x-slot name="description_page">
             Realiza acciones para controlar el estado de un cliente.</x-slot>
     </x-title-app>
-    <form class="bg-white dark:bg-tbn-dark rounded-lg shadow-md px-10 py-8 max-w-3xl" x-data="content">
-        <div class="block md:grid grid-cols-2 gap-4 mb-4 dark:text-white">
+    <form class="max-w-3xl px-10 py-8 bg-white rounded-lg shadow-md dark:bg-tbn-dark" x-data="content">
+        <div class="block grid-cols-2 gap-4 mb-4 md:grid dark:text-white">
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Nombre del cliente</span>
                 <h4 class="text-lg font-medium">{{ $client->name }}</h4>
@@ -24,20 +24,23 @@
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Celular</span>
-                <h4 class="text-lg font-medium">{{ $client->phone }}</h4>
+                <h4 class="text-lg font-medium">
+                    {{ substr($client->phone, 4, 10) }} <a href="http://wa.me/{{ $client->phone }}" target="_blank"
+                        rel="phone-verify" class="text-green-500 underline">Verificar</a>
+                </h4>
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Area profesional</span>
                 @if ($client->area)
-                    <h4 class="text-md font-medium">
+                    <h4 class="font-medium text-md">
                         {{ $client->area->area_name }}</h4>
                 @else
-                    <span class="text-tbn-dark block italic text-sm">(vacio)</span>
+                    <span class="block text-sm italic text-tbn-dark">(vacio)</span>
                 @endif
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Fecha de registro</span>
-                <h4 class="text-md font-medium">{{ $this->formatDate($client->created_at) }}</h4>
+                <h4 class="font-medium text-md">{{ $this->formatDate($client->created_at) }}</h4>
             </div>
             <div class="col-span-2">
                 @if ($client->account->accountType->id !== 1)
@@ -45,20 +48,19 @@
                     <x-input-checkbox-block checked="{{ $client->account->verified_payment ? 'checked' : '' }}"
                         wire:model="client_verified_payment">
                         <div class="ms-4">
-                            <p class="text-md font-medium text-tbn-dark dark:text-white">Verificación de pago</p>
+                            <p class="font-medium text-md text-tbn-dark dark:text-white">Verificación de pago</p>
                             <p class="text-xs text-tbn-dark dark:text-tbn-light">
-                                El cliente ha realizado el pago de <span class="text-tbn-primary font-bold">
+                                El cliente ha realizado el pago de <span class="font-bold text-tbn-primary">
                                     {{ $client->account->accountType->price }} Bs. </span>
-                                por cuenta <span class="text-tbn-primary font-bold">
+                                por cuenta <span class="font-bold text-tbn-primary">
                                     {{ $client->account->accountType->name }}</span> correctamente.</p>
                         </div>
                     </x-input-checkbox-block>
                 @endif
                 <span class="text-xs text-tbn-primary">Control de acceso</span>
-                <x-input-checkbox-block checked="{{ $client->actived ? 'checked' : '' }}"
-                    wire:model="client_actived">
+                <x-input-checkbox-block checked="{{ $client->actived ? 'checked' : '' }}" wire:model="client_actived">
                     <div class="ms-4">
-                        <p class="text-md font-medium text-tbn-dark dark:text-white">Habilitar cliente</p>
+                        <p class="font-medium text-md text-tbn-dark dark:text-white">Habilitar cliente</p>
                         <p class="text-xs text-tbn-dark dark:text-tbn-light">
                             El cliente utiliza el sistema y su cuenta está disponible actualmente </p>
                     </div>
@@ -94,8 +96,8 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 let phone = this.userPhone.replace(/[\s()+-]/g, '')
-                                let url = 'https://api.whatsapp.com/send?phone=591' + phone +
-                                    '&text=*Trabajonautas.com*%20te%20informa%20que%20tu%20cuenta%20ya%20está%20disponible.%20Ingresa%20a%20trabajonautas.com%2Fpanel%20ahora%20mismo'
+                                let url = 'https://wa.me/591' + phone +
+                                    '?text=*Trabajonautas.com*%20te%20informa%20que%20tu%20cuenta%20ya%20está%20disponible.%20Ingresa%20a%20trabajonautas.com/panel%20ahora%20mismo'
                                 window.open(url, '_blank')
                             }
                             if (result.isDenied)

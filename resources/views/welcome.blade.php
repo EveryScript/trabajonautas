@@ -17,7 +17,7 @@
                         <div>
                             <x-button type="button" class="inline-block bg-tbn-primary" href="{{ route('search') }}"
                                 wire:navigate>
-                                Iniciar busqueda</x-button>
+                                Iniciar búsqueda</x-button>
                         </div>
                         @if (auth()->user())
                             @if (in_array(env('CLIENT_ROLE'), auth()->user()->getRoleNames()->toArray()))
@@ -38,14 +38,15 @@
                     </div>
                 </div>
             </div>
-            <picture class="hidden lg:w-5/12 lg:block" data-aos="zoom-in" data-aos-delay="800" data-aos-once="true">
-                <img class="mx-auto md:max-w-[25rem]" src="{{ asset('storage/img/tbn-new-astro.webp') }}"
-                    alt="">
+            <picture class="hidden lg:w-5/12 lg:block" data-aos="zoom-in" data-aos-delay="800" data-aos-duration="1000"
+                data-aos-once="true">
+                <img class="animate-astronaut mx-auto md:max-w-[20rem]"
+                    src="{{ asset('storage/img/tbn-astro-belt.webp') }}" alt="astronaut-image">
             </picture>
         </div>
     </section>
     <!-- Latest announcements -->
-    <section class="max-w-6xl px-5 py-24 mx-auto sm:px-6" data-aos="zoom-in" data-aos-delay="1000" data-aos-once="true">
+    <section class="max-w-6xl px-5 py-24 mx-auto sm:px-6">
         <div class="py-5 text-center">
             <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font">
                 Las mejores convocatorias laborales de Bolivia a tu alcance</h4>
@@ -59,7 +60,7 @@
         </div>
     </section>
     <!-- Latest Notices -->
-    <section class="max-w-6xl px-5 py-24 mx-auto sm:px-6" data-aos="zoom-in" data-aos-delay="200" data-aos-once="true">
+    <section class="max-w-6xl px-5 py-24 mx-auto sm:px-6">
         <div class="py-5 text-center">
             <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font">
                 Últimas noticias</h4>
@@ -169,27 +170,28 @@
     </section>
     <!-- Instrucions cards -->
     <section class="body-font">
-        <div class="max-w-6xl px-5 py-24 mx-auto">
-
-            <div class="mb-8" >
-                <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font"  data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
+        <div class="max-w-6xl px-5 py-24 mx-auto sm:px-0">
+            <div class="px-5 mb-8">
+                <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font"
+                    data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     Un mundo de oportunidades laborales en tus manos.</h4>
-                <p class="mb-10 text-center text-md text-tbn-dark dark:text-tbn-light" data-aos="fade-up" data-aos-delay="400" data-aos-once="true">
+                <p class="mb-10 text-center text-md text-tbn-dark dark:text-tbn-light" data-aos="fade-up"
+                    data-aos-delay="400" data-aos-once="true">
                     Sigue las instrucciones y forma parte de la comunidad más grande de profesionales para encontrar tu
                     próximo trabajo.</p>
             </div>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 dark:text-tbn-light">
+            <div class="grid grid-cols-1 gap-4 px-5 sm:grid-cols-2 dark:text-tbn-light">
                 <div data-aos="fade-up" data-aos-delay="600" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
                     <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
                     <div class="relative z-10 max-w-md mx-auto">
                         <span
                             class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
                             <i class="text-2xl text-white fas fa-user"></i>
                         </span>
                         <div
-                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
                             <h2 class="text-lg font-medium dark:text-white title-font">Registra tus datos</h2>
                             <p
                                 class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
@@ -199,17 +201,17 @@
                     </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="800" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
                     <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
                     <div class="relative z-10 max-w-md mx-auto">
                         <span
                             class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
                             <i class="text-2xl text-white fas fa-search"></i>
                         </span>
                         <div
-                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
-                            <h2 class="text-lg font-medium dark:text-white title-font">Inicia la busqueda</h2>
+                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            <h2 class="text-lg font-medium dark:text-white title-font">Inicia la búsqueda</h2>
                             <p
                                 class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
                                 Encuentra información sobre convocatorias laborales de toda Bolivia y de todo tipo de
@@ -218,16 +220,16 @@
                     </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="1000" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
                     <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
                     <div class="relative z-10 max-w-md mx-auto">
                         <span
                             class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
                             <i class="text-2xl text-white fas fa-suitcase"></i>
                         </span>
                         <div
-                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
                             <h2 class="text-lg font-medium dark:text-white title-font">Guarda tus resultados</h2>
                             <p
                                 class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
@@ -237,16 +239,16 @@
                     </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="1200" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-sm sm:rounded-lg sm:px-10">
+                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
                     <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[10]"></span>
+                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
                     <div class="relative z-10 max-w-md mx-auto">
                         <span
                             class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
                             <i class="text-2xl text-white fas fa-crown"></i>
                         </span>
                         <div
-                            class="pt-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
+                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
                             <h2 class="text-lg font-medium dark:text-white title-font">Convocatorias PRO</h2>
                             <p
                                 class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">

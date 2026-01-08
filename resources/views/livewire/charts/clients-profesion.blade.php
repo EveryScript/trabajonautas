@@ -40,7 +40,7 @@
 }" x-init="updateChart()" @refresh-charts.window="updateChart()"
     class="border border-gray-300 dark:border-tbn-secondary rounded-lg shadow-lg px-5 py-4">
     <span class="text-xs text-tbn-secondary dark:text-tbn-light">{{ $labels['format_date'] }}</span>
-    <h4 class="text-lg text-tbn-dark dark:text-tbn-primary font-semibold mb-1">Clientes según profesion </h4>
+    <h4 class="text-lg text-tbn-dark dark:text-tbn-primary font-semibold mb-1">Clientes según profesión </h4>
     <div class="flex flex-row">
         <p class="w-1/2 mb-5 text-tbn-dark dark:text-tbn-light text-sm">
             <span class="font-medium">Cantidad total: </span> {{ $total }}

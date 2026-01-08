@@ -9,7 +9,7 @@
                     Todo listo para convertirte en <span class="text-tbn-primary">PRO</span>
                 @endif
                 @if ($account_type_id == 3)
-                    Despega al inifinido con tu cuenta <span class="text-tbn-primary">PRO-MAX</span>
+                    Despega al infinito con tu cuenta <span class="text-tbn-primary">PRO-MAX</span>
                 @endif
             </h3>
             <p class="text-sm text-tbn-secondary dark:text-tbn-light mb-4">
@@ -39,7 +39,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="w-1/2 p-2 whitespace-nowrap font-medium">Profesion</td>
+                                        <td class="w-1/2 p-2 whitespace-nowrap font-medium">Profesión</td>
                                         <td class="p-2 whitespace-wrap">
                                             <p x-text="client.profesion.profesion_name" class="inline mr-1"></p>
                                             <button type="button" x-on:click="changeProfesion"

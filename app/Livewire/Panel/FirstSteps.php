@@ -5,6 +5,7 @@ namespace App\Livewire\Panel;
 use App\Models\AccountType;
 use App\Models\Location;
 use App\Models\Profesion;
+use App\Models\TbnSetting;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -64,6 +65,9 @@ class FirstSteps extends Component
         $this->locations = Location::all();
         $this->profesions = Profesion::all();
         $this->account_types = AccountType::all();
-        return view('livewire.panel.first-steps');
+        $qr_image = TbnSetting::where('key', 'qr_image')->first();
+        return view('livewire.panel.first-steps', [
+            'qr_image' => $qr_image
+        ]);
     }
 }
