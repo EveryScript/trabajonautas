@@ -9,45 +9,31 @@ use Livewire\Component;
 class FooterData extends Component
 {
     public $profesions;
-    public $areas;
     public function mount()
     {
-        $this->profesions = Profesion::inRandomOrder()->limit(4)->get();
-        $this->areas = Area::inRandomOrder()->limit(4)->get();
+        $this->profesions = Profesion::inRandomOrder()->limit(5)->get();
     }
 
     public function render()
     {
         return <<<'HTML'
-        <div class="grid max-w-6xl grid-cols-1 gap-8 mx-auto sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid max-w-6xl grid-cols-1 gap-8 mx-auto sm:grid-cols-2 lg:grid-cols-3">
             <div class="text-white">
                 <h5 class="text-lg font-bold">Contactos</h5>
-                <p class="my-1 text-sm">CEO Ricardo Carlos Oropeza Zárate</p>
-                <p class="my-1 text-sm">CFO Carla Ximena Vargas Soto de Oropeza</p>
-                <p class="my-1 text-sm">73858162 - 69616052</p>
-                <p class="my-2 text-xs">&copy; {{ now()->year }} - Todos los derechos reservados</p>
+                <p class="mb-1 text-sm">CEO Ricardo Carlos Oropeza Zárate</p>
+                <p class="mb-1 text-sm">CFO Carla Ximena Vargas Soto de Oropeza</p>
+                <p class="mb-1 text-sm">73858162 - 69616052</p>
+                <p class="mb-2 text-xs">&copy; {{ now()->year }} - Todos los derechos reservados</p>
             </div>
             <div class="text-white">
                 <h5 class="text-lg font-bold">Profesiones</h5>
                 <nav class="mb-10 text-sm list-none">
                     @forelse($profesions as $profesion)
-                        <li class="hover:text-tbn-light">
+                        <li class="mb-1 hover:text-tbn-light">
                             <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}" wire:navigate>{{ $profesion->profesion_name }}</a>
                         </li>
                     @empty
                         <li class="text-gray-500">No hay profesiones</li>
-                    @endforelse
-                </nav>
-            </div>
-            <div class="text-white">
-                <h5 class="text-lg font-bold">Áreas</h5>
-                <nav class="mb-10 text-sm list-none">
-                    @forelse($areas as $area)
-                        <li class="hover:text-tbn-light">
-                            <a href="{{ route('search', ['title' => $area->area_name]) }}">{{ $area->area_name }}</a>
-                        </li>
-                    @empty
-                        <li class="text-gray-500">No hay areaes</li>
                     @endforelse
                 </nav>
             </div>

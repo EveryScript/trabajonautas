@@ -1,10 +1,10 @@
 <div class="flex flex-col gap-6 px-4 md:flex-row">
     <section class="w-full select-none md:w-3/5" x-data="content">
         <div
-            class="relative p-5 bg-white border rounded-lg shadow-md dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary sm:p-10">
+            class="relative bg-transparent sm:bg-white sm:border sm:rounded-lg sm:shadow-md sm:dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary sm:p-10">
             <span class="absolute top-6 right-6 {{ $announcement->pro ? '' : 'hidden' }}">
                 <i class="fas fa-crown text-md text-tbn-primary"></i></span>
-            <div class="flex flex-col w-full gap-2  sm:flex-row sm:gap-6">
+            <div class="flex flex-col w-full gap-2 sm:flex-row sm:gap-6">
                 <img alt="team"
                     class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
                     src="{{ $announcement->company ? asset('storage/' . $announcement->company->company_image) : asset('storage/empresas/tbn-new-default.webp') }}">
@@ -146,7 +146,7 @@
                         </x-card-announce>
                     </a>
                 @empty
-                    <p class="my-8 text-sm text-center text-tbn-dark">
+                    <p class="my-8 text-sm italic text-center text-tbn-dark dark:text-tbn-light">
                         No hay sugerencias para esta convocatoria</p>
                 @endforelse
             </div>

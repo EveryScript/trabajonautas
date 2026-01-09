@@ -2,17 +2,22 @@
     <!-- Popup Ad Quimeras Bolivia -->
     <div x-data="{ open: true }" x-show="open">
         <div x-transition:enter.duration.300ms x-transition:leave.duration.300ms
-            class="fixed z-50 max-w-lg p-5 ml-8 transition-all duration-300 bg-white border shadow-2xl bottom-6 right-6 dark:bg-tbn-dark border-tbn-light rounded-2xl hover:shadow-tbn-secondary hover:scale-105 group">
+            class="fixed z-50 max-w-lg p-5 ml-8 transition-all duration-300 bg-white border shadow-2xl bottom-6 right-6 dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-2xl hover:shadow-tbn-secondary hover:scale-105 group">
             <div class="flex flex-col items-center gap-6 sm:flex-row">
-                <picture class="min-w-24">
-                    <img src="https://www.quimerasbolivia.com/img/circle-quim.png" class="w-[6rem] h-[6rem]"
-                        alt="quimeras-logo">
-                </picture>
+                <div class="flex flex-row items-center gap-3 min-w-24">
+                    <picture>
+                        <img src="{{ asset('storage/img/quimeras.webp') }}" class="w-[6rem] h-[6rem]" alt="quimeras-logo">
+                    </picture>
+                    <picture>
+                        <img src="{{ asset('storage/img/icarus.webp') }}" class="sm:hidden w-[6rem] h-[6rem]"
+                            alt="icarus-logo">
+                    </picture>
+                </div>
                 <div>
-                    <h3 class="text-sm font-semibold leading-tight text-tbn-dark dark:text-white md:text-base">
+                    <h3 class="mb-2 text-sm font-semibold leading-tight text-tbn-dark dark:text-white md:text-base">
                         ¿Tienes problemas para mejorar tu curriculum?
                     </h3>
-                    <p class="my-2 text-xs text-tbn-dark dark:text-tbn-light md:text-sm">
+                    <p class="mb-4 text-xs text-tbn-dark dark:text-tbn-light md:text-sm">
                         No te preocupes, tenemos la solución. <br>
                         <span class="font-semibold text-tbn-primary">Quimeras Bolivia</span> tiene los mejores cursos
                         para tí.
