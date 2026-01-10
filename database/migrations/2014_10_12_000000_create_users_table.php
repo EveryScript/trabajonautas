@@ -26,6 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('grade_profile_id')->nullable(); // Foreign
             $table->string('provider')->nullable(); // Google Auth
             $table->string('provider_id')->nullable(); // Google Auth
+            $table->timestamp('last_announce_check')->nullable(); // New field
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();

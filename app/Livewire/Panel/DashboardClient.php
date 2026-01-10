@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Panel;
 
+use App\Models\Announcement;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
 use App\Traits\AuthorizeClients;
@@ -23,13 +24,15 @@ class DashboardClient extends Component
         if (!auth()->check())
             return $this->redirect('/', true);
 
+
+
         $this->updateAccountClientIfNotCurrent();
     }
 
     #[Computed]
     public function client()
     {
-        return User::select('id', 'name', 'location_id', 'profesion_id', 'grade_profile_id')
+        return User::select('id', 'name', 'location_id', 'profesion_id', 'grade_profile_id', 'last_announce_check')
             ->with([
                 'account' => function ($query) {
                     $query->select('id', 'user_id', 'account_type_id', 'verified_payment', 'limit_time', 'device_token');
@@ -68,7 +71,7 @@ class DashboardClient extends Component
 
     public function isClientAccountExpired()
     {
-        if(!$this->client->account->limit_time)
+        if (!$this->client->account->limit_time)
             return false;
 
         return Carbon::parse($this->client->account->limit_time)->isBefore(Carbon::now());
@@ -84,12 +87,28 @@ class DashboardClient extends Component
         }
     }
 
+    public function updateLastCheck()
+    {
+        $this->client->update([
+            'last_announce_check' => now()
+        ]);
+    }
+
     public function render()
     {
+        $has_new_notify_announces = Announcement::with(['company', 'locations'])
+            ->where('expiration_time', '>=', now())
+            ->where('created_at', '>=', $this->client->last_announce_check)
+            ->whereHas('locations', fn($sub) => $sub->where('location_id', $this->client->location->id))
+            ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client->profesion->id))
+            ->exists();
+
+
         return view('livewire.panel.dashboard-client', [
             'client' => $this->client,
             'client_account_expire_days' => Carbon::now()->diffInDays(Carbon::parse($this->client->account->limit_time)),
-            'client_account_expired' => $this->isClientAccountExpired()
+            'client_account_expired' => $this->isClientAccountExpired(),
+            'has_new_notify_announces' => $has_new_notify_announces
         ]);
     }
 }

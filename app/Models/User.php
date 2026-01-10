@@ -44,6 +44,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'profesion_id',
         'grade_profile_id',
         'account_id',
+        'last_announce_check',
         'provider', // Laravel Socialite
         'provider_id', // Laravel Socialite
         'email_verified_at', // Laravel Socialite

@@ -6,6 +6,7 @@
     'client_account_expire_days',
     'client_account_expire_time',
     'client_account_expired',
+    'has_new_notify_announces',
 ])
 <aside class="w-full md:w-[18rem] relative">
     <div
@@ -99,7 +100,8 @@
                         </p>
                         <button x-on:click="activateNotificationsAndSaveCurrentToken"
                             class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary">
-                            <span x-show="button_notify_loading"><i class="text-sm fas fa-spinner animate-spin"></i></span>
+                            <span x-show="button_notify_loading"><i
+                                    class="text-sm fas fa-spinner animate-spin"></i></span>
                             <span x-show="!button_notify_loading"><i class="mr-1 fa-solid fa-bell"></i> Activar</span>
                         </button>
                     </div>
@@ -109,19 +111,23 @@
             <!-- Navigation -->
             <nav class="text-sm select-none">
                 <a x-on:click="btnNavigation = 1"
-                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary hover:translate-x-1">
+                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                     <i class="ml-2 mr-3 fas fa-home"></i> Inicio
                 </a>
-                <a x-on:click="btnNavigation = 2"
-                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary hover:translate-x-1">
-                    <i class="ml-2 mr-3 fa-solid fa-bell"></i> Notificaciones
+                <a x-on:click="btnNotification"
+                    class="relative flex justify-between items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
+                    <span><i class="ml-2 mr-3 fa-solid fa-bell"></i> Notificaciones</span>
+                    @if ($has_new_notify_announces)
+                        <span
+                            class="absolute top-4 right-0 block h-2 w-2 rounded-full bg-tbn-primary animate-pulse"></span>
+                    @endif
                 </a>
                 <a x-on:click="btnNavigation = 3"
-                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary hover:translate-x-1">
+                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                     <i class="ml-2 mr-3 fa-solid fa-bookmark"></i> Mis convocatorias
                 </a>
                 <a x-on:click="btnNavigation = 4"
-                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary hover:translate-x-1">
+                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                     <i class="ml-2 mr-3 fas fa-user"></i> Mi perfil
                 </a>
             </nav>

@@ -50,7 +50,8 @@ class FirstSteps extends Component
             'location_id' => intval($this->location_id),
             'profesion_id' => intval($this->profesion_id),
             'grade_profile_id' => intval($this->grade_profile_id),
-            'register_completed' => true
+            'register_completed' => true,
+            'last_announce_check' => now()
         ]);
         $this->user->account()->create([
             'user_id' => $this->user_id,

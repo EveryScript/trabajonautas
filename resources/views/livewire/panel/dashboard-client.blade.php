@@ -7,7 +7,8 @@
             client_pro_verified="{{ $client->account->verified_payment }}"
             client_account_expire_time="{{ $client->account->limit_time }}"
             client_account_expire_days="{{ $client_account_expire_days }}"
-            client_account_expired="{{ $client_account_expired }}" />
+            client_account_expired="{{ $client_account_expired }}"
+            has_new_notify_announces="{{ $has_new_notify_announces }}" />
         <!-- Main content -->
         <main class="flex-1 mb-0 md:mb-24">
             @if ($client->account->accountType->id == 1)
@@ -22,35 +23,44 @@
                     'client_account_id' => $client->account->accountType->id,
                     'client_location_id' => $client->location_id,
                     'client_profesion_id' => $client->profesion_id,
-                    'client_profesion_area_id' => $client->profesion->area_id
+                    'client_profesion_area_id' => $client->profesion->area_id,
                 ])
             </div>
             <!-- Notifications -->
             <div x-show="btnNavigation == 2">
-                <div class="text-center">
-                    <picture class="w-full mb-2">
-                        <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="rocket"
-                            class="w-[14rem] h-[14rem] mx-auto">
-                    </picture>
-                    <h5 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Notificaciones en tiempo real
-                    </h5>
-                    <p class="max-w-lg mx-auto mb-6 text-sm text-tbn-dark dark:text-tbn-light">
-                        Entérate de las mejores convocatorias en cuanto son publicadas en nuestra plataforma.</p>
-                    <x-button type="button" class="inlne-block bg-tbn-primary"
-                        href="{{ route('purchase-account', ['account_type_id' => 3]) }}" wire:navigate>
-                        Obtener PRO-MAX ahora</x-button>
-                </div>
+                @if (intval($client->account->account_type_id) === 1)
+                    <div class="text-center">
+                        <picture class="w-full mb-2">
+                            <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="rocket"
+                                class="w-[14rem] h-[14rem] mx-auto">
+                        </picture>
+                        <h5 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Notificaciones en tiempo real
+                        </h5>
+                        <p class="max-w-lg mx-auto mb-6 text-sm text-tbn-dark dark:text-tbn-light">
+                            Entérate de las mejores convocatorias en cuanto son publicadas en nuestra plataforma.</p>
+                        <x-button type="button" class="inlne-block bg-tbn-primary"
+                            href="{{ route('purchase-account', ['account_type_id' => 3]) }}" wire:navigate>
+                            Obtener PRO-MAX ahora</x-button>
+                    </div>
+                @else
+                    @livewire('panel.dashboard-notify', [
+                        'title' => 'Notificaciones de convocatorias',
+                        'description' => 'Aquí encontrarás las convocatorias más recientes que coinciden con tu perfil.',
+                        'client_location_id' => $client->location_id,
+                        'client_profesion_id' => $client->profesion_id,
+                    ])
+                @endif
             </div>
             <!-- Client -->
             <div x-show="btnNavigation == 3">
                 @livewire('panel.dashboard-card', [
                     'title' => 'Mis convocatorias',
-                    'description' => 'Encuentra todas las convocatorias que guardaste en tu cuenta.',
+                    'description' => 'Aún no has guardado ninguna convocatoria.',
                     'my_announces_mode' => true,
                     'client_account_id' => $client->account->accountType->id,
                     'client_location_id' => $client->location_id,
                     'client_profesion_id' => $client->profesion_id,
-                    'client_profesion_area_id' => $client->profesion->area_id
+                    'client_profesion_area_id' => $client->profesion->area_id,
                 ])
             </div>
             <!-- Profile -->
@@ -220,6 +230,10 @@
                     if (Notification.permission === 'granted' && $wire.checkIfTokenExists()) {
                         this.aside_error_notifications = false
                     }
+                },
+                btnNotification() {
+                    this.btnNavigation = 2
+                    $wire.updateLastCheck()
                 }
             }))
         </script>
