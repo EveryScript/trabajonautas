@@ -14,19 +14,27 @@ class ProfesionForm extends Form
         ['profesion_name' => 'nombre de la profesión']
     )]
     public $profesion_name;
+    public $area_id;
 
     public function edit($id)
     {
-        $this->profesion_name = Profesion::find($id)->profesion_name;
+        $edit_profesion = Profesion::find($id);
+        $this->profesion_name = $edit_profesion->profesion_name;
+        $this->area_id = $edit_profesion->area_id;
     }
 
     public function update($id)
     {
-        $this->validate();
+        $this->validate([
+            'profesion_name' => 'required|min:5|unique:profesions,profesion_name',
+            'area_id' => 'required|exists:areas,id',
+        ]);
         $profesion = Profesion::find($id);
         $profesion->update([
             'profesion_name' => $this->profesion_name,
+            'area_id' => $this->area_id
         ]);
+        $this->reset(['profesion_name', 'area_id']);
     }
 
     public function delete($id)
@@ -36,8 +44,22 @@ class ProfesionForm extends Form
 
     public function save()
     {
-        $this->validate();
-        Profesion::create(['profesion_name' => $this->profesion_name]);
-        $this->reset(['profesion_name']);
+        $this->validate([
+            'profesion_name' => 'required|min:5|unique:profesions,profesion_name',
+            'area_id' => 'required|exists:areas,id',
+        ]);
+        Profesion::create([
+            'profesion_name' => $this->profesion_name,
+            'area_id' => $this->area_id
+        ]);
+        $this->reset(['profesion_name', 'area_id']);
+    }
+
+    public function validationAttributes()
+    {
+        return [
+            'profesion_name' => 'nombre de la profesion',
+            'area_id' => 'area'
+        ];
     }
 }

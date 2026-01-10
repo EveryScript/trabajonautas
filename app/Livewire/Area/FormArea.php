@@ -11,7 +11,6 @@ class FormArea extends Component
 {
     public $id; // Edit
     public AreaForm $area;
-    public $profesions;
     public $search = '';
 
     public function mount($id = null)
@@ -36,7 +35,6 @@ class FormArea extends Component
 
     public function render()
     {
-        $this->profesions = Profesion::orderBy('profesion_name', 'ASC')->get();
         return view('livewire.area.form-area');
     }
 }

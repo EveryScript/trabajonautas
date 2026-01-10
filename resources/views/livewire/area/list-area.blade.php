@@ -29,9 +29,6 @@
                                     {{ count($area->announcements) }}</span></p>
                             <p class="text-sm">Profesiones: <span class="text-tbn-primary">
                                     {{ count($area->profesions) }}</span>
-                            <p class="text-sm">Clientes: <span class="text-tbn-primary">
-                                    users</span>
-                            </p>
                         </div>
                         <div class="flex flex-row justify-end text-lg">
                             <a href="{{ route('new-area', ['id' => $area->id]) }}" wire:navigate

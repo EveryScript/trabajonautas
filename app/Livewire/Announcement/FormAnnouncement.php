@@ -107,7 +107,7 @@ class FormAnnouncement extends Component
         $areas = Area::all(['id', 'area_name']);
         $locations = Location::all(['id', 'location_name']);
         $companies = Company::all(['id', 'company_name']);
-        $profesions = Profesion::with('areas:id')->get();
+        $profesions = Profesion::with('area:id')->get();
         return view('livewire.announcement.form-announcement', [
             'areas' => $areas,
             'locations' => $locations,

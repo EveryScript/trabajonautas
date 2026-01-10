@@ -20,16 +20,12 @@ class AreaForm extends Form
     #[Validate('required')]
     public $user_id;
 
-    #[Validate('required')]
-    public $profesions;
-
     public function edit($edit_id)
     {
         $area_edit = Area::find($edit_id);
         $this->area_name = $area_edit->area_name;
         $this->description = $area_edit->description;
         $this->user_id = $area_edit->user_id;
-        $this->profesions = $area_edit->profesions->pluck('id');
     }
 
     public function update($update_id)
@@ -48,7 +44,6 @@ class AreaForm extends Form
             'description' => $this->description,
             'user_id' => $this->user_id
         ]);
-        $area->profesions()->sync($this->profesions);
     }
 
     public function save()
@@ -56,7 +51,6 @@ class AreaForm extends Form
         $this->user_id = Auth::user()->id;
         $this->validate();
         $area = Area::create($this->only('area_name', 'description', 'user_id'));
-        $area->profesions()->attach($this->profesions);
     }
 
     public function validationAttributes()

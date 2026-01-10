@@ -22,6 +22,7 @@
                     'client_account_id' => $client->account->accountType->id,
                     'client_location_id' => $client->location_id,
                     'client_profesion_id' => $client->profesion_id,
+                    'client_profesion_area_id' => $client->profesion->area_id
                 ])
             </div>
             <!-- Notifications -->
@@ -49,6 +50,7 @@
                     'client_account_id' => $client->account->accountType->id,
                     'client_location_id' => $client->location_id,
                     'client_profesion_id' => $client->profesion_id,
+                    'client_profesion_area_id' => $client->profesion->area_id
                 ])
             </div>
             <!-- Profile -->

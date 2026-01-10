@@ -4,12 +4,12 @@
             <x-authentication-card-logo />
         </x-slot>
 
-        <div class="max-w-[23rem] mb-4 text-sm text-gray-600">
+        <div class="max-w-xs my-4 text-sm text-tbn-dark dark:text-white">
             {{ __('¿Olvidó su contraseña? No hay problema. Ingrese su correo electrónico y le enviaremos un enlace para restablecer su contraseña.') }}
         </div>
 
         @if (session('status'))
-            <div class="max-w-[23rem] mb-4 font-medium text-sm text-green-600">
+            <div class="max-w-xs mb-4 font-medium text-sm text-green-600">
                 {{ session('status') }}
             </div>
         @endif

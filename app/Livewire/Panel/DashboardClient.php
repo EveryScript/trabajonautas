@@ -38,7 +38,7 @@ class DashboardClient extends Component
                     $query->select('id', 'location_name');
                 },
                 'profesion' => function ($query) {
-                    $query->select('id', 'profesion_name');
+                    $query->select('id', 'profesion_name', 'area_id');
                 },
                 'gradeProfile' => function ($query) {
                     $query->select('id', 'profile_name');

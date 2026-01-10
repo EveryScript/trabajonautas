@@ -16,20 +16,15 @@ class DashboardCard extends Component
     public $client_account_id = null;
     public $client_location_id = null;
     public $client_profesion_id = null;
+    public $client_profesion_area_id = null;
 
     protected function baseQuery()
     {
-        $query = Announcement::with(['company', 'locations'])->where('expiration_time', '>=', now());
-
-        if (intval($this->client_account_id) === 1) {
-            // Free Suggests: same location
-            $query->whereHas('locations', fn($q) => $q->where('location_id', $this->client_location_id));
-        } else {
-            // PRO or PRO-MAX Suggests: same locations or profesion
-            $query->whereHas('locations', fn($sub) => $sub->where('location_id', $this->client_location_id))
-                ->orWhereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client_profesion_id));
-        }
-        return $query->orderBy('updated_at', 'DESC');
+        $query = Announcement::with(['company', 'locations'])->where('expiration_time', '>=', now())
+            ->whereHas('locations', fn($sub) => $sub->where('location_id', $this->client_location_id))
+            ->orWhereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client_profesion_id))
+            ->orWhereHas('profesions', fn($sub) => $sub->where('area_id', $this->client_profesion_area_id));
+        return $query->orderBy('updated_at', 'DESC')->limit(7);
     }
 
     public function render()

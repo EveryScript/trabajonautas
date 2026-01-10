@@ -17,20 +17,6 @@
                     <x-input-error for="area.area_name" class="mt-2" />
                 </div>
                 <div class="mb-4">
-                    <x-label for="profesions" value="{{ __('Profesiones') }}" />
-                    <div class="tbn-tom-select" wire:ignore>
-                        <x-select class="py-2" id="profesions" wire:model="area.profesions" multiple>
-                            <option>Seleccionar profesiones</option>
-                            @forelse ($profesions as $profesion)
-                                <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
-                            @empty
-                                <option>No hay opciones para mostrar</option>
-                            @endforelse
-                        </x-select>
-                        <x-input-error for="area.profesions" class="mt-2" />
-                    </div>
-                </div>
-                <div class="mb-4">
                     <x-label for="description" value="{{ __('Descripción (corta)') }}" />
                     <x-textarea x-model="area_description" wire:model="area.description" rows="4"
                         class="w-full resize-none" name="description" placeholder="Descripción corta" />
@@ -47,13 +33,6 @@
 
     @script
         <script>
-            new TomSelect('#profesions', {
-                plugins: ['remove_button']
-            });
-            if (@json($id)) {
-                document.querySelector('#profesions').tomselect.setValue($wire.area.profesions);
-            }
-
             Alpine.data('content', () => ({
                 area_id: @json($id),
                 // Models

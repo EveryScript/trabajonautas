@@ -50,7 +50,7 @@
                                     </tr>
                                     <tr>
                                         <td class="w-1/2 p-2 whitespace-nowrap font-medium">Celular</td>
-                                        <td x-text="client.phone" class="p-2 whitespace-nowrap"></td>
+                                        <td x-text="client.phone.substr(4,10)" class="p-2 whitespace-nowrap"></td>
                                     </tr>
                                     <tr>
                                         <td class="w-1/2 p-2 whitespace-nowrap font-medium">Tipo de cuenta</td>

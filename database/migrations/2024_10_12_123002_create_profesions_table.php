@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('profesions', function (Blueprint $table) {
             $table->id();
             $table->string('profesion_name')->unique();
+            $table->unsignedBigInteger('area_id'); // Foreign key
             $table->timestamps();
         });
     }

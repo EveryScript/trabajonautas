@@ -9,7 +9,7 @@
                 <div class="h-full sm:h-10 flex flex-row gap-1">
                     <x-input type="search" wire:keydown.enter="$set('search', $event.target.value)" class="w-full"
                         placeholder="Buscar profesion" />
-                    <x-button type="button" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button-link>
+                    <x-button type="button" x-on:click="modalForm = true">Nuevo</x-button-link>
                 </div>
             </x-slot>
         </x-title-app>
@@ -23,6 +23,16 @@
                     <x-input wire:model="profesion.profesion_name" id="profesion_name" type="text"
                         class="mt-1 block w-full" placeholder="Ingeniería, Leyes, Arquitectura" />
                     <x-input-error for="profesion.profesion_name" class="mt-2" />
+                </div>
+                <div class="mb-4">
+                    <x-label for="area_id" value="{{ __('Area') }}" />
+                    <x-select class="w-full" wire:model='profesion.area_id' name="area_id" id="area_id">
+                        <option>Seleccione un area</option>
+                        @foreach ($areas as $area)
+                            <option value="{{ intval($area->id) }}">{{ $area->area_name }}</option>
+                        @endforeach
+                    </x-select>
+                    <x-input-error for="profesion.area_id" class="mt-2" />
                 </div>
                 <x-button type="submit">
                     <span wire:loading.remove>{{ $update_mode ? 'Actualizar profesion' : 'Crear profesion' }}</span>
@@ -46,7 +56,7 @@
                             Nombre de profesión
                         </th>
                         <th scope="col" class="px-6 py-3 hidden lg:table-cell">
-                            Creación
+                            Area
                         </th>
                         <th scope="col" class="px-6 py-3 text-right">
                             Opciones
@@ -75,7 +85,7 @@
                                 <h5 class="text-md font-bold">{{ $profesion->profesion_name }}</h5>
                             </th>
                             <td class="px-6 py-4 dark:text-tbn-light hidden lg:table-cell">
-                                {{ \Carbon\Carbon::parse($profesion->created_at)->diffForHumans() }}
+                                {{ $profesion->area->area_name }}
                             </td>
                             <td class="flex flex-row justify-end items-center h-15 px-6 py-4 text-lg">
                                 <a x-on:click="editProfesion({{ $profesion->id }})"

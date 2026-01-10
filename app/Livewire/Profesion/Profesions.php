@@ -3,6 +3,7 @@
 namespace App\Livewire\Profesion;
 
 use App\Livewire\Forms\ProfesionForm;
+use App\Models\Area;
 use App\Models\Profesion;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -56,7 +57,8 @@ class Profesions extends Component
         return view('livewire.profesion.profesions', [
             'profesions' => $profesions,
             'count_results' => $count_results,
-            'search_title' => $this->search
+            'search_title' => $this->search,
+            'areas' => Area::select('id', 'area_name')->get()
         ]);
     }
 }

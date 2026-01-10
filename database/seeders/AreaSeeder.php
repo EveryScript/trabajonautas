@@ -56,29 +56,5 @@ class AreaSeeder extends Seeder
             'description' => 'Ámbitos especializados como que combinan múltiples disciplinas para abordar profesiones únicas y complejas.',
             'user_id' => $this->admin_id
         ]);
-
-        $area_1 = Area::find(1);
-        $profesions_1 = Profesion::whereBetween('id', [1, 31])->get()->pluck('id');
-        $area_1->profesions()->sync($profesions_1);
-
-        $area_2 = Area::find(2);
-        $profesions_2 = Profesion::whereBetween('id', [32, 38])->get()->pluck('id');
-        $area_2->profesions()->sync($profesions_2);
-
-        $area_3 = Area::find(3);
-        $profesions_3 = Profesion::whereBetween('id', [39, 61])->get()->pluck('id');
-        $area_3->profesions()->sync($profesions_3);
-
-        $area_4 = Area::find(4);
-        $profesions_4 = Profesion::whereBetween('id', [62, 81])->get()->pluck('id');
-        $area_4->profesions()->sync($profesions_4);
-
-        $area_5 = Area::find(5);
-        $profesions_5 = Profesion::whereBetween('id', [82, 139])->get()->pluck('id');
-        $area_5->profesions()->sync($profesions_5);
-
-        $area_6 = Area::find(6);
-        $profesions_6 = Profesion::whereBetween('id', [140, 149])->get()->pluck('id');
-        $area_6->profesions()->sync($profesions_6);
     }
 }

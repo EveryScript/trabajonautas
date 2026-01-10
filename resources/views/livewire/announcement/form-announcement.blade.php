@@ -48,6 +48,7 @@
                 <div class="w-full sm:w-1/2">
                     <x-label for="area">Areas (añadir profesiones)</x-label>
                     <x-select class="mt-1 w-full h-[3.2rem]" x-on:change="onAreaChange" id="areas">
+                        <option>Selecciona un area</option>
                         <template x-for="area in areas">
                             <option :key="'area-' + location.id" :value="area.id">
                                 + <span x-text="area.area_name" class="block text-sm font-medium"></span>
@@ -257,8 +258,7 @@
                 // Set profesions base on area selected
                 onAreaChange(event) {
                     const areaId = event.target.value;
-                    const profesionsSelected = this.profesions.filter(profesion =>
-                        profesion.areas.some(area => area.id == areaId))
+                    const profesionsSelected = this.profesions.filter(profesion => profesion.area_id == areaId)
                     const selectedIds = profesionsSelected.map(p => p.id)
                     this.profesionsSelectedIds = [...new Set([...this.profesionsSelectedIds, ...selectedIds])];
                     document.querySelector('#profesions').tomselect.setValue(this.profesionsSelectedIds)
