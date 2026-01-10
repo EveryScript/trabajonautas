@@ -5,26 +5,17 @@ namespace App\Livewire\Web;
 use App\Models\Announcement;
 use App\Models\Location;
 use App\Models\Profesion;
-use App\Models\User;
-use App\Traits\CheckClientsProVerified;
+use App\Traits\AuthorizeClients;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class SearchAnnouncement extends Component
 {
     use WithPagination;
-    use CheckClientsProVerified;
+    use AuthorizeClients;
 
     public $title;  // Component parameter
-    public $client_pro_verified = false;
-    public $locations, $companies;
     public $search_title, $search_location_id;
-
-    public function mount()
-    {
-        $this->client_pro_verified = $this->isClientProVerified();
-        $this->locations = Location::select(['id', 'location_name'])->get();
-    }
 
     public function searchAnnounces($title, $location_id)
     {
@@ -80,7 +71,9 @@ class SearchAnnouncement extends Component
             'announcements' => $announcements,
             'count_results' => $count_results,
             'search_title' => $this->search_title,
-            'random_profesions' => $random_profesions
+            'random_profesions' => $random_profesions,
+            'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent(),
+            'locations' => Location::select(['id', 'location_name'])->get()
         ]);
     }
 }

@@ -63,7 +63,7 @@
         <div class="grid w-full grid-cols-1 gap-4 mb-5 lg:grid-cols-2">
             @forelse ($announcements as $announce)
                 <div wire:loading.remove>
-                    <a href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
+                    <a href="{{ $announce->pro && !$client_pro_authorized ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
                         wire:navigate wire:key='announce-{{ $announce->id }}'>
                         <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
                             title="{{ $announce->announce_title }}" pro="{{ $announce->pro }}">

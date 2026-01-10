@@ -2,11 +2,11 @@
     <div x-data="content" class="flex flex-col gap-8 mx-auto max-w-7xl md:flex-row">
         <!-- Navigation -->
         <x-dashboard-nav client_name="{{ $client->name }}"
-            client_account_type_id="{{ $client->account->accountType->id }}"
+            client_account_type_id="{{ $client->account->account_type_id }}"
             client_account_type_name="{{ $client->account->accountType->name }}"
             client_pro_verified="{{ $client->account->verified_payment }}"
             client_account_expire_time="{{ $client->account->limit_time }}"
-            client_account_expire_days="{{ $client_account_expiration_days }}"
+            client_account_expire_days="{{ $client_account_expire_days }}"
             client_account_expired="{{ $client_account_expired }}" />
         <!-- Main content -->
         <main class="flex-1 mb-0 md:mb-24">
@@ -28,10 +28,11 @@
             <div x-show="btnNavigation == 2">
                 <div class="text-center">
                     <picture class="w-full mb-2">
-                        <img src="{{ asset('storage/img/tbn-new-astro.webp') }}" alt="rocket"
+                        <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="rocket"
                             class="w-[14rem] h-[14rem] mx-auto">
                     </picture>
-                    <h5 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Notificaciones en tiempo real</h5>
+                    <h5 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Notificaciones en tiempo real
+                    </h5>
                     <p class="max-w-lg mx-auto mb-6 text-sm text-tbn-dark dark:text-tbn-light">
                         Entérate de las mejores convocatorias en cuanto son publicadas en nuestra plataforma.</p>
                     <x-button type="button" class="inlne-block bg-tbn-primary"
@@ -55,7 +56,8 @@
                 <header>
                     <h3 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Mi perfil</h3>
                 </header>
-                <div class="p-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
+                <div
+                    class="p-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="mb-4">
@@ -70,7 +72,8 @@
                             <p class="text-xs text-tbn-primary">Celular</p>
                             <p class="text-gray-900 dark:text-tbn-light">
                                 {{ substr($client->phone, 4, 10) }}
-                                <a href="http://wa.me/{{ $client->phone }}" target="_blank" rel="phone-verify" class="text-green-500 underline">Verificar</a>
+                                <a href="http://wa.me/{{ $client->phone }}" target="_blank" rel="phone-verify"
+                                    class="text-green-500 underline">Verificar</a>
                             </p>
                         </div>
                         <div class="mb-4">
@@ -83,7 +86,8 @@
                         </div>
                         <div class="mb-4">
                             <p class="text-xs text-tbn-primary">Cuenta</p>
-                            <p class="font-semibold text-gray-900 dark:text-tbn-light">{{ $client->account->accountType->name }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-tbn-light">
+                                {{ $client->account->accountType->name }}</p>
                         </div>
                     </div>
                 </div>
@@ -97,7 +101,7 @@
                         <i x-on:click="modal_verify_account = false"
                             class="text-lg fas fa-times text-tbn-primary"></i></x-slot>
                     <x-slot name="image">
-                        <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="empty"
+                        <img src="{{ asset('storage/img/tbn-crown.webp') }}" alt="empty"
                             class="w-[10rem] h-[10rem] mx-auto"></x-slot>
                     <x-slot name="description">
                         Gracias por adquirir tu cuenta con Trabajonautas.com. Envíanos tu
@@ -107,8 +111,7 @@
                     <x-slot name="buttons">
                         <x-button-link
                             href="https://wa.me/59173858162?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->account->accountType->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}."
-                            target="_blank"
-                            class="text-sm cursor-pointer select-none bg-tbn-primary">
+                            target="_blank" class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>
                 </x-dashboard-modal>
@@ -154,7 +157,8 @@
                 // Notifications propeties
                 modal_notifications: true,
                 aside_error_notifications: true,
-                VAPID_KEY: @json($VAPID_KEY),
+                button_notify_loading: false,
+                VAPID_KEY: '{{ config('services.firebase.vapid_key') }}',
                 // Functions
                 async init() {
                     // Dispatch events: Token Saved
@@ -164,9 +168,11 @@
                         console.info('Current token saved succesfully')
                         this.modal_notifications = false
                         this.aside_error_notifications = false
+                        this.button_notify_loading = false
                     })
                 },
                 async activateNotificationsAndSaveCurrentToken() {
+                    this.button_notify_loading = true
                     if (this.isServiceWorkerSupported()) {
                         // Request client activate notifications
                         const permission = await Notification.requestPermission();
@@ -209,7 +215,7 @@
                         ('Notification' in window);
                 },
                 isNotificationsActived() {
-                    if(Notification.permission === 'granted' && $wire.checkIfTokenExists()){
+                    if (Notification.permission === 'granted' && $wire.checkIfTokenExists()) {
                         this.aside_error_notifications = false
                     }
                 }

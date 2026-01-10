@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-6 px-4 md:flex-row">
-    <section class="w-full select-none md:w-3/5" x-data="content">
+    <section class="w-full select-none md:w-3/5">
         <div
             class="relative bg-transparent sm:bg-white sm:border sm:rounded-lg sm:shadow-md sm:dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary sm:p-10">
             <span class="absolute top-6 right-6 {{ $announcement->pro ? '' : 'hidden' }}">
@@ -77,16 +77,25 @@
                 <!-- Save -->
                 @if ($client && $client->myAnnounces->contains($announcement->id))
                     <x-button class="w-full my-1 sm:w-auto" wire:click='removeAnnounce({{ $announcement->id }})'>
-                        <i class="pr-2 text-sm fas fa-bookmark"></i> Guardado
+                        <span wire:loading.remove wire:target='removeAnnounce'>
+                            <i class="pr-2 text-sm fas fa-bookmark"></i> Guardado</span>
+                        <span wire:loading wire:target='removeAnnounce'>
+                            <i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 @else
                     <x-button class="w-full my-1 sm:w-auto" wire:click='saveAnnounce({{ $announcement->id }})'>
-                        <i class="pr-2 text-sm far fa-bookmark"></i> Guardar
+                        <span wire:loading.remove wire:target='saveAnnounce'>
+                            <i class="pr-2 text-sm far fa-bookmark"></i> Guardar</span>
+                        <span wire:loading wire:target='saveAnnounce'>
+                            <i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 @endif
                 @if ($announcement->announceFiles && count($announcement->announceFiles))
                     <x-button class="w-full my-1 sm:w-auto" wire:click='downloadAnnounceFiles()'>
-                        <i class="pr-2 text-sm fas fa-arrow-down"></i> Descargar archivos
+                        <span wire:loading.remove wire:target='downloadAnnounceFiles'>
+                            <i class="pr-2 text-sm fas fa-arrow-down"></i> Descargar archivos</span>
+                        <span wire:loading wire:target='downloadAnnounceFiles'>
+                            <i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 @endif
                 <!-- Return -->
@@ -97,7 +106,7 @@
         </div>
     </section>
     <section class="w-full md:w-2/5">
-        {{-- Company info --}}
+        <!-- Company info -->
         <div class="mb-4">
             <h3 class="mb-1 font-medium text-tbn-dark dark:text-white text-md">Información de la empresa</h3>
             <div
@@ -112,8 +121,9 @@
                         class="inline font-bold mb-2 {{ $announcement->company->trashed() ? 'line-through opacity-40 ' : 'text-tbn-primary' }}">
                         {{ $announcement->company->company_name }}
                     </h5>
-                    <span class="px-2 text-xs rounded-lg bg-tbn-light dark:bg-tbn-secondary"> Empresa:
-                        {{ $announcement->company->companyType->company_type_name }}</span>
+                    <span
+                        class="inline-block px-2 py-[2px] -translate-y-1 text-xs rounded-lg bg-tbn-light dark:bg-neutral-900 text-white dark:text-tbn-light">
+                        Empresa: {{ $announcement->company->companyType->company_type_name }}</span>
                     <p class="text-sm text-tbn-dark dark:text-white">
                         {{ $announcement->company->description }}</p>
                 @else
@@ -123,12 +133,12 @@
 
             </div>
         </div>
-        {{-- Suggest --}}
+        <!-- Announcement suggests -->
         <div class="mb-4">
             <h3 class="mb-1 font-medium text-tbn-dark dark:text-white text-md">Convocatorias similares</h3>
             <div class="flex flex-col gap-2">
                 @forelse ($suggests as $suggest)
-                    <a href="{{ $suggest->pro && (!$client || !$pro_verified) ? route('purchase-cards') : route('result', ['id' => $suggest->id]) }}"
+                    <a href="{{ $suggest->pro && !$client_pro_authorized ? route('purchase-cards') : route('result', ['id' => $suggest->id]) }}"
                         wire:navigate wire:key='suggest-{{ $suggest->id }}'>
                         <x-card-announce logo_url="{{ $suggest->company ? $suggest->company->company_image : '' }}"
                             title="{{ $suggest->announce_title }}" pro="{{ $suggest->pro }}"
@@ -146,17 +156,16 @@
                         </x-card-announce>
                     </a>
                 @empty
-                    <p class="my-8 text-sm italic text-center text-tbn-dark dark:text-tbn-light">
-                        No hay sugerencias para esta convocatoria</p>
+                    <div class="text-center">
+                        <picture class="block mb-2">
+                            <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty"
+                                class="max-w-[6rem] mx-auto mb-2">
+                        </picture>
+                        <p class="my-8 text-sm italic text-center text-tbn-dark dark:text-tbn-light">
+                            No hay sugerencias para esta convocatoria</p>
+                    </div>
                 @endforelse
             </div>
         </div>
     </section>
-    @script
-        <script>
-            Alpine.data('content', () => ({
-                modalShare: false
-            }))
-        </script>
-    @endscript
 </div>

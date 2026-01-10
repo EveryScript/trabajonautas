@@ -7,12 +7,13 @@
         <!-- Filter suggests -->
         <div class="relative">
             <div class="flex flex-row justify-end gap-1">
-                <x-secondary-button type="button" id="search" href="{{ route('search')}}" wire:navigate>
+                <x-secondary-button type="button" id="search" href="{{ route('search') }}" wire:navigate>
                     <i class="mr-2 text-xs fa-solid fa-search"></i> Búsqueda avanzada
                 </x-secondary-button>
                 <x-secondary-button x-on:click="show_dropdown = true" type="button" id="suggest-menu"
                     aria-expanded="false" data-dropdown-toggle="suggest-dropdown" data-dropdown-placement="bottom">
-                    <span x-text="filter_text"></span><i class="ml-2 text-xs fa-solid fa-sort-down"></i>
+                    <span x-text="filter_text"></span><i
+                        class="ml-2 text-xs fa-solid fa-sort-down translate-y-[-2px]"></i>
                 </x-secondary-button>
             </div>
             <div x-show="show_dropdown" x-on:click.outside="show_dropdown = false"
@@ -58,7 +59,7 @@
             (filter_option === 'week' && info.week) ||
             (filter_option === 'month' && info.month)"
             x-transition:enter.duration.300ms x-transition:leave.duration.300ms
-            href="{{ $this->isAnnouncePro($announce->pro) ? route('result', ['id' => $announce->id]) : route('purchase-cards') }}"
+            href="{{ $announce->pro && !$client_pro_authorized ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
             wire:navigate wire:key='announce-{{ $announce->id }}'>
             <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
                 created_at="{{ $announce->created_at }}" title="{{ $announce->announce_title }}"

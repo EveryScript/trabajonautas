@@ -44,4 +44,13 @@ class Announcement extends Model
     {
         return $this->hasMany(AnnouncementFile::class);
     }
+
+    // Special query
+    public function announceSuggests()
+    {
+        return $this->hasMany(Announcement::class, 'area_id', 'area_id')
+            ->where('expiration_time', '>=', now())
+            ->where('id', '!=', $this->id)
+            ->limit(5);
+    }
 }

@@ -3,13 +3,13 @@
 namespace App\Livewire\Panel;
 
 use App\Models\Announcement;
-use App\Traits\CheckClientsProVerified;
+use App\Traits\AuthorizeClients;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class DashboardCard extends Component
 {
-    use CheckClientsProVerified;
+    use AuthorizeClients;
     // Parameters
     public $title, $description;
     public $my_announces_mode = false;
@@ -32,22 +32,11 @@ class DashboardCard extends Component
         return $query->orderBy('updated_at', 'DESC');
     }
 
-    public function isAnnouncePro($pro)
-    {
-        if ($pro) {
-            if ($this->isClientRole())
-                return $this->isClientProVerified() ? true : false;
-            else
-                return true;
-        } else
-            return true;
-    }
-
     public function render()
     {
-        $announces = $this->my_announces_mode ? Auth::user()->myAnnounces : $this->baseQuery()->get();
         return view('livewire.panel.dashboard-card', [
-            'announces' => $announces
+            'announces' => $this->my_announces_mode ? Auth::user()->myAnnounces : $this->baseQuery()->get(),
+            'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent()
         ]);
     }
 }

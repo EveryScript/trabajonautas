@@ -27,11 +27,13 @@
                     <div class="p-4 mt-1 text-left border rounded-lg border-tbn-primary">
                         <h5 class="mb-2 font-semibold">Tu cuenta ha expirado.</h5>
                         <p class="mb-3 text-xs font-medium text-tbn-dark dark:text-tbn-light">
-                            Renueva tu cuenta ahora mismo para disfrutar de los beneficios de Trabajonautas.com.
+                            No te pierdas la oportunidad de seguir disfrutando de los beneficios de
+                            <span class="font-bold text-tbn-primary">Trabajonautas.com</span>
+                            Adquiere una nueva cuenta ahora miamo.
                         </p>
-                        <a href="{{ route('purchase-account', ['account_type_id' => intval($client_account_type_id)]) }}"
-                            class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-gray-50 hover:text-tbn-primary">
-                            <i class="mr-1 fa-solid fa-arrow-rotate-right"></i> Renovar cuenta</a>
+                        <a href="{{ route('purchase-account', ['account_type_id' => 3]) }}"
+                            class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary">
+                            <i class="mr-1 fa-solid fa-crown"></i> Adquirir PRO-MAX</a>
                     </div>
                 @endif
             @elseif(intval($client_account_type_id) === 2 || intval($client_account_type_id) === 3)
@@ -44,7 +46,7 @@
                         <p class="inline-block mb-3 text-xs font-medium text-tbn-dark dark:text-tbn-light">
                             Envíanos tu <span class="font-bold text-tbn-primary">comprobante de
                                 depósito</span> por WhatsApp para HABILITAR tu cuenta hoy mismo.</p>
-                        <a class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-gray-50 hover:text-tbn-primary"
+                        <a class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary"
                             target="_blank"
                             href="https://wa.me/59173858162?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client_account_type_name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client_name }}.">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar mensaje</a>
@@ -71,12 +73,11 @@
                                 {{ $client_account_expire_days > 1 ? $client_account_expire_days . ' dias.' : $client_account_expire_days . ' día.' }}
                             </p>
                             <p class="mb-3 text-xs font-medium text-tbn-dark dark:text-tbn-light">
-                                Renueva tu cuenta <span
-                                    class="font-bold text-tbn-primary">{{ $client_account_type_name }}</span> ahora
-                                mismo
-                                para seguir disfrutando de todos sus beneficios.</p>
+                                Renueva tu cuenta ahora mismo antes de que expire para no perder los beneficios de
+                                <span class="font-bold text-tbn-primary">Trabajonautas.com</span>
+                            </p>
                             <a href="{{ route('purchase-account', ['account_type_id' => intval($client_account_type_id)]) }}"
-                                class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-gray-50 hover:text-tbn-primary">
+                                class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary">
                                 <i class="mr-1 fa-solid fa-arrow-rotate-right"></i> Renovar cuenta</a>
                         </div>
                     @endif
@@ -97,8 +98,10 @@
                             real.
                         </p>
                         <button x-on:click="activateNotificationsAndSaveCurrentToken"
-                            class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-gray-50 hover:text-tbn-primary">
-                            <i class="mr-1 fa-solid fa-bell"></i> Activar</button>
+                            class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary">
+                            <span x-show="button_notify_loading"><i class="text-sm fas fa-spinner animate-spin"></i></span>
+                            <span x-show="!button_notify_loading"><i class="mr-1 fa-solid fa-bell"></i> Activar</span>
+                        </button>
                     </div>
                 @endif
             @endif

@@ -9,7 +9,7 @@
         </div>
         <div class="flex-1 text-center hidden lg:flex sm:rounded-lg">
             <div class="w-full bg-cover bg-center bg-no-repeat rounded-lg"
-                style="background-image: url('{{ asset('storage/img/tbn-space.webp') }}');">
+                style="background-image: url('{{ asset('storage/img/tbn-space-reverse.webp') }}');">
             </div>
         </div>
     </div>
