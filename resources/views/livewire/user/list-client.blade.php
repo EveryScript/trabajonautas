@@ -46,6 +46,11 @@
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
                                         Clientes deshabilitados</a>
                                 </li>
+                                <li class="cursor-pointer">
+                                    <a x-on:click="setFilterClient('without_account')"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:bg-tbn-dark dark:text-tbn-light dark:hover:bg-neutral-900">
+                                        Clientes sin cuenta</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -95,13 +100,14 @@
                     @forelse ($clients as $client)
                         <tr wire:key='{{ $client->id }}' x-data="{
                             info: {
-                                free: {{ $client->actived && intval($client->account->account_type_id) === 1 ? 'true' : 'false' }},
-                                pro: {{ $client->actived && intval($client->account->account_type_id) === 2 ? 'true' : 'false' }},
-                                max: {{ $client->actived && intval($client->account->account_type_id) === 3 ? 'true' : 'false' }},
-                                actived: {{ $client->actived ? 'true' : 'false' }}
+                                free: {{ $client->account && $client->actived && intval($client->account->account_type_id) === 1 ? 'true' : 'false' }},
+                                pro: {{ $client->account && $client->actived && intval($client->account->account_type_id) === 2 ? 'true' : 'false' }},
+                                max: {{ $client->account && $client->actived && intval($client->account->account_type_id) === 3 ? 'true' : 'false' }},
+                                actived: {{ $client->account && $client->actived ? 'true' : 'false' }},
+                                without_account: {{ !$client->account ? 'true' : 'false' }}
                             }
                         }"
-                            x-show="(filter_option === 'all' && info.actived) || (filter_option === 'free' && info.free) || (filter_option === 'pro' && info.pro) || (filter_option === 'max' && info.max) || (filter_option === 'inactived' && !info.actived)"
+                            x-show="(filter_option === 'all' && info.actived) || (filter_option === 'free' && info.free) || (filter_option === 'pro' && info.pro) || (filter_option === 'max' && info.max) || (filter_option === 'inactived' && !info.actived && !info.without_account) || (filter_option === 'without_account' && info.without_account)"
                             x-transition:enter.duration.300ms x-transition:leave.duration.300ms
                             class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
                             <th scope="row"
@@ -110,10 +116,10 @@
                                     {{ $client->name }}</h5>
                             </th>
                             <td class="hidden px-6 py-4 dark:text-tbn-light md:table-cell">
-                                {{ $client->location->location_name }}
+                                {{ $client->account ? $client->location->location_name : '(sin datos)' }}
                             </td>
                             <td class="hidden px-6 py-4 dark:text-tbn-light md:table-cell">
-                                {{ $client->profesion->profesion_name }}
+                                {{ $client->account ? $client->profesion->profesion_name : '(sin datos)' }}
                             </td>
                             <td class="hidden px-6 py-4 dark:text-tbn-light md:table-cell">
                                 {{ \Carbon\Carbon::parse($client->created_at)->diffForHumans() }}
@@ -134,6 +140,8 @@
                                                 class="px-2 py-1 text-xs text-white rounded-full bg-tbn-secondary animate-pulse">Pendiente</span>
                                         @endif
                                     @endif
+                                @else
+                                    <span class="dark:text-tbn-light">(sin cuenta)</span>
                                 @endif
                             </td>
                             <td class="flex flex-row items-center justify-end px-6 py-4 text-xl h-15">
@@ -177,6 +185,9 @@
                             break;
                         case 'inactived':
                             this.filter_text = 'Deshabilitados'
+                            break;
+                        case 'without_account':
+                            this.filter_text = 'Sin cuenta'
                             break;
                         default:
                             this.filter_text = 'all'

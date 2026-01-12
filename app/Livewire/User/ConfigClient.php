@@ -16,10 +16,8 @@ class ConfigClient extends Component
     {
         Carbon::setlocale('es');
         if ($id && User::find($id)) {
-            $this->client = User::whereHas('account')
-                ->with('account.accountType')
-                ->find($id);
-            $this->client_verified_payment = $this->client->account->verified_payment;
+            $this->client = User::with('account.accountType')->find($id);
+            $this->client_verified_payment = $this->client->account ? $this->client->account->verified_payment : 'none';
             $this->client_actived = $this->client->actived;
         }
     }

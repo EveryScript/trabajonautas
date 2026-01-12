@@ -16,4 +16,17 @@ class AccountType extends Model
     {
         return $this->hasMany(Account::class);
     }
+
+    // Through relation
+    public function users()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            Account::class,
+            'account_type_id',
+            'account_id',
+            'id',
+            'id'
+        );
+    }
 }

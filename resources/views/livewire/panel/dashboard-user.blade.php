@@ -54,6 +54,12 @@
                         Clientes por profesión
                     </a>
                 </li>
+                <li x-on:click="tab_option = 7" class="mb-px text-center transition-colors duration-200">
+                    <a href="#" :class="tab_option === 7 ? tab_active_class : tab_inactive_class"
+                        class="block px-6 py-3 text-sm font-medium bg-white dark:bg-tbn-dark">
+                        Clientes sin datos
+                    </a>
+                </li>
             </ul>
             <!-- Tab content -->
             <div class="flex-1 dark:text-tbn-light">
@@ -86,6 +92,11 @@
                 <div x-show="tab_option === 6" x-transition:enter.duration.300ms>
                     <livewire:Charts.ClientsProfesion :startDate="$start_date" :endDate="$end_date" :labels="$labels"
                         wire:key='clients-profesion-chart'>
+                </div>
+                <!-- Clients unregistered chart -->
+                <div x-show="tab_option === 7" x-transition:enter.duration.300ms>
+                    <livewire:Charts.ClientsUnregistered :startDate="$start_date" :endDate="$end_date" :labels="$labels"
+                        wire:key='clients-unregistered-chart'>
                 </div>
             </div>
         </div>

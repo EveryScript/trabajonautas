@@ -12,7 +12,8 @@
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Ubicación</span>
-                <h4 class="text-lg font-medium">{{ $client->location->location_name }}</h4>
+                <h4 class="text-lg font-medium">
+                    {{ $client->location ? $client->location->location_name : '(sin datos)' }}</h4>
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Correo electrónico</span>
@@ -20,30 +21,26 @@
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Profesion</span>
-                <h4 class="text-lg font-medium">{{ $client->profesion->profesion_name }}</h4>
+                <h4 class="text-lg font-medium">
+                    {{ $client->profesion ? $client->profesion->profesion_name : '(sin datos)' }}</h4>
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Celular</span>
                 <h4 class="text-lg font-medium">
-                    {{ substr($client->phone, 4, 10) }} <a href="http://wa.me/{{ $client->phone }}" target="_blank"
-                        rel="phone-verify" class="text-green-500 underline">Verificar</a>
+                    @if ($client->phone)
+                        {{ substr($client->phone, 4, 10) }} <a href="http://wa.me/{{ $client->phone }}" target="_blank"
+                            rel="phone-verify" class="text-green-500 underline">Verificar</a>
+                    @else
+                        (sin datos)
+                    @endif
                 </h4>
-            </div>
-            <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Area profesional</span>
-                @if ($client->area)
-                    <h4 class="font-medium text-md">
-                        {{ $client->area->area_name }}</h4>
-                @else
-                    <span class="block text-sm italic text-tbn-dark">(vacio)</span>
-                @endif
             </div>
             <div class="mb-1">
                 <span class="text-xs text-tbn-primary">Fecha de registro</span>
                 <h4 class="font-medium text-md">{{ $this->formatDate($client->created_at) }}</h4>
             </div>
             <div class="col-span-2">
-                @if ($client->account->accountType->id !== 1)
+                @if ($client->account && intval($client->account->account_type_id) !== 1)
                     <span class="text-xs text-tbn-primary">Verificación de pago</span>
                     <x-input-checkbox-block checked="{{ $client->account->verified_payment ? 'checked' : '' }}"
                         wire:model="client_verified_payment">
@@ -57,18 +54,26 @@
                         </div>
                     </x-input-checkbox-block>
                 @endif
-                <span class="text-xs text-tbn-primary">Control de acceso</span>
-                <x-input-checkbox-block checked="{{ $client->actived ? 'checked' : '' }}" wire:model="client_actived">
-                    <div class="ms-4">
-                        <p class="font-medium text-md text-tbn-dark dark:text-white">Habilitar cliente</p>
-                        <p class="text-xs text-tbn-dark dark:text-tbn-light">
-                            El cliente utiliza el sistema y su cuenta está disponible actualmente </p>
-                    </div>
-                </x-input-checkbox-block>
+                @if ($client->account)
+                    <span class="text-xs text-tbn-primary">Control de acceso</span>
+                    <x-input-checkbox-block checked="{{ $client->actived ? 'checked' : '' }}"
+                        wire:model="client_actived">
+                        <div class="ms-4">
+                            <p class="font-medium text-md text-tbn-dark dark:text-white">Habilitar cliente</p>
+                            <p class="text-xs text-tbn-dark dark:text-tbn-light">
+                                El cliente utiliza el sistema y su cuenta está disponible actualmente </p>
+                        </div>
+                    </x-input-checkbox-block>
+                @endif
             </div>
         </div>
         <div class="mb-4">
-            <x-button type="button" x-on:click="saveSettings">Guardar configuración</x-button>
+            @if ($client->account)
+                <x-button type="button" x-on:click="saveSettings">
+                    <span wire:loading.remove>Guardar configuración</span>
+                    <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
+                </x-button>
+            @endif
             <x-secondary-button href="{{ route('client') }}" wire:navigate>Salir</x-button>
         </div>
     </form>

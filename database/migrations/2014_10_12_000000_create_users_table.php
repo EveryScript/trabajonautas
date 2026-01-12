@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('location_id')->nullable(); // Foreign
             $table->unsignedBigInteger('profesion_id')->nullable(); // Foreign
             $table->unsignedBigInteger('grade_profile_id')->nullable(); // Foreign
+            $table->unsignedBigInteger('account_id')->nullable(); // Foreign
             $table->string('provider')->nullable(); // Google Auth
             $table->string('provider_id')->nullable(); // Google Auth
             $table->timestamp('last_announce_check')->nullable(); // New field

@@ -27,6 +27,7 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
+            'terms_accepted_at' => now()
         ]);
 
         $new_user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT

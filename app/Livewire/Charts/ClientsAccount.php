@@ -24,15 +24,20 @@ class ClientsAccount extends Component
     {
         $data = [];
 
-        $account_types = AccountType::withCount(['accounts' => function ($query) {
-            $query->whereBetween('created_at', [
+        $account_types = AccountType::withCount([
+            'users' => fn($query) =>
+            $query->where('actived', true)
+            ->where(function ($q) {
+                $q->where('accounts.account_type_id', 1)
+                    ->orWhere('accounts.verified_payment', true);
+            })->role(env('CLIENT_ROLE'))->whereBetween('users.created_at', [
                 Carbon::parse($this->startDate)->startOfDay(),
                 Carbon::parse($this->endDate)->endOfDay()
-            ]);
-        }])->get();
+            ])
+        ])->get();
 
         foreach ($account_types as $account_type)
-            array_push($data, $account_type->accounts_count);
+            array_push($data, $account_type->users_count);
 
         $this->total = array_sum($data);
 

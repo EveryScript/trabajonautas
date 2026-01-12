@@ -25,10 +25,16 @@ class ClientsProfesion extends Component
         $data = [];
 
         $profesions = Profesion::whereHas('users')->withCount(['users' => function ($query) {
-            $query->role(env('CLIENT_ROLE'))->whereBetween('created_at', [
-                Carbon::parse($this->startDate)->startOfDay(),
-                Carbon::parse($this->endDate)->endOfDay()
-            ]);
+            $query->role(env('CLIENT_ROLE'))
+                ->whereHas('account', function ($q) {
+                    $q->where(function ($q) {
+                        $q->where('account_type_id', 1)
+                            ->orWhere('verified_payment', true);
+                    });
+                })->whereBetween('created_at', [
+                    Carbon::parse($this->startDate)->startOfDay(),
+                    Carbon::parse($this->endDate)->endOfDay()
+                ]);
         }])->get();
 
         foreach ($profesions as $profesion) {

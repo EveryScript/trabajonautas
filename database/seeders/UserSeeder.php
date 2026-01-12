@@ -39,21 +39,5 @@ class UserSeeder extends Seeder
             'location_id' => 1,
             'grade_profile_id' => 5,
         ]);
-
-        User::create([
-            'id' => Str::uuid(),
-            'name' => 'Cliente Prueba',
-            'email' => 'cliente@email.com',
-            'password' => '$2y$12$QBSXragtc3GoveP.au5IuuAr.E6brMpXSyKTruzmqoANh1VIGwOU.', // 123456789
-            'phone' => '69616052',
-            'gender' => 'M',
-            'age' => 1,
-            'register_completed' => false,
-            'email_verified_at' => now(), // Email verified now
-            'terms_accepted_at' => now(), // Terms and condition accepted now
-            'location_id' => 1,
-            'grade_profile_id' => 1,
-            'profesion_id' => 1,
-        ]);
     }
 }
