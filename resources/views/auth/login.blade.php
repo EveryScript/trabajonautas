@@ -38,7 +38,11 @@
                             {{ __('Forgot your password?') }}
                         </a>
                     @endif
-                    <hr class="max-w-xs mx-auto my-6 border-tbn-secondary">
+                    <div class="relative max-w-xs">
+                        <span class="absolute py-2 px-2 text-xs -top-4 left-[47%] bg-tbn-dark text-tbn-secondary">
+                            <i class="fa-solid fa-o"></i></span>
+                        <hr class="mx-auto my-6 border-tbn-secondary">
+                    </div>
                     <div class="max-w-xs mx-auto">
                         <a href="{{ route('social.redirect', 'google') }}"
                             class="flex justify-center gap-2 px-4 py-3 text-sm transition duration-150 border rounded-lg border-tbn-secondary text-tbn-dark dark:text-tbn-light dark:hover:text-white hover:shadow">
@@ -49,8 +53,12 @@
                     </div>
                     <p class="mt-4 text-xs text-tbn-dark dark:text-tbn-light">
                         Al iniciar sesión con Google, aceptas nuestros
-                        <a href="{{ route('terms.show') }}" target="_blank" class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Términos de servicio</a> y
-                        <a href="{{ route('policy.show') }}" target="_blank" class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Política de privacidad</a>.
+                        <a href="{{ route('terms.show') }}" target="_blank"
+                            class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Términos
+                            de servicio</a> y
+                        <a href="{{ route('policy.show') }}" target="_blank"
+                            class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Política
+                            de privacidad</a>.
                     </p>
                     <div class="relative mt-4">
                         <label for="remember_me" class="flex items-center cursor-pointer">

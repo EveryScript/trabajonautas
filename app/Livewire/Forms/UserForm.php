@@ -5,6 +5,7 @@ namespace App\Livewire\Forms;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
@@ -34,14 +35,14 @@ class UserForm extends Form
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|min:8',
+            'password' => ['required', Password::min(8)->mixedCase()->numbers()]
         ]);
         $user = User::create([
             'name' => $this->name,
             'email' => $this->email,
             'password' => Hash::make($this->password)
         ]);
-        $user->assignRole(env('USER_ROLE')); // Always user
+        $user->assignRole($this->role); // Always user
     }
     public function updateUser($user_id)
     {
