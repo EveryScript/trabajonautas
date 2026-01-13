@@ -13,14 +13,13 @@
                     <h3 class="text-xl font-bold text-tbn-dark dark:text-white">¿Tienes problemas para mejorar tu
                         currículum?</h3>
                     <p class="mt-2 text-xs text-tbn-secondary dark:text-white">
-                        Visita nuestro sitio web <span class="underline text-tbn-primary">Quimeras
-                            Bolivia</span> y encuentra los cursos que necesitas para postular en las mejores empresas de
-                        Bolivia.
+                        Visita nuestro sitio web <span class="text-tbn-primary">Quimeras Bolivia</span>
+                        y encuentra los cursos que necesitas para postular en las mejores empresas de Bolivia.
                     </p>
                 </div>
                 <div class="flex gap-3 mt-4">
                     <a href="https://www.quimerasbolivia.com" target="_blank">
-                        <x-button>Ir a Quimeras Bolivia</x-button>
+                        <x-button type="button">Ir a Quimeras Bolivia</x-button>
                     </a>
                 </div>
             </div>
