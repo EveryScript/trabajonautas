@@ -1,25 +1,27 @@
 <x-web-layout>
     <!-- Popup Ad Quimeras Bolivia -->
-    <div class="fixed right-4 top-[95%] sm:top-[50%] z-[100] -translate-y-[95%] sm:-translate-y-1/2">
-        <div
-            class="relative flex flex-col sm:flex-row items-center justify-end w-24 h-24 overflow-hidden transition-all duration-500 ease-in-out bg-white border rounded-full shadow-2xl group dark:bg-tbn-dark hover:w-[18rem] hover:h-[24rem] sm:hover:w-[32rem] sm:hover:h-48 hover:rounded-2xl border-tbn-primary">
+    <div
+        class="fixed right-4 bottom-4 sm:bottom-1/2 top-11/12 sm:top-1/2 z-[100] translate-y-11/12 sm:-translate-y-1/2 outline-none">
+        <div tabindex="0"
+            class="group relative flex flex-col sm:flex-row h-16 w-16 cursor-pointer items-center justify-end overflow-hidden rounded-full bg-white shadow-2xl transition-all duration-500 ease-in-out border border-tbn-light 
+           focus-within:h-[24rem] sm:focus-within:h-[15rem] focus-within:w-[18rem] sm:focus-within:w-[30rem] focus-within:rounded-2xl focus-within:cursor-default outline-none">
             <div
-                class="absolute flex flex-col items-center justify-center w-16 h-16 p-1 transition-transform duration-500 top-4 sm:flex-row right-4 shrink-0 group-hover:relative sm:group-hover:h-24 sm:group-hover:w-24 group-hover:h-32 group-hover:w-32 group-hover:p-4 group-hover:left-0 group-hover:top-10 sm:group-hover:top-0 sm:group-hover:left-4">
-                <img src="{{ asset('storage/img/quimeras.webp') }}" alt="quimeras" class="object-cover w-full h-full" />
+                class="absolute right-0 flex items-center justify-center w-16 h-16 p-1 transition-all duration-500 shrink-0 group-focus-within:top-8 sm:group-focus-within:top-0 sm:group-focus-within:left-4 group-focus-within:relative group-focus-within:h-32 group-focus-within:w-32 group-focus-within:scale-120 group-focus-within:p-4">
+                <img src="https://quimerasbolivia.com/img/circle-quim.png" alt="Avatar"
+                    class="object-cover w-full h-full rounded-full shadow-md" />
             </div>
             <div
-                class="flex flex-col w-full px-6 py-10 transition-opacity duration-300 opacity-0 pointer-events-none group-hover:pointer-events-auto group-hover:opacity-100 group-hover:delay-200">
-                <div class="pr-5">
-                    <h3 class="text-xl font-bold text-tbn-dark dark:text-white">¿Tienes problemas para mejorar tu
-                        currículum?</h3>
-                    <p class="mt-2 text-xs text-tbn-secondary dark:text-white">
-                        Visita nuestro sitio web <span class="text-tbn-primary">Quimeras Bolivia</span>
-                        y encuentra los cursos que necesitas para postular en las mejores empresas de Bolivia.
+                class="flex flex-col p-6 transition-opacity duration-300 opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:delay-200">
+                <div class="pr-16">
+                    <h3 class="text-xl font-bold text-tbn-dark">¿Tienes problemas para mejorar tu currículum?</h3>
+                    <p class="w-full mt-2 text-xs leading-relaxed text-tbn-dark">
+                        Encuentra todos los cursos que necesitas para postular en las mejores empresas de Bolivia.
                     </p>
                 </div>
-                <div class="flex gap-3 mt-4">
-                    <a href="https://www.quimerasbolivia.com" target="_blank">
-                        <x-button type="button">Ir a Quimeras Bolivia</x-button>
+                <div class="flex mt-4 sm:gap-3">
+                    <a href="https://www.quimerasbolivia.com" target="_blank"
+                        class="px-4 py-2 text-xs font-semibold text-white transition-all rounded-lg bg-tbn-primary hover:bg-tbn-secondary active:scale-95">
+                        Ir a Quimeras Bolivia
                     </a>
                 </div>
             </div>
