@@ -83,7 +83,7 @@ class ResultAnnouncement extends Component
 
     public function formatDate($datetime)
     {
-        return Carbon::parse($datetime)->translatedFormat('l d/M/Y H:m:s');
+        return Carbon::parse($datetime)->translatedFormat('l d \d\e F \d\e Y \a \l\a\s H:i');
     }
 
     public function render()

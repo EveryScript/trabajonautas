@@ -315,8 +315,8 @@
                         <div class="relative px-4 py-3 mb-4 bg-gray-100 rounded-md dark:bg-tbn-secondary">
                             <span
                                 class="absolute px-4 py-1 text-xs bg-gray-100 rounded-full -top-3 text-tbn-primary dark:bg-tbn-secondary">
-                                Banco Bisa</span>
-                            <span class="dark:text-white">36621-54481-29402-6598</span>
+                                Banco Mercantil Santa Cruz</span>
+                            <span class="dark:text-white">4077070681</span>
                         </div>
                     </div>
                 </div>

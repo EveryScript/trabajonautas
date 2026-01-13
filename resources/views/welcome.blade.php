@@ -1,31 +1,28 @@
 <x-web-layout>
     <!-- Popup Ad Quimeras Bolivia -->
-    <div x-data="{ open: true }" x-show="open">
-        <div x-transition:enter.duration.300ms x-transition:leave.duration.300ms
-            class="fixed z-50 max-w-lg p-5 ml-8 transition-all duration-300 bg-white border shadow-2xl bottom-6 right-6 dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-2xl hover:shadow-tbn-secondary hover:scale-105 group">
-            <div class="flex flex-col items-center gap-6 sm:flex-row">
-                <div class="flex flex-row items-center gap-3 min-w-24">
-                    <picture>
-                        <img src="{{ asset('storage/img/quimeras.webp') }}" class="w-[6rem] h-[6rem]" alt="quimeras-logo">
-                    </picture>
-                    <picture>
-                        <img src="{{ asset('storage/img/icarus.webp') }}" class="sm:hidden w-[6rem] h-[6rem]"
-                            alt="icarus-logo">
-                    </picture>
-                </div>
-                <div>
-                    <h3 class="mb-2 text-sm font-semibold leading-tight text-tbn-dark dark:text-white md:text-base">
-                        ¿Tienes problemas para mejorar tu curriculum?
-                    </h3>
-                    <p class="mb-4 text-xs text-tbn-dark dark:text-tbn-light md:text-sm">
-                        No te preocupes, tenemos la solución. <br>
-                        <span class="font-semibold text-tbn-primary">Quimeras Bolivia</span> tiene los mejores cursos
-                        para tí.
+    <div class="fixed right-4 top-[95%] sm:top-[50%] z-[100] -translate-y-[95%] sm:-translate-y-1/2">
+        <div
+            class="relative flex flex-col sm:flex-row items-center justify-end w-24 h-24 overflow-hidden transition-all duration-500 ease-in-out bg-white border rounded-full shadow-2xl group dark:bg-tbn-dark hover:w-[18rem] hover:h-[24rem] sm:hover:w-[32rem] sm:hover:h-48 hover:rounded-2xl border-tbn-primary">
+            <div
+                class="absolute flex flex-col items-center justify-center w-16 h-16 p-1 transition-transform duration-500 top-4 sm:flex-row right-4 shrink-0 group-hover:relative sm:group-hover:h-24 sm:group-hover:w-24 group-hover:h-32 group-hover:w-32 group-hover:p-4 group-hover:left-0 group-hover:top-10 sm:group-hover:top-0 sm:group-hover:left-4">
+                <img src="{{ asset('storage/img/quimeras.webp') }}" alt="quimeras" class="object-cover w-full h-full" />
+            </div>
+            <div
+                class="flex flex-col w-full px-6 py-10 transition-opacity duration-300 opacity-0 pointer-events-none group-hover:pointer-events-auto group-hover:opacity-100 group-hover:delay-200">
+                <div class="pr-5">
+                    <h3 class="text-xl font-bold text-tbn-dark dark:text-white">¿Tienes problemas para mejorar tu
+                        currículum?</h3>
+                    <p class="mt-2 text-xs text-tbn-secondary dark:text-white">
+                        Visita nuestro sitio web <a class="underline text-tbn-primary"
+                            href="https://quimerasbolivia.com" target="_blank" rel="noopener noreferrer">Quimeras
+                            Bolivia</a> y encuentra los cursos que necesitas para postular en las mejores empresas de
+                        Bolivia.
                     </p>
-                    <a href="https://quimerasbolivia.com" target="_blank">
-                        <x-button>Sí, por favor</x-button>
+                </div>
+                <div class="flex gap-3 mt-4">
+                    <a href="http://" target="_blank" rel="noopener noreferrer">
+                        <x-button>Ir a Quimeras Bolivia</x-button>
                     </a>
-                    <x-secondary-button x-on:click="open = false">No gracias</x-secondary-button>
                 </div>
             </div>
         </div>
@@ -33,7 +30,7 @@
     <!-- Landing -->
     <section class="bg-bottom bg-cover"
         style="background-image: url({{ asset('storage/img/tbn-space-reverse.webp') }})">
-        <div class="max-w-6xl md:h-[35rem] h-[30rem] flex flex-row justify-center items-center gap-4 mx-auto">
+        <div class="z-10 max-w-6xl md:h-[35rem] h-[30rem] flex flex-row justify-center items-center gap-4 mx-auto">
             <div class="px-6 mx-auto lg:w-7/12">
                 <h4 class="mb-2 text-3xl font-bold text-center text-white sm:text-left sm:text-5xl title-font"
                     data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
@@ -70,9 +67,9 @@
                     </div>
                 </div>
             </div>
-            <picture class="hidden lg:w-5/12 lg:block" data-aos="zoom-in" data-aos-delay="800" data-aos-duration="1000"
-                data-aos-once="true">
-                <img class="animate-astronaut mx-auto md:max-w-[20rem]"
+            <picture class="hidden z-1 lg:w-5/12 lg:block" data-aos="zoom-in" data-aos-delay="800"
+                data-aos-duration="1000" data-aos-once="true">
+                <img class="z-0 animate-astronaut mx-auto md:max-w-[20rem]"
                     src="{{ asset('storage/img/tbn-astro-belt.webp') }}" alt="astronaut-image">
             </picture>
         </div>
