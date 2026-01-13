@@ -69,12 +69,19 @@
                                 @endif
                             </td>
                             <td class="hidden px-6 py-4 dark:text-tbn-light lg:table-cell">
-                                @forelse ($announcement->locations as $location)
+                                @if ($announcement->locations->count() === $total_locations)
                                     <span
-                                        class="inline-block px-2 py-1 dark:bg-tbn-secondary rounded-md text-[.8rem] leading-4 mb-1">{{ $location->location_name }}</span>
-                                @empty
-                                    <span class="text-sm">No items</span>
-                                @endforelse
+                                        class="inline-block px-2 py-1 dark:bg-tbn-secondary border border-tbn-primary rounded-md text-[.8rem] leading-4 mb-1">
+                                        Toda Bolivia</span>
+                                @else
+                                    @forelse ($announcement->locations as $location)
+                                        <span
+                                            class="inline-block px-2 py-1 dark:bg-tbn-secondary rounded-md text-[.8rem] leading-4 mb-1">
+                                            {{ $location->location_name }}</span>
+                                    @empty
+                                        <span class="text-sm">Sin ubicaciones</span>
+                                    @endforelse
+                                @endif
                             </td>
                             <td class="hidden px-6 py-4 dark:text-tbn-light lg:table-cell">
                                 {{ $announcement->company ? $announcement->company->company_name : '(Empresa eliminada)' }}

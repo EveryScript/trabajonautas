@@ -3,6 +3,7 @@
 namespace App\Livewire\Announcement;
 
 use App\Models\Announcement;
+use App\Models\Location;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -33,7 +34,8 @@ class ListAnnouncement extends Component
         return view('livewire.announcement.list-announcement', [
             'announcements' => $announcements,
             'count_results' => $count_results,
-            'search_title' => $this->search
+            'search_title' => $this->search,
+            'total_locations' => Location::count(),
         ]);
     }
 }

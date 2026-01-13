@@ -48,9 +48,14 @@ class Announcement extends Model
     // Special query
     public function announceSuggests()
     {
-        return $this->hasMany(Announcement::class, 'area_id', 'area_id')
+        return $this->hasMany(Announcement::class, 'area_id', 'area_id');
+    }
+    // Scope for announcements by area
+    public function scopeGetSuggests($query, $currentId, $areaId)
+    {
+        return $query->where('area_id', $areaId)
+            ->where('id', '!=', $currentId)
             ->where('expiration_time', '>=', now())
-            ->where('id', '!=', $this->id)
             ->limit(5);
     }
 }

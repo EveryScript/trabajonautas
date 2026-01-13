@@ -89,9 +89,13 @@ class ResultAnnouncement extends Component
     public function render()
     {
         $client = $this->getAuthClientWithAccount();
+        $suggestions = $this->announcement->getSuggests(
+            $this->announcement->id,
+            $this->announcement->area_id
+        )->get();
         return view('livewire.web.result-announcement', [
             'announcement' => $this->announcement,
-            'suggests' => $this->announcement->announceSuggests,
+            'suggests' => $suggestions,
             'total_locations' => Location::count(),
             'client' => $client,
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent(),
