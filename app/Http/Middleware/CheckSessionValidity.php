@@ -12,28 +12,30 @@ class CheckSessionValidity
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // Allow all livewire requests (like upload files)    
-        if ($request->is('livewire/*')) {
+        // 1. Omitir para Livewire y Debugbar (si existe)
+        if ($request->is('livewire/*') || $request->has('_debugbar')) {
             return $next($request);
         }
 
-        if (Auth::check()) {
-            $sessionId = $request->session()->getId();
-            $userId = Auth::id();
+        try {
+            if (Auth::check()) {
+                $sessionId = $request->session()->getId();
 
-            $exists = DB::table('sessions')
-                ->where('id', $sessionId)
-                ->where('user_id', $userId)
-                ->exists();
+                $exists = DB::table('sessions')
+                    ->where('id', $sessionId)
+                    ->where('user_id', Auth::id())
+                    ->exists();
 
-            if (!$exists) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                return redirect()->route('login')
-                    ->with('session_expired', 'Sesión cerrada: se detectó un inicio en otro dispositivo.');
+                if (!$exists) {
+                    Auth::logout();
+                    return redirect()->route('login')
+                        ->with('session_expired', 'Sesión cerrada por seguridad.');
+                }
             }
+        } catch (\Exception $e) {
+            // Si hay un error de base de datos o sesión, deja pasar la petición
+            // para que no se bloquee el sitio.
+            return $next($request);
         }
 
         return $next($request);
