@@ -84,8 +84,6 @@
                             <p class="text-xs text-tbn-primary">Celular</p>
                             <p class="text-gray-900 dark:text-tbn-light">
                                 {{ substr($client->phone, 4, 10) }}
-                                <a href="http://wa.me/{{ $client->phone }}" target="_blank" rel="phone-verify"
-                                    class="text-green-500 underline">Verificar</a>
                             </p>
                         </div>
                         <div class="mb-4">

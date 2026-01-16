@@ -101,7 +101,7 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 let phone = this.userPhone.replace(/[\s()+-]/g, '')
-                                let url = 'https://wa.me/591' + phone +
+                                let url = 'https://wa.me/' + phone +
                                     '?text=*Trabajonautas.com*%20te%20informa%20que%20tu%20cuenta%20ya%20está%20disponible.%20Ingresa%20a%20trabajonautas.com/panel%20ahora%20mismo'
                                 window.open(url, '_blank')
                             }

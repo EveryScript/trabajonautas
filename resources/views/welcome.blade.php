@@ -63,11 +63,10 @@
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
                         <img src="{{ asset('storage/img/tbn-photo-1.webp') }}" alt="photo-1"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
-
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
                             <p class="text-xl font-bold text-white">Tu portunidad</p>
-                            <p class="text-sm text-orange-100">ahora mismo</p>
+                            <p class="text-sm text-orange-100">¡Ahora mismo!</p>
                         </div>
                     </div>
                 </div>
@@ -83,7 +82,7 @@
 
                     <p class="mb-8 text-lg leading-relaxed text-tbn-secondary dark:text-tbn-light">
                         Tu próximo gran desafío profesional no está a años luz de distancia. Explora cada una de las
-                        convocatorias que tenemos para ti y aterriza en las mejores empresas de Bolivia.
+                        convocatorias que tenemos para ti y aterriza en las mejores empresas e instituciones de Bolivia.
                     </p>
                 </div>
             </div>
@@ -95,7 +94,6 @@
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
                         <img src="{{ asset('storage/img/tbn-photo-2.webp') }}" alt="photo-2"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
-
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
                             <p class="text-xl font-bold text-white">Explora en el</p>
@@ -108,11 +106,9 @@
                         class="inline-block px-4 py-1.5 mb-4 text-sm font-semibold tracking-wider text-tbn-primary uppercase bg-orange-100 dark:text-white dark:bg-tbn-primary/70 rounded-full">
                         convocatorias a tu alcance
                     </div>
-
                     <h2 class="mb-6 text-3xl font-extrabold leading-tight text-tbn-dark dark:text-white md:text-5xl">
                         Un gran paso para tu carrera <span class="text-tbn-primary">profesional</span>
                     </h2>
-
                     <p class="mb-8 text-lg leading-relaxed text-tbn-secondary dark:text-tbn-light">
                         Tenemos el radar configurado para detectar las mejores convocatorias de empleo. Deja de flotar
                         en la incertidumbre y encuentra tu base de operaciones ideal.
@@ -137,13 +133,11 @@
                 <div class="w-full md:w-1/2" data-aos="zoom-in" data-aos-delay="400" data-aos-once="true">
                     <div
                         class="inline-block px-4 py-1.5 mb-4 text-sm font-semibold tracking-wider text-tbn-primary uppercase dark:text-white dark:bg-tbn-primary/70 bg-orange-100 rounded-full">
-                        Información actualizadas
+                        Información actualizada
                     </div>
-
                     <h2 class="mb-6 text-3xl font-extrabold leading-tight text-tbn-dark dark:text-white md:text-5xl">
                         ¿Listo para dar el <span class="text-tbn-primary">gran salto</span>?
                     </h2>
-
                     <p class="mb-8 text-lg leading-relaxed text-tbn-secondary dark:text-tbn-light">
                         Un pequeño paso para tu carrera, un gran salto para tu vida profesional. Informate cada día de
                         las mejores convocatorias de empleo de Bolivia.
@@ -158,11 +152,10 @@
             <div class="px-5 mb-8">
                 <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font"
                     data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
-                    Un mundo de oportunidades laborales en tus manos.</h4>
+                    Un universo de oportunidades laborales en tus manos.</h4>
                 <p class="mb-10 text-center text-md text-tbn-dark dark:text-tbn-light" data-aos="fade-up"
                     data-aos-delay="400" data-aos-once="true">
-                    Sigue las instrucciones y forma parte de la comunidad más grande de profesionales para encontrar tu
-                    próximo trabajo.</p>
+                    Sigue las instrucciones y forma parte de la comunidad más grande de profesionales, deja de buscar y empieza a postular.</p>
             </div>
             <div class="grid grid-cols-1 gap-4 px-5 sm:grid-cols-2 dark:text-tbn-light">
                 <div data-aos="fade-up" data-aos-delay="600" data-aos-once="true"

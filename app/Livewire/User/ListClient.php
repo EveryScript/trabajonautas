@@ -22,8 +22,8 @@ class ListClient extends Component
         $count_results = $filter_query->count();
 
         $clients = $count_results > 0
-            ? $filter_query->paginate(8)
-            : $base_query->paginate(8);
+            ? $filter_query->simplePaginate(8)
+            : $base_query->simplePaginate(8);
 
         return view('livewire.user.list-client', [
             'clients' => $clients,

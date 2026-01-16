@@ -89,7 +89,7 @@
                 <x-input-error for="announcement.locations" class="mt-2" />
             </div>
             <div class="flex-grow mb-4">
-                <x-label for="announce_file">Archivos de la convcatoria</x-label>
+                <x-label for="announce_file">Archivos de la convocatoria</x-label>
                 <input wire:model="announcement.announce_files"
                     class="w-full mt-1 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-secondary dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-dark file:text-white rounded-lg file:transition-all file:duration-300"
                     id="announce_files" type="file" multiple accept="image/*,.pdf,.docx" />
