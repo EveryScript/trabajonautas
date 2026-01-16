@@ -12,6 +12,11 @@ class CheckSessionValidity
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Allow all livewire requests (like upload files)    
+        if ($request->is('livewire/*')) {
+            return $next($request);
+        }
+
         if (Auth::check()) {
             $sessionId = $request->session()->getId();
             $userId = Auth::id();
