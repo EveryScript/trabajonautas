@@ -12,33 +12,22 @@ class CheckSessionValidity
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $cookie_name = config('session.cookie');
-        $session_cookie = $request->cookies->get($cookie_name);
-
         if (Auth::check()) {
-            $session_id = $request->session()->getId();
+            $sessionId = $request->session()->getId();
+            $userId = Auth::id();
+
             $exists = DB::table('sessions')
-                ->where('id', $session_id)
-                ->where('user_id', Auth::id())
+                ->where('id', $sessionId)
+                ->where('user_id', $userId)
                 ->exists();
 
             if (!$exists) {
                 Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
                 return redirect()->route('login')
-                    ->with('session_expired', 'Tu sesión se ha cerrado ya que iniciaste sesión desde otro dispositivo.');
-            }
-
-            return $next($request);
-        }
-
-        if ($session_cookie) {
-            $exists = DB::table('sessions')
-                ->where('id', $session_cookie)
-                ->exists();
-
-            if (! $exists) {
-                return redirect()->route('login')
-                    ->with('session_expired', 'Tu sesión ha sido cerrada ya que iniciaste sesión desde otro dispositivo.');
+                    ->with('session_expired', 'Sesión cerrada: se detectó un inicio en otro dispositivo.');
             }
         }
 
