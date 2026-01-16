@@ -15,5 +15,15 @@ class TbnSettingSeeder extends Seeder
             'key' => 'qr_image',
             'value' => 'img/tbn-qr.webp'
         ]);
+        TbnSetting::create([
+            'id' => 2,
+            'key' => 'bg_web_image',
+            'value' => 'img/tbn-space-reverse.webp'
+        ]);
+        TbnSetting::create([
+            'id' => 3,
+            'key' => 'thumb_web_image',
+            'value' => 'img/tbn-astro-belt.webp'
+        ]);
     }
 }
