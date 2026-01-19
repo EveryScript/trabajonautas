@@ -1,4 +1,8 @@
 *
 !public/
-!livewire-tmp/
 !.gitignore
+
+# Permitir la carpeta livewire-tmp pero ignorar sus archivos internos
+!livewire-tmp/
+livewire-tmp/*
+!livewire-tmp/.gitkeep
