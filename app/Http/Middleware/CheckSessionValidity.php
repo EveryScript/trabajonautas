@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckSessionValidity
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
         try {
             if (Auth::check()) {
