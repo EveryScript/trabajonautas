@@ -6,7 +6,9 @@
             </h1>
         </x-slot>
 
-        <x-validation-errors class="max-w-xs mb-2 text-tbn-primary" />
+        <div class="max-w-xs mt-4">
+            <x-validation-errors class="text-tbn-primary" />
+        </div>
 
         @if (session('status'))
             <div class="max-w-xs p-4 my-4 text-xs text-white border rounded bg-tbn-secondary">
