@@ -35,16 +35,7 @@ class WelcomeSection extends Component
                                     wire:navigate>
                                     Iniciar búsqueda</x-button>
                             </div>
-                            @if (auth()->user())
-                                @if (in_array(env('CLIENT_ROLE'), auth()->user()->getRoleNames()->toArray()))
-                                    <div>
-                                        <x-button type="button"
-                                            class="bg-tbn-secondary inline-block {{ auth()->user()->account->account_type_id > 1 ? 'hidden' : '' }}"
-                                            href="{{ route('purchase-cards') }}" wire:navigate>
-                                            Comprar ahora</x-button>
-                                    </div>
-                                @endif
-                            @else
+                            @if (!auth()->user())
                                 <div>
                                     <x-secondary-button type="button" class="inline-block bg-tbn-secondary"
                                         href="{{ route('purchase-cards') }}" wire:navigate>
