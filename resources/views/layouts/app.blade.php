@@ -37,11 +37,19 @@
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
     </script>
+
     <!-- ChartJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Quill Editor -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+    <!-- Flatpickr (datetime inputs) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_orange.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
     <!-- Styles -->
     @livewireStyles
@@ -54,7 +62,7 @@
     </style>
 </head>
 
-<body class="font-figtree antialiased">
+<body class="antialiased font-figtree">
     <x-banner />
 
     <div class="min-h-screen bg-gray-50 dark:bg-[#333333]">
@@ -62,7 +70,7 @@
         <x-nav-responsive />
 
         <!-- Page Content -->
-        <main class="max-w-6xl mx-auto px-3 sm:px-6 py-6">
+        <main class="max-w-6xl px-3 py-6 mx-auto sm:px-6">
             {{ $slot }}
         </main>
     </div>

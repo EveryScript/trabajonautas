@@ -24,8 +24,6 @@ class DashboardClient extends Component
         if (!auth()->check())
             return $this->redirect('/', true);
 
-
-
         $this->updateAccountClientIfNotCurrent();
     }
 
@@ -102,7 +100,6 @@ class DashboardClient extends Component
             ->whereHas('locations', fn($sub) => $sub->where('location_id', $this->client->location->id))
             ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client->profesion->id))
             ->exists();
-
 
         return view('livewire.panel.dashboard-client', [
             'client' => $this->client,

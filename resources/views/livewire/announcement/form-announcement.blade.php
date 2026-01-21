@@ -136,15 +136,14 @@
             <div class="flex-grow block gap-2 mb-4 sm:flex">
                 <div class="w-full sm:w-1/2">
                     <x-label for="expiration_time">Expiración</x-label>
-                    <x-input wire:model="announcement.expiration_time" id="expiration_time" type="datetime-local"
-                        class="block w-full mt-1" min="{{ now()->format('Y-m-d\TH:i') }}" />
+                    <x-input type="text" wire:model="announcement.expiration_time" id="expiration_time"
+                        class="block w-full mt-1" placeholder="Definir fecha" />
                     <x-input-error for="announcement.expiration_time" class="mt-2" />
                 </div>
 
                 <div class="w-full sm:w-1/2">
                     <x-label for="salary">Sueldo</x-label>
-                    <x-input wire:model="announcement.salary" id="salary" type="number"
-                        class="block w-full mt-1" />
+                    <x-input wire:model="announcement.salary" id="salary" type="number" class="block w-full mt-1" />
                     <span class="text-xs text-tbn-dark dark:text-tbn-light">"0" = sueldo no declarado por la
                         institución.</span>
                     <x-input-error for="announcement.salary" class="mt-2" />
@@ -255,6 +254,16 @@
                 locations: @json($locations),
                 areas: @json($areas),
                 profesionsSelectedIds: [],
+                init() {
+                    flatpickr("#expiration_time", {
+                        defaultDate: @json($id) ? $wire.announcement.expiration_time : 'today',
+                        enableTime: true,
+                        minDate: "today",
+                        time_24hr: false,
+                        dateFormat: "Y-m-d H:i",
+                        "locale": "es"
+                    });
+                },
                 // Set profesions base on area selected
                 onAreaChange(event) {
                     const areaId = event.target.value;

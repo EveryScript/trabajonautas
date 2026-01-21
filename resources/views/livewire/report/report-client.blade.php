@@ -7,8 +7,8 @@
             </x-slot>
             <x-slot name="search_field">
                 <div class="flex flex-col h-full gap-1 sm:h-10 sm:flex-row">
-                    <x-input name="start" type="date" x-model="startDate" class="w-full" />
-                    <x-input name="end" type="date" x-model="endDate" class="w-full" />
+                    <x-input id="dateRange" class="w-full dark:bg-tbn-dark dark:text-white" type="text"
+                        placeholder="Rango de fechas" />
                     <x-button type="button" x-on:click="processData" x-bind:disabled="!startDate || !endDate">
                         <span wire:loading wire:target="searchData"><i
                                 class="text-sm text-white fas fa-spinner animate-spin"></i></span>
@@ -168,6 +168,15 @@
                     $wire.on('qr-image-saved', () => {
                         this.modalForm = false
                     })
+                    flatpickr("#dateRange", {
+                        mode: "range",
+                        dateFormat: "d/m/Y",
+                        "locale": "es",
+                        onClose: (selectedDates, dateStr, instance) => {
+                            this.startDate = instance.formatDate(selectedDates[0], 'Y-m-d');
+                            this.endDate = instance.formatDate(selectedDates[1], 'Y-m-d');
+                        }
+                    });
                 },
                 processData() {
                     if (this.startDate && this.endDate)

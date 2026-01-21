@@ -6,9 +6,10 @@
             <x-slot name="description_page">Esta es la actividad más reciente en Trabajonautas.com</x-slot>
             <x-slot name="search_field">
                 <div class="flex flex-col h-full gap-1 sm:h-10 sm:flex-row">
-                    <x-input class="w-full dark:bg-tbn-dark dark:text-white" type="date" x-model="startDate" placeholder="Fecha inicio"/>
-                    <x-input class="w-full dark:bg-tbn-dark dark:text-white" type="date" x-model="endDate" placeholder="Fecha final"/>
-                    <x-button type="button" x-on:click="processData" x-bind:disabled="!startDate || !endDate">
+                    <x-input id="dateRange" class="w-full dark:bg-tbn-dark dark:text-white" type="text"
+                        placeholder="Rango de fechas" />
+                    <x-button id="dateButton" type="button" x-on:click="processData"
+                        x-bind:disabled="!startDate || !endDate">
                         <span wire:loading.remove>Procesar</span>
                         <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
@@ -112,6 +113,17 @@
             show_dropdown: false,
             startDate: '',
             endDate: '',
+            init() {
+                flatpickr("#dateRange", {
+                    mode: "range",
+                    dateFormat: "d/m/Y",
+                    "locale": "es",
+                    onClose: (selectedDates, dateStr, instance) => {
+                        this.startDate = instance.formatDate(selectedDates[0], 'Y-m-d');
+                        this.endDate = instance.formatDate(selectedDates[1], 'Y-m-d');
+                    }
+                });
+            },
             processData() {
                 if (this.startDate && this.endDate)
                     $wire.setRangeDate(this.startDate, this.endDate)
