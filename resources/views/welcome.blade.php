@@ -1,7 +1,7 @@
 <x-web-layout>
     <!-- Popup Ad Quimeras Bolivia -->
     <div
-        class="fixed right-4 bottom-4 sm:bottom-1/2 top-11/12 sm:top-1/2 z-[100] translate-y-11/12 sm:-translate-y-1/2 outline-none">
+        class="hidden fixed right-4 bottom-4 sm:bottom-1/2 top-11/12 sm:top-1/2 z-[100] translate-y-11/12 sm:-translate-y-1/2 outline-none">
         <div tabindex="0"
             class="group relative flex flex-col sm:flex-row h-16 w-16 cursor-pointer items-center justify-end overflow-hidden rounded-full bg-white shadow-2xl transition-all duration-500 ease-in-out border border-tbn-light 
            focus-within:h-[24rem] sm:focus-within:h-[15rem] focus-within:w-[18rem] sm:focus-within:w-[30rem] focus-within:rounded-2xl focus-within:cursor-default outline-none">

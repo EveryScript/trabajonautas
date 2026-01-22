@@ -5,6 +5,7 @@ namespace App\Livewire\Web;
 use App\Models\AccountType;
 use App\Models\Location;
 use App\Models\Profesion;
+use App\Models\TbnSetting;
 use App\Models\User;
 use Livewire\Component;
 
@@ -64,7 +65,9 @@ class PurchaseAccount extends Component
     {
         $this->locations = Location::select(['id', 'location_name'])->get();
         $this->profesions = Profesion::select(['id', 'profesion_name'])->get();
-
-        return view('livewire.web.purchase-account');
+        $qr_image = TbnSetting::where('key', 'qr_image')->first();
+        return view('livewire.web.purchase-account', [
+            'qr_image' => $qr_image
+        ]);
     }
 }
