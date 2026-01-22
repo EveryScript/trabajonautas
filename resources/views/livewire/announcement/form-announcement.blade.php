@@ -97,7 +97,7 @@
                 @if ($announcement->announce_urls)
                     <div class="flex flex-row gap-2 mt-2 text-xl">
                         @foreach ($announcement->announce_urls as $url)
-                            @switch(explode('.', $url)[1])
+                            @switch(pathinfo($url, PATHINFO_EXTENSION))
                                 @case('png')
                                     <x-button-link
                                         x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $url) }}'"

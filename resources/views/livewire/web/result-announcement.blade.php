@@ -74,6 +74,34 @@
                     {!! $announcement->description !!}
                 </div>
             </div>
+            <!-- Announcement files -->
+            @if ($announcement->announceFiles && count($announcement->announceFiles))
+                <div class="my-3">
+                    <h3 class="mb-3 text-lg font-medium tbn-special text-tbn-primary">Archivos de la convocatoria</h3>
+                    <div class="flex flex-row flex-wrap gap-2">
+                        @foreach ($announcement->announceFiles as $announceFile)
+                            @php
+                                $extension = pathinfo($announceFile->url, PATHINFO_EXTENSION);
+                                $icons = [
+                                    'png' => 'fas fa-file-image',
+                                    'jpg' => 'fas fa-file-image',
+                                    'jpeg' => 'fas fa-file-image',
+                                    'pdf' => 'fas fa-file-pdf',
+                                    'docx' => 'fas fa-file-word',
+                                    'doc' => 'fas fa-file-word',
+                                ];
+                                $icon = $icons[$extension] ?? 'fas fa-file'; // Icono por defecto
+                            @endphp
+
+                            <a href="{{ asset('storage/' . $announceFile->url) }}"
+                                class="px-4 py-2 text-sm border rounded-lg border-tbn-primary dark:border-tbn-light text-tbn-primary dark:text-tbn-light hover:border-tbn-secondary hover:text-tbn-secondary dark:hover:text-tbn-primary"
+                                download="{{ basename($announceFile->url) }}">
+                                <i class="{{ $icon }} mr-1"></i> Descargar
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
             <div class="my-4">
                 <!-- Save -->
                 @if ($client && $client->myAnnounces->contains($announcement->id))
@@ -88,14 +116,6 @@
                         <span wire:loading.remove wire:target='saveAnnounce'>
                             <i class="pr-2 text-sm far fa-bookmark"></i> Guardar</span>
                         <span wire:loading wire:target='saveAnnounce'>
-                            <i class="text-sm fas fa-spinner animate-spin"></i></span>
-                    </x-button>
-                @endif
-                @if ($announcement->announceFiles && count($announcement->announceFiles))
-                    <x-button class="w-full my-1 sm:w-auto" wire:click='downloadAnnounceFiles()'>
-                        <span wire:loading.remove wire:target='downloadAnnounceFiles'>
-                            <i class="pr-2 text-sm fas fa-arrow-down"></i> Descargar archivos</span>
-                        <span wire:loading wire:target='downloadAnnounceFiles'>
                             <i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 @endif

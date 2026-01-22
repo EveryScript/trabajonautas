@@ -54,6 +54,7 @@ class ResultAnnouncement extends Component
         $user->myAnnounces()->detach($id);
     }
 
+    // No working fow now
     public function downloadAnnounceFiles()
     {
         if (!auth()->check())

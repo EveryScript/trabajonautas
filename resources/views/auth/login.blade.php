@@ -40,10 +40,15 @@
                             {{ __('Forgot your password?') }}
                         </a>
                     @endif
-                    <div class="relative max-w-xs">
-                        <span class="absolute py-2 px-2 text-xs -top-4 left-[47%] bg-tbn-dark text-tbn-secondary">
-                            <i class="fa-solid fa-o"></i></span>
-                        <hr class="mx-auto my-6 border-tbn-secondary">
+                    <div class="relative my-4">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-tbn-light dark:border-tbn-secondary"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span
+                                class="px-2 italic font-light bg-white dark:bg-tbn-dark text-tbn-secondary dark:text-tbn-light">
+                                o también</span>
+                        </div>
                     </div>
                     <div class="max-w-xs mx-auto">
                         <a href="{{ route('social.redirect', 'google') }}"

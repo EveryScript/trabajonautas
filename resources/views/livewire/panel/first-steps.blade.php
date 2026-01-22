@@ -1,5 +1,5 @@
 <section class="flex items-start justify-center min-h-screen py-10">
-    <div x-data="content" class="w-full max-w-xl md:max-w-3xl">
+    <div x-data="content" class="w-full max-w-xl md:max-w-4xl">
         <div class="p-6 mx-2 bg-white rounded-lg shadow-lg md:p-10 dark:bg-tbn-dark">
             <div class="mb-3 max-w-60">
                 <x-application-logo />
@@ -299,7 +299,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p class="text-xs text-justify text-tbn-dark dark:text-white">
+                        <p class="text-xs text-tbn-dark dark:text-tbn-light">
                             Una vez realizado el depósito nuestros operadores se comunicarán contigo para confirmar el
                             depósito y habilitar tu cuenta.</p>
                     </div>
@@ -312,11 +312,31 @@
                                 class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
                                 Descargar QR</a>
                         </div>
-                        <div class="relative px-4 py-3 mb-4 bg-gray-100 rounded-md dark:bg-tbn-secondary">
-                            <span
-                                class="absolute px-4 py-1 text-xs bg-gray-100 rounded-full -top-3 text-tbn-primary dark:bg-tbn-secondary">
-                                Banco Mercantil Santa Cruz</span>
-                            <span class="dark:text-white">4077070681</span>
+                        <!-- Bank account -->
+                        <div
+                            class="flex items-center justify-between max-w-sm p-4 transition-colors bg-white border shadow-sm dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-xl">
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <h4 class="text-sm font-semibold text-tbn-secondary dark:text-tbn-light">
+                                        Banco Mercantil Santa Cruz</h4>
+                                    <p x-text="bankAccount"
+                                        class="font-mono text-xl tracking-wider text-tbn-dark dark:text-white"></p>
+                                </div>
+                            </div>
+                            <button x-on:click="copyClipboardBankAccount"
+                                class="p-2 rounded-full hover:text-tbn-primary text-tbn-secondary">
+                                <svg x-show="!copied" class="w-5 h-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <svg x-show="copied" x-cloak class="w-5 h-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -352,6 +372,9 @@
                 profesions: @json($profesions),
                 locations: @json($locations),
                 accountTypes: @json($account_types),
+                // Bank Account
+                bankAccount: '4077070681',
+                copied: false,
                 // Functions
                 isProAccountSelected() {
                     if (this.account_type_id == 2 || this.account_type_id == 3) {
@@ -384,6 +407,11 @@
                 },
                 verifyWhatsappNumber() {
                     window.open(this.url_whatsapp)
+                },
+                copyClipboardBankAccount() {
+                    navigator.clipboard.writeText(this.bankAccount)
+                    this.copied = true
+                    setTimeout(() => this.copied = false, 2000);
                 }
             }))
         </script>

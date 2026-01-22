@@ -56,11 +56,6 @@ class PurchaseAccount extends Component
         $this->redirectRoute('dashboard', navigate: true);
     }
 
-    public function downloadQR()
-    {
-        return response()->download(storage_path('app/public/img/tbn-qr.png'), 'trabajonautas.png');
-    }
-
     public function render()
     {
         $this->locations = Location::select(['id', 'location_name'])->get();

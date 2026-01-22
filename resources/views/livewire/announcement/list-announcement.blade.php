@@ -96,8 +96,8 @@
                             </td>
                         </tr>
                     @empty
-                        <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="py-4 text-center text-gray-600 font-italic" colspan="5">
+                        <tr class="bg-white border-b dark:bg-tbn-dark">
+                            <td class="py-4 italic text-center text-gray-600 dark:text-tbn-light" colspan="5">
                                 No se han encontrado datos
                             </td>
                         </tr>
