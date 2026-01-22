@@ -38,11 +38,12 @@ class AnnouncementForm extends Form
 
     public function update($update_id)
     {
+        $this->salary = str_replace(',', '', $this->salary);
         $this->validate([
             'announce_title' => 'required|min:10',
             'description' => 'required',
             'expiration_time' => 'required|date',
-            'salary' => 'required',
+            'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx|max:2000',
             'company_id' => 'required',
@@ -80,11 +81,12 @@ class AnnouncementForm extends Form
 
     public function save()
     {
+        $this->salary = str_replace(',', '', $this->salary);
         $this->validate([
             'announce_title' => 'required|min:10',
             'description' => 'required',
             'expiration_time' => 'required|date',
-            'salary' => 'required',
+            'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx|max:2000',
             'company_id' => 'required',

@@ -140,12 +140,12 @@
                         class="block w-full mt-1" placeholder="Definir fecha" />
                     <x-input-error for="announcement.expiration_time" class="mt-2" />
                 </div>
-
                 <div class="w-full sm:w-1/2">
                     <x-label for="salary">Sueldo</x-label>
-                    <x-input wire:model="announcement.salary" id="salary" type="number" class="block w-full mt-1" />
-                    <span class="text-xs text-tbn-dark dark:text-tbn-light">"0" = sueldo no declarado por la
-                        institución.</span>
+                    <x-input wire:model="announcement.salary" id="salary" type="text"
+                        x-mask:dynamic="$money($input.replace(/[^\d]/g), '.', ',')" class="block w-full mt-1" />
+                    <span class="text-xs text-tbn-dark dark:text-tbn-light">
+                        "0" = sueldo no declarado por la institución.</span>
                     <x-input-error for="announcement.salary" class="mt-2" />
                 </div>
             </div>
@@ -254,9 +254,11 @@
                 locations: @json($locations),
                 areas: @json($areas),
                 profesionsSelectedIds: [],
+                salary: @json($id) ? $wire.announcement.salary : '',
                 init() {
                     flatpickr("#expiration_time", {
-                        defaultDate: @json($id) ? $wire.announcement.expiration_time : 'today',
+                        defaultDate: @json($id) ? $wire.announcement.expiration_time :
+                            'today',
                         enableTime: true,
                         minDate: "today",
                         time_24hr: false,
