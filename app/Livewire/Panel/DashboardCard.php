@@ -20,7 +20,7 @@ class DashboardCard extends Component
 
     protected function baseQuery()
     {
-        $query = Announcement::with(['company', 'locations'])->where('expiration_time', '>=', now())
+        $query = Announcement::where('expiration_time', '>', now())->with(['company', 'locations'])
             ->whereHas('locations', fn($sub) => $sub->where('location_id', $this->client_location_id))
             ->orWhereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client_profesion_id))
             ->orWhereHas('profesions', fn($sub) => $sub->where('area_id', $this->client_profesion_area_id));

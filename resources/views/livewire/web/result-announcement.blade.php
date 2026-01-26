@@ -133,7 +133,7 @@
             <div
                 class="p-5 bg-white border rounded-lg shadow-md dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary">
                 @if ($announcement->company)
-                    <picture class="block mb-0 md:mb-2">
+                    <picture class="block mb-2">
                         <img alt="company-logo"
                             class="flex-shrink-0 object-cover object-center w-12 h-12 mb-4 rounded-lg sm:mb-0"
                             src="{{ asset('storage/' . $announcement->company->company_image) }}">
@@ -158,24 +158,10 @@
         <div class="mb-4">
             <h3 class="mb-1 font-medium text-tbn-dark dark:text-white text-md">Convocatorias similares</h3>
             <div class="flex flex-col gap-2">
-                @forelse ($suggests as $suggest)
-                    <a href="{{ $suggest->pro && !$client_pro_authorized ? route('purchase-cards') : route('result', ['id' => $suggest->id]) }}"
-                        wire:navigate wire:key='suggest-{{ $suggest->id }}'>
-                        <x-card-announce logo_url="{{ $suggest->company ? $suggest->company->company_image : '' }}"
-                            title="{{ $suggest->announce_title }}" pro="{{ $suggest->pro }}"
-                            created_at="{{ $suggest->created_at }}" logo_flag="{{ false }}">
-                            @if ($suggest->company)
-                                <x-slot name="company">{{ $suggest->company->company_name }}</x-slot>
-                            @endif
-                            <x-slot name="locations">
-                                {{ $suggest->locations[0]->location_name }}
-                                @if ($suggest->locations->count() > 1)
-                                    <span class="text-xs text-gray-400">({{ $suggest->locations->count() - 1 }}
-                                        más)</span>
-                                @endif
-                            </x-slot>
-                        </x-card-announce>
-                    </a>
+                @forelse ($suggests as $announce)
+                    <div wire:key='announce-{{ $announce->id }}'>
+                        <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
+                    </div>
                 @empty
                     <div class="text-center">
                         <picture class="block mb-2">

@@ -22,23 +22,9 @@ class RecentAnnouncement extends Component
         return <<<'HTML'
         <div class="grid grid-cols-1 gap-2 mb-12 md:grid-cols-2">
             @forelse ($announcements as $announce)
-                <a href="{{ $announce->pro && !$client_pro_verified ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
-                        wire:navigate wire:key='announce-{{ $announce->id }}'>
-                    <x-card-announce
-                        logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
-                        title="{{ $announce->announce_title }}" created_at="{{ $announce->created_at }}" pro="{{ $announce->pro }}">
-                        @if ($announce->company)
-                            <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
-                        @endif
-                        <x-slot name="locations">
-                            {{ $announce->locations[0]->location_name }}
-                            @if ($announce->locations->count() > 1)
-                                <span class="text-xs text-gray-400">
-                                    ({{ $announce->locations->count() - 1 }} más)</span>
-                            @endif
-                        </x-slot>
-                    </x-card-announce>
-                </a>
+                <div wire:key='announce-{{ $announce->id }}'>
+                    <x-card-announce :announce="$announce" :client="$client_pro_verified" />
+                </div>
             @empty
                 <div class="col-span-2 text-center">
                     <picture class="block mb-2">

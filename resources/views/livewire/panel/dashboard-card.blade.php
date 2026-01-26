@@ -46,37 +46,19 @@
         </div>
     </header>
     @forelse ($announces as $announce)
-        <a x-data="{
+        <div wire:key='announce-{{ $announce->id }}' x-data="{
             info: {
                 today: {{ $announce->created_at->isToday() ? 'true' : 'false' }},
                 week: {{ $announce->created_at->isCurrentWeek() ? 'true' : 'false' }},
                 month: {{ $announce->created_at->isCurrentMonth() ? 'true' : 'false' }}
             }
         }"
-            x-show="filter_option === 'all' || 
-            (filter_option === 'today' && info.today)
-||
-            (filter_option === 'week' && info.week) ||
-            (filter_option === 'month' && info.month)"
-            x-transition:enter.duration.300ms x-transition:leave.duration.300ms
-            href="{{ $announce->pro && !$client_pro_authorized ? route('purchase-cards') : route('result', ['id' => $announce->id]) }}"
-            wire:navigate wire:key='announce-{{ $announce->id }}'>
-            <x-card-announce logo_url="{{ $announce->company ? $announce->company->company_image : '' }}"
-                created_at="{{ $announce->created_at }}" title="{{ $announce->announce_title }}"
-                pro="{{ $announce->pro }}">
-                @if ($announce->company)
-                    <x-slot name="company">{{ $announce->company->company_name }}</x-slot>
-                @endif
-                <x-slot name="locations">
-                    {{ $announce->locations[0]->location_name }}
-                    @if ($announce->locations->count() > 1)
-                        <span class="text-xs text-gray-400">
-                            ({{ $announce->locations->count() - 1 }} más)
-                        </span>
-                    @endif
-                </x-slot>
-            </x-card-announce>
-        </a>
+            x-show="filter_option === 'all' || (filter_option === 'today' && info.today) ||
+            (filter_option === 'week' && info.week)
+|| (filter_option === 'month' && info.month)"
+            x-transition:enter.duration.300ms x-transition:leave.duration.300ms>
+            <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
+        </div>
     @empty
         <x-section-empty class="col-span-2" title="No hay sugerencias disponibles"
             description="Las sugerencias de convocatorias de trabajo estarán visibles en esta sección.">
