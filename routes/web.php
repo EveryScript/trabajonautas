@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\FaqController;
 use App\Livewire\Announcement\FormAnnouncement;
 use App\Livewire\Announcement\ListAnnouncement;
 use App\Livewire\Area\FormArea;
@@ -69,7 +70,7 @@ Route::group(['middleware' => ['role:ADMIN']], function () {
 
     // Reports
     Route::get('/admin/reportes', ReportClient::class)->name('report');
-    
+
     // Notices
     Route::get('/admin/noticias', ListNotices::class)->name('notice');
 });
@@ -82,3 +83,6 @@ Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'
     ->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
     ->name('social.callback');
+
+// FAQ Page
+Route::get('/preguntas', [FaqController::class, 'show'])->name('faq');

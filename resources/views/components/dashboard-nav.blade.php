@@ -132,4 +132,13 @@
                 </a>
             </nav>
         </div>
+        <!-- FAQ Card -->
+        <hr class="my-4 fill-tbn-light dark:fill-tbn-secondary">
+        <h4 class="text-sm font-bold text-tbn-secondary dark:text-tbn-light">¿Necesitas ayuda?</h4>
+        <p class="mt-1 mb-4 text-xs text-tbn-secondary dark:text-tbn-light">
+            Nuestro Centro de Ayuda está listo para despejar tus dudas.</p>
+        <a href="{{ route('faq') }}" wire:navigate
+            class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-secondary border-tbn-secondary hover:bg-transparent hover:text-tbn-light">
+            Ir al Centro de Ayuda
+        </a>
 </aside>

@@ -27,7 +27,14 @@
             </div>
             <!-- Notifications -->
             <div x-show="btnNavigation == 2">
-                @if (intval($client->account->account_type_id) === 1)
+                @if (intval($client->account->account_type_id) === 3)
+                    @livewire('panel.dashboard-notify', [
+                        'title' => 'Notificaciones de convocatorias',
+                        'description' => 'Aquí encontrarás las convocatorias más recientes que coinciden con tu perfil.',
+                        'client_location_id' => $client->location_id,
+                        'client_profesion_id' => $client->profesion_id,
+                    ])
+                @else
                     <div class="text-center">
                         <picture class="w-full mb-2">
                             <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="rocket"
@@ -41,13 +48,6 @@
                             href="{{ route('purchase-account', ['account_type_id' => 3]) }}" wire:navigate>
                             Obtener PRO-MAX ahora</x-button>
                     </div>
-                @else
-                    @livewire('panel.dashboard-notify', [
-                        'title' => 'Notificaciones de convocatorias',
-                        'description' => 'Aquí encontrarás las convocatorias más recientes que coinciden con tu perfil.',
-                        'client_location_id' => $client->location_id,
-                        'client_profesion_id' => $client->profesion_id,
-                    ])
                 @endif
             </div>
             <!-- Client -->
