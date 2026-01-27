@@ -1,4 +1,4 @@
-<section x-data="subcontent" class="flex flex-col gap-4">
+<section x-data="subcontent" class="flex flex-col gap-2">
     <header class="flex flex-col justify-between gap-4 lg:flex-row">
         <div class="flex-1">
             <h3 class="text-lg font-medium text-tbn-dark dark:text-white">{{ $title }}</h3>
@@ -45,19 +45,28 @@
             </div>
         </div>
     </header>
-    @forelse ($announces as $announce)
-        <div wire:key='announce-{{ $announce->id }}' x-data="{
-            info: {
-                today: {{ $announce->created_at->isToday() ? 'true' : 'false' }},
-                week: {{ $announce->created_at->isCurrentWeek() ? 'true' : 'false' }},
-                month: {{ $announce->created_at->isCurrentMonth() ? 'true' : 'false' }}
-            }
-        }"
-            x-show="filter_option === 'all' || (filter_option === 'today' && info.today) ||
-            (filter_option === 'week' && info.week)
-|| (filter_option === 'month' && info.month)"
-            x-transition:enter.duration.300ms x-transition:leave.duration.300ms>
-            <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
+    @forelse ($announces as $priority => $group)
+        <div>
+            <h4 class="mb-3 text-sm font-bold tracking-wider uppercase text-tbn-primary dark:text-tbn-light">
+                @if ($hasRecommends)
+                    <h4 class="mb-4 text-sm font-bold tracking-wider uppercase text-tbn-primary dark:text-tbn-light">
+                        @if ($priority == 1)
+                            Ideal para ti
+                        @else
+                            Otras convocatorias recientes
+                        @endif
+                    </h4>
+                @endif
+            </h4>
+            <div class="flex flex-col gap-4 mb-4">
+                @foreach ($group as $announce)
+                    <div wire:key='announce-{{ $announce->id }}'
+                        x-show="filter_option === 'all' || (filter_option === 'today' && {{ $announce->is_today ? 'true' : 'false' }}) || (filter_option === 'week' && {{ $announce->is_week ? 'true' : 'false' }}) || (filter_option === 'month' && {{ $announce->is_month ? 'true' : 'false' }})"
+                        x-transition:enter.duration.300ms x-transition:enter.duration.300ms>
+                        <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
+                    </div>
+                @endforeach
+            </div>
         </div>
     @empty
         <x-section-empty class="col-span-2" title="No hay sugerencias disponibles"
@@ -67,6 +76,16 @@
                 Buscar convocatorias</x-button>
         </x-section-empty>
     @endforelse
+    @if ($announces->flatten()->count() >= $per_page)
+        <div class="flex justify-center">
+            <x-secondary-button wire:click="loadMore" wire:loading.attr="disabled" class="w-full lg:w-auto">
+                <span wire:loading.remove wire:target='loadMore'>Ver más</span>
+                <span wire:loading wire:target='loadMore'><i class="mr-2 fa-solid fa-spinner animate-spin"></i>
+                    Cargando...
+                </span>
+            </x-secondary-button>
+        </div>
+    @endif
 </section>
 @script
     <script>

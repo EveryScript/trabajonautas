@@ -70,13 +70,20 @@
                     </div>
                     <div
                         class="p-6 border-t border-gray-200 rounded-b-lg dark:border-tbn-secondary bg-gray-50 dark:bg-tbn-dark">
-                        <a href="{{ route('register') }}" wire:navigate>
-                            @if ($account_type->id == 3)
-                                <x-button class="w-full">Obtener <i class="ml-2 fas fa-arrow-right"></i></x-button>
-                            @else
-                                <x-secondary-button class="w-full">Obtener <i
-                                        class="ml-2 fas fa-arrow-right"></i></x-secondary-button>
-                            @endif
+                        @php
+                            $url = route('register');
+                            if ($client && $client->account) {
+                                $typeId = intval($account_type->id);
+                                if ($typeId > $client->account->account_type_id) {
+                                    $url = route('purchase-account', ['account_type_id' => $typeId]);
+                                }
+                            }
+                            $buttonComponent = intval($account_type->id) === 3 ? 'button' : 'secondary-button';
+                        @endphp
+                        <a href="{{ $url }}" wire:navigate>
+                            <x-dynamic-component :component="$buttonComponent" class="w-full">
+                                Obtener <i class="ml-2 fas fa-arrow-right"></i>
+                            </x-dynamic-component>
                         </a>
                     </div>
                 </div>

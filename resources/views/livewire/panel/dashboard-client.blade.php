@@ -20,7 +20,6 @@
                     'title' => 'Convocatorias de trabajo para ti',
                     'description' => 'Te presentamos las convocatorias más recientes del país.',
                     'my_announces_mode' => false,
-                    'client_account_id' => $client->account->accountType->id,
                     'client_location_id' => $client->location_id,
                     'client_profesion_id' => $client->profesion_id,
                     'client_profesion_area_id' => $client->profesion->area_id,

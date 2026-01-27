@@ -19,7 +19,7 @@ class AnnouncementFactory extends Factory
         return [
             'announce_title' => fake()->sentence(5),
             'description' => fake()->paragraph(30),
-            'expiration_time' => now()->addDays(fake()->numberBetween(5, 30)),
+            'expiration_time' => $this->faker->dateTimeBetween('-10 days', '10 days'),
             'salary' => fake()->numberBetween(1500, 60000),
             'pro' => fake()->boolean(),
             'area_id' => Area::inRandomOrder()->first()?->id,

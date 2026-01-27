@@ -42,7 +42,7 @@ class AnnouncementForm extends Form
         $this->validate([
             'announce_title' => 'required|min:10',
             'description' => 'required',
-            'expiration_time' => 'required|date',
+            'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx|max:2000',
@@ -85,7 +85,7 @@ class AnnouncementForm extends Form
         $this->validate([
             'announce_title' => 'required|min:10',
             'description' => 'required',
-            'expiration_time' => 'required|date',
+            'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx|max:2000',
@@ -125,7 +125,8 @@ class AnnouncementForm extends Form
     {
         return [
             'announce_files.*.max' => 'Los archivos de la convocatoria no deben ser mayores a 2MB',
-            'announce_files.*.mimes' => 'Los archivos de la convocatoria deben ser documentos o imagenes'
+            'announce_files.*.mimes' => 'Los archivos de la convocatoria deben ser documentos o imagenes',
+            'expiration_time.after' => 'La fecha de expiración debe ser superior al momento actual'
         ];
     }
 

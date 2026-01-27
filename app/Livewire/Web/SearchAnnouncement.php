@@ -15,7 +15,7 @@ class SearchAnnouncement extends Component
 
     public $profesion_id, $location_id;
 
-    public function announceBaseQuery()
+    protected function announceBaseQuery()
     {
         return Announcement::query()->where('expiration_time', '>=', now())
             // Filter by profesion
@@ -36,12 +36,10 @@ class SearchAnnouncement extends Component
     public function announcements()
     {
         return $this->announceBaseQuery()
-            ->select('id', 'announce_title', 'company_id', 'area_id', 'pro', 'expiration_time', 'created_at', 'updated_at')
+            ->select('id', 'announce_title', 'company_id', 'pro', 'expiration_time', 'created_at', 'updated_at')
             ->with([
                 'company:id,company_name,company_image',
-                'locations:id,location_name',
-                'profesions:id,profesion_name',
-                'area:id,area_name'
+                'locations:id,location_name'
             ])
             ->latest('updated_at')
             ->simplePaginate(12);

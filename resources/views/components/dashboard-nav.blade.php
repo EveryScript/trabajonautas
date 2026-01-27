@@ -115,11 +115,11 @@
                     <i class="ml-2 mr-3 fas fa-home"></i> Inicio
                 </a>
                 <a x-on:click="btnNotification"
-                    class="relative flex justify-between items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
+                    class="relative flex items-center justify-between py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                     <span><i class="ml-2 mr-3 fa-solid fa-bell"></i> Notificaciones</span>
-                    @if ($has_new_notify_announces)
+                    @if ($has_new_notify_announces && intval($client_account_type_id) === 3)
                         <span
-                            class="absolute top-4 right-0 block h-2 w-2 rounded-full bg-tbn-primary animate-pulse"></span>
+                            class="absolute right-0 block w-2 h-2 rounded-full top-4 bg-tbn-primary animate-pulse"></span>
                     @endif
                 </a>
                 <a x-on:click="btnNavigation = 3"

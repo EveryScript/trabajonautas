@@ -32,7 +32,8 @@
             </div>
             <div class="flex-grow block gap-2 mb-4 sm:flex">
                 <div class="w-full sm:w-1/2">
-                    <x-label for="area">Area profesional</x-label>
+                    <x-label for="area">Area profesional
+                        <span class="font-light">(sugerencias de cliente)</span></x-label>
                     <div class="mt-1 tbn-tom-select" wire:ignore>
                         <x-select id="area" wire:model="announcement.area_id">
                             <option></option>
