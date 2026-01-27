@@ -119,7 +119,7 @@
                     </x-slot>
                     <x-slot name="buttons">
                         <x-button-link
-                            href="https://wa.me/59173858162?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->account->accountType->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}."
+                            href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->account->accountType->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}."
                             target="_blank" class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>

@@ -31,6 +31,6 @@ trait AuthorizeClients
         if (!auth()->check())
             return null;
 
-        return User::select('id', 'name', 'account_id')->with('account.accountType')->find(auth()->user()->id);
+        return User::select('id', 'name', 'account_id', 'profesion_id')->with('account.accountType')->find(auth()->user()->id);
     }
 }

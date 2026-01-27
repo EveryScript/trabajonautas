@@ -163,12 +163,12 @@
                         <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
                     </div>
                 @empty
-                    <div class="text-center">
+                    <div class="mt-6 text-center">
                         <picture class="block mb-2">
                             <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty"
                                 class="max-w-[6rem] mx-auto mb-2">
                         </picture>
-                        <p class="my-8 text-sm italic text-center text-tbn-dark dark:text-tbn-light">
+                        <p class="text-sm italic text-center text-tbn-dark dark:text-tbn-light">
                             No hay sugerencias para esta convocatoria</p>
                     </div>
                 @endforelse

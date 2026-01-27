@@ -7,7 +7,7 @@
                 deshabilitado su acceso al sistema. Comuníquese con nosotros para recuperarla su cuenta.</p>
             <form class="px-4" method="POST" action="{{ route('logout') }}" x-data>
                 @csrf
-                <a href="https://wa.me/59173858162?text=Hola%20Trabajonautas.com%2C%20parece%20que%20mi%20cuenta%20ha%20sido%20desactivada%2C%20por%20que%20ha%20ocurrido%20esto%3F"
+                <a href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com%2C%20parece%20que%20mi%20cuenta%20ha%20sido%20desactivada%2C%20por%20que%20ha%20ocurrido%20esto%3F"
                     target="_blank">
                     <x-button type="button" class="mb-2">
                         Comunícate con nosotros</x-button>

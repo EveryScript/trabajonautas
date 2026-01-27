@@ -21,17 +21,22 @@ class ResultAnnouncement extends Component
     public function mount()
     {
         $announce = Announcement::find($this->id);
+        $client = $this->getAuthClientWithAccount();
+
         if (!$announce)
             return $this->redirect('/', true);
 
         if ($announce->pro && !$this->isAuthClientProVerifiedAndCurrent())
             return $this->redirect('/panel', true);
+
+        if ($announce->pro && $client->account && !$announce->profesions->contains($client->profesion_id))
+            return $this->redirect('/prohibido', true);
     }
 
     #[Computed]
     public function announcement()
     {
-        return Announcement::with(['company.companyType', 'announceSuggests'])->find($this->id);
+        return Announcement::with(['company.companyType', 'announceSuggests', 'profesions:id,profesion_name'])->find($this->id);
     }
 
     public function saveAnnounce($id)
