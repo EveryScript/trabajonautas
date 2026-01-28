@@ -51,7 +51,7 @@
                         </div>
                     </div>
                     <div class="max-w-xs mx-auto">
-                        <a href="{{ route('social.redirect', 'google') }}"
+                        <a href="{{ route('auth.google') }}"
                             class="flex justify-center gap-2 px-4 py-3 text-sm transition duration-150 border rounded-lg border-tbn-secondary text-tbn-dark dark:text-tbn-light dark:hover:text-white hover:shadow">
                             <img class="w-5 h-5" src="https://www.svgrepo.com/show/475656/google-color.svg"
                                 loading="lazy" alt="google logo">

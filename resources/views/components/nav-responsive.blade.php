@@ -40,7 +40,7 @@
                                     class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
                                     Mi panel</a>
                             </li>
-                            <li class="hidden">
+                            <li class="border-b border-b-tbn-light dark:border-b-tbn-secondary">
                                 <a href="{{ route('profile.show') }}" wire:navigate
                                     class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
                                     Configuración</a>

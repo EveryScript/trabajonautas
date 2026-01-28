@@ -36,13 +36,13 @@ Route::group(['middleware' => ['user_actived']], function () {
 });
 
 // All access logged
-Route::group(['middleware' => ['role:CLIENT|USER|ADMIN', 'user_actived', 'auth', 'verified']], function () {
+Route::group(['middleware' => ['auth', 'verified', 'role:CLIENT|USER|ADMIN', 'only_one_session', 'user_actived']], function () {
     Route::get('/panel', fn() => view('dashboard'))->name('dashboard');
     Route::get('/prohibido', fn() => view('restricted-area'))->name('restricted-area');
 });
 
 // Only users and admin access
-Route::group(['middleware' => ['role:USER|ADMIN', 'user_actived']], function () {
+Route::group(['middleware' => ['auth', 'verified', 'role:USER|ADMIN', 'only_one_session', 'user_actived']], function () {
     // Announcements
     Route::get('/admin/convocatoria', ListAnnouncement::class)->name('announcement');
     Route::get('/admin/nueva-convocatoria/{id?}', FormAnnouncement::class)->name('new-announcement');
@@ -59,7 +59,7 @@ Route::group(['middleware' => ['role:USER|ADMIN', 'user_actived']], function () 
     Route::get('/admin/config-cliente/{id}', ConfigClient::class)->name('config-client');
 });
 
-Route::group(['middleware' => ['role:ADMIN']], function () {
+Route::group(['middleware' => ['auth', 'verified', 'role:ADMIN', 'only_one_session']], function () {
     // Areas
     Route::get('/admin/area', ListArea::class)->name('area');
     Route::get('/admin/nueva-area/{id?}', FormArea::class)->name('new-area');
@@ -79,10 +79,8 @@ Route::group(['middleware' => ['role:ADMIN']], function () {
 Route::get('/inactivo', fn() => view('auth.disabled'))->name('disabled');
 
 // Google Autenticate
-Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
-    ->name('social.redirect');
-Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-    ->name('social.callback');
+Route::get('auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 // FAQ Page
 Route::get('/preguntas', [FaqController::class, 'show'])->name('faq');

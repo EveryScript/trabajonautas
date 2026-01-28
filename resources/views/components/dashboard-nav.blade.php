@@ -126,10 +126,6 @@
                     class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                     <i class="ml-2 mr-3 fa-solid fa-bookmark"></i> Mis convocatorias
                 </a>
-                <a x-on:click="btnNavigation = 4"
-                    class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
-                    <i class="ml-2 mr-3 fas fa-user"></i> Mi perfil
-                </a>
             </nav>
         </div>
         <!-- FAQ Card -->

@@ -21,19 +21,26 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
+            // 'phone' => ['required', 'numeric', 'digits:8'],
+            // 'location_id' => ['required', 'exists:locations,id'],
+            // 'profesion_id' => ['required', 'exists:profesions,id'],
+            // 'grade_profile_id' => ['required', 'exists:grade_profiles,id'],
         ])->validateWithBag('updateProfileInformation');
 
         if (isset($input['photo'])) {
             $user->updateProfilePhoto($input['photo']);
         }
 
-        if ($input['email'] !== $user->email &&
-            $user instanceof MustVerifyEmail) {
+        if ($input['email'] !== $user->email && $user instanceof MustVerifyEmail) {
             $this->updateVerifiedUser($user, $input);
         } else {
             $user->forceFill([
                 'name' => $input['name'],
                 'email' => $input['email'],
+                'phone' => $input['phone'],
+                'location_id' => $input['location_id'],
+                'profesion_id' => $input['profesion_id'],
+                'grade_profile_id' => $input['grade_profile_id'],
             ])->save();
         }
     }

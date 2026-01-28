@@ -36,7 +36,7 @@ class FirstSteps extends Component
         $this->validate([
             'gender' => 'required|in:M,F',
             'age' => 'required|numeric|in:1,2,3',
-            'phone' => 'required|numeric|digits_between:8,10',
+            'phone' => 'required|numeric|digits:8',
             'country_code' => 'required|string|in:+591',
             'grade_profile_id' => 'required|exists:grade_profiles,id',
             'profesion_id' => 'required|exists:profesions,id',

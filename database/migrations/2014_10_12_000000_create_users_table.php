@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable(); // New field
             $table->timestamp('terms_accepted_at')->nullable(); // New field
-            $table->string('password');
+            $table->string('password')->nullable(); // nullable() for Laravel Socialite
             $table->string('phone')->nullable(); // New field
             $table->char('gender')->nullable(); // New field
             $table->char('age')->nullable(); // New field
@@ -25,8 +25,7 @@ return new class extends Migration
             $table->unsignedBigInteger('profesion_id')->nullable(); // Foreign
             $table->unsignedBigInteger('grade_profile_id')->nullable(); // Foreign
             $table->unsignedBigInteger('account_id')->nullable(); // Foreign
-            $table->string('provider')->nullable(); // Google Auth
-            $table->string('provider_id')->nullable(); // Google Auth
+            $table->string('google_id')->nullable(); // Laravel Socialite (Google)
             $table->timestamp('last_announce_check')->nullable(); // New field
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();

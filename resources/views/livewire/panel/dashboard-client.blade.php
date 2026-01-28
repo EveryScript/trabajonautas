@@ -62,45 +62,6 @@
                     'client_profesion_area_id' => $client->profesion->area_id,
                 ])
             </div>
-            <!-- Profile -->
-            <div x-show="btnNavigation == 4">
-                <header>
-                    <h3 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Mi perfil</h3>
-                </header>
-                <div
-                    class="p-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
-
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div class="mb-4">
-                            <p class="text-xs text-tbn-primary">Nombre del cliente</p>
-                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->name }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <p class="text-xs text-tbn-primary">Ubicación</p>
-                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->location->location_name }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <p class="text-xs text-tbn-primary">Celular</p>
-                            <p class="text-gray-900 dark:text-tbn-light">
-                                {{ substr($client->phone, 4, 10) }}
-                            </p>
-                        </div>
-                        <div class="mb-4">
-                            <p class="text-xs text-tbn-primary">Grado Académico</p>
-                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->gradeProfile->profile_name }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <p class="text-xs text-tbn-primary">Profesion</p>
-                            <p class="text-gray-900 dark:text-tbn-light">{{ $client->profesion->profesion_name }}</p>
-                        </div>
-                        <div class="mb-4">
-                            <p class="text-xs text-tbn-primary">Cuenta</p>
-                            <p class="font-semibold text-gray-900 dark:text-tbn-light">
-                                {{ $client->account->accountType->name }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
         <!-- Modal: Verify account -->
         @if ($client->account->accountType->id >= 2 && !$client->account->verified_payment)

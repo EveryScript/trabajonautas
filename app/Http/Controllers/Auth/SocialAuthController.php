@@ -4,44 +4,49 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
 {
-    public function redirect(string $provider)
+    public function redirectToGoogle()
     {
-        return Socialite::driver($provider)->redirect();
+        return Socialite::driver('google')->redirect();
     }
 
-    public function callback(string $provider)
+    public function handleGoogleCallback()
     {
-        $socialUser = Socialite::driver($provider)->user();
-        $user = User::where('provider', $provider)
-            ->where('provider_id', $socialUser->getId())
-            ->first();
+        try {
+            $googleUser = Socialite::driver('google')->user();
+            $user = User::where('email', $googleUser->email)->first();
 
-        if ($user) {
-            $user->update([
-                'provider' => $provider,
-                'provider_id' => $socialUser->id
-            ]);
-        } else {
-            $user = User::create([
-                'name' => $socialUser->getName() ?? $socialUser->getNickname(),
-                'email' => $socialUser->getEmail(),
-                'password' => bcrypt(Str::random(32)),
-                'provider' => $provider,
-                'provider_id' => $socialUser->getId(),
-                'email_verified_at' => now(), // Email verified now
-                'terms_accepted_at' => now()
-            ]);
-            $user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
+            if (!$user) {
+                // Create user from Google if not exist
+                $user = User::create([
+                    'name' => $googleUser->getName() ?? $googleUser->getNickname(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => bcrypt(Str::random(32)),
+                    'google_id' => $googleUser->getId(),
+                    'email_verified_at' => now(),
+                    'terms_accepted_at' => now()
+                ]);
+                $user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
+            }
+
+            // Delete all sessions from user
+            DB::table('sessions')
+                ->where('user_id', $user->id)
+                ->delete();
+
+            Auth::login($user, true);
+            request()->session()->regenerate();
+
+            return redirect()->intended('panel');
+
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Error al iniciar sesión con Google');
         }
-
-        Auth::login($user, remember: true);
-        return redirect()->intended(route('dashboard'));
     }
 }

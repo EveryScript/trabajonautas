@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Notifications\CustomResetPasswordNotification;
 use App\Notifications\CustomVerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,10 +24,10 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
-    use HasFactory;
     use HasProfilePhoto;
-    use Notifiable;
     use TwoFactorAuthenticatable;
+    use Notifiable;
+    use HasFactory;
     use HasRoles;
     use HasUuids;
 
@@ -109,5 +110,23 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new CustomVerifyEmailNotification());
+    }
+    // Format on set and get phone (country code)
+    protected function phone(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if (!$value) return null;
+                return str_replace('+591', '', $value);
+            },
+
+            // MUTADOR: Cuando guardas el dato desde el formulario hacia la BD
+            set: function ($value) {
+                if (!$value) return null;
+                $onlyNumbers = preg_replace('/\D/', '', $value);
+                $cleanNumber = ltrim($onlyNumbers, '591');
+                return '+591' . $cleanNumber;
+            },
+        );
     }
 }

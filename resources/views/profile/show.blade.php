@@ -1,18 +1,26 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
+    <header class="mb-4">
+        <h2 class="text-xl font-semibold leading-tight text-tbn-dark dark:text-white">
+            Configuración de usuario
         </h2>
-    </x-slot>
+        <span class="text-sm font-light text-tbn-secondary dark:text-tbn-light">
+            Accede a la configuración de tus principales datos en el sistema de Trabajonautas.com
+        </span>
+    </header>
 
-    <div>
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            @if (Laravel\Fortify\Features::canUpdateProfileInformation())
-                @livewire('profile.update-profile-information-form')
+    <div class="px-6 py-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
+        @if (Laravel\Fortify\Features::canUpdateProfileInformation())
+            @livewire('profile.update-profile-information-form')
+        @endif
+    </div>
+    <div class="px-6 py-5 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
+        @if (Laravel\Fortify\Features::canUpdateProfileInformation())
+            @livewire('profile.update-account-information-form')
+        @endif
+    </div>
 
-                <x-section-border />
-            @endif
-
+    <div class="hidden">
+        <div class="py-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
             @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::updatePasswords()))
                 <div class="mt-10 sm:mt-0">
                     @livewire('profile.update-password-form')
