@@ -3,8 +3,8 @@
 namespace App\Livewire\Report;
 
 use App\Exports\UsersExport;
+use App\Models\Subscription;
 use App\Models\TbnSetting;
-use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -38,9 +38,7 @@ class ReportClient extends Component
 
     public function saveQRImage()
     {
-        $this->validate([
-            'qr_new_image' => 'required|image|max:2048'
-        ]);
+        $this->validate(['qr_new_image' => 'required|image|max:2048']);
         $image_path = $this->qr_new_image->store('img', 'public');
         $tbn_setting = TbnSetting::firstOrNew(['key' => 'qr_image']);
         $tbn_setting->value = $image_path;
@@ -53,23 +51,26 @@ class ReportClient extends Component
     {
         // QR data (settings)
         $qr_image = TbnSetting::where('key', 'qr_image')->first();
-        
+
         // Clients data
-        $base_query = User::whereHas('account', function ($query) {
-            if ($this->start_date && $this->end_date)
+        $base_query = Subscription::query()
+            ->where('verified_payment', true)
+            ->whereIn('account_type_id', [2, 3])
+            ->when($this->start_date && $this->end_date, function ($query) {
                 $query->whereBetween('updated_at', [
                     Carbon::parse($this->start_date)->startOfDay(),
                     Carbon::parse($this->end_date)->endOfDay()
                 ]);
-            $query->whereIn('account_type_id', [2, 3]);
-            $query->where('verified_payment', true);
-        })->with('account.accountType');
-        // $clients = $base_query->simplePaginate(7);
-        $clients = $base_query->get();
-        $sum_prices = $base_query->get()->pluck('account.accountType.price')->sum();
+            })
+            ->with(['user', 'type'])
+            ->latest('updated_at');
+
+        $subscriptions = $base_query->get();
+        $total_price = $subscriptions->sum('price');
+
         return view('livewire.report.report-client', [
-            'clients' => $clients,
-            'sum_prices' => $sum_prices,
+            'subscriptions' => $subscriptions,
+            'total_price' => $total_price,
             'qr_image' => $qr_image
         ]);
     }

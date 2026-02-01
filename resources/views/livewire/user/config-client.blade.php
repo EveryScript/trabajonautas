@@ -1,116 +1,108 @@
-<section>
-    <x-title-app>
-        <x-slot name="title_page">Configuración del cliente</x-slot>
-        <x-slot name="description_page">
-            Realiza acciones para controlar el estado de un cliente.</x-slot>
-    </x-title-app>
-    <form class="max-w-3xl px-10 py-8 bg-white rounded-lg shadow-md dark:bg-tbn-dark" x-data="content">
-        <div class="block grid-cols-2 gap-4 mb-4 md:grid dark:text-white">
-            <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Nombre del cliente</span>
-                <h4 class="text-lg font-medium">{{ $client->name }}</h4>
+<aside class="p-5 transition-all duration-300 bg-white rounded-md shadow dark:bg-tbn-dark">
+    <!-- Client Detail -->
+    @if ($view_client)
+        <form wire:submit='saveClient' wire:key='detail-{{ $view_client->id }}' x-show="!loading_client">
+            <div class="mb-4">
+                <p class="text-xl text-tbn-dark dark:text-white">{{ $view_client->name }}</p>
+                <small class="text-tbn-secondary dark:text-tbn-light">{{ $view_client->email }}</small>
             </div>
-            <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Ubicación</span>
-                <h4 class="text-lg font-medium">
-                    {{ $client->location ? $client->location->location_name : '(sin datos)' }}</h4>
+            <div class="mb-4">
+                <span class="text-xs font-normal text-tbn-primary">Profesión</span>
+                <p class="text-tbn-dark dark:text-white">{{ $view_client->profesion->profesion_name }}</p>
             </div>
-            <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Correo electrónico</span>
-                <h4 class="text-lg font-medium">{{ $client->email }}</h4>
-            </div>
-            <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Profesion</span>
-                <h4 class="text-lg font-medium">
-                    {{ $client->profesion ? $client->profesion->profesion_name : '(sin datos)' }}</h4>
-            </div>
-            <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Celular</span>
-                <h4 class="text-lg font-medium">
-                    @if ($client->phone)
-                        {{ substr($client->phone, 4, 10) }} <a href="http://wa.me/{{ $client->phone }}" target="_blank"
-                            rel="phone-verify" class="text-green-500 underline">Verificar</a>
-                    @else
-                        (sin datos)
-                    @endif
-                </h4>
-            </div>
-            <div class="mb-1">
-                <span class="text-xs text-tbn-primary">Fecha de registro</span>
-                <h4 class="font-medium text-md">{{ $this->formatDate($client->created_at) }}</h4>
-            </div>
-            <div class="col-span-2">
-                @if ($client->account && intval($client->account->account_type_id) !== 1)
-                    <span class="text-xs text-tbn-primary">Verificación de pago</span>
-                    <x-input-checkbox-block checked="{{ $client->account->verified_payment ? 'checked' : '' }}"
-                        wire:model="client_verified_payment">
-                        <div class="ms-4">
-                            <p class="font-medium text-md text-tbn-dark dark:text-white">Verificación de pago</p>
-                            <p class="text-xs text-tbn-dark dark:text-tbn-light">
-                                El cliente ha realizado el pago de <span class="font-bold text-tbn-primary">
-                                    {{ $client->account->accountType->price }} Bs. </span>
-                                por cuenta <span class="font-bold text-tbn-primary">
-                                    {{ $client->account->accountType->name }}</span> correctamente.</p>
-                        </div>
-                    </x-input-checkbox-block>
-                @endif
-                @if ($client->account)
-                    <span class="text-xs text-tbn-primary">Control de acceso</span>
-                    <x-input-checkbox-block checked="{{ $client->actived ? 'checked' : '' }}"
-                        wire:model="client_actived">
-                        <div class="ms-4">
-                            <p class="font-medium text-md text-tbn-dark dark:text-white">Habilitar cliente</p>
-                            <p class="text-xs text-tbn-dark dark:text-tbn-light">
-                                El cliente utiliza el sistema y su cuenta está disponible actualmente </p>
-                        </div>
-                    </x-input-checkbox-block>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <div>
+                    <span class="text-xs font-normal text-tbn-primary">Ubicación</span>
+                    <p class="text-tbn-dark dark:text-white">
+                        {{ $view_client->location->location_name }}</p>
+                </div>
+                <div>
+                    <span class="text-xs font-normal text-tbn-primary">Celular</span>
+                    <p class="text-tbn-dark dark:text-white">
+                        <a href="http://wa.me/{{ $view_client->phone }}" target="_blank" rel="phone-verify"
+                            class="text-green-500 underline">{{ $view_client->phone }}</a>
+                    </p>
+                </div>
+                @if ($view_client->account)
+                    <div>
+                        <span class="text-xs font-normal text-tbn-primary">Cuenta</span>
+                        <p class="text-tbn-dark dark:text-white">
+                            <span
+                                class="inline-block px-2 py-1 text-xs text-white {{ $view_client->account->account_type_id == 1 ? 'bg-green-600' : 'bg-tbn-primary' }} rounded-full tracking-wider">
+                                <i
+                                    class="mr-1 fas {{ $view_client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
+                                {{ $view_client->account->type->name }}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-normal text-tbn-primary">Registro de cuenta</span>
+                        <p class="text-tbn-dark dark:text-white">
+                            {{ $view_client->account->updated_at->translatedFormat('l d/F/Y H:i') }}
+                        </p>
+                    </div>
                 @endif
             </div>
-        </div>
-        <div class="mb-4">
-            @if ($client->account)
-                <x-button type="button" x-on:click="saveSettings">
-                    <span wire:loading.remove>Guardar configuración</span>
-                    <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
-                </x-button>
+            @if ($view_client->latestPendingSubscription)
+                <div class="mb-4">
+                    <span class="text-xs font-normal text-tbn-primary">Fecha de solicitud</span>
+                    <p class="text-tbn-dark dark:text-white">
+                        {{ $view_client->latestPendingSubscription->updated_at->translatedFormat('l d/F/Y H:i') }}
+                    </p>
+                </div>
+                <x-input-checkbox-block wire:model="verified_payment">
+                    <div class="ms-4">
+                        <p class="font-medium text-md text-tbn-dark dark:text-white">Verificación de pago</p>
+                        <p class="text-xs text-tbn-dark dark:text-tbn-light">
+                            Solicitud de cuenta: <span class="font-medium text-tbn-primary">
+                                {{ $view_client->latestPendingSubscription->type->name }}</span> <br>
+                            Precio: <span class="font-medium text-tbn-primary">
+                                {{ $view_client->latestPendingSubscription->price }} Bs. </span>
+                        </p>
+                    </div>
+                </x-input-checkbox-block>
             @endif
-            <x-secondary-button href="{{ route('client') }}" wire:navigate>Salir</x-button>
+            <x-input-checkbox-block wire:model="client_actived" :checked="$client_actived">
+                <div class="ms-4">
+                    <p class="font-medium text-md text-tbn-dark dark:text-white">Habilitar cliente</p>
+                    <p class="text-xs text-tbn-dark dark:text-tbn-light">
+                        El cliente utiliza el sistema y su cuenta está disponible actualmente </p>
+                </div>
+            </x-input-checkbox-block>
+            <x-button type='submit' wire:loading.attr="disabled" wire:target="saveClient" class="w-full">
+                <span wire:loading.remove wire:target="saveClient">
+                    Guardar Cambios
+                </span>
+                <span wire:loading wire:target="saveClient" class="flex items-center gap-2">
+                    <i class="mr-1 text-sm fa-solid fa-spinner animate-spin"></i> Guardando...
+                </span>
+            </x-button>
+        </form>
+        <!-- Loading client -->
+        <div x-show="loading_client" class="flex items-center h-[30rem]">
+            <p class="w-full text-center text-tbn-secondary dark:text-tbn-light">
+                <i class="text-tbn-primary animate-spin fa-solid fa-spinner"></i> <br> Cargando
+            </p>
         </div>
-    </form>
-    @assets
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @endassets
-
-    @script
-        <script>
-            Alpine.data('content', () => ({
-                dangerFlag: false,
-                userName: @json($client->name),
-                userPhone: @json($client->phone),
-                saveSettings() {
-                    $wire.save().then(() => {
-                        Swal.fire({
-                            title: "Guardado",
-                            html: "Los datos del cliente <strong>" +
-                                this.userName + "</strong> se han guardado correctamente.",
-                            showDenyButton: true,
-                            confirmButtonColor: '#ff420a',
-                            confirmButtonText: "Enviar Whatsapp",
-                            denyButtonColor: '#484848',
-                            denyButtonText: "Salir",
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                let phone = this.userPhone.replace(/[\s()+-]/g, '')
-                                let url = 'https://wa.me/' + phone +
-                                    '?text=*Trabajonautas.com*%20te%20informa%20que%20tu%20cuenta%20ya%20está%20disponible.%20Ingresa%20a%20trabajonautas.com/panel%20ahora%20mismo'
-                                window.open(url, '_blank')
-                            }
-                            if (result.isDenied)
-                                $wire.justExit()
-                        });
-                    })
-                }
-            }))
-        </script>
-    @endscript
-</section>
+    @else
+        <div class="flex items-center h-[30rem]">
+            <div class="w-full text-center">
+                <picture class="relative block mb-2">
+                    <img src="{{ asset('storage/img/tbn-new-isologo.webp') }}" alt="avatar"
+                        class="block dark:hidden w-[3rem] rounded-full mx-auto">
+                    <img src="{{ asset('storage/img/tbn-white-isologo.webp') }}" alt="avatar"
+                        class="hidden dark:block w-[3rem] rounded-full mx-auto">
+                </picture>
+                <h5 x-show="!loading_client" class="mb-2 text-lg text-tbn-primary">
+                    Selecciona a un usuario
+                </h5>
+                <h5 x-show="loading_client" class="mb-2 text-lg text-tbn-primary">
+                    Cargando cliente
+                </h5>
+                <p class="text-xs text-tbn-secondary dark:text-tbn-light">
+                    Inicia la configuración de usuarios en este panel.
+                </p>
+            </div>
+        </div>
+    @endif
+</aside>

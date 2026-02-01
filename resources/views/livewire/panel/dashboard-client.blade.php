@@ -1,17 +1,10 @@
 <section class="mt-8">
     <div x-data="content" class="flex flex-col gap-8 mx-auto max-w-7xl md:flex-row">
         <!-- Navigation -->
-        <x-dashboard-nav client_name="{{ $client->name }}"
-            client_account_type_id="{{ $client->account->account_type_id }}"
-            client_account_type_name="{{ $client->account->accountType->name }}"
-            client_pro_verified="{{ $client->account->verified_payment }}"
-            client_account_expire_time="{{ $client->account->limit_time }}"
-            client_account_expire_days="{{ $client_account_expire_days }}"
-            client_account_expired="{{ $client_account_expired }}"
-            has_new_notify_announces="{{ $has_new_notify_announces }}" />
+        <x-dashboard-nav :client="$client" :has_new_announces="$this->hasNewAnnounces" />
         <!-- Main content -->
         <main class="flex-1 mb-0 md:mb-24">
-            @if ($client->account->accountType->id == 1)
+            @if ($client->account && intval($client->account->account_type_id) === 1 && !$client->latestPendingSubscription)
                 <x-dashboard-ad />
             @endif
             <!-- Suggests component -->
@@ -19,54 +12,25 @@
                 @livewire('panel.dashboard-card', [
                     'title' => 'Convocatorias de trabajo para ti',
                     'description' => 'Te presentamos las convocatorias más recientes del país.',
+                    'client' => $client,
                     'my_announces_mode' => false,
-                    'client_location_id' => $client->location_id,
-                    'client_profesion_id' => $client->profesion_id,
-                    'client_profesion_area_id' => $client->profesion->area_id,
                 ])
             </div>
-            <!-- Notifications -->
+            <!-- Client Announces Saved -->
             <div x-show="btnNavigation == 2">
-                @if (intval($client->account->account_type_id) === 3)
-                    @livewire('panel.dashboard-notify', [
-                        'title' => 'Notificaciones de convocatorias',
-                        'description' => 'Aquí encontrarás las convocatorias más recientes que coinciden con tu perfil.',
-                        'client_location_id' => $client->location_id,
-                        'client_profesion_id' => $client->profesion_id,
-                    ])
-                @else
-                    <div class="text-center">
-                        <picture class="w-full mb-2">
-                            <img src="{{ asset('storage/img/tbn-notify.webp') }}" alt="rocket"
-                                class="w-[14rem] h-[14rem] mx-auto">
-                        </picture>
-                        <h5 class="mb-1 text-lg font-medium text-tbn-dark dark:text-white">Notificaciones en tiempo real
-                        </h5>
-                        <p class="max-w-lg mx-auto mb-6 text-sm text-tbn-dark dark:text-tbn-light">
-                            Entérate de las mejores convocatorias en cuanto son publicadas en nuestra plataforma.</p>
-                        <x-button type="button" class="inlne-block bg-tbn-primary"
-                            href="{{ route('purchase-account', ['account_type_id' => 3]) }}" wire:navigate>
-                            Obtener PRO-MAX ahora</x-button>
-                    </div>
-                @endif
-            </div>
-            <!-- Client -->
-            <div x-show="btnNavigation == 3">
                 @livewire('panel.dashboard-card', [
                     'title' => 'Mis convocatorias',
-                    'description' => 'Aún no has guardado ninguna convocatoria.',
+                    'description' => 'Encuentra las convocatorias que guardaste hasta ahora.',
+                    'client' => $client,
                     'my_announces_mode' => true,
-                    'client_account_id' => $client->account->accountType->id,
-                    'client_location_id' => $client->location_id,
-                    'client_profesion_id' => $client->profesion_id,
-                    'client_profesion_area_id' => $client->profesion->area_id,
                 ])
             </div>
         </main>
-        <!-- Modal: Verify account -->
-        @if ($client->account->accountType->id >= 2 && !$client->account->verified_payment)
+        <!-- Modal: Verifing account -->
+        @if ($client->latestPendingSubscription)
             <div x-show="modal_verify_account" x-cloak>
-                <x-dashboard-modal title="Tu cuenta {{ $client->account->accountType->name }} está en camino">
+                <x-dashboard-modal
+                    title="Tu cuenta {{ $client->latestPendingSubscription->type->name }} está en camino">
                     <x-slot name="close">
                         <i x-on:click="modal_verify_account = false"
                             class="text-lg fas fa-times text-tbn-primary"></i></x-slot>
@@ -80,7 +44,7 @@
                     </x-slot>
                     <x-slot name="buttons">
                         <x-button-link
-                            href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->account->accountType->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}."
+                            href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->latestPendingSubscription->type->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}."
                             target="_blank" class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>
@@ -88,12 +52,9 @@
             </div>
         @endif
         <!-- Modal: Activate notifications -->
-        @if (
-            $client->account->accountType->id == 3 &&
-                $client->account->verified_payment &&
-                empty($client->account->device_token))
+        @if ($client->account && intval($client->account->account_type_id) === 3 && empty($client->account->device_token))
             <div x-show="modal_notifications" x-cloak>
-                <x-dashboard-modal title="Bienvenido a Trabajonautas {{ $client->account->accountType->name }}">
+                <x-dashboard-modal title="Bienvenido a Trabajonautas {{ $client->account->type->name }}">
                     <x-slot name="close">
                         <i x-on:click="modal_notifications = false"
                             class="text-lg fas fa-times text-tbn-primary"></i></x-slot>
@@ -188,10 +149,6 @@
                     if (Notification.permission === 'granted' && $wire.checkIfTokenExists()) {
                         this.aside_error_notifications = false
                     }
-                },
-                btnNotification() {
-                    this.btnNavigation = 2
-                    $wire.updateLastCheck()
                 }
             }))
         </script>

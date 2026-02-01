@@ -192,4 +192,15 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class
     ])->toArray(),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Trabajonautas
+    |--------------------------------------------------------------------------
+    |
+    | This array contains the roles from Trabajonautas System
+    |
+    */
+    'client_role' => env('CLIENT_ROLE'),
+    'user_role' => env('USER_ROLE'),
+    'admin_role' => env('ADMIN_ROLE')
 ];

@@ -24,7 +24,6 @@ return new class extends Migration
             $table->unsignedBigInteger('location_id')->nullable(); // Foreign
             $table->unsignedBigInteger('profesion_id')->nullable(); // Foreign
             $table->unsignedBigInteger('grade_profile_id')->nullable(); // Foreign
-            $table->unsignedBigInteger('account_id')->nullable(); // Foreign
             $table->string('google_id')->nullable(); // Laravel Socialite (Google)
             $table->timestamp('last_announce_check')->nullable(); // New field
             $table->rememberToken();

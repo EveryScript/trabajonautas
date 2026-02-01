@@ -24,9 +24,9 @@ class AccountType extends Model
             User::class,
             Account::class,
             'account_type_id',
-            'account_id',
             'id',
-            'id'
+            'id',
+            'user_id'
         );
     }
 }

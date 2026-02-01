@@ -51,7 +51,7 @@
                                     </tr>
                                     <tr>
                                         <td class="w-1/2 p-2 font-medium whitespace-nowrap">Celular</td>
-                                        <td x-text="client.phone.substr(4,10)" class="p-2 whitespace-nowrap"></td>
+                                        <td x-text="client.phone" class="p-2 whitespace-nowrap"></td>
                                     </tr>
                                     <tr>
                                         <td class="w-1/2 p-2 font-medium whitespace-nowrap">Tipo de cuenta</td>
@@ -115,9 +115,10 @@
                 <div class="flex justify-between gap-1 mt-4">
                     <x-secondary-button type="button" wire:click='backToDashboard'>
                         Volver al panel</x-secondary-button>
-                    <x-button type="button" wire:click="confirmAndSave">
-                        <span wire:loading.remove>Confirmar</span>
-                        <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
+                    <x-button type="button" wire:click="confirmAndSave" wire:loading.attr='confirmAndSave'>
+                        <span wire:loading.remove wire:target="confirmAndSave">Confirmar</span>
+                        <span wire:loading wire:target="confirmAndSave">
+                            <i class="text-sm fas fa-spinner animate-spin"></i></span>
                     </x-button>
                 </div>
             </div>
@@ -191,9 +192,9 @@
                 searchProfesion: '',
                 // Data
                 client: @json($client),
-                account_type: @json($account_type),
                 profesions: @json($profesions),
                 locations: @json($locations),
+                account_type: @json($account_type),
                 // Bank Account
                 bankAccount: '4077070681',
                 copied: false,

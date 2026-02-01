@@ -44,7 +44,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'location_id',
         'profesion_id',
         'grade_profile_id',
-        'account_id',
         'last_announce_check',
         'provider', // Laravel Socialite
         'provider_id', // Laravel Socialite
@@ -87,7 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function account(): HasOne
     {
-        return $this->hasOne(Account::class);
+        return $this->hasOne(Account::class, 'user_id');
     }
     public function profesion(): BelongsTo
     {
@@ -100,6 +99,20 @@ class User extends Authenticatable implements MustVerifyEmail
     public function notices(): BelongsToMany
     {
         return $this->belongsToMany(Notice::class);
+    }
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+    // Latest pending subscription (with Account Type)
+    public function latestPendingSubscription()
+    {
+        return $this->hasOne(Subscription::class)->where('verified_payment', false)->latestOfMany();
+    }
+    // Latest verified subscription (with Account Type)
+    public function latestVerifiedSubscription()
+    {
+        return $this->hasOne(Subscription::class)->where('verified_payment', true)->latestOfMany();
     }
     // Reset password notification (mail content)
     public function sendPasswordResetNotification($token)

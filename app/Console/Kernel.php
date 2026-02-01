@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('trabajonautas:send-unnotified-clients')->dailyAt('20:00');
+        $schedule->command('trabajonautas:update-expired-accounts')->hourly();
     }
 
     /**
@@ -21,7 +22,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

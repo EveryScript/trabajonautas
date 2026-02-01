@@ -21,13 +21,8 @@ class ClientsAge extends Component
 
     public function getChartData()
     {
-        $query = User::role(env('CLIENT_ROLE'))
-            ->whereHas('account', function ($query) {
-                $query->where(function ($q) {
-                    $q->where('account_type_id', 1)
-                        ->orWhere('verified_payment', true);
-                });
-            })
+        $query = User::role(config('app.client_role'))
+            ->whereHas('account')
             ->whereBetween('created_at', [
                 Carbon::parse($this->startDate)->startOfDay(),
                 Carbon::parse($this->endDate)->endOfDay(),

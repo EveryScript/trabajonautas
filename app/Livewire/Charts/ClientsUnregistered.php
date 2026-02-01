@@ -21,14 +21,14 @@ class ClientsUnregistered extends Component
 
     public function getChartData()
     {
-        $without_account_clients = User::role(env('CLIENT_ROLE'))
+        $without_account_clients = User::role(config('app.client_role'))
             ->whereDoesntHave('account')
             ->whereBetween('created_at', [
                 Carbon::parse($this->startDate)->startOfDay(),
                 Carbon::parse($this->endDate)->endOfDay(),
             ])->count();
 
-        $inactive_clients = User::role(env('CLIENT_ROLE'))
+        $inactive_clients = User::role(config('app.client_role'))
             ->where('actived', false)
             ->whereHas('account')
             ->whereBetween('created_at', [
@@ -36,13 +36,10 @@ class ClientsUnregistered extends Component
                 Carbon::parse($this->endDate)->endOfDay(),
             ])->count();
 
-        $unverified_clients = User::role(env('CLIENT_ROLE'))
+        $unverified_clients = User::role(config('app.client_role'))
             ->where('actived', true)
-            ->whereHas('account', function ($query) {
-                $query->where(function ($q) {
-                    $q->where('account_type_id', '!=', 1)->where('verified_payment', false);
-                });
-            })
+            ->whereHas('account')
+            ->whereHas('latestPendingSubscription')
             ->whereBetween('created_at', [
                 Carbon::parse($this->startDate)->startOfDay(),
                 Carbon::parse($this->endDate)->endOfDay(),

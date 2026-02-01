@@ -10,12 +10,10 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('limit_time')->nullable();
-            $table->boolean('verified_payment')->default(false);
-            $table->text('device_token')->nullable();
-            $table->foreignUuid('verified_by_user_id')->nullable(); // Foreign key
             $table->foreignUuid('user_id')->unique(); // Foreign key
             $table->unsignedBigInteger('account_type_id'); // Foreign key
+            $table->timestamp('limit_time')->nullable()->index();
+            $table->text('device_token')->nullable();
             $table->timestamps();
         });
     }

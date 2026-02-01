@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Traits\AuthorizeClients;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class DashboardCard extends Component
@@ -14,9 +15,7 @@ class DashboardCard extends Component
     // Parameters
     public $title, $description;
     public $my_announces_mode = false;
-    public $client_location_id = null;
-    public $client_profesion_id = null;
-    public $client_profesion_area_id = null;
+    public $client;
     // Propeties
     public $per_page = 7;
 
@@ -24,7 +23,7 @@ class DashboardCard extends Component
     public function announcements()
     {
         $query = Announcement::where('expiration_time', '>=', now())
-            ->where('area_id', $this->client_profesion_area_id)
+            ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client->profesion->id))
             ->selectRaw(
                 "id, announce_title, company_id, area_id, pro, expiration_time, created_at, updated_at,
                 (created_at >= ?) as is_today,
@@ -35,11 +34,12 @@ class DashboardCard extends Component
                         AND EXISTS (SELECT 1 FROM announcement_profesion WHERE announcement_id = announcements.id AND profesion_id = ?) THEN 1
                     ELSE 2
                 END) as priority_level",
-                [now()->startOfDay(), now()->subDays(7), now()->startOfMonth(), $this->client_location_id, $this->client_profesion_id]
+                [now()->startOfDay(), now()->subDays(7), now()->startOfMonth(), $this->client->location_id, $this->client->profesion_id]
             )
             ->with([
                 'company:id,company_name,company_image',
-                'locations:id,location_name'
+                'locations:id,location_name',
+                'profesions:id'
             ])
             ->orderBy('priority_level', 'ASC')
             ->latest('updated_at')
@@ -54,11 +54,14 @@ class DashboardCard extends Component
         $this->per_page += 7;
     }
 
+    #[On('announcements-updated')]
+    public function refreshComponent() {}
+
     public function render()
     {
         $hasRecommends = $this->announcements->has(1);
         return view('livewire.panel.dashboard-card', [
-            'announces' => $this->my_announces_mode ? Auth::user()->myAnnounces->groupBy(fn() => 1) : $this->announcements,
+            'announces' => $this->my_announces_mode ? $this->client->myAnnounces->groupBy(fn() => 1) : $this->announcements,
             'hasRecommends' => $hasRecommends,
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent()
         ]);

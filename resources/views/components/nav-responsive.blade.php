@@ -34,13 +34,13 @@
                             <span
                                 class="block text-sm truncate text-tbn-secondary dark:text-tbn-light">{{ Auth::user()->email }}</span>
                         </div>
-                        <ul aria-labelledby="user-menu-button">
-                            <li class="border-b border-b-tbn-light dark:border-b-tbn-secondary">
+                        <ul class="divide-y divide-tbn-light dark:divide-tbn-secondary" aria-labelledby="user-menu-button">
+                            <li>
                                 <a href="{{ route('dashboard') }}" wire:navigate
                                     class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
                                     Mi panel</a>
                             </li>
-                            <li class="border-b border-b-tbn-light dark:border-b-tbn-secondary">
+                            <li>
                                 <a href="{{ route('profile.show') }}" wire:navigate
                                     class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
                                     Configuración</a>

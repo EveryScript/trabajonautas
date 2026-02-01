@@ -2,74 +2,65 @@
 
 namespace App\Livewire\Panel;
 
+use App\Livewire\Forms\ClientForm;
 use App\Models\AccountType;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\TbnSetting;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class FirstSteps extends Component
 {
+    public ClientForm $form;
+
     public $user_id;                            // Component parameter
-    public $gender, $age, $phone;               // Step 1
-    public $grade_profile_id;                   // Step 2
-    public $profesion_id;                       // Step 3
-    public $location_id;                        // Step 4
-    public $account_type_id;                    // Step 5
     public $user;                               // Current user
-    public $locations, $profesions, $account_types; // Data to use in the view
     public $country_code = '+591';
+    public $qr_image = '';
 
     public function mount()
     {
-        if (Auth::check()) {
-            $this->user = User::with(['account.accountType'])
-                ->select('id', 'name', 'phone')->find($this->user_id);
-        } else {
-            redirect()->route('login');
-        }
+        $this->user = User::with(['account.type'])->select('id', 'name', 'phone')->find($this->user_id);
+        $this->qr_image = TbnSetting::where('key', 'qr_image')->first();
     }
+
+    #[Computed]
+    public function locations()
+    {
+        return Location::select('id', 'location_name')->get();
+    }
+
+    #[Computed]
+    public function profesions()
+    {
+        return Profesion::select('id', 'profesion_name')->get();
+    }
+
+    #[Computed]
+    public function account_types()
+    {
+        return AccountType::select('id', 'name', 'price', 'duration_days')->get();
+    }
+
     public function confirmAndSave()
     {
-        $this->validate([
-            'gender' => 'required|in:M,F',
-            'age' => 'required|numeric|in:1,2,3',
-            'phone' => 'required|numeric|digits:8',
-            'country_code' => 'required|string|in:+591',
-            'grade_profile_id' => 'required|exists:grade_profiles,id',
-            'profesion_id' => 'required|exists:profesions,id',
-            'location_id' => 'required|exists:locations,id',
-            'account_type_id' => 'required|exists:account_types,id'
-        ]);
-        $account = $this->user->account()->create([
-            'user_id' => $this->user_id,
-            'account_type_id' => intval($this->account_type_id)
-        ]);
-        $this->user->update([
-            'gender' => $this->gender,
-            'age' => intval($this->age),
-            'phone' => $this->country_code . $this->phone,
-            'location_id' => intval($this->location_id),
-            'profesion_id' => intval($this->profesion_id),
-            'grade_profile_id' => intval($this->grade_profile_id),
-            'register_completed' => true,
-            'last_announce_check' => now(),
-            'account_id' => $account->id
-        ]);
-
-        $this->redirectRoute('dashboard', navigate: true);
+        try {
+            $this->form->store($this->user, $this->country_code);
+            return $this->redirectRoute('dashboard', navigate: true);
+        } catch (\Exception $e) {
+            $this->dispatch('register-failed');
+        }
     }
 
     public function render()
     {
-        $this->locations = Location::all();
-        $this->profesions = Profesion::all();
-        $this->account_types = AccountType::all();
-        $qr_image = TbnSetting::where('key', 'qr_image')->first();
         return view('livewire.panel.first-steps', [
-            'qr_image' => $qr_image
+            'profesions' => $this->profesions,
+            'locations' => $this->locations,
+            'account_types' => $this->account_types
         ]);
     }
 }

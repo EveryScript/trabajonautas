@@ -26,13 +26,9 @@ class ClientsGrade extends Component
         $data = [];
 
         $grade_profiles = GradeProfile::withCount(['users' => function ($query) {
-            $query->role(env('CLIENT_ROLE'))
-                ->whereHas('account', function ($q) {
-                    $q->where(function ($q) {
-                        $q->where('account_type_id', 1)
-                            ->orWhere('verified_payment', true);
-                    });
-                })->whereBetween('created_at', [
+            $query->role(config('app.client_role'))
+                ->whereHas('account')
+                ->whereBetween('created_at', [
                     Carbon::parse($this->startDate)->startOfDay(),
                     Carbon::parse($this->endDate)->endOfDay()
                 ]);

@@ -7,6 +7,8 @@ use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\TbnSetting;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class PurchaseAccount extends Component
@@ -21,16 +23,21 @@ class PurchaseAccount extends Component
 
     public function mount()
     {
-        if (intval($this->account_type_id) !== 1 && AccountType::where('id', $this->account_type_id)->exists() && auth()->check()) {
-            $this->client = User::with(['profesion', 'location'])
-                ->select('id', 'name', 'phone', 'location_id', 'profesion_id')
-                ->find(auth()->user()->id);
-            $this->location_id = $this->client->location->id;
-            $this->profesion_id = $this->client->location->id;
-            $this->account_type = AccountType::find($this->account_type_id);
-        } else {
-            $this->redirect('/', true);
-        }
+        if (!auth()->check() && $this->account_type_id)
+            $this->redirect('/panel', true);
+
+        if (!AccountType::where('id', $this->account_type_id)->exists())
+            $this->redirect('/panel', true);
+
+        $this->client = User::with(['profesion', 'location', 'account.type'])
+            ->select('id', 'name', 'phone', 'location_id', 'profesion_id')
+            ->find(auth()->user()->id);
+
+        if ($this->client->latestPendingSubscription)
+            $this->redirect('/panel', true);
+
+        $this->location_id = $this->client->location->id;
+        $this->profesion_id = $this->client->location->id;
     }
 
     public function confirmAndSave()
@@ -40,14 +47,24 @@ class PurchaseAccount extends Component
             'location_id' => 'required|exists:locations,id',
             'account_type_id' => 'required|exists:account_types,id'
         ]);
-        $this->client->update([
-            'location_id' => intval($this->location_id),
-            'profesion_id' => intval($this->profesion_id)
-        ]);
-        $this->client->account->update([
-            'account_type_id' => intval($this->account_type_id),
-            'verified_payment' => false
-        ]);
+
+        try {
+            DB::transaction(function () {
+                $this->client->update([
+                    'location_id' => intval($this->location_id),
+                    'profesion_id' => intval($this->profesion_id)
+                ]);
+                $this->client->subscriptions()->create([
+                    'account_type_id' => intval($this->account_type_id),
+                    'price' => $this->account_type->price
+                ]);
+
+                $this->redirectRoute('dashboard', navigate: true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            $this->addError('transaction', 'Error al procesar la solicitud');
+        }
         $this->redirectRoute('dashboard', navigate: true);
     }
 
@@ -60,7 +77,9 @@ class PurchaseAccount extends Component
     {
         $this->locations = Location::select(['id', 'location_name'])->get();
         $this->profesions = Profesion::select(['id', 'profesion_name'])->get();
+        $this->account_type = AccountType::select(['id', 'name', 'price', 'duration_days'])->where('id', $this->account_type_id)->first();
         $qr_image = TbnSetting::where('key', 'qr_image')->first();
+
         return view('livewire.web.purchase-account', [
             'qr_image' => $qr_image
         ]);

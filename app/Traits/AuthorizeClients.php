@@ -15,13 +15,16 @@ trait AuthorizeClients
 
         $_client = $this->getAuthClientWithAccount();
 
-        if ($_client->getRoleNames()->first() === env('ADMIN_ROLE') || $_client->getRoleNames()->first() === env('USER_ROLE'))
-            return true;
-
-        if ($_client->getRoleNames()->first() === env('CLIENT_ROLE') && intval($_client->account->account_type_id) === 1)
+        if (!$_client->account)
             return false;
 
-        if (!$_client->account->verified_payment)
+        // if ($_client->getRoleNames()->first() === env('ADMIN_ROLE') || $_client->getRoleNames()->first() === env('USER_ROLE'))
+        //     return true;
+
+        if ($_client->getRoleNames()->first() === config('app.client_role') && intval($_client->account->account_type_id) === 1)
+            return false;
+
+        if ($_client->lastPendingSubscription && !$_client->lastPendingSubscription->verified_payment)
             return false;
 
         return true;
@@ -31,6 +34,6 @@ trait AuthorizeClients
         if (!auth()->check())
             return null;
 
-        return User::select('id', 'name', 'account_id', 'profesion_id')->with('account.accountType')->find(auth()->user()->id);
+        return User::select('id', 'name', 'profesion_id')->with('account')->find(auth()->user()->id);
     }
 }

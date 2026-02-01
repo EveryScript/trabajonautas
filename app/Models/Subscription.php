@@ -6,15 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Account extends Model
+class Subscription extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'account_type_id', 'limit_time', 'device_token'];
+    protected $fillable = ['user_id', 'account_type_id', 'price', 'verified_payment', 'verified_by_user_id'];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by_user_id');
     }
     public function type(): BelongsTo
     {

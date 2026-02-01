@@ -62,7 +62,7 @@
                 @foreach ($group as $announce)
                     <div wire:key='announce-{{ $announce->id }}'
                         x-show="filter_option === 'all' || (filter_option === 'today' && {{ $announce->is_today ? 'true' : 'false' }}) || (filter_option === 'week' && {{ $announce->is_week ? 'true' : 'false' }}) || (filter_option === 'month' && {{ $announce->is_month ? 'true' : 'false' }})"
-                        x-transition:enter.duration.300ms x-transition:enter.duration.300ms>
+                        x-transition:enter.duration.300ms x-transition:leave.duration.300ms>
                         <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
                     </div>
                 @endforeach

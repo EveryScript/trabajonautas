@@ -3,7 +3,7 @@
         @livewire('panel.dashboard-user')
     </x-app-layout>
 @else
-    @if (auth()->user()->register_completed && auth()->user()->account()->exists())
+    @if (auth()->user()->register_completed)
         <x-app-layout>
             @livewire('panel.dashboard-client', ['user_id' => auth()->user()->id])
         </x-app-layout>

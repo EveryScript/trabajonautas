@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('announce_title');
             $table->text('description');
             $table->dateTime('expiration_time');
-            $table->bigInteger('salary');
+            $table->decimal('salary', 10, 0);
             $table->boolean('pro')->default(false);
             $table->unsignedBigInteger('area_id');
             $table->foreignUuid('user_id');

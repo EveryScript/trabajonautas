@@ -25,7 +25,7 @@
                         <h5 class="mb-2 text-lg font-medium text-tbn-primary">
                             Información general</h5>
                         <table class="min-w-full mb-4 divide-y divide-gray-200">
-                            <tbody
+                            <tbody wire:loading.class="opacity-50"
                                 class="text-sm divide-y text-tbn-dark dark:text-tbn-light divide-tbn-light dark:divide-tbn-secondary">
                                 <tr>
                                     <td class="py-1 font-medium whitespace-nowrap">Fecha inicio</td>
@@ -38,17 +38,13 @@
                                         {{ date('d/M/Y', strtotime($end_date)) }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="py-1 font-medium whitespace-nowrap">Cantidad de clientes</td>
-                                    <td class="py-1 text-right whitespace-nowrap">{{ count($clients) }}</td>
-                                </tr>
-                                <tr>
                                     <td class="py-1 font-medium whitespace-nowrap">Ganancia total</td>
-                                    <td class="py-1 text-right whitespace-nowrap">{{ $sum_prices }} Bs.</td>
+                                    <td class="py-1 text-right whitespace-nowrap">{{ $total_price }} Bs.</td>
                                 </tr>
                             </tbody>
                         </table>
                         <x-button type="button" wire:click='exportData'
-                            x-bind:disabled="{{ count($clients) === 0 ? 'true' : 'false' }}">
+                            x-bind:disabled="{{ count($subscriptions) === 0 ? 'true' : 'false' }}">
                             <span wire:loading.remove wire:target="exportData">Exportar</span>
                             <span wire:loading wire:target="exportData">Exportando...</span>
                         </x-button>
@@ -81,30 +77,29 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody wire:loading.class="opacity-50">
-                        @forelse ($clients as $client)
-                            <tr wire:key='{{ $client->id }}'
-                                class="border-b dark:text-tbn-light hover:bg-gray-300 dark:border-b-tbn-secondary dark:hover:bg-neutral-900">
+                    <tbody class="divide-y divide-tbn-light dark:divide-tbn-secondary" wire:loading.class="opacity-50">
+                        @forelse ($subscriptions as $sub)
+                            <tr wire:key='sub-{{ $sub->id }}'
+                                class="dark:text-tbn-light hover:bg-gray-300 dark:hover:bg-neutral-900">
                                 <th scope="row"
                                     class="px-6 py-4 font-medium text-tbn-dark dark:text-white whitespace-nowrap">
-                                    <h5 class="font-bold text-md">{{ $client->name }}</h5>
+                                    <h5 class="font-bold text-md">{{ $sub->user->name }}</h5>
                                 </th>
                                 <td class="hidden px-6 py-4 uppercase md:table-cell">
-                                    {{ $client->account->accountType->name }}
+                                    {{ $sub->type->name }}
                                 </td>
                                 <td class="hidden px-6 py-4 md:table-cell">
-                                    {{ $client->phone }}
+                                    {{ $sub->user->phone }}
                                 </td>
                                 <td class="hidden px-6 py-4 md:table-cell">
-                                    {{ date('d/M/Y - H:i', strtotime($client->account->updated_at)) }}
+                                    {{ $sub->updated_at->translatedFormat('d/m/Y H:i') }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{ $client->account->accountType->price }}
+                                    {{ $sub->type->price }}
                                 </td>
                             </tr>
                         @empty
-                            <tr
-                                class="bg-white border-b dark:bg-tbn-dark dark:border-b-tbn-secondary dark:hover:bg-neutral-900">
+                            <tr class="bg-white dark:bg-tbn-dark dark:border-b-tbn-secondary dark:hover:bg-neutral-900">
                                 <td class="py-4 text-center font-italic text-tbn-dark dark:text-tbn-light"
                                     colspan="5">
                                     No se han encontrado datos</td>

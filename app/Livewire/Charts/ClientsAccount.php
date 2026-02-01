@@ -25,15 +25,14 @@ class ClientsAccount extends Component
         $data = [];
 
         $account_types = AccountType::withCount([
-            'users' => fn($query) =>
-            $query->where('actived', true)
-            ->where(function ($q) {
-                $q->where('accounts.account_type_id', 1)
-                    ->orWhere('accounts.verified_payment', true);
-            })->role(env('CLIENT_ROLE'))->whereBetween('users.created_at', [
-                Carbon::parse($this->startDate)->startOfDay(),
-                Carbon::parse($this->endDate)->endOfDay()
-            ])
+            'users' => function ($query) {
+                $query->role(config('app.client_role'))->where('actived', true)
+                    ->whereHas('latestVerifiedSubscription')
+                    ->whereBetween('users.created_at', [
+                        Carbon::parse($this->startDate)->startOfDay(),
+                        Carbon::parse($this->endDate)->endOfDay()
+                    ]);
+            }
         ])->get();
 
         foreach ($account_types as $account_type)
