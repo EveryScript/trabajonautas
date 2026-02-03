@@ -4,26 +4,30 @@
             <x-authentication-card-logo />
         </x-slot>
 
-        <x-validation-errors class="mb-4" />
+        <div class="max-w-xs my-4 text-sm text-tbn-dark dark:text-white">
+            Reestablece tu contraseña ahora mismo.
+        </div>
 
-        <form class="w-full" method="POST" action="{{ route('password.update') }}">
+        <x-validation-errors class="max-w-xs mb-4" />
+
+        <form class="w-full max-w-xs" method="POST" action="{{ route('password.update') }}">
             @csrf
 
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
             <div class="block">
                 <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
+                <x-input id="email" class="block w-full mt-1" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
             </div>
 
             <div class="mt-4">
                 <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+                <x-input-password id="password" class="block w-full mt-1" type="password" name="password" required autocomplete="new-password" />
             </div>
 
             <div class="mt-4">
                 <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+                <x-input-password id="password_confirmation" class="block w-full mt-1" type="password" name="password_confirmation" required autocomplete="new-password" />
             </div>
 
             <div class="flex items-center justify-start mt-4">

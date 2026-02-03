@@ -105,7 +105,10 @@
     @else
         <div class="flex items-center h-[30rem]">
             <div class="w-full text-center">
-                <picture class="relative block mb-2">
+                <p x-show="loading_client" class="w-full text-center text-tbn-secondary dark:text-tbn-light">
+                    <i class="text-tbn-primary animate-spin fa-solid fa-spinner"></i> <br> Cargando
+                </p>
+                <picture x-show="!loading_client" class="relative block mb-2">
                     <img src="{{ asset('storage/img/tbn-new-isologo.webp') }}" alt="avatar"
                         class="block dark:hidden w-[3rem] rounded-full mx-auto">
                     <img src="{{ asset('storage/img/tbn-white-isologo.webp') }}" alt="avatar"
@@ -114,10 +117,7 @@
                 <h5 x-show="!loading_client" class="mb-2 text-lg text-tbn-primary">
                     Selecciona a un usuario
                 </h5>
-                <h5 x-show="loading_client" class="mb-2 text-lg text-tbn-primary">
-                    Cargando cliente
-                </h5>
-                <p class="text-xs text-tbn-secondary dark:text-tbn-light">
+                <p x-show="!loading_client" class="text-xs text-tbn-secondary dark:text-tbn-light">
                     Inicia la configuración de usuarios en este panel.
                 </p>
             </div>
