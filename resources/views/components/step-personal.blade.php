@@ -4,7 +4,7 @@
         <li class="text-center">
             <input type="radio" x-model='gender' value="M" id="gender-1" name="gender" class="hidden peer">
             <label for="gender-1"
-                class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                class="flex justify-center items-center uppercase h-[5rem] px-5 py-4 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                 <span class="text-sm md:text-md">masculino</span>
             </label>
 
@@ -12,7 +12,7 @@
         <li class="text-center">
             <input type="radio" x-model='gender' value="F" id="gender-2" name="gender" class="hidden peer">
             <label for="gender-2"
-                class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                class="flex justify-center items-center uppercase h-[5rem] px-5 py-4 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                 <span class="text-sm md:text-md">femenino</span>
             </label>
         </li>
@@ -22,21 +22,21 @@
         <li class="text-center">
             <input type="radio" x-model='age' value="1" id="age-1" name="age" class="hidden peer">
             <label for="age-1"
-                class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                class="flex justify-center items-center uppercase h-[5rem] px-5 py-4 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                 <span class="text-sm md:text-md">de 18 a 25 años</span>
             </label>
         </li>
         <li class="text-center">
             <input type="radio" x-model='age' value="2" id="age-2" name="age" class="hidden peer">
             <label for="age-2"
-                class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
-                <span class="text-sm md:text-md">de 26-32 años</span>
+                class="flex justify-center items-center uppercase h-[5rem] px-5 py-4 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                <span class="text-sm md:text-md">de 26 a 32 años</span>
             </label>
         </li>
         <li class="text-center">
             <input type="radio" x-model='age' value="3" id="age-3" name="age" class="hidden peer">
             <label for="age-3"
-                class="flex justify-center items-center uppercase h-[4rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                class="flex justify-center items-center uppercase h-[5rem] px-5 py-4 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                 <span class="text-sm md:text-md">de 33 en adelante</span>
             </label>
         </li>

@@ -28,30 +28,12 @@ class ConfigClient extends Component
         $this->client_id = $id;
         $this->hydrateClient();
         $this->dispatch('client-loaded');
-
-
-
-        /*
-        $this->view_client = User::select('id', 'name', 'email', 'actived', 'phone', 'location_id', 'profesion_id')
-            ->with([
-                'latestPendingSubscription.type:id,name,price',
-                'account:id,user_id,account_type_id,limit_time,device_token,updated_at',
-                'account.type:id,name,price',
-                'location:id,location_name',
-                'profesion:id,profesion_name',
-            ])->find($id);
-
-        if ($this->view_client->latestPendingSubscription)
-            $this->verified_payment = $this->view_client->latestPendingSubscription->verified_payment;
-
-        $this->client_actived = $this->view_client->actived;
-        $this->dispatch('client-loaded');
-        */
     }
 
     public function hydrateClient()
     {
-        $this->view_client = User::select('id', 'name', 'email', 'actived', 'phone', 'location_id', 'profesion_id')
+        $this->view_client = User::select('id', 'name', 'email', 'actived', 'phone', 'register_completed', 'location_id', 'profesion_id', 'deleted_at')
+            ->withTrashed()
             ->with([
                 'latestPendingSubscription.type:id,name,price',
                 'account:id,user_id,account_type_id,limit_time,device_token,updated_at',

@@ -20,6 +20,10 @@
                             <option value="active">Solo Activos</option>
                             <option value="inactive">Solo Inactivos</option>
                         </optgroup>
+                        <optgroup label="Otros">
+                            <option value="unaccount">Sin cuenta</option>
+                            <option value="deleted">Eliminados</option>
+                        </optgroup>
                     </x-select>
                 </div>
             </x-slot>
@@ -66,13 +70,18 @@
                                 class="hover:bg-gray-300 dark:hover:bg-neutral-900">
                                 <th scope="row"
                                     class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                                    <h5 class="inline font-medium text-md md:text-lg ">{{ $client->name }}</h5>
+                                    <h5 class="inline font-medium text-md md:text-lg">
+                                        {{ $client->name }}</h5>
                                 </th>
                                 <td class="hidden px-6 py-4 dark:text-tbn-light md:table-cell">
                                     {{ $client->location ? $client->location->location_name : '(sin datos)' }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    @if (!$client->actived)
+                                    @if ($client->trashed())
+                                        <span class="px-2 py-1 text-xs rounded-full text-tbn-primary bg-neutral-900">
+                                            <i class="mr-1 fa-solid fa-ban"></i> Eliminado
+                                        </span>
+                                    @elseif (!$client->actived)
                                         <span class="px-2 py-1 text-xs text-white rounded-full bg-neutral-900">
                                             <i class="mr-1 fas fa-user-slash"></i> Desactivado
                                         </span>
@@ -89,8 +98,7 @@
                                             {{ $client->account->type->name }}
                                         </span>
                                     @else
-                                        <span class="text-xs italic text-tbn-secondary">(sin
-                                            cuenta)</span>
+                                        <span class="text-xs italic text-tbn-secondary">(sin cuenta)</span>
                                     @endif
                                 </td>
                                 <td class="flex flex-row items-center justify-end px-6 py-4 text-xl h-15">

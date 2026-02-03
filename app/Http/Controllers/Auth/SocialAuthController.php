@@ -27,7 +27,7 @@ class SocialAuthController extends Controller
                 $user = User::create([
                     'name' => $googleUser->getName() ?? $googleUser->getNickname(),
                     'email' => $googleUser->getEmail(),
-                    'password' => bcrypt(Str::random(32)),
+                    'password' => null,
                     'google_id' => $googleUser->getId(),
                     'email_verified_at' => now(),
                     'terms_accepted_at' => now()

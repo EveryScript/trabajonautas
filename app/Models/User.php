@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -23,6 +24,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+
     use HasApiTokens;
     use HasProfilePhoto;
     use TwoFactorAuthenticatable;
@@ -30,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use HasRoles;
     use HasUuids;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -48,7 +51,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'provider', // Laravel Socialite
         'provider_id', // Laravel Socialite
         'email_verified_at', // Laravel Socialite
-        'terms_accepted_at' // Terms and conditions
+        'terms_accepted_at', // Terms and conditions
+        'deleted_at' // Soft deletes
     ];
 
     protected $hidden = [

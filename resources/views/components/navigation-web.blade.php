@@ -1,20 +1,22 @@
 <header class="bg-white dark:bg-tbn-dark h-[5rem]">
-    <div class="h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-row justify-between align-middle">
+    <div class="flex flex-row justify-between h-full max-w-6xl px-4 mx-auto align-middle sm:px-6 lg:px-8">
         <div class="mt-5">
             <x-nav-logo />
         </div>
-        <nav class="md:ml-auto flex flex-wrap items-center justify-center gap-4 text-sm">
+        <nav class="flex flex-wrap items-center justify-center gap-4 text-sm md:ml-auto">
             @auth
-                <a href="{{ route('dashboard') }}" class="px-3 py-2 font-semibold text-white bg-tbn-primary rounded-md focus:ring-2">
-                    Mi Panel
+                <a href="{{ route('dashboard') }}">
+                    <x-button>
+                        Mi Panel
+                    </x-button>
                 </a>
             @else
-                <a href="{{ route('login') }}" class="text-tbn-dark dark:text-tbn-light hover:text-tbn-primary transition-all duration-200 px-2 py-1">
+                <a href="{{ route('login') }}" class="px-2 py-1 transition-all duration-200 text-tbn-dark dark:text-tbn-light hover:text-tbn-primary">
                     Iniciar sesión</a>
 
                 @if (Route::has('register'))
                     <a href="{{ route('register') }}"
-                        class="text-white bg-tbn-primary hover:bg-tbn-secondary transition-all duration-200 px-4 py-2 rounded-md">
+                        class="px-4 py-2 text-white transition-all duration-200 rounded-md bg-tbn-primary hover:bg-tbn-secondary">
                         Registrarse</a>
                 @endif
             @endauth

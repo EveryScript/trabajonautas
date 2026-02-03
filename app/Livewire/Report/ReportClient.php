@@ -62,7 +62,9 @@ class ReportClient extends Component
                     Carbon::parse($this->end_date)->endOfDay()
                 ]);
             })
-            ->with(['user', 'type'])
+            ->with(['user' => function ($query) {
+                $query->withTrashed();
+            }, 'type'])
             ->latest('updated_at');
 
         $subscriptions = $base_query->get();

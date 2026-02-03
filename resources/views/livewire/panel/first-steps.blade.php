@@ -33,6 +33,7 @@
                 step: 1,
                 searchProfesion: '',
                 location_name: '',
+                profesion_name: '',
                 url_whatsapp: '',
                 // Propeties
                 gender: @entangle('form.gender'),
@@ -93,6 +94,10 @@
                 setLocation(id) {
                     this.location_id = id
                     this.location_name = this.locations.find(location => location.id == id).location_name
+                },
+                setProfesion(id) {
+                    this.profesion_id = id
+                    this.profesion_name = this.profesions.find(profesion => profesion.id == id).profesion_name
                 },
                 verifyWhatsappNumber() {
                     window.open(this.url_whatsapp)

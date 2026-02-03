@@ -2,10 +2,10 @@
     <nav class="flex flex-row justify-between h-full max-w-6xl px-4 mx-auto align-middle sm:px-6 lg:px-8">
         <div x-data="{ open: false, dropdown: false }" @click.away="open = false, dropdown = false"
             class="relative flex flex-wrap items-center justify-between w-full mx-auto">
-            @role(env('CLIENT_ROLE'))
+            @role(config('app.client_role'))
                 <x-nav-logo />
             @endrole
-            @role([env('USER_ROLE'), env('ADMIN_ROLE')])
+            @role([config('app.user_role'), config('app.admin_role')])
                 <a href="{{ route('welcome') }}" wire:navigate>
                     <img class="inline-block dark:hidden max-w-12" src="{{ asset('storage/img/tbn-new-isologo.webp') }}"
                         alt="tbn-logo">
@@ -16,17 +16,15 @@
             <div class="relative flex items-center space-x-3 md:order-2 md:space-x-0 rtl:space-x-reverse">
                 @auth
                     <!-- Dropdown button -->
-                    <button x-on:click="open = !open" type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0"
+                    <x-button x-on:click="open = !open" type="button"
                         id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
                         data-dropdown-placement="bottom">
-                        <span class="px-3 py-2 font-semibold text-white rounded-md bg-tbn-primary focus:ring-2">
-                            Mi Panel
-                        </span>
-                    </button>
+                        Mi Panel
+                    </x-button>
 
                     <!-- Dropdown menu -->
                     <div x-show="open"
-                        class="absolute right-0 z-50 my-4 text-base list-none bg-white border divide-y divide-gray-100 rounded-lg shadow top-6 dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary dark:divide-tbn-light"
+                        class="absolute right-0 z-50 my-4 text-base list-none bg-white border divide-y divide-gray-100 rounded-lg shadow top-10 dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary dark:divide-tbn-light"
                         id="user-dropdown">
                         <div class="px-4 py-3">
                             <span
@@ -40,11 +38,13 @@
                                     class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
                                     Mi panel</a>
                             </li>
-                            <li>
-                                <a href="{{ route('profile.show') }}" wire:navigate
-                                    class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
-                                    Configuración</a>
-                            </li>
+                            @role(config('app.client_role'))
+                                <li>
+                                    <a href="{{ route('profile.show') }}" wire:navigate
+                                        class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
+                                        Configuración</a>
+                                </li>
+                            @endrole
                             <li>
                                 <!-- Authentication -->
                                 <form method="POST" action="{{ route('logout') }}" x-data>

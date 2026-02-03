@@ -45,10 +45,18 @@ class ClientsUnregistered extends Component
                 Carbon::parse($this->endDate)->endOfDay(),
             ])->count();
 
+        $deleted_clients = User::role(config('app.client_role'))
+            ->onlyTrashed()
+            ->whereBetween('created_at', [
+                Carbon::parse($this->startDate)->startOfDay(),
+                Carbon::parse($this->endDate)->endOfDay(),
+            ])->count();
+
         return [
             'Sin verificación' => $unverified_clients,
             'Deshabilitados' => $inactive_clients,
-            'Sin cuenta' => $without_account_clients
+            'Sin cuenta' => $without_account_clients,
+            'Eliminados' => $deleted_clients
         ];
     }
 

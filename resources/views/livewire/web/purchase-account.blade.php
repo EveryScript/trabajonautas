@@ -15,69 +15,119 @@
             <p class="mb-4 text-sm text-tbn-secondary dark:text-tbn-light">
                 Confirma tu información para adquirir el paquete seleccionado.</p>
             <!-- Step 1: Main view -->
-            <div x-show="step === 1">
+            <div x-show="step === 1" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="mb-1 font-bold text-md">Resumen de la compra</h5>
                 <span class="block mb-2 text-xs text-tbn-dark dark:text-tbn-light">
                     Revisa tus datos y escanea el código QR para realizar tu depósito.</span>
                 <div class="flex flex-col w-full gap-6 md:flex-row">
                     <div class="w-full text-sm md:w-3/5">
-                        <div
-                            class="p-2 mb-4 border rounded-md bg-gray-50 dark:bg-tbn-dark dark:text-bg-white border-tbn-light dark:border-tbn-secondary">
-                            <table class="divide-y divide-gray-200 dark:divide-tbn-secondary">
-                                <tbody class="divide-y divide-gray-200 dark:divide-tbn-secondary">
-                                    <tr>
-                                        <td class="w-1/2 p-2 font-medium whitespace-nowrap">Nombre</td>
-                                        <td x-text="client.name" class="p-2 whitespace-wrap"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-1/2 p-2 font-medium whitespace-nowrap">Ubicación</td>
-                                        <td class="p-2 whitespace-wrap">
-                                            <p x-text="client.location.location_name" class="inline mr-1"></p>
-                                            <button type="button" x-on:click="changeLocation"
-                                                class="inline-block px-2 py-1 text-xs transition-all duration-100 border rounded-full border-tbn-primary hover:bg-tbn-primary hover:text-white text-tbn-primary">
-                                                Cambiar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-1/2 p-2 font-medium whitespace-nowrap">Profesión</td>
-                                        <td class="p-2 whitespace-wrap">
-                                            <p x-text="client.profesion.profesion_name" class="inline mr-1"></p>
-                                            <button type="button" x-on:click="changeProfesion"
-                                                class="inline-block px-2 py-1 text-xs transition-all duration-100 border rounded-full border-tbn-primary hover:bg-tbn-primary hover:text-white text-tbn-primary">
-                                                Cambiar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-1/2 p-2 font-medium whitespace-nowrap">Celular</td>
-                                        <td x-text="client.phone" class="p-2 whitespace-nowrap"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-1/2 p-2 font-medium whitespace-nowrap">Tipo de cuenta</td>
-                                        <td x-text="account_type.name" class="p-2 uppercase whitespace-nowrap">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-1/2 p-2 font-medium whitespace-nowrap">Costo</td>
-                                        <td x-text="account_type.price +' Bs.'" class="p-2 whitespace-nowrap">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-1/2 p-2 font-medium whitespace-nowrap">Duración</td>
-                                        <td x-text="account_type.duration_days +' días'" class="p-2 whitespace-nowrap">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <p class="text-xs text-tbn-dark dark:text-tbn-light">
-                            Una vez realizado el depósito nuestros operadores se comunicarán contigo para confirmar el
-                            depósito y habilitar tu cuenta.</p>
+                        <section
+                            class="max-w-2xl mx-auto mb-4 overflow-hidden bg-white border shadow-sm dark:bg-tbn-dark rounded-2xl border-tbn-light dark:border-tbn-secondary">
+                            <div class="px-6 py-4">
+                                <table class="w-full border-collapse">
+                                    <tbody class="divide-y divide-tbn-light dark:divide-tbn-secondary">
+                                        <tr>
+                                            <td class="py-2 pr-4">
+                                                <div class="flex flex-col">
+                                                    <span class="text-sm text-tbn-secondary dark:text-tbn-light mt-0.5">
+                                                        Nombre del cliente</span>
+                                                    <span class="font-normal text-md text-tbn-dark dark:text-white"
+                                                        x-text="client.name"></span>
+                                                </div>
+                                            </td>
+                                            <td class="py-2 text-right align-top">
+                                                <span class="text-lg font-bold text-tbn-dark dark:text-white"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 pr-4">
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-sm text-tbn-secondary dark:text-tbn-light mt-0.5">Ubicación</span>
+                                                    <span class="font-normal text-md text-tbn-dark dark:text-white"
+                                                        x-text="client.location.location_name"></span>
+                                                </div>
+                                            </td>
+                                            <td class="py-2 text-right align-middle">
+                                                <button type="button" x-on:click="changeLocation"
+                                                    class="inline-block px-2 py-1 text-xs transition-all duration-100 border rounded-full border-tbn-primary hover:bg-tbn-primary hover:text-white text-tbn-primary">
+                                                    Cambiar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 pr-4">
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-sm text-tbn-secondary dark:text-tbn-light mt-0.5">Profesión</span>
+                                                    <span class="font-normal text-md text-tbn-dark dark:text-white"
+                                                        x-text="client.profesion.profesion_name"></span>
+                                                </div>
+                                            </td>
+                                            <td class="py-2 text-right align-middle">
+                                                <button type="button" x-on:click="changeProfesion"
+                                                    class="inline-block px-2 py-1 text-xs transition-all duration-100 border rounded-full border-tbn-primary hover:bg-tbn-primary hover:text-white text-tbn-primary">
+                                                    Cambiar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 pr-4">
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-sm text-tbn-secondary dark:text-tbn-light mt-0.5">Celular</span>
+                                                    <span class="font-normal text-md text-tbn-dark dark:text-white"
+                                                        x-text="client.phone"></span>
+                                                </div>
+                                            </td>
+                                            <td class="py-2 text-right align-top">
+                                                <span class="text-lg font-bold text-tbn-dark dark:text-white"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 pr-4">
+                                                <div class="flex flex-col">
+                                                    <span class="text-sm text-tbn-secondary dark:text-tbn-light mt-0.5">
+                                                        Tipo de cuenta</span>
+                                                    <span class="font-semibold text-md text-tbn-primary"
+                                                        x-text="account_type.name"></span>
+                                                </div>
+                                            </td>
+                                            <td class="py-2 text-right align-top">
+                                                <span class="text-lg font-bold text-tbn-dark dark:text-white"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-2 pr-4">
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-sm text-tbn-secondary dark:text-tbn-light mt-0.5">Duración</span>
+                                                    <span class="font-normal text-md text-tbn-dark dark:text-white"
+                                                        x-text="account_type.duration_days +' días'"></span>
+                                                </div>
+                                            </td>
+                                            <td class="py-2 text-right align-top">
+                                                <span class="text-lg font-bold text-tbn-dark dark:text-white"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div
+                                class="px-8 py-6 space-y-3 bg-white border-t dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-lg font-bold text-tbn-primary">Total a pagar</span>
+                                    <span class="text-xl font-bold text-tbn-dark dark:text-white"
+                                        x-text="account_type.price +' Bs.'"></span>
+                                </div>
+                            </div>
+                        </section>
+
                     </div>
                     <div class="w-full text-sm md:w-2/5">
-                        <picture class="block max-w-[10rem] mx-auto mb-2">
-                            <img class="w-full" src="{{ asset('storage/' . $qr_image->value) }}" alt="qr-code">
+                        <picture class="block max-w-[10rem] mx-auto mb-4">
+                            <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_image->value) }}" alt="qr-code">
                         </picture>
                         <div class="mb-6 text-center">
                             <a href="{{ asset('storage/' . $qr_image->value) }}" download
@@ -86,7 +136,7 @@
                         </div>
                         <!-- Bank account -->
                         <div
-                            class="flex items-center justify-between max-w-sm p-4 transition-colors bg-white border shadow-sm dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-xl">
+                            class="flex items-center justify-between max-w-sm p-4 mb-4 transition-colors bg-white border shadow-sm dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-xl">
                             <div class="flex items-center gap-4">
                                 <div>
                                     <h4 class="text-sm font-semibold text-tbn-secondary dark:text-tbn-light">
@@ -110,6 +160,9 @@
                                 </svg>
                             </button>
                         </div>
+                        <p class="text-xs text-tbn-dark dark:text-tbn-light">
+                            Una vez realizado el depósito nuestros operadores se comunicarán contigo para confirmar el
+                            depósito y habilitar tu cuenta.</p>
                     </div>
                 </div>
                 <div class="flex justify-between gap-1 mt-4">
@@ -123,7 +176,7 @@
                 </div>
             </div>
             <!-- Step 2: Change location -->
-            <div x-show="step === 2" x-cloak>
+            <div x-show="step === 2" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="mb-2 font-bold text-md dark:text-white">¿Cuál es tu nueva ubicación?</h5>
                 <ul class="grid grid-cols-2 gap-1 mx-auto mb-8 md:grid-cols-3">
                     <template x-for="location in locations">
@@ -147,7 +200,7 @@
                 </div>
             </div>
             <!-- Step 3: Change profesion -->
-            <div x-show="step === 3" x-cloak>
+            <div x-show="step === 3" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="mb-2 font-bold text-md dark:text-white">¿Cuál es tu nueva profesión?</h5>
                 <x-input type="search" name="profesion" x-model="searchProfesion" class="mb-2"
                     id="searchProfesion" class="w-full" placeholder="Busca una profesión" />

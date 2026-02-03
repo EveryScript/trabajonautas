@@ -20,12 +20,19 @@ class ListClient extends Component
     #[Computed]
     public function clients()
     {
-        return User::role(config('app.client_role'))
-            ->select('id', 'name', 'location_id', 'register_completed', 'actived')
-            ->where('register_completed', true)
+        return User::withTrashed()->role(config('app.client_role'))
+            ->select('id', 'name', 'location_id', 'register_completed', 'actived', 'updated_at', 'deleted_at')
             ->with(['latestPendingSubscription.type', 'account.type', 'location:id,location_name'])
             // Filter by account type
             ->when($this->filter_client, function ($query) {
+                if ($this->filter_client === 'unaccount')
+                    return $query->where('register_completed', false);
+
+                if ($this->filter_client === 'deleted')
+                    return $query->onlyTrashed();
+
+                $query->where('register_completed', true)->whereNull('deleted_at');
+
                 if ($this->filter_client === 'active')
                     return $query->where('actived', true);
 
@@ -35,6 +42,8 @@ class ListClient extends Component
                 return $query->whereHas('account', function ($q) {
                     $q->where('account_type_id', $this->filter_client);
                 });
+            }, function ($query) {
+                return $query->where('register_completed', true)->whereNull('deleted_at');
             })
             // Filter by name
             ->when($this->search, function ($query) {
@@ -42,6 +51,10 @@ class ListClient extends Component
             })
             ->latest('updated_at')
             ->simplePaginate(10);
+    }
+
+    public function updatedSearch()
+    {
         $this->resetPage();
     }
 

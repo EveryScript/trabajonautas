@@ -2,11 +2,12 @@
     <h5 class="mb-2 font-bold text-md dark:text-white">Elige una cuenta</h5>
     <ul class="grid grid-cols-1 gap-1 md:grid-cols-3">
         <template x-for="accountType in accountTypes">
-            <li :key="'account-' + accountType.id">
+            <li :key="'account-' + accountType.id"
+                class="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-slate-900">
                 <input type="radio" x-on:click="setAccountData(accountType)" :id="'account-' + accountType.id"
                     :value="accountType.id" class="hidden peer" name="account_type">
                 <label :for="'account-' + accountType.id"
-                    class="block p-6 bg-white border-2 border-gray-200 rounded-lg shadow-lg cursor-pointer dark:bg-tbn-dark dark:text-white dark:border-tbn-secondary dark:hover:bg-neutral-900 peer-checked:border-tbn-primary">
+                    class="block p-6 bg-white border-2 border-gray-200 rounded-lg shadow-lg cursor-pointer dark:bg-tbn-dark dark:text-white dark:border-tbn-secondary peer-checked:border-tbn-primary">
                     <h2 x-text="accountType.name"
                         class="text-xl font-semibold capitalize text-tbn-secondary hover:bg-tbn-dark dark:text-tbn-primary">
                     </h2>

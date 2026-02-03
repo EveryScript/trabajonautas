@@ -65,8 +65,10 @@ class DashboardClient extends Component
 
     public function updateLastCheck()
     {
-        $this->client->update(['last_announce_check' => now()]);
-        $this->dispatch('announcements-updated');
+        if ($this->hasNewAnnounces) {
+            $this->client->update(['last_announce_check' => now()]);
+            $this->dispatch('announcements-updated');
+        }
     }
 
     public function render()

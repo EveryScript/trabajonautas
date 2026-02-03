@@ -51,10 +51,10 @@
             </div>
         @endif
 
-        <!-- Name -->
+        <!-- Name (input disabled) -->
         <div class="mb-4">
             <x-label for="name" value="{{ __('Name') }}" />
-            <x-input id="name" type="text" class="block w-full mt-1" wire:model="state.name" required
+            <x-input id="name" type="text" class="block w-full mt-1" wire:model="state.name" disabled required
                 autocomplete="name" />
             <x-input-error for="name" class="mt-2" />
         </div>
@@ -62,7 +62,7 @@
         <!-- Email -->
         <div class="mb-4">
             <x-label for="email" value="{{ __('Email') }}" />
-            <x-input id="email" type="email" class="block w-full mt-1" wire:model="state.email" required
+            <x-input id="email" type="email" class="block w-full mt-1" wire:model="state.email" disabled required
                 autocomplete="username" />
             <x-input-error for="email" class="mt-2" />
 
@@ -126,6 +126,39 @@
             <x-input-error for="grade" class="mt-2" />
         </div>
 
+        <!-- Gender -->
+        @php
+            $genders = [
+                'M' => 'Masculino',
+                'F' => 'Femenino',
+            ];
+        @endphp
+        <div class="mb-4">
+            <x-label for="gender" value="{{ __('Genero') }}" />
+            <x-select class="block w-full mt-1" wire:model="state.gender" disabled>
+                @foreach ($genders as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                @endforeach
+            </x-select>
+            <x-input-error for="gender" class="mt-2" />
+        </div>
+        <!-- Edad -->
+        @php
+            $ages = [
+                '1' => 'de 18 a 25 años',
+                '2' => 'de 26 a 32 años',
+                '3' => 'de 33 en adelante',
+            ];
+        @endphp
+        <div class="mb-4">
+            <x-label for="age" value="{{ __('Rango de edad') }}" />
+            <x-select class="block w-full mt-1" wire:model="state.age" disabled>
+                @foreach ($ages as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                @endforeach
+            </x-select>
+            <x-input-error for="age" class="mt-2" />
+        </div>
     </x-slot>
 
     <x-slot name="actions">
@@ -133,8 +166,11 @@
             {{ __('Saved.') }}
         </x-action-message>
 
-        <x-button wire:loading.attr="disabled" wire:target="photo">
-            {{ __('Save') }}
+        <x-button wire:loading.attr="disabled" wire:target="photo" hidden>
+            <span wire:loading.remove wire:target="photo"> Guardar</span>
+            <span wire:loading wire:target="photo" class="flex items-center gap-2">
+                <i class="mr-1 text-sm fa-solid fa-spinner animate-spin"></i> Guardando...
+            </span>
         </x-button>
     </x-slot>
 </x-form-section>

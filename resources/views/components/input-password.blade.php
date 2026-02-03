@@ -9,7 +9,7 @@
                 px-3 py-2 rounded-lg transition-colors duration-300',
     ]) !!}>
     <button type="button" @click="showPassword = !showPassword"
-        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 focus:outline-none" style="top: 0.2rem;">
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-tbn-secondary dark:text-tbn-light focus:outline-none" style="top: 0.15rem;">
         <i :class="showPassword ? 'text-sm fas fa-eye' : 'text-sm fas fa-eye-slash'"></i>
     </button>
 </div>

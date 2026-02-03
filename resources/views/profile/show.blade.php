@@ -8,17 +8,26 @@
         </span>
     </header>
 
-    <div class="px-6 py-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
+    <div
+        class="px-6 py-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
         @if (Laravel\Fortify\Features::canUpdateProfileInformation())
             @livewire('profile.update-profile-information-form')
         @endif
     </div>
-    <div class="px-6 py-5 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
+    <div
+        class="px-6 py-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
         @if (Laravel\Fortify\Features::canUpdateProfileInformation())
             @livewire('profile.update-account-information-form')
         @endif
     </div>
-
+    <div
+        class="px-6 py-5 mb-6 transition-all duration-300 bg-white shadow-lg dark:bg-tbn-dark rounded-xl hover:shadow-xl">
+        @if (Laravel\Jetstream\Jetstream::hasAccountDeletionFeatures())
+            <div class="sm:mt-1">
+                @livewire('profile.delete-user-custom-form')
+            </div>
+        @endif
+    </div>
     <div class="hidden">
         <div class="py-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
             @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::updatePasswords()))

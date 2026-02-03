@@ -7,10 +7,10 @@
         <ul class="grid grid-cols-1 gap-1 mx-auto mb-8 md:grid-cols-2">
             <template x-for="profesion in filteredProfesions">
                 <li class="text-center" :key="'profesion' + profesion.id">
-                    <input type="radio" x-on:click="profesion_id = profesion.id" :value="profesion.id"
+                    <input type="radio" x-on:click="setProfesion(profesion.id)" :value="profesion.id"
                         :id="'profesion-' + profesion.id" name="profesion" class="hidden peer">
                     <label :for="'profesion-' + profesion.id"
-                        class="flex justify-center items-center h-14 sm:h-[5rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                        class="flex justify-center items-center h-14 sm:h-[5rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:text-tbn-light dark:hover:bg-neutral-900">
                         <div>
                             <span x-text="profesion.profesion_name"class="block text-sm font-medium"></span>
                         </div>
