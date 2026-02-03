@@ -7,7 +7,9 @@
         <h5 class="my-4 text-lg font-bold text-center lg:text-left">Confirmación de correo electrónico</h5>
 
         <div class="max-w-xs mb-4 text-sm text-tbn-dark dark:text-tbn-light">
-            {{ __('Hemos enviado un enlace para verificar tu correo electrónico. Si aún no recibiste el enlace puedes volverlo a enviar.') }}
+            {{ __('Gracias por registrarte con nosotros. Se ha enviado un correo a ') }}
+            <strong>{{ auth()->user()->obfuscatedEmail() }}</strong>
+            {{ __(' para verificar tu cuenta. Si aún no recibiste el enlace puedes volverlo a enviar.') }}
         </div>
 
         @if (session('status') == 'verification-link-sent')

@@ -35,7 +35,7 @@
                             required autocomplete="current-password" />
                     </div>
                     @if (Route::has('password.request'))
-                        <a class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high"
+                        <a class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high"
                             href="{{ route('password.request') }}">
                             {{ __('Forgot your password?') }}
                         </a>

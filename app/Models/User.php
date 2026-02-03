@@ -136,8 +136,6 @@ class User extends Authenticatable implements MustVerifyEmail
                 if (!$value) return null;
                 return str_replace('+591', '', $value);
             },
-
-            // MUTADOR: Cuando guardas el dato desde el formulario hacia la BD
             set: function ($value) {
                 if (!$value) return null;
                 $onlyNumbers = preg_replace('/\D/', '', $value);
@@ -145,5 +143,16 @@ class User extends Authenticatable implements MustVerifyEmail
                 return '+591' . $cleanNumber;
             },
         );
+    }
+    // Format on show email in login and restore password
+    public function obfuscatedEmail(): string
+    {
+        $email = $this->email;
+        $parts = explode('@', $email);
+        $name = $parts[0];
+        $domain = $parts[1];
+        $visible = substr($name, 0, 3);
+        $obfuscated = $visible . str_repeat('*', max(0, strlen($name) - 3));
+        return $obfuscated . '@' . $domain;
     }
 }
