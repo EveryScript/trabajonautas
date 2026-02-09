@@ -30,7 +30,7 @@ class PurchaseAccount extends Component
             $this->redirect('/panel', true);
 
         $this->client = User::with(['profesion', 'location', 'account.type'])
-            ->select('id', 'name', 'phone', 'location_id', 'profesion_id')
+            ->select('id', 'name', 'email', 'phone', 'location_id', 'profesion_id')
             ->find(auth()->user()->id);
 
         if ($this->client->latestPendingSubscription)

@@ -1,14 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperar Contraseña</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@8..144,400;700&display=swap');
 
-        /* Estilos base para clientes de correo */
         body {
             font-family: 'Google Sans Flex', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: #f4f4f7;
@@ -16,6 +12,16 @@
             margin: 0;
             padding: 0;
             width: 100% !important;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: {{ $account_type_details['color'] }}15;
+            color: {{ $account_type_details['color'] }};
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 20px;
         }
 
         .wrapper {
@@ -93,33 +99,21 @@
 </head>
 
 <body>
-    <div class="wrapper">
-        <div class="container">
-            <div class="header">
-                <img src="{{ $message->embed(public_path('storage/img/tbn-mail-logo.png')) }}" alt="Trabajonautas"
-                    style="width: 180px;">
-            </div>
+    <div class="container">
+        <div class="header">
+            <img src="{{ $message->embed(public_path('storage/img/tbn-mail-logo.png')) }}" alt="Trabajonautas"
+                style="width: 180px;">
+        </div>
+        <div class="content">
+            <h1>¡Felicidades {{ $client->name }} 🏆</h1>
+            <p>Hemos verificado tu depósito y actualizado tu cuenta correctamente. Disfruta de todos los beneficios de Trabajonautas.com desde
+                ahora. No olvides seguirnos en nuestras redes sociales.</p>
+            <div class="badge">{{ $account_type_details['label'] }}</div>
+            <p style="font-size: 14px; font-weight: medium; color: #555555;">
+                {{ $account_type_details['feature'] }}</p>
 
-            <div class="content">
-                <h1>Hola, {{ $user->name }} 👋</h1>
-                <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en
-                    <strong>Trabajonautas.com</strong>. No te
-                    preocupes, ¡a todos nos pasa!</p>
-
-                <div class="button-container">
-                    <a href="{{ $url }}" class="button">Restablecer Contraseña</a>
-                </div>
-                <p>Si no realizaste esta acción, puedes ignorar este correo de forma segura.</p>
-
-                <p class="sub-text">
-                    Si tienes problemas con el botón, copia y pega esta URL en tu navegador: <br>
-                    <span style="word-break: break-all; color: #ff420a;">{{ $url }}</span>
-                </p>
-            </div>
-
-            <div class="footer">
-                &copy; {{ date('Y') }} Trabajonautas. Todos los derechos reservados.<br>
-                Visítanos en <a href="https://trabajonautas.com" style="color: #b0adc5;">trabajonautas.com</a>
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{ url('/panel') }}" class="button">Ir al Panel</a>
             </div>
         </div>
     </div>

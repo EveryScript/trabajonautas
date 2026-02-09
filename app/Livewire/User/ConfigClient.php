@@ -2,9 +2,11 @@
 
 namespace App\Livewire\User;
 
+use App\Mail\RenewAccount;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -67,6 +69,9 @@ class ConfigClient extends Component
                         'verified_payment' => $this->verified_payment,
                         'verified_by_user_id' => auth()->user()->id
                     ]);
+
+                    // Send email "Account approved"
+                    Mail::to($this->view_client->email)->queue(new RenewAccount($this->view_client, $ps->type->name));
 
                     // Alert
                     $this->dispatch('client-saved', [

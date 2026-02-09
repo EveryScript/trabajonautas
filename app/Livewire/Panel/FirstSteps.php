@@ -3,12 +3,14 @@
 namespace App\Livewire\Panel;
 
 use App\Livewire\Forms\ClientForm;
+use App\Mail\WelcomeAccount;
 use App\Models\AccountType;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\TbnSetting;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -48,7 +50,12 @@ class FirstSteps extends Component
     public function confirmAndSave()
     {
         try {
+            $account_type_name = $this->account_types->find($this->form->account_type_id)->name;
+            // Save User Data
             $this->form->store($this->user, $this->country_code);
+            // Send email "Welcome user"
+            Mail::to($this->user->email)->queue(new WelcomeAccount($this->user, $account_type_name));
+            // Redirect to Dashboard
             return $this->redirectRoute('dashboard', navigate: true);
         } catch (\Exception $e) {
             $this->dispatch('register-failed');
