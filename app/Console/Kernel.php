@@ -13,8 +13,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('trabajonautas:send-unnotified-clients')->dailyAt('20:00');
-        $schedule->command('trabajonautas:update-expired-accounts')->hourly();
+        $schedule->command('trabajonautas:send-unnotified-clients')->dailyAt('20:00'); // Send notification to unnotified clients
+        $schedule->command('trabajonautas:update-expired-accounts')->hourly(); // Convert to FREE when user is expired account
+        // Send email in queue when: Client is register completed and User/Admin verified account (PRO of PRO-MAX)
+        $schedule->command('queue:restart')->everyFiveMinutes();
+        $schedule->command('queue:work --max-time=55 --stop-when-empty')->everyMinute();
     }
 
     /**
