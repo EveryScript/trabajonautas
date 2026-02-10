@@ -106,7 +106,7 @@ La activación de dichos planes está sujeta a validación administrativa tras l
 
 **5.4. Política de reembolsos:** salvo que se establezca lo contrario en la oferta comercial aplicable, los pagos por suscripciones no garantizan resultados (p. ej. obtención de empleo) y, por tanto, no son reembolsables por ese motivo. Los reembolsos por cobros erróneos o por fallas en la prestación del servicio atribuible a la empresa, podrán evaluarse caso por caso ante una solicitud expresa y, si proceden, se efectuarán conforme corresponda.
 
-**6.PUBLICACIÓN Y VERIFICACIÓN DE CONVOCATORIAS**
+**6. PUBLICACIÓN Y VERIFICACIÓN DE CONVOCATORIAS**
 
 **6.1. TRABAJONAUTAS** es el único que podrá realizar publicaciones de convocatorias dentro de la Plataforma.  
 **6.2.** En algunos casos, tomará convocatorias directamente de empresas o instituciones solicitantes, previamente verificadas por **TRABAJONAUTAS.** La verificación podrá incluir la validación de datos de identidad del representante legal, razón social, matrícula NIT, correo institucional, sitio web, número telefónico y cualquier otro dato que se considere necesario para comprobar la legitimidad de la convocatoria.
@@ -141,7 +141,7 @@ En tales casos, **TRABAJONAUTAS** podrá negar su publicación y sin que ello ge
 
 **7.CONTENIDO DE USUARIO Y LICENCIA**
 
-**7.1. Contenido de Usuario:** El Usuario conserva todos los derechos de propiedad intelectual sobre los textos, datos, curriculums, archivos, documentos, fotografías, mensajes u otros materiales (“Contenido de Usuario”) que cargue o publique en la Plataforma.
+**7.1. Contenido de Usuario:** El Usuario conserva todos los derechos de propiedad intelectual sobre los textos, datos, currículums, archivos, documentos, fotografías, mensajes u otros materiales (“Contenido de Usuario”) que cargue o publique en la Plataforma.
 
 Al compartir Contenido de Usuario, este otorga a **TRABAJONAUTAS** una licencia no exclusiva, mundial, gratuita, limitada, revocable y sublicenciable para usar, almacenar, reproducir, modificar, adaptar, comunicar o mostrar dicho contenido de forma privada, con el único fin de:
 
@@ -189,7 +189,7 @@ El Usuario será el único responsable del contenido publicado y de cualquier da
 
 **8.2. Credenciales:** El Usuario reconoce que es el único responsable por la custodia y confidencialidad de sus credenciales de acceso, correo electrónico y contraseña, y acepta que cualquier acción realizada dentro de la Plataforma con sus datos de inicio de sesión se presumirá efectuada por él mismo, salvo prueba en contrario. **TRABAJONAUTAS** recomienda el uso de contraseñas seguras y desalienta el intercambio o cesión de credenciales a terceros, reservándose el derecho de suspender o eliminar las cuentas que evidencien accesos compartidos o fraudulentos.
 
-**8.3. Conducta:** Usuario se compromete a abstenerse de realizar conductas contrarias a los presentes Términos y Condiciones o a la buena fe, tales como crear múltiples cuentas con fines de manipulación, suplantar la identidad de personas o empresas, publicar o compartir contenido falso, difamatorio, obsceno, discriminatorio o ilícito, realizar actos que interfieran con el funcionamiento técnico de la Plataforma, vulnerar los sistemas de seguridad, extraer información mediante herramientas automatizadas o utilizar **TRABAJONAUTAS** con fines ajenos a los permitidos, incluyendo la promoción de productos, servicios o negocios particulares sin autorización expresa.
+**8.3. Conducta:** El Usuario se compromete a abstenerse de realizar conductas contrarias a los presentes Términos y Condiciones o a la buena fe, tales como crear múltiples cuentas con fines de manipulación, suplantar la identidad de personas o empresas, publicar o compartir contenido falso, difamatorio, obsceno, discriminatorio o ilícito, realizar actos que interfieran con el funcionamiento técnico de la Plataforma, vulnerar los sistemas de seguridad, extraer información mediante herramientas automatizadas o utilizar **TRABAJONAUTAS** con fines ajenos a los permitidos, incluyendo la promoción de productos, servicios o negocios particulares sin autorización expresa.
 
 **8.4. Interacción y postulación:** Toda interacción, comunicación, negociación y contratación entre Usuarios y empresas dentro o fuera de la Plataforma se realiza bajo exclusiva responsabilidad de las partes involucradas. **TRABAJONAUTAS** no participa ni intermedia en dichos procesos, por lo que no asume responsabilidad alguna derivada de contrataciones, rechazos, omisiones, demoras, o cualquier daño que pudiera surgir como consecuencia del uso de la información publicada.
 
@@ -199,7 +199,7 @@ El Usuario será el único responsable del contenido publicado y de cualquier da
 
 Finalmente, el Usuario acepta que el uso de **TRABAJONAUTAS** se realiza bajo su exclusiva responsabilidad, liberando expresamente a la empresa administradora de cualquier reclamo, pérdida o daño que pudiera derivarse de su interacción con terceros, del uso de información contenida en convocatorias o de la falta de contratación o selección laboral.
 
-**9.MODERACIÓN, SUSPENSION Y TERMINACION**
+**9.MODERACIÓN, SUSPENSIÓN Y TERMINACIÓN**
 
 **TRABAJONAUTAS** se reserva el derecho de revisar, moderar, editar, rechazar o eliminar información o cuentas que vulneren los presentes Términos o la ley aplicable. De la misma manera, podrá eliminar o advertir al Usuario de convocatorias ya enviadas que se hayan demostrado incorrectas, falsas o engañosas.
 

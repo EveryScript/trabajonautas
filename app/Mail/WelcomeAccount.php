@@ -26,17 +26,17 @@ class WelcomeAccount extends Mailable implements ShouldQueue
             'PRO' => [
                 'color' => '#ff420a',
                 'label' => 'Cuenta PRO',
-                'feature' => 'Tienes acceso a todas las convocatorias PRO correspondientes a tu profesión.'
+                'feature' => 'Si ya realizaste tu depósito por tu cuenta PRO, te avisaremos cuando se haya aprobado tu solicitud.'
             ],
             'PRO-MAX' => [
                 'color' => '#ff420a',
                 'label' => 'Cuenta PRO-MAX',
-                'feature' => 'Si ya realizaste tu depósito, te avisaremos cuando se haya aprobado tu solicitud.'
+                'feature' => 'Si ya realizaste tu depósito por tu cuenta PRO-MAX, te avisaremos cuando se haya aprobado tu solicitud.'
             ],
             default => [
                 'color' => '#16a34a',
                 'label' => 'Cuenta FREE',
-                'feature' => 'Si ya realizaste tu depósito, te avisaremos cuando se haya aprobado tu solicitud.'
+                'feature' => 'Recuerda que para tener una mejor experiencia estás invitado/a a adquirir una cuenta PRO-MAX.'
             ]
         };
     }

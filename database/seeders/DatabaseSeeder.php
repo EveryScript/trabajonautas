@@ -17,11 +17,11 @@ class DatabaseSeeder extends Seeder
             ProfesionSeeder::class,
             CompanySeeder::class,
             AreaSeeder::class,
-            AnnouncementSeeder::class,
+            // AnnouncementSeeder::class,
             RoleUserSeeder::class,
             GradeProfileSeeder::class,
             AccountTypeSeeder::class,
-            NoticeSeeder::class,
+            // NoticeSeeder::class,
             TbnSettingSeeder::class
         ]);
     }
