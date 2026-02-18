@@ -89,7 +89,7 @@
         <!-- Phone -->
         <div class="mb-4">
             <x-label for="phone" value="{{ __('Celular') }}" />
-            <x-input id="phone" type="text" class="block w-full mt-1" wire:model="state.phone" disabled />
+            <x-input id="phone" type="text" class="block w-full mt-1" wire:model="state.phone" />
             <x-input-error for="phone" class="mt-2" />
         </div>
 
@@ -118,7 +118,7 @@
         <!-- Grade -->
         <div class="mb-4">
             <x-label for="grade" value="{{ __('Grado académico') }}" />
-            <x-select class="block w-full mt-1" wire:model="state.grade_profile_id" disabled>
+            <x-select class="block w-full mt-1" wire:model="state.grade_profile_id">
                 @foreach ($grade_profiles as $profile)
                     <option value="{{ $profile->id }}">{{ $profile->profile_name }}</option>
                 @endforeach
@@ -135,7 +135,7 @@
         @endphp
         <div class="mb-4">
             <x-label for="gender" value="{{ __('Genero') }}" />
-            <x-select class="block w-full mt-1" wire:model="state.gender" disabled>
+            <x-select class="block w-full mt-1" wire:model="state.gender">
                 @foreach ($genders as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
                 @endforeach
@@ -152,7 +152,7 @@
         @endphp
         <div class="mb-4">
             <x-label for="age" value="{{ __('Rango de edad') }}" />
-            <x-select class="block w-full mt-1" wire:model="state.age" disabled>
+            <x-select class="block w-full mt-1" wire:model="state.age">
                 @foreach ($ages as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
                 @endforeach
@@ -162,15 +162,15 @@
     </x-slot>
 
     <x-slot name="actions">
-        <x-action-message class="me-3" on="saved">
-            {{ __('Saved.') }}
-        </x-action-message>
 
-        <x-button wire:loading.attr="disabled" wire:target="photo" hidden>
-            <span wire:loading.remove wire:target="photo"> Guardar</span>
+        <x-button wire:loading.attr="disabled" wire:target="photo">
             <span wire:loading wire:target="photo" class="flex items-center gap-2">
                 <i class="mr-1 text-sm fa-solid fa-spinner animate-spin"></i> Guardando...
             </span>
+            <span wire:loading.remove wire:target="photo">Guardar</span>
         </x-button>
+        <x-action-message class="text-tbn-secondary dark:text-tbn-light" on="saved">
+            <i class="mr-1 fa-regular fa-circle-check text-tbn-primary"></i> {{ __('Saved.') }}
+        </x-action-message>
     </x-slot>
 </x-form-section>

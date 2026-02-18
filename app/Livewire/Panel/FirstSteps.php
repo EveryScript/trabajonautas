@@ -38,7 +38,7 @@ class FirstSteps extends Component
     #[Computed]
     public function profesions()
     {
-        return Profesion::select('id', 'profesion_name')->get();
+        return Profesion::select('id', 'profesion_name')->orderBy('profesion_name', 'ASC')->get();
     }
 
     #[Computed]

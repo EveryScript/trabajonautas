@@ -37,7 +37,7 @@ class PurchaseAccount extends Component
             $this->redirect('/panel', true);
 
         $this->location_id = $this->client->location->id;
-        $this->profesion_id = $this->client->location->id;
+        $this->profesion_id = $this->client->profesion->id;
     }
 
     public function confirmAndSave()

@@ -48,8 +48,11 @@
                         </div>
                         @if ($profesion_id || $location_id)
                             <p class="m-1 text-sm text-tbn-secondary dark:text-tbn-light">
-                                Resultados para <span class="font-semibold text-tbn-primary">
-                                    "{{ $profesions->firstWhere('id', $profesion_id)->profesion_name }}"
+                                Resultados
+                                @if ($profesion_id)
+                                    para <span class="font-semibold text-tbn-primary">
+                                        "{{ $profesions->firstWhere('id', $profesion_id)->profesion_name }}"
+                                @endif
                                 </span> en <span class="font-semibold text-tbn-primary">
                                     {{ $location_id ? $locations->firstWhere('id', $location_id)->location_name : 'Toda Bolivia' }}
                                 </span>

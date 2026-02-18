@@ -75,6 +75,16 @@
                 <div x-show="!aside_error_notifications" class="text-xs text-center text-tbn-dark dark:text-tbn-light">
                     <i class="mr-1 text-green-500 far fa-check-circle"></i> Notificaciones activadas
                 </div>
+                <div x-show="aside_error_notifications" class="p-4 my-4 text-left border rounded-lg border-tbn-primary">
+                    <p class="mb-2 font-medium">Activa las notificaciones</p>
+                    <p class="mb-3 text-xs font-medium text-tbn-dark dark:text-tbn-light">
+                        Entérate de las mejores convocatorias en tiempo real con
+                        <span class="font-bold text-tbn-primary">Trabajonautas.com</span>
+                    </p>
+                    <button x-on:click="activateNotificationsAndSaveCurrentToken"
+                        class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary">
+                        <i class="mr-1 fa-solid fa-bell"></i> Activar</button>
+                </div>
             </div>
         @endif
         <!-- Navigation -->

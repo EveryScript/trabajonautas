@@ -1,6 +1,6 @@
 <div x-show="step === 3" x-cloak x-transition:enter.duration.300ms>
     <h5 class="mb-2 font-bold text-md dark:text-white">¿Cuál es tu profesión?</h5>
-    <x-input type="search" x-model="searchProfesion" class="mb-2" id="searchProfesion" class="w-full"
+    <x-input type="search" x-model="searchProfesion" class="mb-3" id="searchProfesion" class="w-full"
         placeholder="Busca una profesión" />
     <div
         class="h-[18rem] overflow-y-auto bg-white dark:bg-neutral-900 border border-gray-200 dark:border-tbn-secondary p-2 rounded-lg scrollbar-none">
