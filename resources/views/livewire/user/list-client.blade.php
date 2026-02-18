@@ -11,6 +11,7 @@
                         class="w-full" placeholder="Buscar cliente" />
                     <x-select wire:model.live='filter_client' class="pr-10">
                         <option value="">Todos los clientes</option>
+                        <option value="pending">Clientes pendientes</option>
                         <optgroup label="Por tipo de cuenta">
                             <option value="1">Clientes FREE</option>
                             <option value="2">Clientes PRO</option>

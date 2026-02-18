@@ -23,6 +23,7 @@ class ListClient extends Component
         return User::withTrashed()->role(config('app.client_role'))
             ->select('id', 'name', 'location_id', 'register_completed', 'actived', 'updated_at', 'deleted_at')
             ->with(['latestPendingSubscription.type', 'account.type', 'location:id,location_name'])
+
             // Filter by account type
             ->when($this->filter_client, function ($query) {
                 if ($this->filter_client === 'unaccount')
@@ -32,6 +33,9 @@ class ListClient extends Component
                     return $query->onlyTrashed();
 
                 $query->where('register_completed', true)->whereNull('deleted_at');
+
+                if ($this->filter_client === 'pending')
+                    return $query->whereHas('latestPendingSubscription');
 
                 if ($this->filter_client === 'active')
                     return $query->where('actived', true);

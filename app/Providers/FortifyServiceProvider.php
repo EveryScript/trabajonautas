@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -46,6 +47,11 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('email', $request->email)->first();
+            if ($user && is_null($user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['Esta cuenta fue creada con Google. Por favor, inicia sesión usando el botón de Google.'],
+                ]);
+            }
             if ($user && Hash::check($request->password, $user->password)) {
                 Auth::logoutOtherDevices($request->password);
                 return $user;
