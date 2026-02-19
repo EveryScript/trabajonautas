@@ -7,27 +7,42 @@ use Carbon\Carbon;
 
 trait AuthorizeClients
 {
-    // Authorize clients to seee PRO Announcements
     protected function isAuthClientProVerifiedAndCurrent(): bool
     {
-        if (!auth()->check())
+        $user = $this->getAuthClientWithAccount();
+
+        if (!$user)
             return false;
 
-        $_client = $this->getAuthClientWithAccount();
+        if ($user->hasAnyRole([config('app.user_role'), config('app.admin_role')]))
+            return true;
 
-        if (!$_client->account)
+        if (!$user->account)
             return false;
 
-        // if ($_client->getRoleNames()->first() === env('ADMIN_ROLE') || $_client->getRoleNames()->first() === env('USER_ROLE'))
-        //     return true;
-
-        if ($_client->getRoleNames()->first() === config('app.client_role') && intval($_client->account->account_type_id) === 1)
+        if ($user->hasRole(config('app.client_role')) && (int)$user->account->account_type_id === 1)
             return false;
 
-        if ($_client->lastPendingSubscription && !$_client->lastPendingSubscription->verified_payment)
+        if ($user->lastPendingSubscription && !$user->lastPendingSubscription->verified_payment)
             return false;
 
         return true;
+
+        // if (!auth()->check())
+        //     return false;
+
+        // $_client = $this->getAuthClientWithAccount();
+
+        // if (!$_client->account)
+        //     return false;
+
+        // if ($_client->getRoleNames()->first() === config('app.client_role') && intval($_client->account->account_type_id) === 1)
+        //     return false;
+
+        // if ($_client->lastPendingSubscription && !$_client->lastPendingSubscription->verified_payment)
+        //     return false;
+
+        // return true;
     }
     protected function getAuthClientWithAccount()
     {

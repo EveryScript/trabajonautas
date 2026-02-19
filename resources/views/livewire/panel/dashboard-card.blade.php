@@ -69,8 +69,9 @@
             </div>
         </div>
     @empty
-        <x-section-empty class="col-span-2" title="No hay sugerencias disponibles"
-            description="Las sugerencias de convocatorias de trabajo estarán visibles en esta sección.">
+        <x-section-empty class="col-span-2"
+            title="{{ $my_announces_mode ? 'Aún no has guardado convocatorias' : 'No hay sugerencias disponibles' }}"
+            description="{{ $my_announces_mode ? 'Tus convocatorias favoritas estarán aqui. Inicia la búsqueda ahora.' : 'Las sugerencias de convocatorias de trabajo estarán visibles en esta sección.' }}">
             <x-button type="button" href="{{ route('search') }}" class="inline-block mt-5 bg-tbn-primary"
                 wire:navigate>
                 Buscar convocatorias</x-button>
