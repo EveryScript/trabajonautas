@@ -126,14 +126,38 @@
 
                     </div>
                     <div class="w-full text-sm md:w-2/5">
-                        <picture class="block max-w-[10rem] mx-auto mb-4">
+                        @if ($account_type_id == 2)
+                            <picture class="block max-w-[10rem] mx-auto mb-4">
+                                <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_pro->value) }}"
+                                    alt="qr-code">
+                            </picture>
+                            <div class="mb-8 text-center">
+                                <a href="{{ asset('storage/' . $qr_pro->value) }}" download
+                                    class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
+                                    Descargar QR
+                                </a>
+                            </div>
+                        @endif
+                        @if ($account_type_id == 3)
+                            <picture class="block max-w-[10rem] mx-auto mb-4">
+                                <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_promax->value) }}"
+                                    alt="qr-code">
+                            </picture>
+                            <div class="mb-8 text-center">
+                                <a href="{{ asset('storage/' . $qr_promax->value) }}" download
+                                    class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
+                                    Descargar QR
+                                </a>
+                            </div>
+                        @endif
+                        {{-- <picture class="block max-w-[10rem] mx-auto mb-4">
                             <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_image->value) }}" alt="qr-code">
                         </picture>
                         <div class="mb-6 text-center">
                             <a href="{{ asset('storage/' . $qr_image->value) }}" download
                                 class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
                                 Descargar QR</a>
-                        </div>
+                        </div> --}}
                         <!-- Bank account -->
                         <div
                             class="flex items-center justify-between max-w-sm p-4 mb-4 transition-colors bg-white border shadow-sm dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-xl">

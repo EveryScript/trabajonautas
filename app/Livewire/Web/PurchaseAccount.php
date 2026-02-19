@@ -26,7 +26,7 @@ class PurchaseAccount extends Component
         if (!auth()->check() && $this->account_type_id)
             $this->redirect('/panel', true);
 
-        if (!AccountType::where('id', $this->account_type_id)->exists())
+        if (!AccountType::where('id', $this->account_type_id)->exists() || $this->account_type_id == 1)
             $this->redirect('/panel', true);
 
         $this->client = User::with(['profesion', 'location', 'account.type'])
@@ -78,10 +78,12 @@ class PurchaseAccount extends Component
         $this->locations = Location::select(['id', 'location_name'])->get();
         $this->profesions = Profesion::select(['id', 'profesion_name'])->get();
         $this->account_type = AccountType::select(['id', 'name', 'price', 'duration_days'])->where('id', $this->account_type_id)->first();
-        $qr_image = TbnSetting::where('key', 'qr_image')->first();
+        $qr_pro = TbnSetting::where('key', 'qr_pro')->first();
+        $qr_promax = TbnSetting::where('key', 'qr_promax')->first();
 
         return view('livewire.web.purchase-account', [
-            'qr_image' => $qr_image
+            'qr_pro' => $qr_pro,
+            'qr_promax' => $qr_promax
         ]);
     }
 }

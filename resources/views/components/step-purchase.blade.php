@@ -1,5 +1,6 @@
 @props([
-    'qr_image' => null,
+    'qr_pro' => null,
+    'qr_promax' => null,
 ])
 <div x-show="step === 6" x-cloak x-transition:enter.duration.300ms>
     <h5 class="mb-1 font-bold text-md dark:text-white">Resumen de la compra</h5>
@@ -108,13 +109,27 @@
         </div>
         <!-- QR and Bank account -->
         <div class="w-full mb-4 text-sm md:w-2/5">
-            <picture class="block max-w-[10rem] mx-auto mb-4">
-                <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_image->value) }}" alt="qr-code">
-            </picture>
-            <div class="mb-8 text-center">
-                <a href="{{ asset('storage/' . $qr_image->value) }}" download
-                    class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
-                    Descargar QR</a>
+            <div x-show="user.account_name === 'PRO'">
+                <picture class="block max-w-[10rem] mx-auto mb-4">
+                    <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_pro->value) }}" alt="qr-code">
+                </picture>
+                <div class="mb-8 text-center">
+                    <a href="{{ asset('storage/' . $qr_pro->value) }}" download
+                        class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
+                        Descargar QR
+                    </a>
+                </div>
+            </div>
+            <div x-show="user.account_name === 'PRO-MAX'">
+                <picture class="block max-w-[10rem] mx-auto mb-4">
+                    <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_promax->value) }}" alt="qr-code">
+                </picture>
+                <div class="mb-8 text-center">
+                    <a href="{{ asset('storage/' . $qr_promax->value) }}" download
+                        class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
+                        Descargar QR
+                    </a>
+                </div>
             </div>
             <div
                 class="flex items-center justify-between w-full p-4 mb-6 transition-colors bg-white border shadow-sm md:max-w-sm dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-xl">

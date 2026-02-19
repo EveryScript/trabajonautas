@@ -17,7 +17,7 @@ class ReportClient extends Component
     use WithFileUploads;
 
     public $start_date, $end_date;
-    public $qr_new_image;
+    public $qr_new_pro, $qr_new_promax;
 
     public function mount()
     {
@@ -38,19 +38,35 @@ class ReportClient extends Component
 
     public function saveQRImage()
     {
-        $this->validate(['qr_new_image' => 'required|image|max:2048']);
-        $image_path = $this->qr_new_image->store('img', 'public');
-        $tbn_setting = TbnSetting::firstOrNew(['key' => 'qr_image']);
-        $tbn_setting->value = $image_path;
-        $tbn_setting->save();
-        $this->reset('qr_new_image');
+        $fields = [
+            'qr_new_pro'    => 'qr_pro',
+            'qr_new_promax' => 'qr_promax',
+        ];
+
+        foreach ($fields as $property => $key) {
+            if ($this->$property) {
+                $this->processAndSaveImage($property, $key);
+            }
+        }
+    }
+
+    private function processAndSaveImage($property, $key)
+    {
+        $this->validate([$property => 'required|image|max:2048']);
+        $path = $this->$property->store('img', 'public');
+        TbnSetting::updateOrCreate(
+            ['key' => $key],
+            ['value' => $path]
+        );
+        $this->reset($property);
         $this->dispatch('qr-image-saved');
     }
 
     public function render()
     {
         // QR data (settings)
-        $qr_image = TbnSetting::where('key', 'qr_image')->first();
+        $qr_pro = TbnSetting::where('key', 'qr_pro')->first();
+        $qr_promax = TbnSetting::where('key', 'qr_promax')->first();
 
         // Clients data
         $base_query = Subscription::query()
@@ -73,7 +89,8 @@ class ReportClient extends Component
         return view('livewire.report.report-client', [
             'subscriptions' => $subscriptions,
             'total_price' => $total_price,
-            'qr_image' => $qr_image
+            'qr_pro' => $qr_pro,
+            'qr_promax' => $qr_promax
         ]);
     }
 }

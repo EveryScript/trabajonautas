@@ -21,12 +21,13 @@ class FirstSteps extends Component
     public $user_id;                            // Component parameter
     public $user;                               // Current user
     public $country_code = '+591';
-    public $qr_image = '';
+    public $qr_pro, $qr_promax;
 
     public function mount()
     {
         $this->user = User::with(['account.type'])->select('id', 'name', 'phone')->find($this->user_id);
-        $this->qr_image = TbnSetting::where('key', 'qr_image')->first();
+        $this->qr_pro = TbnSetting::where('key', 'qr_pro')->first();
+        $this->qr_promax = TbnSetting::where('key', 'qr_promax')->first();
     }
 
     #[Computed]

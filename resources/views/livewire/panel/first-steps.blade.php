@@ -20,7 +20,7 @@
             <!-- Step 5 : Select your account -->
             <x-step-account />
             <!-- Step 6 : Purchase review -->
-            <x-step-purchase :qr_image="$qr_image" />
+            <x-step-purchase :qr_pro="$qr_pro" :qr_promax="$qr_promax" />
         </div>
     </div>
     @assets

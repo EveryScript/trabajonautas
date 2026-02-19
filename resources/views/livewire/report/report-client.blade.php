@@ -114,30 +114,59 @@
             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 dark:bg-opacity-80">
             <form wire:submit='saveQRImage'
                 class="max-w-lg px-6 py-5 mx-4 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
-                @if ($qr_new_image)
-                    <div class="mb-2">
-                        <picture class="block w-full mx-auto sm:w-1/2">
-                            <img src="{{ $qr_new_image->temporaryUrl() }}" alt="qr-image" class="rounded">
-                        </picture>
-                    </div>
-                @else
-                    <div class="mb-2">
-                        <picture class="block w-full mx-auto sm:w-1/2">
-                            <img wire:target='qr_new_image' src="{{ asset('storage/' . $qr_image->value) }}"
-                                alt="qr-image" class="rounded">
-                        </picture>
-                    </div>
-                @endif
+                <div class="flex flex-row gap-4 mb-4">
+                    @if ($qr_new_pro)
+                        <div class="mb-2">
+                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
+                                <img src="{{ $qr_new_pro->temporaryUrl() }}" alt="qr-image" class="rounded">
+                            </picture>
+                            <p class="mt-2 text-center text-tbn-primary">PRO</p>
+                        </div>
+                    @else
+                        <div class="mb-2">
+                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
+                                <img wire:target='qr_new_pro' src="{{ asset('storage/' . $qr_pro->value) }}"
+                                    alt="qr-image" class="rounded">
+                            </picture>
+                            <p class="mt-2 text-center text-tbn-primary">PRO</p>
+                        </div>
+                    @endif
+                    @if ($qr_new_promax)
+                        <div class="mb-2">
+                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
+                                <img src="{{ $qr_new_promax->temporaryUrl() }}" alt="qr-image" class="rounded">
+                            </picture>
+                            <p class="mt-2 text-center text-tbn-primary">PRO-MAX</p>
+                        </div>
+                    @else
+                        <div class="mb-2">
+                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
+                                <img wire:target='qr_new_promax' src="{{ asset('storage/' . $qr_promax->value) }}"
+                                    alt="qr-image" class="rounded">
+                            </picture>
+                            <p class="mt-2 text-center text-tbn-primary">PRO-MAX</p>
+                        </div>
+                    @endif
+                </div>
                 <div class="mb-2">
-                    <x-label for="image">Imagen / Código QR</x-label>
-                    <input type="file" wire:model.live="qr_new_image" id="image"
+                    <x-label for="image">Imagen / QR <span class="text-tbn-primary">PRO</span> </x-label>
+                    <input type="file" wire:model.live="qr_new_pro" id="image"
                         class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-dark dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-secondary file:text-white rounded-lg file:transition-all file:duration-300"
-                        accept="image/png, image/jpeg, image/jpg" x-on:change="previewQRImage" />
-                    <x-input-error for="qr_new_image" class="mt-2" />
-                    <small wire:loading wire:target='qr_new_image'
+                        accept="image/png, image/jpeg, image/jpg" />
+                    <x-input-error for="qr_new_pro" class="mt-2" />
+                    <small wire:loading wire:target='qr_new_pro'
                         class="text-xs text-tbn-secondary dark:text-tbn-light">Subiendo imagen...</small>
                 </div>
-                <x-button class="mb-4" type="submit">
+                <div class="mb-2">
+                    <x-label for="image">Imagen / QR <span class="text-tbn-primary">PROMAX</span> </x-label>
+                    <input type="file" wire:model.live="qr_new_promax" id="image"
+                        class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-dark dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-secondary file:text-white rounded-lg file:transition-all file:duration-300"
+                        accept="image/png, image/jpeg, image/jpg" />
+                    <x-input-error for="qr_new_promax" class="mt-2" />
+                    <small wire:loading wire:target='qr_new_promax'
+                        class="text-xs text-tbn-secondary dark:text-tbn-light">Subiendo imagen...</small>
+                </div>
+                <x-button class="mt-8 mb-4" type="submit">
                     <span wire:loading.remove wire:target="saveQRImage">Publicar</span>
                     <span wire:loading wire:target="saveQRImage">
                         <i class="text-sm fas fa-spinner animate-spin"></i></span>
@@ -176,9 +205,6 @@
                 processData() {
                     if (this.startDate && this.endDate)
                         $wire.searchData(this.startDate, this.endDate)
-                },
-                previewQRImage() {
-
                 }
             }))
         </script>
