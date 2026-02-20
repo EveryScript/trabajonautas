@@ -25,7 +25,7 @@ class DashboardCard extends Component
         $query = Announcement::where('expiration_time', '>=', now())
             ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client->profesion->id))
             ->selectRaw(
-                "id, announce_title, company_id, area_id, pro, expiration_time, created_at, updated_at,
+                "id, announce_title, company_id, pro, expiration_time, created_at, updated_at,
                 (created_at >= ?) as is_today,
                 (created_at >= ?) as is_week,
                 (created_at >= ?) as is_month,

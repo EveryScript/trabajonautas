@@ -27,22 +27,6 @@ trait AuthorizeClients
             return false;
 
         return true;
-
-        // if (!auth()->check())
-        //     return false;
-
-        // $_client = $this->getAuthClientWithAccount();
-
-        // if (!$_client->account)
-        //     return false;
-
-        // if ($_client->getRoleNames()->first() === config('app.client_role') && intval($_client->account->account_type_id) === 1)
-        //     return false;
-
-        // if ($_client->lastPendingSubscription && !$_client->lastPendingSubscription->verified_payment)
-        //     return false;
-
-        // return true;
     }
     protected function getAuthClientWithAccount()
     {

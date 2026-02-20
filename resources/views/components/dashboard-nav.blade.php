@@ -83,7 +83,9 @@
                     </p>
                     <button x-on:click="activateNotificationsAndSaveCurrentToken"
                         class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary">
-                        <i class="mr-1 fa-solid fa-bell"></i> Activar</button>
+                        <span x-show="!button_notify_loading"><i class="mr-1 fa-solid fa-bell"></i> Activar</span>
+                        <span x-show="button_notify_loading"><i class="text-sm fas fa-spinner animate-spin"></i></span>
+                    </button>
                 </div>
             </div>
         @endif

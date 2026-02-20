@@ -16,6 +16,7 @@ return new class extends Migration
             $table->decimal('salary', 10, 0);
             $table->boolean('pro')->default(false);
             $table->unsignedBigInteger('area_id');
+            $table->boolean('notification_sent')->default(false);
             $table->foreignUuid('user_id');
             $table->unsignedBigInteger('company_id');
             $table->timestamps();

@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('notification_logs', function (Blueprint $table) {
             $table->id();
             $table->string('device_token');
+            $table->foreignUuid('user_id'); // Foreign key
             $table->unsignedBigInteger('announcement_id')->nullable();
             $table->timestamp('sent_at');
             $table->timestamps();

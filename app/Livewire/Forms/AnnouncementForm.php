@@ -13,6 +13,7 @@ class AnnouncementForm extends Form
     public $salary;
     public $announce_files;
     public $pro = false;
+    public $notification_sent = false;
     public $company_id;
     public $user_id;
     public $area_id;
@@ -40,7 +41,7 @@ class AnnouncementForm extends Form
     {
         $this->salary = str_replace(',', '', $this->salary);
         $this->validate([
-            'announce_title' => 'required|min:10',
+            'announce_title' => 'required|min:10|max:200',
             'description' => 'required',
             'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',
@@ -83,7 +84,7 @@ class AnnouncementForm extends Form
     {
         $this->salary = str_replace(',', '', $this->salary);
         $this->validate([
-            'announce_title' => 'required|min:10',
+            'announce_title' => 'required|min:10|max:200',
             'description' => 'required',
             'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',

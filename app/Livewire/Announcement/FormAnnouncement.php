@@ -2,17 +2,13 @@
 
 namespace App\Livewire\Announcement;
 
+use App\Jobs\SendAnnouncementNotifications;
 use App\Livewire\Forms\AnnouncementForm;
 use App\Models\Announcement;
 use App\Models\Area;
 use App\Models\Company;
 use App\Models\Location;
-use App\Models\NotificationLog;
 use App\Models\Profesion;
-use App\Models\User;
-use App\Services\FirebaseNotificationService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -32,6 +28,26 @@ class FormAnnouncement extends Component
     }
 
     public function save()
+    {
+        $this->announcement->user_id = auth()->user()->id;
+        $announce_saved = $this->announcement->save();
+        if ($this->announcement->pro && !$this->announcement->notification_sent) {
+            SendAnnouncementNotifications::dispatch($announce_saved);
+        }
+        $this->redirectRoute('announcement', navigate: true);
+    }
+
+    public function update()
+    {
+        $this->announcement->update($this->id);
+        $announce_updated = Announcement::find($this->id);
+        if ($this->announcement->pro && !$this->announcement->notification_sent) {
+            SendAnnouncementNotifications::dispatch($announce_updated);
+        }
+        $this->redirectRoute('announcement', navigate: true);
+    }
+
+    /*public function save()
     {
         $this->announcement->user_id = Auth::id();
         $announce_saved = $this->announcement->save();
@@ -54,9 +70,9 @@ class FormAnnouncement extends Component
                 $notifier->sendBatchTokens($array_tokens, $announce_saved->id, $company_name);
         }
         $this->redirectRoute('announcement', navigate: true);
-    }
+    }*/
 
-    public function update()
+    /*public function update()
     {
         $this->announcement->update($this->id);
         if ($this->announcement->pro) {
@@ -78,7 +94,7 @@ class FormAnnouncement extends Component
                 $notifier->sendBatchTokens($array_tokens, $this->id, $company_name);
         }
         $this->redirectRoute('announcement', navigate: true);
-    }
+    }*/
 
     public function render()
     {

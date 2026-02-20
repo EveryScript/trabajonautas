@@ -154,4 +154,15 @@ class User extends Authenticatable implements MustVerifyEmail
         $obfuscated = $visible . str_repeat('*', max(0, strlen($name) - 3));
         return $obfuscated . '@' . $domain;
     }
+    public function notificationLogs()
+    {
+        return $this->hasManyThrough(
+            NotificationLog::class,
+            Account::class,
+            'user_id',
+            'device_token',
+            'id',
+            'device_token'
+        );
+    }
 }

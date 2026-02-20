@@ -59,34 +59,6 @@ class ResultAnnouncement extends Component
         $user->myAnnounces()->detach($id);
     }
 
-    // No working fow now
-    public function downloadAnnounceFiles()
-    {
-        if (!auth()->check())
-            return $this->redirectRoute('register', navigate: true);
-
-        $zipFileName = 'archivos_convocatoria_' . $this->id . '.zip';
-        return response()->streamDownload(function () {
-            $zip = new \ZipArchive;
-            $tmpFile = tempnam(sys_get_temp_dir(), 'zip');
-            $zip->open($tmpFile, \ZipArchive::CREATE);
-
-            foreach ($this->announcement->announceFiles as $file) {
-                $filePath = $file->url;
-                $fileName = basename($filePath);
-                $fileContent = Storage::disk('public')->get($filePath);
-                $zip->addFromString($fileName, $fileContent);
-            }
-
-            $zip->close();
-            echo file_get_contents($tmpFile);
-            unlink($tmpFile);
-        }, $zipFileName, [
-            'Content-Type' => 'application/zip',
-            'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
-        ]);
-    }
-
     public function formatDate($datetime)
     {
         return Carbon::parse($datetime)->translatedFormat('l d \d\e F \d\e Y \a \l\a\s H:i');

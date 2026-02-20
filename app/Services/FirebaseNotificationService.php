@@ -9,7 +9,7 @@ use Kreait\Laravel\Firebase\Facades\Firebase;
 class FirebaseNotificationService
 {
     // Send notifications to devices custom
-    public function sendBatchTokens(array $device_tokens, $announce_id, $company_name)
+    public function sendBatchTokens(array $device_tokens, $announce_id, $company_name, array $users_info)
     {
         $messaging = Firebase::messaging();
         $message = CloudMessage::new()
@@ -21,14 +21,16 @@ class FirebaseNotificationService
             ]);
         $report = $messaging->sendMulticast($message, $device_tokens);
 
-        // Register tokens in NotificationLog
-        foreach ($device_tokens as $token) {
-            NotificationLog::create([
-                'device_token' => $token,
-                'announcement_id' => $announce_id,
-                'sent_at' => now()
-            ]);
-        }
+        // Register all tokens and users_id in NotificationLog
+        $logData = collect($users_info)->map(fn($user) => [
+            'user_id'         => $user['user_id'],
+            'device_token'    => $user['device_token'],
+            'announcement_id' => $announce_id,
+            'sent_at'         => now(),
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ])->toArray();
+        NotificationLog::insert($logData);
 
         return [
             'success_count' => $report->successes()->count(),
@@ -37,26 +39,29 @@ class FirebaseNotificationService
     }
 
     // Send notification message to unnotified devices
-    public function sendUnnotifiedTokens(array $device_tokens)
+    public function sendUnnotifiedTokens(array $device_tokens, array $users_info)
     {
         $messaging = Firebase::messaging();
         $message = CloudMessage::new()
             ->withData([
                 'title' => 'Trabajonautas te informa',
-                'body' => 'Revisamos todas las convocatorias pulicadas el día de hoy en todo el país, sin embargo no logramos encontrar alguna para tu profesión. Ánimo, lo volveremos a intentar mañana.',
+                'body' => 'Revisamos todas las convocatorias publicadas hoy en todo el país, pero no encontramos ninguna para tu profesión. ¡Ánimo, mañana volveremos a intentarlo!',
                 'click_action' => 'https://trabajonautas.com/panel',
                 'icon' => 'storage/img/tbn-icon.ico'
             ]);
 
         $report = $messaging->sendMulticast($message, $device_tokens);
-        // Register tokens in NotificationLog
-        foreach ($device_tokens as $token) {
-            NotificationLog::create([
-                'device_token' => $token,
-                'announcement_id' => null,
-                'sent_at' => now()
-            ]);
-        }
+
+        $logData = collect($users_info)->map(fn($user) => [
+            'user_id'         => $user['user_id'],
+            'device_token'    => $user['device_token'],
+            'announcement_id' => null,
+            'sent_at'         => now(),
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ])->toArray();
+
+        NotificationLog::insert($logData);
 
         return [
             'success_count' => $report->successes()->count(),

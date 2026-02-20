@@ -55,8 +55,8 @@
                     @forelse ($announcements as $announcement)
                         <tr wire:key='{{ $announcement->id }}'
                             class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
-                            <th scope="row"
-                                class="px-6 py-4 font-medium max-w-60 sm:max-w-md lg:max-w-2xl whitespace-wrap">
+                            <th scope="row "
+                                class="px-6 py-4 font-medium max-w-60 sm:max-w-md lg:max-w-lg whitespace-wrap">
                                 <h5 class="font-bold truncate text-md dark:text-white">
                                     {{ $announcement->announce_title }}
                                     @if ($announcement->expiration_time < now())

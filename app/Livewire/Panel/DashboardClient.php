@@ -34,7 +34,7 @@ class DashboardClient extends Component
                 'location:id,location_name',
                 'profesion:id,profesion_name,area_id',
                 'gradeProfile:id,profile_name',
-                'myAnnounces:id,announce_title,company_id,area_id,pro,expiration_time,created_at,updated_at'
+                'myAnnounces:id,announce_title,company_id,pro,expiration_time,created_at,updated_at'
             ])->find($this->user_id);
     }
 

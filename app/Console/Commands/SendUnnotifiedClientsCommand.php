@@ -18,26 +18,30 @@ class SendUnnotifiedClientsCommand extends Command
     {
         $today = Carbon::today();
 
-        $notifiedTokens = NotificationLog::whereDate('sent_at', $today)
-            ->pluck('device_token')
-            ->toArray();
-
-        $unnotifiedTokens = User::role(config('app.client_role'))
-            ->whereHas('account', function ($query) use ($notifiedTokens) {
-                $query->where('account_type_id', 3)->whereNotNull('device_token')->whereNotIn('device_token', $notifiedTokens);
+        // Get users unnotified (query)
+        $unnotifiedUsersQuery = User::role(config('app.client_role'))
+            ->whereHas('account', function ($query) {
+                $query->where('account_type_id', 3)->whereNotNull('device_token');
             })
-            ->with('account')
-            ->get()
-            ->pluck('account.device_token')
-            ->unique()
-            ->toArray();
+            ->whereDoesntHave('notificationLogs', function ($query) use ($today) {
+                $query->where('sent_at', '>=', $today);
+            })
+            ->with('account:user_id,device_token');
 
-        if (!empty($unnotifiedTokens)) {
-            $notifier = new FirebaseNotificationService();
-            $notifier->sendUnnotifiedTokens($unnotifiedTokens);
-            $this->info('Notificaciones enviadas exitosamente.');
-        } else {
-            $this->info('No hay clientes pendientes de notificación.');
-        }
+        // Send notifications to unnotified users
+        $unnotifiedUsersQuery->chunkById(500, function ($users) {
+            $mappedUsers = $users->map(fn($u) => [
+                'user_id' => $u->id,
+                'device_token' => $u->account->device_token
+            ])->toArray();
+
+            if (!empty($mappedUsers)) {
+                $tokensOnly = collect($mappedUsers)->pluck('device_token')->toArray();
+                $notifier = new FirebaseNotificationService();
+                $notifier->sendUnnotifiedTokens($tokensOnly, $mappedUsers);
+            }
+        });
+
+        $this->info('Proceso de notificaciones diarias completado.');
     }
 }

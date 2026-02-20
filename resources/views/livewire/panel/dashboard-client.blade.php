@@ -72,6 +72,7 @@
                             class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <span wire:loading.remove><i class="mr-1 fa-solid fa-bell"></i> Activar</span>
                             <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
+                            <span x-show="button_notify_loading"><i class="text-sm fas fa-spinner animate-spin"></i></span>
                         </x-button-link>
                     </x-slot>
                 </x-dashboard-modal>
