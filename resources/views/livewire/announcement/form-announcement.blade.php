@@ -48,7 +48,7 @@
                 </div>
                 <div class="w-full sm:w-1/2">
                     <x-label for="area">Areas (añadir profesiones)</x-label>
-                    <x-select class="mt-1 w-full h-[3.2rem]" x-on:change="onAreaChange" id="areas">
+                    <x-select class="w-full h-[3.2rem]" x-on:change="onAreaChange" id="areas">
                         <option>Selecciona un area</option>
                         <template x-for="area in areas">
                             <option :key="'area-' + location.id" :value="area.id">
@@ -89,50 +89,59 @@
                 </div>
                 <x-input-error for="announcement.locations" class="mt-2" />
             </div>
-            <div class="flex-grow mb-4">
-                <x-label for="announce_file">Archivos de la convocatoria</x-label>
-                <input wire:model="announcement.announce_files"
-                    class="w-full mt-1 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-secondary dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-dark file:text-white rounded-lg file:transition-all file:duration-300"
-                    id="announce_files" type="file" multiple accept="image/*,.pdf,.docx" />
-                <x-input-error for="announcement.announce_files.*" class="mt-2" />
-                @if ($announcement->announce_urls)
+            @if ($announcement->current_files && count($announcement->current_files) > 0)
+                <div class="flex-grow mb-4">
+                    <!-- Current files uploaded -->
+                    <x-label for="current">Archivos actuales</x-label>
                     <div class="flex flex-row gap-2 mt-2 text-xl">
-                        @foreach ($announcement->announce_urls as $url)
-                            @switch(pathinfo($url, PATHINFO_EXTENSION))
-                                @case('png')
-                                    <x-button-link
-                                        x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $url) }}'"
-                                        class="bg-tbn-primary">
-                                        <i class="fas fa-file-image"></i>
-                                    </x-button-link>
-                                @break
+                        @foreach ($announcement->current_files as $file)
+                            <div class="relative group" x-transition:leave="transition ease-in duration-300">
+                                <div
+                                    class="px-8 py-4 transition border rounded cursor-pointer border-tbn-dark dark:border-tbn-light text-tbn-dark dark:text-tbn-light hover:border-tbn-primary hover:text-tbn-primary">
+                                    @switch(pathinfo($file->url, PATHINFO_EXTENSION))
+                                        @case('png')
+                                            <i class="text-3xl fas fa-file-image"
+                                                x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $file->url) }}'"></i>
+                                        @break
 
-                                @case('jpg')
-                                    <x-button-link
-                                        x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $url) }}'"
-                                        class="bg-tbn-primary">
-                                        <i class="fas fa-file-image"></i>
-                                    </x-button-link>
-                                @break
+                                        @case('jpg')
+                                            <i class="text-3xl fas fa-file-image"
+                                                x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $file->url) }}'"></i>
+                                        @break
 
-                                @case('pdf')
-                                    <x-button-link href="{{ asset('storage/' . $url) }}" class="bg-tbn-primary">
-                                        <i class="fas fa-file-pdf"></i>
-                                    </x-button-link>
-                                @break
+                                        @case('jpeg')
+                                            <i class="text-3xl fas fa-file-image"
+                                                x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $file->url) }}'"></i>
+                                        @break
 
-                                @case('docx')
-                                    <x-button-link href="{{ asset('storage/' . $url) }}" class="bg-tbn-primary">
-                                        <i class="fas fa-file-word"></i>
-                                    </x-button-link>
-                                @break
+                                        @case('pdf')
+                                            <a href="{{ asset('storage/' . $file->url) }}" target="_blank">
+                                                <i class="text-3xl fas fa-file-pdf"></i></a>
+                                        @break
 
-                                @default
-                                    <i class="mr-2 fas fa-file"></i>
-                            @endswitch
+                                        @case('docx')
+                                            <a href="{{ asset('storage/' . $file->url) }}" target="_blank">
+                                                <i class="text-3xl fas fa-file-word"></i></a>
+                                        @break
+
+                                        @default
+                                            <i class="text-3xl fas fa-file"></i>
+                                    @endswitch
+                                </div>
+                                <button type="button" wire:click='deleteCurrentFile({{ $file->id }})'
+                                    class="absolute w-6 h-6 text-white transition rounded-full opacity-0 bg-tbn-primary -top-1 -right-1 group-hover:opacity-100">
+                                    <i class="text-xs -translate-y-1 fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
                         @endforeach
                     </div>
-                @endif
+                </div>
+            @endif
+            <div class="flex-grow mb-4">
+                <x-label
+                    for="announce_file">{{ $id ? 'Añadir archivos a la convocatoria' : 'Archivos de la convocatoria' }}</x-label>
+                <x-filepond wire:model="announcement.announce_files" multiple />
+                <x-input-error for="announcement.announce_files.*" class="mt-2" />
             </div>
             <div class="flex-grow block gap-2 mb-4 sm:flex">
                 <div class="w-full sm:w-1/2">
@@ -175,16 +184,14 @@
             </div>
             <div>
                 @if ($id)
-                    <x-button>
+                    <x-button wire:loading.attr="disabled" wire:target='update' type="submit">
                         <span wire:loading.remove wire:target='update'>Actualizar</span>
-                        <span wire:loading wire:target='update'><i
-                                class="text-sm fas fa-spinner animate-spin"></i></span>
+                        <span wire:loading wire:target='update'>Actualizando...</span>
                     </x-button>
                 @else
-                    <x-button>
+                    <x-button wire:loading.attr="disabled" wire:target='save' type="submit">
                         <span wire:loading.remove wire:target='save'>Publicar</span>
-                        <span wire:loading wire:target='save'><i
-                                class="text-sm fas fa-spinner animate-spin"></i></span>
+                        <span wire:loading wire:target='save'>Publicando...</span>
                     </x-button>
                 @endif
                 <x-secondary-button type="button" href="{{ route('announcement') }}"
@@ -210,6 +217,8 @@
 
     @script
         <script>
+            // FilePond
+
             // Tom Select
             new TomSelect('#area', {
                 plugins: ['remove_button']

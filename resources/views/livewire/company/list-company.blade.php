@@ -76,7 +76,7 @@
                                         class="font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
                                         <i class="fa fa-toggle-off"></i></a>
                                 @else
-                                    <a href="{{ route('new-company', ['id' => $company->id]) }}" wire:navigate
+                                    <a href="{{ route('edit-company', ['company' => $company]) }}" wire:navigate
                                         class="mr-3 font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
                                         <i class="far fa-edit"></i></a>
                                     <a x-on:click="confirmDeleteModal({{ $company->id }})"

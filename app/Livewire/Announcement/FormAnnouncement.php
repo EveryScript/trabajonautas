@@ -5,10 +5,12 @@ namespace App\Livewire\Announcement;
 use App\Jobs\SendAnnouncementNotifications;
 use App\Livewire\Forms\AnnouncementForm;
 use App\Models\Announcement;
+use App\Models\AnnouncementFile;
 use App\Models\Area;
 use App\Models\Company;
 use App\Models\Location;
 use App\Models\Profesion;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -47,54 +49,18 @@ class FormAnnouncement extends Component
         $this->redirectRoute('announcement', navigate: true);
     }
 
-    /*public function save()
+    public function deleteCurrentFile($file_id)
     {
-        $this->announcement->user_id = Auth::id();
-        $announce_saved = $this->announcement->save();
-        if ($this->announcement->pro) {
-            $company_name = Company::where('id', $this->announcement->company_id)->first()->company_name;
-            $notifier = new FirebaseNotificationService();
-            $clients = User::role(env('CLIENT_ROLE'))
-                // Clients PRO-MAX and with TOKEN registered
-                ->whereHas('account', fn($query) => $query
-                    ->where('account_type_id', 3)->whereNotNull('device_token'))
-                // Clients with same announcement location
-                ->whereHas('location', fn($query) => $query
-                    ->whereIn('location_id', $this->announcement->locations))
-                // Clients with just one announcement profesion
-                ->whereHas('profesion', fn($query)  => $query
-                    ->whereIn('profesion_id', $this->announcement->profesions))
-                ->get();
-            $array_tokens = $clients->pluck('account.device_token')->toArray();
-            if ($array_tokens !== [])
-                $notifier->sendBatchTokens($array_tokens, $announce_saved->id, $company_name);
+        $announce_file = AnnouncementFile::find($file_id);
+        if ($announce_file) {
+            // Delete file from storage
+            if (Storage::disk('public')->exists($announce_file->url)) {
+                Storage::disk('public')->delete($announce_file->url);
+            }
+            $announce_file->delete();
+            $this->announcement->current_files = $this->announcement->current_files->where('id', '!=', $file_id);
         }
-        $this->redirectRoute('announcement', navigate: true);
-    }*/
-
-    /*public function update()
-    {
-        $this->announcement->update($this->id);
-        if ($this->announcement->pro) {
-            $company_name = Company::where('id', $this->announcement->company_id)->first()->company_name;
-            $notifier = new FirebaseNotificationService();
-            $clients = User::role(env('CLIENT_ROLE'))
-                // Clients PRO-MAX and with TOKEN registered
-                ->whereHas('account', fn($query) => $query
-                    ->where('account_type_id', 3)->whereNotNull('device_token'))
-                // Clients with same announcement location
-                ->whereHas('location', fn($query) => $query
-                    ->whereIn('location_id', $this->announcement->locations))
-                // Clients with just one announcement profesion
-                ->whereHas('profesion', fn($query)  => $query
-                    ->whereIn('profesion_id', $this->announcement->profesions))
-                ->get();
-            $array_tokens = $clients->pluck('account.device_token')->toArray();
-            if ($array_tokens !== [])
-                $notifier->sendBatchTokens($array_tokens, $this->id, $company_name);
-        }
-        $this->redirectRoute('announcement', navigate: true);
-    }*/
+    }
 
     public function render()
     {

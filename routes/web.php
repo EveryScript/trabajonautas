@@ -49,7 +49,8 @@ Route::group(['middleware' => ['auth', 'verified', 'role:USER|ADMIN', 'only_one_
 
     // Companies
     Route::get('/admin/empresa', ListCompany::class)->name('company');
-    Route::get('/admin/nueva-empresa/{id?}', FormCompany::class)->name('new-company');
+    Route::get('/admin/nueva-empresa', FormCompany::class)->name('new-company');
+    Route::get('/admin/nueva-empresa/{company}', FormCompany::class)->name('edit-company');
 
     // Profesions
     Route::get('/admin/profesiones', Profesions::class)->name('profesions');

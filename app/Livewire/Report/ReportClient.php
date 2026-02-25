@@ -4,17 +4,14 @@ namespace App\Livewire\Report;
 
 use App\Exports\UsersExport;
 use App\Models\Subscription;
-use App\Models\TbnSetting;
 use Carbon\Carbon;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportClient extends Component
 {
     use WithPagination;
-    use WithFileUploads;
 
     public $start_date, $end_date;
     public $qr_new_pro, $qr_new_promax;
@@ -36,38 +33,8 @@ class ReportClient extends Component
         return Excel::download(new UsersExport($this->start_date, $this->end_date), 'Clientes-' . Carbon::now()->format('d-m-Y') . '.xlsx');
     }
 
-    public function saveQRImage()
-    {
-        $fields = [
-            'qr_new_pro'    => 'qr_pro',
-            'qr_new_promax' => 'qr_promax',
-        ];
-
-        foreach ($fields as $property => $key) {
-            if ($this->$property) {
-                $this->processAndSaveImage($property, $key);
-            }
-        }
-    }
-
-    private function processAndSaveImage($property, $key)
-    {
-        $this->validate([$property => 'required|image|max:2048']);
-        $path = $this->$property->store('img', 'public');
-        TbnSetting::updateOrCreate(
-            ['key' => $key],
-            ['value' => $path]
-        );
-        $this->reset($property);
-        $this->dispatch('qr-image-saved');
-    }
-
     public function render()
     {
-        // QR data (settings)
-        $qr_pro = TbnSetting::where('key', 'qr_pro')->first();
-        $qr_promax = TbnSetting::where('key', 'qr_promax')->first();
-
         // Clients data
         $base_query = Subscription::query()
             ->where('verified_payment', true)
@@ -88,9 +55,7 @@ class ReportClient extends Component
 
         return view('livewire.report.report-client', [
             'subscriptions' => $subscriptions,
-            'total_price' => $total_price,
-            'qr_pro' => $qr_pro,
-            'qr_promax' => $qr_promax
+            'total_price' => $total_price
         ]);
     }
 }

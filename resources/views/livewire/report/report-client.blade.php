@@ -43,14 +43,21 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <x-button type="button" wire:click='exportData'
+                        <x-button type="button" wire:click='exportData' wire:loading.attr='disabled'
+                            wire:target="exportData"
                             x-bind:disabled="{{ count($subscriptions) === 0 ? 'true' : 'false' }}">
                             <span wire:loading.remove wire:target="exportData">Exportar</span>
                             <span wire:loading wire:target="exportData">Exportando...</span>
                         </x-button>
-                        <x-secondary-button type="button" x-on:click="modalForm = true">
-                            <span>Cambiar QR</span>
-                        </x-secondary-button>
+                    </div>
+                    <!-- Change QR Card -->
+                    <div class="px-6 py-5 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
+                        <h5 class="mb-2 text-lg font-medium text-tbn-primary">
+                            Código QR</h5>
+                        <p class="mb-4 text-sm text-tbn-secondary dark:text-tbn-light">
+                            Configuración de las imágenes de los códigos QR en el registro de nuevos clientes</p>
+                        <x-button type="button" x-on:click="openModal">
+                            Cambiar QR </x-button>
                     </div>
                 </div>
             </div>
@@ -110,75 +117,9 @@
             </div>
         </div>
         <!-- Change QR form -->
-        <div x-show="modalForm"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 dark:bg-opacity-80">
-            <form wire:submit='saveQRImage'
-                class="max-w-lg px-6 py-5 mx-4 bg-white rounded-lg shadow-lg dark:bg-tbn-dark">
-                <div class="flex flex-row gap-4 mb-4">
-                    @if ($qr_new_pro)
-                        <div class="mb-2">
-                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
-                                <img src="{{ $qr_new_pro->temporaryUrl() }}" alt="qr-image" class="rounded">
-                            </picture>
-                            <p class="mt-2 text-center text-tbn-primary">PRO</p>
-                        </div>
-                    @else
-                        <div class="mb-2">
-                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
-                                <img wire:target='qr_new_pro' src="{{ asset('storage/' . $qr_pro->value) }}"
-                                    alt="qr-image" class="rounded">
-                            </picture>
-                            <p class="mt-2 text-center text-tbn-primary">PRO</p>
-                        </div>
-                    @endif
-                    @if ($qr_new_promax)
-                        <div class="mb-2">
-                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
-                                <img src="{{ $qr_new_promax->temporaryUrl() }}" alt="qr-image" class="rounded">
-                            </picture>
-                            <p class="mt-2 text-center text-tbn-primary">PRO-MAX</p>
-                        </div>
-                    @else
-                        <div class="mb-2">
-                            <picture class="block w-full mx-auto sm:w-2/3 min-w-40">
-                                <img wire:target='qr_new_promax' src="{{ asset('storage/' . $qr_promax->value) }}"
-                                    alt="qr-image" class="rounded">
-                            </picture>
-                            <p class="mt-2 text-center text-tbn-primary">PRO-MAX</p>
-                        </div>
-                    @endif
-                </div>
-                <div class="mb-2">
-                    <x-label for="image">Imagen / QR <span class="text-tbn-primary">PRO</span> </x-label>
-                    <input type="file" wire:model.live="qr_new_pro" id="image"
-                        class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-dark dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-secondary file:text-white rounded-lg file:transition-all file:duration-300"
-                        accept="image/png, image/jpeg, image/jpg" />
-                    <x-input-error for="qr_new_pro" class="mt-2" />
-                    <small wire:loading wire:target='qr_new_pro'
-                        class="text-xs text-tbn-secondary dark:text-tbn-light">Subiendo imagen...</small>
-                </div>
-                <div class="mb-2">
-                    <x-label for="image">Imagen / QR <span class="text-tbn-primary">PROMAX</span> </x-label>
-                    <input type="file" wire:model.live="qr_new_promax" id="image"
-                        class="w-full mt-2 text-tbn-dark font-medium text-sm bg-white dark:bg-tbn-dark dark:text-white file:cursor-pointer cursor-pointer file:border-0 file:py-2.5 file:px-4 file:mr-4 file:bg-tbn-primary file:hover:bg-tbn-secondary file:text-white rounded-lg file:transition-all file:duration-300"
-                        accept="image/png, image/jpeg, image/jpg" />
-                    <x-input-error for="qr_new_promax" class="mt-2" />
-                    <small wire:loading wire:target='qr_new_promax'
-                        class="text-xs text-tbn-secondary dark:text-tbn-light">Subiendo imagen...</small>
-                </div>
-                <x-button class="mt-8 mb-4" type="submit">
-                    <span wire:loading.remove wire:target="saveQRImage">Publicar</span>
-                    <span wire:loading wire:target="saveQRImage">
-                        <i class="text-sm fas fa-spinner animate-spin"></i></span>
-                </x-button>
-                <x-secondary-button type="button" class="mb-4"
-                    x-on:click="modalForm = false">Cancelar</x-secondary-button>
-                <div class="text-xs text-tbn-dark dark:text-tbn-light">
-                    ATENCIÓN. Una vez guardada, la imagen del código QR se actualizará en el formulario de registro de
-                    clientes de Trabajonautas.com
-                </div>
-            </form>
-        </div>
+        <template x-if="modalForm">
+            <livewire:report.config-qr />
+        </template>
     </div>
     @script
         <script>
@@ -186,11 +127,16 @@
                 startDate: '',
                 endDate: '',
                 modalForm: false,
-                previewImage: null,
                 // Functions
                 init() {
-                    $wire.on('qr-image-saved', () => {
+                    $wire.on('close-modal', () => {
                         this.modalForm = false
+                        Swal.fire({
+                            title: "¡Éxito!",
+                            text: "Las imágenes de los códigos QR se han actualizado correctamente",
+                            confirmButtonText: "Aceptar",
+                            confirmButtonColor: '#ff420a',
+                        })
                     })
                     flatpickr("#dateRange", {
                         mode: "range",
@@ -201,6 +147,12 @@
                             this.endDate = instance.formatDate(selectedDates[1], 'Y-m-d');
                         }
                     });
+                },
+                openModal() {
+                    this.modalForm = true
+                },
+                closeModal() {
+                    this.modalForm = false
                 },
                 processData() {
                     if (this.startDate && this.endDate)

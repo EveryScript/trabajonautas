@@ -11,7 +11,7 @@ class AnnouncementForm extends Form
     public $description;
     public $expiration_time;
     public $salary;
-    public $announce_files;
+    public $announce_files = [];
     public $pro = false;
     public $notification_sent = false;
     public $company_id;
@@ -19,7 +19,7 @@ class AnnouncementForm extends Form
     public $area_id;
     public $locations;
     public $profesions;
-    public $announce_urls;
+    public $current_files;
 
     public function edit($id)
     {
@@ -34,7 +34,7 @@ class AnnouncementForm extends Form
         $this->area_id = $announcement_edit->area_id;
         $this->locations = $announcement_edit->locations->pluck('id');
         $this->profesions = $announcement_edit->profesions->pluck('id');
-        $this->announce_urls = $announcement_edit->announceFiles->pluck('url');
+        $this->current_files = $announcement_edit->announceFiles;
     }
 
     public function update($update_id)
@@ -66,8 +66,8 @@ class AnnouncementForm extends Form
         ]);
         $announcement->locations()->sync($this->locations);
         $announcement->profesions()->sync($this->profesions);
-        if ($this->announce_files && count($this->announce_files)) {
-            $announcement->announceFiles()->delete();
+        // Delete current files and update
+        if ($this->announce_files) {
             $announce_files_data = [];
             foreach ($this->announce_files as $index => $file) {
                 $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->getClientOriginalName());
@@ -108,8 +108,9 @@ class AnnouncementForm extends Form
         ));
         $announcement->locations()->attach($this->locations);
         $announcement->profesions()->attach($this->profesions);
+
         $announce_files_data = [];
-        if ($this->announce_files && count($this->announce_files)) {
+        if ($this->announce_files) {
             foreach ($this->announce_files as $index => $file) {
                 $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->hashName());
                 $announce_files_data[] = [
@@ -125,7 +126,7 @@ class AnnouncementForm extends Form
     public function messages()
     {
         return [
-            'announce_files.*.max' => 'Los archivos de la convocatoria no deben ser mayores a 2MB',
+            'announce_files.*.max' => 'Los archivos de la convocatoria no deben ser mayores a 30MB',
             'announce_files.*.mimes' => 'Los archivos de la convocatoria deben ser documentos o imagenes',
             'expiration_time.after' => 'La fecha de expiración debe ser superior al momento actual'
         ];

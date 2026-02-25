@@ -90,6 +90,9 @@
                                 {{ $announcement->company ? $announcement->company->company_name : '(Empresa eliminada)' }}
                             </td>
                             <td class="flex flex-row items-center justify-end h-20 px-6 py-4 text-lg">
+                                <a href="{{ route('result', ['id' => $announcement->id]) }}" target="_blank"
+                                    class="mr-3 font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
+                                    <i class="far fa-eye"></i></a>
                                 <a href="{{ route('new-announcement', ['id' => $announcement->id]) }}" wire:navigate
                                     class="mr-3 font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
                                     <i class="far fa-edit"></i></a>
