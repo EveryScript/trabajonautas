@@ -4,7 +4,6 @@ namespace App\Livewire\Report;
 
 use App\Models\TbnSetting;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -13,18 +12,6 @@ class ConfigQr extends Component
     use WithFileUploads;
 
     public $qr_new_pro, $qr_new_promax;
-
-    #[Computed]
-    public function qrPro()
-    {
-        return TbnSetting::where('key', 'qr_pro')->first();
-    }
-
-    #[Computed]
-    public function qrProMax()
-    {
-        return TbnSetting::where('key', 'qr_promax')->first();
-    }
 
     public function save()
     {
@@ -53,19 +40,19 @@ class ConfigQr extends Component
 
         if ($setting && $setting->value)
             Storage::disk('public')->delete($setting->value);
-        $path = $this->$property->store('img', 'public');
+        $path = $this->$property->store('ajustes', 'public');
 
         TbnSetting::updateOrCreate(
             ['key' => $key],
             ['value' => $path]
         );
     }
-
+    
     public function render()
     {
         return view('livewire.report.config-qr', [
-            'qr_pro' => $this->qrPro,
-            'qr_promax' => $this->qrProMax
+            'qr_pro' => TbnSetting::where('key', 'qr_pro')->first(),
+            'qr_promax' => TbnSetting::where('key', 'qr_promax')->first()
         ]);
     }
 }

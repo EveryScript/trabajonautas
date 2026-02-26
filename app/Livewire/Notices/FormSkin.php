@@ -40,7 +40,7 @@ class FormSkin extends Component
 
         if ($setting && $setting->value)
             Storage::disk('public')->delete($setting->value);
-        $path = $this->$property->store('img', 'public');
+        $path = $this->$property->store('ajustes', 'public');
 
         TbnSetting::updateOrCreate(
             ['key' => $key],

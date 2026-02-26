@@ -13,22 +13,22 @@ class TbnSettingSeeder extends Seeder
         TbnSetting::create([
             'id' => 1,
             'key' => 'qr_pro',
-            'value' => 'img/tbn-qr-pro.webp'
+            'value' => 'ajustes/tbn-qr-pro.webp'
         ]);
         TbnSetting::create([
             'id' => 2,
             'key' => 'qr_promax',
-            'value' => 'img/tbn-qr-promax.webp'
+            'value' => 'ajustes/tbn-qr-promax.webp'
         ]);
         TbnSetting::create([
             'id' => 3,
             'key' => 'bg_web_image',
-            'value' => 'img/tbn-space-reverse.webp'
+            'value' => 'ajustes/tbn-space-reverse.webp'
         ]);
         TbnSetting::create([
             'id' => 4,
             'key' => 'thumb_web_image',
-            'value' => 'img/tbn-astro-belt.webp'
+            'value' => 'ajustes/tbn-astro-belt.webp'
         ]);
     }
 }

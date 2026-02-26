@@ -27,8 +27,6 @@ class ListNotices extends Component
     public function render()
     {
         $notices = Notice::orderBy('updated_at', 'DESC')->simplePaginate(6);
-        
-
         return view('livewire.notices.list-notices', [
             'notices' => $notices
         ]);

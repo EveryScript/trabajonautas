@@ -13,7 +13,7 @@
                     <img src="{{ asset('storage/' . $bg_web_image->value) }}" alt="imagen-fondo"
                         class="object-cover w-64 h-32 rounded" />
                 </div>
-                <x-label for="image" value="{{ __('Imagen') }}" />
+                <x-label for="image" value="{{ __('Cambiar imagen de fondo') }}" />
                 <x-filepond type="file" wire:model="bg_new_image" id="image"
                     accept="image/png, image/jpeg, image/jpg, image/webp" />
                 <x-input-error for="bg_new_image" class="mt-2" />
@@ -24,7 +24,7 @@
                     <img src="{{ asset('storage/' . $thumb_web_image->value) }}" alt="imagen-fondo"
                         class="w-32 rounded" />
                 </div>
-                <x-label for="image" value="{{ __('Imagen') }}" />
+                <x-label for="image" value="{{ __('Cambiar imagen del astronauta') }}" />
                 <x-filepond type="file" wire:model="thumb_new_image" id="image"
                     accept="image/png, image/jpeg, image/jpg, image/webp" />
                 <x-input-error for="thumb_new_image" class="mt-2" />

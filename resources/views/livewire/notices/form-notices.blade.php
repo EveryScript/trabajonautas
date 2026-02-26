@@ -29,7 +29,7 @@
             </div>
             <div class="w-2/6">
                 <div class="mb-4">
-                    <x-label for="image">Imagen <span class="text-sm font-light">(580 x 720)</span></x-label>
+                    <x-label for="image">Imagen <span class="text-xs font-light">(580 x 720)</span></x-label>
                     <x-filepond type="file" wire:model="form.image" id="image"
                         accept="image/png, image/jpeg, image/jpg" />
                     <x-input-error for="form.image" class="mt-2" />
