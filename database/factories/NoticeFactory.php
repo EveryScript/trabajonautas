@@ -15,7 +15,6 @@ class NoticeFactory extends Factory
         return [
             'title' => fake()->sentence(5),
             'description' => fake()->sentence(10),
-            'image' => 'noticias/default.webp',
             'link' => fake()->url(),
             'user_id' => User::where('email', 'ricardooropeza15@gmail.com')->first()->id
         ];

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('title')->unique();
             $table->string('description');
-            $table->string('link');
-            $table->string('image')->default('noticias/default.webp');
+            $table->text('link');
+            $table->string('image')->nullable();
             $table->foreignUuid('user_id'); // Foreign key
             $table->timestamps();
         });
