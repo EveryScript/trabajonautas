@@ -11,6 +11,11 @@
 
     <!-- Scripts & css -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <!-- Firebase Foreground Notifications -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+    <script src="{{ asset('js/firebase-notification.js') }}"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Fonts -->
@@ -33,6 +38,7 @@
     <!-- Splide Carousel -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+
     <!-- AOS Animations -->
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
@@ -46,7 +52,6 @@
             });
         });
     </script>
-
 </head>
 
 <body class="antialiased font-figtree bg-gray-50">
