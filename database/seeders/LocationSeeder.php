@@ -40,7 +40,7 @@ class LocationSeeder extends Seeder
         ]);
         Location::create([
             'id' => 8,
-            'location_name' => 'Potosi'
+            'location_name' => 'Potosí'
         ]);
         Location::create([
             'id' => 9,

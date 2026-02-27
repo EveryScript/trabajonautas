@@ -360,12 +360,12 @@ class ProfesionSeeder extends Seeder
         ]);
         Profesion::create([
             'id' => 69,
-            'profesion_name' => 'Tecnico Medio en Enfermeria',
+            'profesion_name' => 'Técnico Medio en Enfermeria',
             'area_id' => 4
         ]);
         Profesion::create([
             'id' => 70,
-            'profesion_name' => 'Tecnico Medio en Enfermería Comunitaria',
+            'profesion_name' => 'Técnico Medio en Enfermería Comunitaria',
             'area_id' => 4
         ]);
         Profesion::create([
@@ -420,7 +420,7 @@ class ProfesionSeeder extends Seeder
         ]);
         Profesion::create([
             'id' => 81,
-            'profesion_name' => 'Tecnico en Estadistica de Salud',
+            'profesion_name' => 'Técnico en Estadistica de Salud',
             'area_id' => 4
         ]);
 
@@ -642,12 +642,12 @@ class ProfesionSeeder extends Seeder
         ]);
         Profesion::create([
             'id' => 125,
-            'profesion_name' => 'Tecnico Medio en Informatica',
+            'profesion_name' => 'Técnico Medio en Informatica',
             'area_id' => 5
         ]);
         Profesion::create([
             'id' => 126,
-            'profesion_name' => 'Tecnico Medio en Redes y Sistemas de Comunicacion',
+            'profesion_name' => 'Técnico Medio en Redes y Sistemas de Comunicacion',
             'area_id' => 5
         ]);
         Profesion::create([
@@ -692,12 +692,12 @@ class ProfesionSeeder extends Seeder
         ]);
         Profesion::create([
             'id' => 135,
-            'profesion_name' => 'Tecnico Superior en Informatica',
+            'profesion_name' => 'Técnico Superior en Informatica',
             'area_id' => 5
         ]);
         Profesion::create([
             'id' => 136,
-            'profesion_name' => 'Tecnico Superior en Sistemas Electronicos',
+            'profesion_name' => 'Técnico Superior en Sistemas Electronicos',
             'area_id' => 5
         ]);
         Profesion::create([
@@ -707,12 +707,12 @@ class ProfesionSeeder extends Seeder
         ]);
         Profesion::create([
             'id' => 138,
-            'profesion_name' => 'Tecnico Superior en Energias Renovables',
+            'profesion_name' => 'Técnico Superior en Energias Renovables',
             'area_id' => 5
         ]);
         Profesion::create([
             'id' => 139,
-            'profesion_name' => 'Tecnico Superior en Construccion Civil',
+            'profesion_name' => 'Técnico Superior en Construccion Civil',
             'area_id' => 5
         ]);
 
@@ -724,7 +724,7 @@ class ProfesionSeeder extends Seeder
         ]);
         Profesion::create([
             'id' => 141,
-            'profesion_name' => 'Biologia',
+            'profesion_name' => 'Biología',
             'area_id' => 6
         ]);
         Profesion::create([

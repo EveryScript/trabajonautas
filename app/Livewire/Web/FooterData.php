@@ -19,7 +19,7 @@ class FooterData extends Component
         return <<<'HTML'
         <div class="grid max-w-6xl grid-cols-1 gap-8 mx-auto sm:grid-cols-2 lg:grid-cols-3">
             <div class="text-white">
-                <h5 class="text-lg font-bold">Contactos</h5>
+                <h5 class="text-lg font-bold">Contacto</h5>
                 <p class="mb-1 text-sm">CEO Ricardo Carlos Oropeza Zárate</p>
                 <p class="mb-1 text-sm">CFO Carla Ximena Vargas Soto de Oropeza</p>
                 <p class="mb-1 text-sm">73858162 - 69616052</p>

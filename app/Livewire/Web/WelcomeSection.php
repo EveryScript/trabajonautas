@@ -24,7 +24,7 @@ class WelcomeSection extends Component
                         Un universo de oportunidades de empleo para toda Bolivia</h4>
                     <p class="mb-5 text-center text-white lg:max-w-sm sm:text-left" data-aos="fade-up" data-aos-delay="400"
                         data-aos-once="true">
-                        Bienvenido(a) al portal líder de oportunidades laborales en Bolivia. Encuentra la convocatoria
+                        Te damos la bienvenida al portal líder de oportunidades laborales en Bolivia. Encuentra la convocatoria
                         ideal
                         para tu perfil y da el siguiente
                         paso en tu carrera profesional con nosotros.</p>

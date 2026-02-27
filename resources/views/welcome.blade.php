@@ -65,7 +65,7 @@
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
-                            <p class="text-xl font-bold text-white">Tu portunidad</p>
+                            <p class="text-xl font-bold text-white">Tu oportunidad</p>
                             <p class="text-sm text-orange-100">¡Ahora mismo!</p>
                         </div>
                     </div>
@@ -139,7 +139,7 @@
                         ¿Listo para dar el <span class="text-tbn-primary">gran salto</span>?
                     </h2>
                     <p class="mb-8 text-lg leading-relaxed text-tbn-secondary dark:text-tbn-light">
-                        Un pequeño paso para tu carrera, un gran salto para tu vida profesional. Informate cada día de
+                        Un pequeño paso para tu carrera, un gran salto para tu vida profesional. Infórmate cada día de
                         las mejores convocatorias de empleo de Bolivia.
                     </p>
                 </div>
@@ -169,7 +169,7 @@
                         </span>
                         <div
                             class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
-                            <h2 class="text-lg font-medium dark:text-white title-font">Registra tus datos</h2>
+                            <h2 class="text-lg font-medium dark:text-white title-font">Crea tu cuenta</h2>
                             <p
                                 class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
                                 Ingresa tu correo y contraseña para que te enviemos
