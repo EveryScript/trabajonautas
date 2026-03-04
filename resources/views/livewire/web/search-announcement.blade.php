@@ -22,8 +22,8 @@
                     @endforeach
                 </select>
             </div>
-            <x-button class="h-full mt-2 md:mt-6" x-on:click="searchAnnouncements">
-                <i class="pt-2 text-lg md:pt-0 md:text-2xl fa-solid fa-magnifying-glass"></i>
+            <x-button class="h-full py-3 mt-2 md:mt-6" x-on:click="searchAnnouncements">
+                <i class="pt-1 text-lg md:pt-0 md:text-2xl fa-solid fa-magnifying-glass"></i>
             </x-button>
         </div>
         <!-- Review searching -->

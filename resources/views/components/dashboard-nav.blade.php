@@ -91,7 +91,7 @@
         @endif
         <!-- Navigation -->
         <nav class="py-4 text-sm select-none">
-            <a x-on:click="btnNavigation = 1" wire:click='updateLastCheck' wire:poll.60s.visible
+            <a x-on:click="btnNavigation = 1; $wire.updateLastCheck();" wire:poll.60s.visible
                 class="relative flex items-center justify-between py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                 <span><i class="ml-2 mr-2 fa-solid fa-bullhorn"></i> Novedades</span>
                 @if ($has_new_announces && intval($client->account->account_type_id) === 3)

@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Traits\AuthorizeClients;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -54,33 +55,18 @@ class SearchAnnouncement extends Component
     #[Computed]
     public function recommends()
     {
-        if (!$this->profesion_id)
-            return collect();
+        if (!$this->profesion_id) return collect();
 
         $profesion = Profesion::find($this->profesion_id);
-        if (!$profesion)
-            return collect();
+        if (!$profesion) return collect();
 
         return Announcement::query()
-            ->select('id', 'announce_title', 'company_id', 'area_id', 'pro', 'expiration_time', 'created_at', 'updated_at')
-            ->with([
-                'company:id,company_name,company_image',
-                'locations:id,location_name',
-                'profesions:id,profesion_name,area_id',
-                'area:id,area_name'
-            ])
+            ->select('id', 'announce_title', 'company_id', 'pro', 'expiration_time') // Solo lo necesario
+            ->with(['company:id,company_name,company_image', 'locations:id,location_name'])
             ->where('expiration_time', '>=', now())
-            // Recommends from same area
-            ->whereHas('profesions', function ($q) use ($profesion) {
-                $q->where('area_id', $profesion->area_id);
-            })
-            // Recommends from the same location if has results
-            ->when($this->hasResults() && $this->location_id, function ($q) {
-                $q->whereHas('locations', fn($l) => $l->where('locations.id', $this->location_id));
-            })
-            // Remove actual results
-            ->whereNotIn('announcements.id', $this->announcements->pluck('id')->toArray())
-            ->limit($this->hasResults() ? 6 : 10)
+            ->whereHas('profesions', fn($q) => $q->where('area_id', $profesion->area_id))
+            ->whereNotIn('id', $this->announcements->pluck('id')->toArray()) // Evitar duplicados
+            ->limit(6)
             ->get();
     }
 
@@ -90,14 +76,27 @@ class SearchAnnouncement extends Component
         return $this->announceBaseQuery()->count();
     }
 
+    #[Computed]
+    public function profesions()
+    {
+        return Cache::remember('profesions_list', 3600, fn() => Profesion::select('id', 'profesion_name')->orderBy('profesion_name')->get());
+    }
+
+    #[Computed]
+    public function locations()
+    {
+        return Cache::remember('locations_list', 3600, fn() => Location::select('id', 'location_name')->orderBy('location_name')->get());
+    }
+
     public function render()
     {
         return view('livewire.web.search-announcement', [
             'announcements' => $this->announcements,
             'recommends' => $this->recommends,
             'hasResults' => $this->hasResults,
-            'profesions' => Profesion::select('id', 'profesion_name')->orderBy('profesion_name')->get(),
-            'locations' => Location::select('id', 'location_name')->orderBy('location_name')->get(),
+            'profesions' => $this->profesions,
+            'locations' => $this->profesions,
+            'locations' => $this->locations,
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent()
         ]);
     }

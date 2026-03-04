@@ -20,17 +20,18 @@ class ResultAnnouncement extends Component
 
     public function mount()
     {
-        $announce = Announcement::find($this->id);
+        if (!$this->announcement) return $this->redirect('/', true);
+
         $client = $this->getAuthClientWithAccount();
 
-        if (!$announce)
-            return $this->redirect('/', true);
-
-        if ($announce->pro && !$this->isAuthClientProVerifiedAndCurrent())
-            return $this->redirect('/panel', true);
-
-        if ($announce->pro && $client->account && !$announce->profesions->contains($client->profesion_id))
-            return $this->redirect('/prohibido', true);
+        if ($this->announcement->pro) {
+            if (!$this->isAuthClientProVerifiedAndCurrent()) {
+                return $this->redirect('/panel', true);
+            }
+            if ($client->account && !$this->announcement->profesions->contains($client->profesion_id)) {
+                return $this->redirect('/prohibido', true);
+            }
+        }
     }
 
     #[Computed]
@@ -39,15 +40,23 @@ class ResultAnnouncement extends Component
         return Announcement::with(['company.companyType', 'announceSuggests', 'profesions:id,profesion_name'])->find($this->id);
     }
 
+    #[Computed]
+    public function suggests()
+    {
+        return $this->announcement->getSuggests(
+            $this->announcement->id,
+            $this->announcement->area_id
+        )->take(6)->get();
+    }
+
     public function saveAnnounce($id)
     {
         if (!auth()->check())
             return $this->redirectRoute('register', navigate: true);
 
         $user = User::find(auth()->user()->id);
-        if (!$user->myAnnounces->contains($id)) {
+        if (!$user->myAnnounces->contains($id))
             $user->myAnnounces()->attach($id);
-        }
     }
 
     public function removeAnnounce($id)
@@ -66,16 +75,11 @@ class ResultAnnouncement extends Component
 
     public function render()
     {
-        $client = $this->getAuthClientWithAccount();
-        $suggestions = $this->announcement->getSuggests(
-            $this->announcement->id,
-            $this->announcement->area_id
-        )->get();
         return view('livewire.web.result-announcement', [
             'announcement' => $this->announcement,
-            'suggests' => $suggestions,
+            'suggests' => $this->suggests,
             'total_locations' => Location::count(),
-            'client' => $client,
+            'client' => $this->getAuthClientWithAccount(),
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent(),
         ]);
     }

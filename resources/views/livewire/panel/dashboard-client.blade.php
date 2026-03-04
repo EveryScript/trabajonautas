@@ -1,36 +1,35 @@
 <section class="mt-8">
     <div x-data="content" class="flex flex-col gap-8 mx-auto max-w-7xl md:flex-row">
         <!-- Navigation -->
-        <x-dashboard-nav :client="$client" :has_new_announces="$this->hasNewAnnounces" />
+        <x-dashboard-nav :client="$this->client" :has_new_announces="$this->hasNewAnnounces" />
         <!-- Main content -->
         <main class="flex-1 mb-0 md:mb-24">
-            @if ($client->account && intval($client->account->account_type_id) === 1 && !$client->latestPendingSubscription)
+            @if (
+                $this->client->account &&
+                    intval($this->client->account->account_type_id) === 1 &&
+                    !$this->client->latestPendingSubscription)
                 <x-dashboard-ad />
             @endif
             <!-- Suggests component -->
-            <div x-show="btnNavigation == 1">
-                @livewire('panel.dashboard-card', [
-                    'title' => 'Convocatorias de trabajo para ti',
-                    'description' => 'Te presentamos las convocatorias más recientes del país.',
-                    'client' => $client,
-                    'my_announces_mode' => false,
-                ])
+            <div x-show="btnNavigation == 1" x-cloak>
+                <livewire:panel.dashboard-card title="Convocatorias para ti"
+                    description="Las convocatorias que más se adaptan a tu perfil profesional (profesión y ubicación) se encuentran aquí."
+                    :client="$this->client" :my_announces_mode="false" :key="'suggests-' . $refresh_version" lazy>
+                </livewire:panel.dashboard-card>
             </div>
             <!-- Client Announces Saved -->
             <div x-show="btnNavigation == 2">
-                @livewire('panel.dashboard-card', [
-                    'title' => 'Mis convocatorias',
-                    'description' => 'Encuentra las convocatorias que guardaste hasta ahora.',
-                    'client' => $client,
-                    'my_announces_mode' => true,
-                ])
+                <livewire:panel.dashboard-card title="Mis convocatorias"
+                    description="Encuentra todas tus convocatorias favoritas y guardadas en esta sección."
+                    :client="$this->client" :my_announces_mode="true" :key="'my-announces-' . $this->client->id" lazy>
+                </livewire:panel.dashboard-card>
             </div>
         </main>
         <!-- Modal: Verifing account -->
-        @if ($client->latestPendingSubscription)
+        @if ($this->client->latestPendingSubscription)
             <div x-show="modal_verify_account" x-cloak>
                 <x-dashboard-modal
-                    title="Tu cuenta {{ $client->latestPendingSubscription->type->name }} está en camino">
+                    title="Tu cuenta {{ $this->client->latestPendingSubscription->type->name }} está en camino">
                     <x-slot name="close">
                         <i x-on:click="modal_verify_account = false"
                             class="text-lg fas fa-times text-tbn-primary"></i></x-slot>
@@ -44,7 +43,7 @@
                     </x-slot>
                     <x-slot name="buttons">
                         <x-button-link
-                            href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->latestPendingSubscription->type->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}."
+                            href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $this->client->latestPendingSubscription->type->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $this->client->name }}."
                             target="_blank" class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>
@@ -52,9 +51,12 @@
             </div>
         @endif
         <!-- Modal: Activate notifications -->
-        @if ($client->account && intval($client->account->account_type_id) === 3 && empty($client->account->device_token))
+        @if (
+            $this->client->account &&
+                intval($this->client->account->account_type_id) === 3 &&
+                empty($this->client->account->device_token))
             <div x-show="modal_notifications" x-cloak>
-                <x-dashboard-modal title="Bienvenido a Trabajonautas {{ $client->account->type->name }}">
+                <x-dashboard-modal title="Bienvenido a Trabajonautas {{ $this->client->account->type->name }}">
                     <x-slot name="close">
                         <i x-on:click="modal_notifications = false"
                             class="text-lg fas fa-times text-tbn-primary"></i></x-slot>
@@ -72,7 +74,8 @@
                             class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <span wire:loading.remove><i class="mr-1 fa-solid fa-bell"></i> Activar</span>
                             <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
-                            <span x-show="button_notify_loading"><i class="text-sm fas fa-spinner animate-spin"></i></span>
+                            <span x-show="button_notify_loading"><i
+                                    class="text-sm fas fa-spinner animate-spin"></i></span>
                         </x-button-link>
                     </x-slot>
                 </x-dashboard-modal>

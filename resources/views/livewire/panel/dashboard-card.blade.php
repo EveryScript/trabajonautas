@@ -2,7 +2,7 @@
     <header class="flex flex-col justify-between gap-4 lg:flex-row">
         <div class="flex-1">
             <h3 class="text-lg font-medium text-tbn-dark dark:text-white">{{ $title }}</h3>
-            <small class="text-xs text-tbn-secondary dark:text-tbn-light">{{ $description }}</small>
+            <p class="text-xs text-tbn-secondary dark:text-tbn-light">{{ $description }}</p>
         </div>
         <!-- Filter suggests -->
         <div class="relative">

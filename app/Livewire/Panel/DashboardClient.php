@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\FirebaseNotificationService;
 use App\Traits\AuthorizeClients;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,16 +16,19 @@ class DashboardClient extends Component
     use WithPagination;
     use AuthorizeClients;
 
-    // Parameter
+    #[Locked] // Don't show user_id
     public $user_id;
+    public int $refresh_version = 0;
 
     public function mount()
     {
         if (!auth()->check())
             return $this->redirect('/', true);
+
+        $this->user_id = $this->user_id ?? auth()->id(); // Assign id if auth
     }
 
-    #[Computed]
+    #[Computed(persist: true)]
     public function client()
     {
         return User::select('id', 'name', 'phone', 'location_id', 'profesion_id', 'grade_profile_id', 'last_announce_check')
@@ -34,17 +38,19 @@ class DashboardClient extends Component
                 'location:id,location_name',
                 'profesion:id,profesion_name,area_id',
                 'gradeProfile:id,profile_name',
-                'myAnnounces:id,announce_title,company_id,pro,expiration_time,created_at,updated_at'
-            ])->find($this->user_id);
+                'myAnnounces:id'
+            ])->findOrFail($this->user_id);
     }
 
     #[Computed]
     public function hasNewAnnounces()
     {
+        $client = $this->client;
+
         return Announcement::where('expiration_time', '>=', now())
-            ->where('updated_at', '>=', $this->client->last_announce_check)
-            ->whereHas('locations', fn($sub) => $sub->where('location_id', $this->client->location->id))
-            ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client->profesion->id))
+            ->where('updated_at', '>', $client->last_announce_check ?? now()->subDays(7))
+            ->whereHas('locations', fn($q) => $q->where('locations.id', $client->location_id))
+            ->whereHas('profesions', fn($q) => $q->where('profesions.id', $client->profesion_id))
             ->exists();
     }
 
@@ -55,10 +61,8 @@ class DashboardClient extends Component
 
     public function saveClientToken($token)
     {
-        if ($this->client && is_string($token)) {
-            $this->client->account->update([
-                'device_token' => $token
-            ]);
+        if ($token && $this->client->account) {
+            $this->client->account->update(['device_token' => $token]);
             $this->dispatch('token-saved');
         }
     }
@@ -67,14 +71,14 @@ class DashboardClient extends Component
     {
         if ($this->hasNewAnnounces) {
             $this->client->update(['last_announce_check' => now()]);
+            $this->refresh_version++; // Update dashboard-card components 
+            unset($this->client);
             $this->dispatch('announcements-updated');
         }
     }
 
     public function render()
     {
-        return view('livewire.panel.dashboard-client', [
-            'client' => $this->client
-        ]);
+        return view('livewire.panel.dashboard-client');
     }
 }

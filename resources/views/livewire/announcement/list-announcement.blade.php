@@ -61,7 +61,7 @@
                                     @endif
                                 </h5>
                                 <span class="text-xs font-normal text-tbn-dark dark:text-tbn-light">
-                                    {{ $announcement->area->area_name }}</span>
+                                    {{ $announcement->area ? $announcement->area->area_name : '(area no definida)' }}</span>
                             </th>
                             <td class="px-6 py-4 dark:text-tbn-light">
                                 @if ($announcement->pro)

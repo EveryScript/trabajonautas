@@ -6,6 +6,7 @@ use App\Mail\RenewAccount;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -36,7 +37,6 @@ class ConfigClient extends Component
             $this->client_actived = $client->actived;
             $this->dispatch('client-loaded');
         }
-        // $this->hydrateClient();
     }
 
     #[Computed]
@@ -47,33 +47,13 @@ class ConfigClient extends Component
         return User::select('id', 'name', 'email', 'actived', 'phone', 'register_completed', 'location_id', 'profesion_id', 'deleted_at')
             ->withTrashed()
             ->with([
-                'latestPendingSubscription.type:id,name,price,duration_days', // Agregado duration_days para evitar lazy loading
+                'latestPendingSubscription.type:id,name,price,duration_days',
                 'account:id,user_id,account_type_id,limit_time,device_token,updated_at',
                 'account.type:id,name,price',
                 'location:id,location_name',
                 'profesion:id,profesion_name',
             ])->find($this->client_id);
     }
-
-    /*
-    public function hydrateClient()
-    {
-        $this->view_client = User::select('id', 'name', 'email', 'actived', 'phone', 'register_completed', 'location_id', 'profesion_id', 'deleted_at')
-            ->withTrashed()
-            ->with([
-                'latestPendingSubscription.type:id,name,price',
-                'account:id,user_id,account_type_id,limit_time,device_token,updated_at',
-                'account.type:id,name,price',
-                'location:id,location_name',
-                'profesion:id,profesion_name',
-            ])->find($this->client_id);
-
-        if ($this->view_client) {
-            $this->verified_payment = $this->view_client->latestPendingSubscription?->verified_payment;
-            $this->client_actived = $this->view_client->actived;
-        }
-    }
-    */
 
     public function saveClient()
     {
@@ -94,13 +74,15 @@ class ConfigClient extends Component
                     // Verify subscription
                     $subscription->update([
                         'verified_payment' => $this->verified_payment,
-                        'verified_by_user_id' => auth()->id() // Usar helper id() es más rápido
+                        'verified_by_user_id' => auth()->id()
                     ]);
 
                     Mail::to($client->email)->queue(new RenewAccount($client, $subscription->type->name));
                 }
 
                 $client->update(['actived' => $this->client_actived]);
+
+                unset($this->client); // Update computed property
 
                 $this->dispatch('client-saved', [
                     'name' => $client->name,
@@ -109,7 +91,7 @@ class ConfigClient extends Component
                 ]);
             });
         } catch (\Exception $e) {
-            // Log::error($e->getMessage()); // Siempre es bueno loguear el error real
+            Log::error($e->getMessage());
             $this->dispatch('client-error');
         }
     }

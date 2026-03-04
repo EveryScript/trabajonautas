@@ -3,6 +3,7 @@
 namespace App\Livewire\Panel;
 
 use App\Models\Announcement;
+use App\Models\User;
 use App\Traits\AuthorizeClients;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
@@ -15,7 +16,7 @@ class DashboardCard extends Component
     // Parameters
     public $title, $description;
     public $my_announces_mode = false;
-    public $client;
+    public User $client;
     // Propeties
     public $per_page = 7;
 
@@ -55,7 +56,19 @@ class DashboardCard extends Component
     }
 
     #[On('announcements-updated')]
-    public function refreshComponent() {}
+    public function refreshComponent()
+    {
+        unset($this->announcements);
+    }
+
+    public function placeholder()
+    {
+        return <<<'HTML'
+            <div class="w-full">
+                <x-cards-loading />
+            </div>
+        HTML;
+    }
 
     public function render()
     {
