@@ -31,7 +31,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody wire:loading.class='opacity-40' class="divide-y divide-tbn-secondary dark:divide-tbn-secondary">
                     @if ($search)
                         <tr class="text-sm text-center bg-gray-200 text-tbn-dark">
                             <td class="px-6 py-2" colspan="4">
@@ -49,9 +49,9 @@
                     @endif
                     @forelse ($companies as $company)
                         <tr wire:key='{{ $company->id }}'
-                            class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                            class="hover:bg-gray-300 dark:hover:bg-neutral-900">
                             <th scope="row"
-                                class="px-6 py-4 max-w-60 sm:max-w-md lg:max-w-2xl font-medium whitespace-wrap {{ $company->trashed() ? 'opacity-40' : '' }}">
+                                class="px-6 py-4 max-w-60 sm:max-w-md lg:max-w-2xl font-medium whitespace-wrap {{ $company->trashed() ? 'opacity-20' : '' }}">
                                 <div class="flex flex-row gap-3">
                                     <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
                                         class="flex-shrink-0 object-cover object-center w-10 h-10 mb-4 rounded-lg sm:mb-0">

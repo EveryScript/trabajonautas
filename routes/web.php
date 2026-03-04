@@ -63,7 +63,6 @@ Route::group(['middleware' => ['auth', 'verified', 'role:USER|ADMIN', 'only_one_
 Route::group(['middleware' => ['auth', 'verified', 'role:ADMIN', 'only_one_session']], function () {
     // Areas
     Route::get('/admin/area', ListArea::class)->name('area');
-    Route::get('/admin/nueva-area/{id?}', FormArea::class)->name('new-area');
 
     // Users
     Route::get('/admin/usuario', ListUser::class)->name('user');

@@ -39,13 +39,13 @@
                                 </tr>
                                 <tr>
                                     <td class="py-1 font-medium whitespace-nowrap">Ganancia total</td>
-                                    <td class="py-1 text-right whitespace-nowrap">{{ $total_price }} Bs.</td>
+                                    <td class="py-1 text-right whitespace-nowrap">{{ $this->total_price }} Bs.</td>
                                 </tr>
                             </tbody>
                         </table>
                         <x-button type="button" wire:click='exportData' wire:loading.attr='disabled'
                             wire:target="exportData"
-                            x-bind:disabled="{{ count($subscriptions) === 0 ? 'true' : 'false' }}">
+                            x-bind:disabled="{{ count($this->subscriptions) === 0 ? 'true' : 'false' }}">
                             <span wire:loading.remove wire:target="exportData">Exportar</span>
                             <span wire:loading wire:target="exportData">Exportando...</span>
                         </x-button>
@@ -85,7 +85,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-tbn-light dark:divide-tbn-secondary" wire:loading.class="opacity-50">
-                        @forelse ($subscriptions as $sub)
+                        @forelse ($this->subscriptions as $sub)
                             <tr wire:key='sub-{{ $sub->id }}'
                                 class="dark:text-tbn-light hover:bg-gray-300 dark:hover:bg-neutral-900">
                                 <th scope="row"

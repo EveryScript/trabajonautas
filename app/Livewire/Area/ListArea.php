@@ -4,17 +4,14 @@ namespace App\Livewire\Area;
 
 use App\Livewire\Forms\AreaForm;
 use App\Models\Area;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ListArea extends Component
 {
-    public AreaForm $area;
-
-    public function save($area_name, $description)
+    public function editArea($id)
     {
-        $this->area->area_name = $area_name;
-        $this->area->description = $description;
-        $this->area->save();
+        $this->dispatch('load-area', id: $id)->to(FormArea::class);
     }
 
     public function delete($id)
@@ -23,9 +20,14 @@ class ListArea extends Component
         $area->delete();
     }
 
+    #[On('area-saved')]
+    public function refreshList() {}
+
     public function render()
     {
-        $areas = Area::orderBy('updated_at', 'DESC')->get();
-        return view('livewire.area.list-area', compact('areas'));
+        $areas = Area::select(['id', 'area_name', 'description', 'user_id'])->orderBy('updated_at', 'DESC')->get();
+        return view('livewire.area.list-area', [
+            'areas' => $areas
+        ]);
     }
 }

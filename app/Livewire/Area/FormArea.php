@@ -4,33 +4,29 @@ namespace App\Livewire\Area;
 
 use App\Livewire\Forms\AreaForm;
 use App\Models\Area;
-use App\Models\Profesion;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class FormArea extends Component
 {
-    public $id; // Edit
-    public AreaForm $area;
-    public $search = '';
+    public AreaForm $form;
 
-    public function mount($id = null)
+    #[On('load-area')]
+    public function loadArea($id)
     {
-        if ($id && Area::find($id)) {
-            $this->id = $id;
-            $this->area->edit($id);
-        }
-    }
-
-    public function update()
-    {
-        $this->area->update($this->id);
-        $this->redirectRoute('area', navigate: true);
+        $area = Area::findOrFail(intval($id));
+        $this->form->setArea($area);
+        $this->dispatch('area-edit');
     }
 
     public function save()
     {
-        $this->area->save();
-        $this->redirectRoute('area', navigate: true);
+        $this->form->user_id = Auth::id();
+        $this->form->save();
+        Cache::forget('areas_list'); // Invalid cache for "areas_list"
+        $this->dispatch('area-saved');
     }
 
     public function render()

@@ -29,23 +29,25 @@ class ListCompany extends Component
         $company->restore();
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage(); // Reset page when searching
+    }
+
     public function render()
     {
-        $base_query = Company::withTrashed()->orderBy('company_name', 'ASC');
+        $query = Company::withTrashed()->with(['companyType:id,company_type_name'])
+            ->select(['id', 'company_name', 'description', 'company_image', 'company_type_id', 'updated_at', 'deleted_at'])
+            ->orderBy('company_name', 'ASC');
 
-        $filter_query = (clone $base_query)
-            ->when($this->search, fn($query)  => $query->where('company_name', 'LIKE', '%' . $this->search . '%'));
+        if (!empty($this->search))
+            $query->where('company_name', 'LIKE', '%' . $this->search . '%');
 
-        $count_results = $filter_query->count();
-
-        $companies = $count_results > 0
-            ? $filter_query->simplePaginate(5)
-            : $base_query->simplePaginate(5);
+        $companies = $query->simplePaginate(8);
 
         return view('livewire.company.list-company', [
             'companies' => $companies,
-            'count_results' => $count_results,
-            'search' => $this->search
+            'count_results' => $companies->count()
         ]);
     }
 }

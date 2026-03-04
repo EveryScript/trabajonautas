@@ -217,8 +217,6 @@
 
     @script
         <script>
-            // FilePond
-
             // Tom Select
             new TomSelect('#area', {
                 plugins: ['remove_button']

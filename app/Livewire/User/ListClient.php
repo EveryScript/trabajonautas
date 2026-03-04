@@ -59,10 +59,15 @@ class ListClient extends Component
 
     public function updatedSearch()
     {
-        $this->resetPage();
+        $this->resetPage(); // Reset page when searching
     }
 
     #[On('client-saved')]
+    public function refreshList()
+    {
+        $this->resetPage(); // Reset page when searching
+    }
+
     public function render()
     {
         return view('livewire.user.list-client', [

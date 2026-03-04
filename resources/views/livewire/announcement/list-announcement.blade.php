@@ -18,9 +18,7 @@
                 <thead class="text-xs uppercase text-tbn-secondary">
                     <tr>
                         <th scope="col" class="px-6 py-3">
-                            <div class="flex items-center">
-                                Convocatoria
-                            </div>
+                            Convocatoria
                         </th>
                         <th scope="col" class="px-6 py-3">
                             PRO
@@ -36,7 +34,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody wire:loading.class='opacity-40' class="divide-y divide-tbn-secondary dark:divide-tbn-secondary">
                     @if ($search)
                         <tr class="text-sm text-center bg-gray-200 text-tbn-dark">
                             <td class="px-6 py-2" colspan="5">
@@ -53,8 +51,7 @@
                         </tr>
                     @endif
                     @forelse ($announcements as $announcement)
-                        <tr wire:key='{{ $announcement->id }}'
-                            class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                        <tr wire:key='{{ $announcement->id }}' class="hover:bg-gray-300 dark:hover:bg-neutral-900">
                             <th scope="row "
                                 class="px-6 py-4 font-medium max-w-60 sm:max-w-md lg:max-w-lg whitespace-wrap">
                                 <h5 class="font-bold truncate text-md dark:text-white">
@@ -103,7 +100,7 @@
                         </tr>
                     @empty
                         <tr class="bg-white border-b dark:bg-tbn-dark">
-                            <td class="py-4 italic text-center text-gray-600 dark:text-tbn-light" colspan="5">
+                            <td class="py-4 italic text-center text-tbn-secondary" colspan="5">
                                 No se han encontrado datos
                             </td>
                         </tr>
@@ -113,9 +110,6 @@
         </div>
         <div> {{ $announcements->links() }} </div>
     </div>
-    @assets
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @endassets
 
     @script
         <script>

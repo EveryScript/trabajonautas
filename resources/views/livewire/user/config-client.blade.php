@@ -1,77 +1,82 @@
 <aside class="p-5 transition-all duration-300 bg-white rounded-md shadow dark:bg-tbn-dark">
     <!-- Client Detail -->
-    @if ($view_client)
-        <form wire:submit='saveClient' wire:key='detail-{{ $view_client->id }}' x-show="!loading_client">
+    @if ($this->client)
+        <form wire:submit='saveClient' wire:key='detail-{{ $this->client->id }}' x-show="!loading_client">
             <div class="mb-4">
-                <p class="text-xl text-tbn-dark dark:text-white">{{ $view_client->name }}</p>
-                <small class="text-tbn-secondary dark:text-tbn-light">{{ $view_client->email }}</small>
+                <p class="text-xl text-tbn-dark dark:text-white">{{ $this->client->name }}</p>
+                <small class="text-tbn-secondary dark:text-tbn-light">{{ $this->client->email }}</small>
             </div>
-            @if ($view_client->register_completed)
+            @if ($this->client->register_completed)
                 <div class="mb-4">
                     <span class="text-xs font-normal text-tbn-primary">Profesión</span>
-                    <p class="text-tbn-dark dark:text-white">{{ $view_client->profesion->profesion_name }}</p>
+                    <p class="text-tbn-dark dark:text-white">
+                        {{ $this->client->profesion->profesion_name ?? 'No definida' }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mb-4">
                     <div>
                         <span class="text-xs font-normal text-tbn-primary">Ubicación</span>
                         <p class="text-tbn-dark dark:text-white">
-                            {{ $view_client->location->location_name }}</p>
+                            {{ $this->client->location->location_name ?? 'No definida' }}
                     </div>
                     <div>
                         <span class="text-xs font-normal text-tbn-primary">Celular</span>
                         <p class="text-tbn-dark dark:text-white">
-                            <a href="http://wa.me/{{ $view_client->phone }}" target="_blank" rel="phone-verify"
-                                class="text-green-500 underline">{{ $view_client->phone }}</a>
+                            <a href="https://wa.me/{{ $this->client->phone }}" target="_blank" rel="noopener"
+                                class="text-green-500 underline">{{ $this->client->phone }}</a>
                         </p>
                     </div>
-                    @if ($view_client->trashed())
+                    @if ($this->client->trashed())
                         <div class="col-span-2">
                             <span class="text-xs font-normal text-tbn-primary">Eliminación de la cuenta</span>
                             <p class="text-tbn-dark dark:text-white">
-                                {{ $view_client->deleted_at->translatedFormat('l d/F/Y H:i') }}
+                                {{ $this->client->deleted_at->translatedFormat('l d/F/Y H:i') }}
                             </p>
                         </div>
                     @else
-                        @if ($view_client->account)
+                        @if ($this->client->account)
                             <div>
                                 <span class="text-xs font-normal text-tbn-primary">Cuenta</span>
                                 <p class="text-tbn-dark dark:text-white">
                                     <span
-                                        class="inline-block px-2 py-1 text-xs text-white {{ $view_client->account->account_type_id == 1 ? 'bg-green-600' : 'bg-tbn-primary' }} rounded-full tracking-wider">
+                                        class="inline-block px-2 py-1 text-xs text-white {{ $this->client->account->account_type_id == 1 ? 'bg-green-600' : 'bg-tbn-primary' }} rounded-full tracking-wider">
                                         <i
-                                            class="mr-1 fas {{ $view_client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
-                                        {{ $view_client->account->type->name }}
+                                            class="mr-1 fas {{ $this->client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
+                                        {{ $this->client->account->type->name }}
                                     </span>
                                 </p>
                             </div>
                             <div>
                                 <span class="text-xs font-normal text-tbn-primary">Registro de cuenta</span>
                                 <p class="text-tbn-dark dark:text-white">
-                                    {{ $view_client->account->updated_at->translatedFormat('l d/F/Y H:i') }}
+                                    {{ $this->client->account->updated_at->translatedFormat('l d/F/Y H:i') }}
                                 </p>
                             </div>
                         @endif
                     @endif
                 </div>
-                @if (!$view_client->trashed())
-                    @if ($view_client->latestPendingSubscription)
-                        <div class="mb-4">
-                            <span class="text-xs font-normal text-tbn-primary">Fecha de solicitud</span>
-                            <p class="text-tbn-dark dark:text-white">
-                                {{ $view_client->latestPendingSubscription->updated_at->translatedFormat('l d/F/Y H:i') }}
+                @if (!$this->client->trashed())
+                    @if ($this->client->latestPendingSubscription)
+                        <div class="px-3 py-2 mb-4 border rounded-lg border-tbn-primary/20 bg-tbn-primary/5">
+                            <span class="text-xs font-semibold uppercase text-tbn-primary">Solicitud Pendiente</span>
+                            <p class="mb-2 text-xs text-tbn-dark dark:text-tbn-light">
+                                Recibida el
+                                {{ $this->client->latestPendingSubscription->updated_at->format('d/m/Y H:i') }}
                             </p>
+                            <x-input-checkbox-block wire:model="verified_payment">
+                                <div class="ms-4">
+                                    <p class="font-medium text-md text-tbn-dark dark:text-white">Confirmar pago de
+                                        cliente</p>
+                                    <p class="text-xs text-tbn-dark dark:text-tbn-light">
+                                        Plan: <span
+                                            class="font-bold">{{ $this->client->latestPendingSubscription->type->name }}</span>
+                                        <br>
+                                        Monto: <span
+                                            class="font-bold text-tbn-primary">{{ $this->client->latestPendingSubscription->price }}
+                                            Bs.</span>
+                                    </p>
+                                </div>
+                            </x-input-checkbox-block>
                         </div>
-                        <x-input-checkbox-block wire:model="verified_payment">
-                            <div class="ms-4">
-                                <p class="font-medium text-md text-tbn-dark dark:text-white">Verificación de pago</p>
-                                <p class="text-xs text-tbn-dark dark:text-tbn-light">
-                                    Solicitud de cuenta: <span class="font-medium text-tbn-primary">
-                                        {{ $view_client->latestPendingSubscription->type->name }}</span> <br>
-                                    Precio: <span class="font-medium text-tbn-primary">
-                                        {{ $view_client->latestPendingSubscription->price }} Bs. </span>
-                                </p>
-                            </div>
-                        </x-input-checkbox-block>
                     @endif
                     <x-input-checkbox-block wire:model="client_actived" :checked="$client_actived">
                         <div class="ms-4">

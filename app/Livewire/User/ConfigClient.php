@@ -7,15 +7,16 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ConfigClient extends Component
 {
-    // Parameter    
-    public $view_client = null;
     // Form propeties
-    public $client_id;
+    #[Locked]
+    public $client_id = null;
     public $verified_payment;
     public $client_actived;
 
@@ -28,10 +29,33 @@ class ConfigClient extends Component
     public function loadClient($id)
     {
         $this->client_id = $id;
-        $this->hydrateClient();
-        $this->dispatch('client-loaded');
+        $client = $this->client;
+
+        if ($client) {
+            $this->verified_payment = $client->lastPendingSubscription?->verified_payment;
+            $this->client_actived = $client->actived;
+            $this->dispatch('client-loaded');
+        }
+        // $this->hydrateClient();
     }
 
+    #[Computed]
+    public function client()
+    {
+        if (!$this->client_id) return null;
+
+        return User::select('id', 'name', 'email', 'actived', 'phone', 'register_completed', 'location_id', 'profesion_id', 'deleted_at')
+            ->withTrashed()
+            ->with([
+                'latestPendingSubscription.type:id,name,price,duration_days', // Agregado duration_days para evitar lazy loading
+                'account:id,user_id,account_type_id,limit_time,device_token,updated_at',
+                'account.type:id,name,price',
+                'location:id,location_name',
+                'profesion:id,profesion_name',
+            ])->find($this->client_id);
+    }
+
+    /*
     public function hydrateClient()
     {
         $this->view_client = User::select('id', 'name', 'email', 'actived', 'phone', 'register_completed', 'location_id', 'profesion_id', 'deleted_at')
@@ -49,52 +73,43 @@ class ConfigClient extends Component
             $this->client_actived = $this->view_client->actived;
         }
     }
+    */
 
     public function saveClient()
     {
+        $client = $this->client;
+        if (!$client) return;
+
         try {
-            DB::transaction(function () {
-                if ($this->view_client->latestPendingSubscription) {
-                    $ps = $this->view_client->latestPendingSubscription;
-                    // Create or update current account
-                    $this->view_client->account()->updateOrCreate(['user_id' => $this->view_client->id], [
-                        'account_type_id' => $ps->account_type_id,
-                        'limit_time' => now()->addDays($ps->type->duration_days)
+            DB::transaction(function () use ($client) {
+                $subscription = $client->latestPendingSubscription;
+
+                if ($subscription) {
+                    // Update/Create Account
+                    $client->account()->updateOrCreate(['user_id' => $client->id], [
+                        'account_type_id' => $subscription->account_type_id,
+                        'limit_time' => now()->addDays($subscription->type->duration_days)
                     ]);
+
                     // Verify subscription
-                    $ps->update([
-                        'user_id' => $this->view_client->id,
-                        'account_type_id' => $ps->account_type_id,
-                        'price' => $ps->type->price,
+                    $subscription->update([
                         'verified_payment' => $this->verified_payment,
-                        'verified_by_user_id' => auth()->user()->id
+                        'verified_by_user_id' => auth()->id() // Usar helper id() es más rápido
                     ]);
 
-                    // Send email "Account approved"
-                    Mail::to($this->view_client->email)->queue(new RenewAccount($this->view_client, $ps->type->name));
-
-                    // Alert
-                    $this->dispatch('client-saved', [
-                        'name' => $this->view_client->name,
-                        'phone' => $this->view_client->phone,
-                        'type' => $ps->type->name,
-                    ]);
-                } else {
-                    // Alert
-                    $this->dispatch('client-saved', [
-                        'name' => $this->view_client->name,
-                        'phone' => $this->view_client->phone,
-                        'type' => $this->view_client->account->type->name,
-                    ]);
+                    Mail::to($client->email)->queue(new RenewAccount($client, $subscription->type->name));
                 }
-                // Client active
-                $this->view_client->update([
-                    'actived' => $this->client_actived
+
+                $client->update(['actived' => $this->client_actived]);
+
+                $this->dispatch('client-saved', [
+                    'name' => $client->name,
+                    'phone' => $client->phone,
+                    'type' => $subscription ? $subscription->type->name : $client->account?->type?->name,
                 ]);
-                // Refresh client data
-                $this->hydrateClient();
             });
         } catch (\Exception $e) {
+            // Log::error($e->getMessage()); // Siempre es bueno loguear el error real
             $this->dispatch('client-error');
         }
     }

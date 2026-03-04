@@ -4,6 +4,8 @@ namespace App\Livewire\Announcement;
 
 use App\Models\Announcement;
 use App\Models\Location;
+use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -18,24 +20,32 @@ class ListAnnouncement extends Component
         Announcement::find($id)->delete();
     }
 
+    #[Computed]
+    public function totalLocations()
+    {
+        return Cache::remember('total_locations_count', 86400, fn() => Location::count());
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage(); // Reset page when searching
+    }
+
     public function render()
     {
-        $base_query = Announcement::with('profesions')->orderBy('updated_at', 'DESC');
+        $query = Announcement::with(['profesions:id,profesion_name', 'area:id,area_name'])
+            ->select(['id', 'announce_title', 'updated_at', 'pro', 'company_id', 'area_id', 'expiration_time'])
+            ->orderBy('updated_at', 'DESC');
 
-        $filter_query = (clone $base_query)
-            ->when($this->search, fn($query) => $query->where('announce_title', 'LIKE', '%' . $this->search . '%'));
+        if (!empty($this->search))
+            $query->where('announce_title', 'LIKE', '%' . $this->search . '%');
 
-        $count_results = $filter_query->count();
+        $announcements = $query->simplePaginate(8);
 
-        $announcements = $count_results > 0
-            ? $filter_query->simplePaginate(5)
-            : $base_query->simplePaginate(5);
-            
         return view('livewire.announcement.list-announcement', [
             'announcements' => $announcements,
-            'count_results' => $count_results,
-            'search_title' => $this->search,
-            'total_locations' => Location::count(),
+            'count_results' => $announcements->count(),
+            'total_locations' => $this->totalLocations
         ]);
     }
 }
