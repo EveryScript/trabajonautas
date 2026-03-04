@@ -135,9 +135,11 @@
                 class="flex items-center justify-between w-full p-4 mb-6 transition-colors bg-white border shadow-sm md:max-w-sm dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-xl">
                 <div class="flex items-center gap-4">
                     <div>
-                        <h4 class="text-sm font-semibold text-tbn-secondary dark:text-tbn-light">
+                        <h4 class="text-sm font-bold text-tbn-secondary dark:text-tbn-light">
                             Banco Mercantil Santa Cruz</h4>
-                        <p x-text="bankAccount" class="font-mono text-xl tracking-wider text-tbn-dark dark:text-white">
+                        <span class="text-sm font-light tracking-wide text-tbn-secondary dark:text-tbn-light">
+                            TrabajonautasSRL</span>
+                        <p x-text="bankAccount" class="font-mono text-2xl tracking-wider text-tbn-dark dark:text-white">
                         </p>
                     </div>
                 </div>
