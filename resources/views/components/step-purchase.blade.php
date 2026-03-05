@@ -164,9 +164,9 @@
     <div class="flex justify-between mt-4">
         <x-secondary-button type="button" x-on:click="step = 5">
             Anterior</x-secondary-button>
-        <x-button type="button" wire:click='confirmAndSave'>
+        <x-button wire:loading.attr='disabled' wire:target='confirmAndSave' type="button" wire:click='confirmAndSave'>
             <span wire:loading.remove>Finalizar</span>
-            <span wire:loading><i class="text-sm fas fa-spinner animate-spin"></i></span>
+            <span wire:loading>Finalizando...</span>
         </x-button>
     </div>
 </div>

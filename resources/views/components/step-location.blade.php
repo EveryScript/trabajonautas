@@ -6,7 +6,7 @@
                 <input type="radio" x-on:click="setLocation(location.id)" :value="location.id"
                     :id="'location-' + location.id" name="location" class="hidden peer">
                 <label :for="'location-' + location.id"
-                    class="flex justify-center items-center h-12 sm:h-[5rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                    class="flex justify-center items-center h-16 sm:h-[5rem] px-5 py-8 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer peer-checked:border-tbn-primary peer-checked:ring-2 peer-checked:ring-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all">
                     <div>
                         <span x-text="location.location_name" class="block text-sm font-medium"></span>
                     </div>

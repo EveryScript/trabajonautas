@@ -7,7 +7,7 @@
                 <input type="radio" x-on:click="setAccountData(accountType)" :id="'account-' + accountType.id"
                     :value="accountType.id" class="hidden peer" name="account_type">
                 <label :for="'account-' + accountType.id"
-                    class="block p-6 bg-white border-2 border-gray-200 rounded-lg shadow-lg cursor-pointer dark:bg-tbn-dark dark:text-white dark:border-tbn-secondary peer-checked:border-tbn-primary">
+                    class="flex flex-col justify-center h-[14rem] sm:h-[5rem] px-5 py-4 sm:py-[7.5rem] text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer peer-checked:border-tbn-primary peer-checked:ring-2 peer-checked:ring-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all">
                     <h2 x-text="accountType.name"
                         class="text-xl font-semibold capitalize text-tbn-secondary hover:bg-tbn-dark dark:text-tbn-primary">
                     </h2>
@@ -18,7 +18,7 @@
                             x-text="accountType.duration_days == 0 ? '/ Siempre' : '/ '+accountType.duration_days+' dias'"
                             class="font-medium text-tbn-dark dark:text-tbn-light"></span>
                     </div>
-                    <ul class="mt-3 space-y-2 text-xs md:mt-6 md:text-sm">
+                    <ul class="mt-3 space-y-2 text-xs font-light md:mt-6 md:text-sm text-tbn-secondary dark:text-white">
                         <li class="flex items-center">
                             <i class="mr-2 text-green-500 fas fa-check"></i>
                             Convocatorias estándar

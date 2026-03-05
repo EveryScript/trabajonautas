@@ -1,4 +1,4 @@
-<section class="flex items-start justify-center min-h-screen py-10">
+<section class="flex items-start justify-center min-h-screen py-2 sm:py-10">
     <div x-data="content" class="w-full max-w-xl md:max-w-4xl">
         <div class="p-6 mx-2 bg-white rounded-lg shadow-lg md:p-10 dark:bg-tbn-dark">
             <div class="mb-3 max-w-60">
@@ -23,9 +23,6 @@
             <x-step-purchase :qr_pro="$qr_pro" :qr_promax="$qr_promax" />
         </div>
     </div>
-    @assets
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @endassets
     @script
         <script>
             Alpine.data('content', () => ({
@@ -35,6 +32,7 @@
                 location_name: '',
                 profesion_name: '',
                 url_whatsapp: '',
+                selectedProfesionId: null,
                 // Propeties
                 gender: @entangle('form.gender'),
                 age: @entangle('form.age'),
@@ -85,19 +83,22 @@
                     this.url_whatsapp = 'https://wa.me/591' + this.phone
                     return /^[67]\d{7}$/.test(this.phone)
                 },
-                filteredProfesions() {
-                    return this.profesions.filter(
-                        profesion => profesion.profesion_name.toLowerCase().includes(this.searchProfesion
-                            .toLowerCase())
-                    )
+                get filteredProfesions() {
+                    if (this.searchProfesion === '')
+                        return this.profesions
+                    return this.profesions.filter(p =>
+                        p.profesion_name.toLowerCase().includes(this.searchProfesion.toLowerCase())
+                    );
                 },
                 setLocation(id) {
                     this.location_id = id
                     this.location_name = this.locations.find(location => location.id == id).location_name
                 },
                 setProfesion(id) {
+                    this.selectedProfesionId = id
                     this.profesion_id = id
-                    this.profesion_name = this.profesions.find(profesion => profesion.id == id).profesion_name
+                    const prof = this.profesions.find(p => p.id == id)
+                    this.profesion_name = prof ? prof.profesion_name : ''
                 },
                 verifyWhatsappNumber() {
                     window.open(this.url_whatsapp)
