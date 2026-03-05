@@ -150,15 +150,6 @@
                                 </a>
                             </div>
                         @endif
-                        {{-- <picture class="block max-w-[10rem] mx-auto mb-4">
-                            <img class="w-full rounded-lg" src="{{ asset('storage/' . $qr_image->value) }}" alt="qr-code">
-                        </picture>
-                        <div class="mb-6 text-center">
-                            <a href="{{ asset('storage/' . $qr_image->value) }}" download
-                                class="inline-block px-3 py-2 text-xs transition-all duration-200 border rounded-full text-tbn-primary border-tbn-primary hover:bg-tbn-primary hover:text-white">
-                                Descargar QR</a>
-                        </div> --}}
-                        <!-- Bank account -->
                         <div
                             class="flex items-center justify-between max-w-sm p-4 mb-4 transition-colors bg-white border shadow-sm dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary rounded-xl">
                             <div class="flex items-center gap-4">
@@ -208,7 +199,7 @@
                             <input type="radio" x-on:click="location_id = location.id" :value="location.id"
                                 :id="'location-' + location.id" name="location" class="hidden peer">
                             <label :for="'location-' + location.id"
-                                class="flex justify-center items-center h-12 sm:h-[5rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                                class="flex justify-center items-center h-16 sm:h-[5rem] px-5 py-8 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer peer-checked:border-tbn-primary peer-checked:ring-2 peer-checked:ring-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all">
                                 <div>
                                     <span x-text="location.location_name" class="block text-sm font-medium"></span>
                                 </div>
@@ -226,33 +217,35 @@
             <!-- Step 3: Change profesion -->
             <div x-show="step === 3" x-cloak x-transition:enter.duration.300ms>
                 <h5 class="mb-2 font-bold text-md dark:text-white">¿Cuál es tu nueva profesión?</h5>
-                <x-input type="search" name="profesion" x-model="searchProfesion" class="mb-2"
-                    id="searchProfesion" class="w-full" placeholder="Busca una profesión" />
+                <x-input type="search" x-model="searchProfesion" class="w-full mb-3" id="searchProfesion"
+                    placeholder="Busca una profesión" />
                 <div
                     class="h-[18rem] overflow-y-auto bg-white dark:bg-neutral-900 border border-gray-200 dark:border-tbn-secondary p-2 rounded-lg scrollbar-none">
                     <ul class="grid grid-cols-1 gap-1 mx-auto mb-8 md:grid-cols-2">
-                        <template x-for="profesion in filteredProfesions">
-                            <li class="text-center" :key="'profesion' + profesion.id">
-                                <input type="radio" x-on:click="profesion_id = profesion.id" :value="profesion.id"
-                                    :id="'profesion-' + profesion.id" name="profesion" class="hidden peer">
+                        <template x-for="profesion in filteredProfesions" :key="profesion.id">
+                            <li class="text-center">
+                                <input type="radio" :id="'profesion-' + profesion.id" name="profesion"
+                                    :value="profesion.id" :checked="selectedProfesionId == profesion.id"
+                                    x-on:change="setProfesion(profesion.id)" class="hidden peer">
                                 <label :for="'profesion-' + profesion.id"
-                                    class="flex justify-center items-center h-12 sm:h-[5rem] px-5 py-3 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer  peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                                    class="flex justify-center items-center h-16 sm:h-[6rem] px-5 py-18 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer peer-checked:border-tbn-primary peer-checked:ring-2 peer-checked:ring-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all">
                                     <div>
-                                        <span
-                                            x-text="profesion.profesion_name"class="block text-sm font-medium"></span>
+                                        <span x-text="profesion.profesion_name"
+                                            class="block text-sm font-medium"></span>
                                     </div>
                                 </label>
                             </li>
                         </template>
-                        <li x-show="filteredProfesions().length === 0 && searchProfesion.length > 0"
+                        <li x-show="filteredProfesions.length === 0"
                             class="py-20 text-xs text-center text-tbn-secondary md:col-span-2">
-                            No se encontraron resultados</li>
+                            No se encontraron resultados para "<span x-text="searchProfesion"></span>"
+                        </li>
                     </ul>
                 </div>
                 <div class="flex justify-between gap-1 mt-4">
                     <x-secondary-button type="button" x-on:click="step = 1">
                         Cancelar</x-secondary-button>
-                    <x-button type="button" x-on:click="setProfesion" x-bind:disabled="!profesion_id">
+                    <x-button type="button" x-on:click="step = 1" x-bind:disabled="!profesion_id">
                         Guardar</x-button>
                 </div>
             </div>
@@ -267,11 +260,12 @@
                 profesion_id: null,
                 location_id: null,
                 searchProfesion: '',
+                selectedProfesionId: null,
                 // Data
                 client: @json($client),
-                profesions: @json($profesions),
-                locations: @json($locations),
-                account_type: @json($account_type),
+                profesions: @json($this->profesions),
+                locations: @json($this->locations),
+                account_type: @json($this->accountType),
                 // Bank Account
                 bankAccount: '4077070681',
                 copied: false,
@@ -281,10 +275,16 @@
                     this.client.location = this.locations.find(item => item.id === this.location_id)
                     this.step = 1
                 },
-                setProfesion() {
-                    $wire.profesion_id = this.profesion_id
+                // setProfesion() {
+                //     $wire.profesion_id = this.profesion_id
+                //     this.client.profesion = this.profesions.find(item => item.id === this.profesion_id)
+                //     this.step = 1
+                // },
+                setProfesion(id) {
+                    this.selectedProfesionId = id
+                    this.profesion_id = id
+                    $wire.profesion_id = id
                     this.client.profesion = this.profesions.find(item => item.id === this.profesion_id)
-                    this.step = 1
                 },
                 changeProfesion() {
                     this.profesion_id = null
@@ -294,11 +294,12 @@
                     this.location_id = null
                     this.step = 2
                 },
-                filteredProfesions() {
-                    return this.profesions.filter(
-                        profesion => profesion.profesion_name.toLowerCase().includes(this.searchProfesion
-                            .toLowerCase())
-                    )
+                get filteredProfesions() {
+                    if (this.searchProfesion === '')
+                        return this.profesions
+                    return this.profesions.filter(p =>
+                        p.profesion_name.toLowerCase().includes(this.searchProfesion.toLowerCase())
+                    );
                 },
                 copyClipboardBankAccount() {
                     navigator.clipboard.writeText(this.bankAccount)

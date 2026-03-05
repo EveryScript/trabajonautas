@@ -49,7 +49,7 @@
                             {{ $expire_days }} días.
                             <span
                                 class="absolute z-20 px-3 py-2 mb-2 text-xs text-white transition-opacity -translate-x-1/2 rounded-lg opacity-0 pointer-events-none bg-tbn-secondary dark:bg-neutral-900 bottom-full left-1/2 w-max whitespace-nowrap group-hover:opacity-100">
-                                Fecha de expiración: {{ date('d/M/Y H:i', strtotime($client->account->limit_time)) }}
+                                Expiración: {{ date('d/M/Y H:i', strtotime($client->account->limit_time)) }}
                             </span>
                         </span>
                     </div>
