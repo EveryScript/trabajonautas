@@ -24,10 +24,7 @@ class WelcomeSection extends Component
                         Un universo de oportunidades de empleo para toda Bolivia</h4>
                     <p class="mb-5 text-center text-white lg:max-w-sm sm:text-left" data-aos="fade-up" data-aos-delay="400"
                         data-aos-once="true">
-                        Te damos la bienvenida al portal líder de oportunidades laborales en Bolivia. Encuentra la convocatoria
-                        ideal
-                        para tu perfil y da el siguiente
-                        paso en tu carrera profesional con nosotros.</p>
+                        "Deja de buscar y empieza a postular". Somos la única plataforma que te envía solo las convocatorias laborales de las INSTITUCIONES PÚBLICAS, privadas, ONGs y empresas mixtas que encajan con tu perfil profesional y tu ubicación. Somos Trabajonautas.com.</p>
                     <div class="mx-auto sm:mx-0" data-aos="fade-up" data-aos-delay="600" data-aos-once="true">
                         <div class="flex flex-col gap-2 text-center sm:flex-row sm:text-left">
                             <div>

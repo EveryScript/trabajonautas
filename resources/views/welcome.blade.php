@@ -61,7 +61,7 @@
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
-                        <img src="{{ asset('storage/img/tbn-photo-1.webp') }}" alt="photo-1"
+                        <img src="{{ asset('storage/img/tbn-photo-a.webp') }}" alt="photo-1"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
@@ -92,7 +92,7 @@
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
-                        <img src="{{ asset('storage/img/tbn-photo-2.webp') }}" alt="photo-2"
+                        <img src="{{ asset('storage/img/tbn-photo-b.webp') }}" alt="photo-2"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
@@ -121,7 +121,7 @@
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
-                        <img src="{{ asset('storage/img/tbn-photo-3.webp') }}" alt="photo-3"
+                        <img src="{{ asset('storage/img/tbn-photo-c.webp') }}" alt="photo-3"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
@@ -155,14 +155,14 @@
                     Un universo de oportunidades laborales en tus manos.</h4>
                 <p class="mb-10 text-center text-md text-tbn-dark dark:text-tbn-light" data-aos="fade-up"
                     data-aos-delay="400" data-aos-once="true">
-                    Sigue las instrucciones y forma parte de la comunidad más grande de profesionales, deja de buscar y
-                    empieza a postular.</p>
+                    Sigue la trayectoria, únete a la flota de profesionales más grande del universo. Inicia tu misión y
+                    comienza a postular.</p>
             </div>
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="relative overflow-hidden shadow-md group rounded-xl">
                     <div class="h-[25rem]  w-full overflow-hidden">
                         <img src="{{ asset('storage/ajustes/astro-create.webp') }}" alt="create"
-                            class="object-cover w-full h-full transition-transform duration-500 -translate-y-10 scale-120" />
+                            class="object-cover w-full h-full transition-transform duration-500" />
                     </div>
                     <div
                         class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
@@ -177,7 +177,7 @@
                 <div class="relative overflow-hidden shadow-md group rounded-xl">
                     <div class="h-[25rem]  w-full overflow-hidden">
                         <img src="{{ asset('storage/ajustes/astro-search.webp') }}" alt="Bosque"
-                            class="object-cover w-full h-full transition-transform duration-500 -translate-y-10 scale-120" />
+                            class="object-cover w-full h-full transition-transform duration-500" />
                     </div>
 
                     <div
@@ -185,7 +185,7 @@
                         <div class="transition-transform duration-300">
                             <h3 class="text-xl font-bold text-white">Inicia la búsqueda</h3>
                             <p class="mt-2 text-sm text-gray-200">Encuentra información sobre convocatorias laborales
-                                de toda Bolivia y de todo tipo de empresas que trabajan con nosotros.
+                                de toda Bolivia y de todo tipo de empresas.
                             </p>
                         </div>
                     </div>
@@ -194,15 +194,14 @@
                 <div class="relative overflow-hidden shadow-md group rounded-xl">
                     <div class="h-[25rem]  w-full overflow-hidden">
                         <img src="{{ asset('storage/ajustes/astro-save.webp') }}" alt="Lago"
-                            class="object-cover w-full h-full transition-transform duration-500 -translate-y-10 scale-120" />
+                            class="object-cover w-full h-full transition-transform duration-500" />
                     </div>
 
                     <div
                         class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                         <div class="transition-transform duration-300">
                             <h3 class="text-xl font-bold text-white">Guarda tus resultados</h3>
-                            <p class="mt-2 text-sm text-gray-200">Agrega tus convocatorias favoritas en tu perfil y
-                                compártelas en las redes sociales de manera fácil y cómoda.</p>
+                            <p class="mt-2 text-sm text-gray-200">Agrega tus convocatorias favoritas en tu perfil y revísalas en cualquier momento.</p>
                         </div>
                     </div>
                 </div>
@@ -217,8 +216,7 @@
                         class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                         <div class="transition-transform duration-300">
                             <h3 class="text-xl font-bold text-white">Convocatorias PRO</h3>
-                            <p class="mt-2 text-sm text-gray-200">Desbloquea todas las convocatorias para enterarte de
-                                las últimas contrataciones y encontrar tu trabajo hoy mismo.</p>
+                            <p class="mt-2 text-sm text-gray-200">Desbloquea todas las convocatorias para enterarte de las últimas contrataciones y encontrar el trabajo que necesitas.</p>
                         </div>
                     </div>
                 </div>

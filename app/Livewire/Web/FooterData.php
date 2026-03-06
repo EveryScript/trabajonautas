@@ -27,7 +27,6 @@ class FooterData extends Component
             </div>
             <div class="text-white">
                 <h5 class="mb-2 text-lg font-bold">Redes sociales:</h5>
-
                 <nav class="flex flex-row gap-4 mb-10 text-sm list-none">
                     <li class="transition-colors duration-150 hover:text-tbn-light">
                         <a href="https://www.facebook.com/share/1DCXk3jMry/?mibextid=wwXIfr" target="_blank">
@@ -47,10 +46,7 @@ class FooterData extends Component
                     </li>
                 </nav>
             </div>
-            <div class="absolute" style="bottom: -20rem; right: 5rem;">
-                <img src="{{ asset('storage/ajustes/astro-greeting.webp') }}" alt="Astronauta"
-                    class="object-contain h-auto" style="width: 20rem">
-            </div>
+            
         </div>
         HTML;
     }
