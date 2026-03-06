@@ -155,85 +155,74 @@
                     Un universo de oportunidades laborales en tus manos.</h4>
                 <p class="mb-10 text-center text-md text-tbn-dark dark:text-tbn-light" data-aos="fade-up"
                     data-aos-delay="400" data-aos-once="true">
-                    Sigue las instrucciones y forma parte de la comunidad más grande de profesionales, deja de buscar y empieza a postular.</p>
+                    Sigue las instrucciones y forma parte de la comunidad más grande de profesionales, deja de buscar y
+                    empieza a postular.</p>
             </div>
-            <div class="grid grid-cols-1 gap-4 px-5 sm:grid-cols-2 dark:text-tbn-light">
-                <div data-aos="fade-up" data-aos-delay="600" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
-                    <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
-                    <div class="relative z-10 max-w-md mx-auto">
-                        <span
-                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
-                            <i class="text-2xl text-white fas fa-user"></i>
-                        </span>
-                        <div
-                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
-                            <h2 class="text-lg font-medium dark:text-white title-font">Crea tu cuenta</h2>
-                            <p
-                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
-                                Ingresa tu correo y contraseña para que te enviemos
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="relative overflow-hidden shadow-md group rounded-xl">
+                    <div class="h-[25rem]  w-full overflow-hidden">
+                        <img src="{{ asset('storage/ajustes/astro-create.webp') }}" alt="create"
+                            class="object-cover w-full h-full transition-transform duration-500 -translate-y-10 scale-120" />
+                    </div>
+                    <div
+                        class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                        <div class="transition-transform duration-300">
+                            <h3 class="text-xl font-bold text-white">Crea tu cuenta</h3>
+                            <p class="mt-2 text-sm text-gray-200">Ingresa tu correo y contraseña para que te enviemos
                                 información sobre nuestras convocatorias diariamente.</p>
                         </div>
                     </div>
                 </div>
-                <div data-aos="fade-up" data-aos-delay="800" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
-                    <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
-                    <div class="relative z-10 max-w-md mx-auto">
-                        <span
-                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
-                            <i class="text-2xl text-white fas fa-search"></i>
-                        </span>
-                        <div
-                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
-                            <h2 class="text-lg font-medium dark:text-white title-font">Inicia la búsqueda</h2>
-                            <p
-                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
-                                Encuentra información sobre convocatorias laborales de toda Bolivia y de todo tipo de
-                                empresas que trabajan con nosotros.</p>
+
+                <div class="relative overflow-hidden shadow-md group rounded-xl">
+                    <div class="h-[25rem]  w-full overflow-hidden">
+                        <img src="{{ asset('storage/ajustes/astro-search.webp') }}" alt="Bosque"
+                            class="object-cover w-full h-full transition-transform duration-500 -translate-y-10 scale-120" />
+                    </div>
+
+                    <div
+                        class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                        <div class="transition-transform duration-300">
+                            <h3 class="text-xl font-bold text-white">Inicia la búsqueda</h3>
+                            <p class="mt-2 text-sm text-gray-200">Encuentra información sobre convocatorias laborales
+                                de toda Bolivia y de todo tipo de empresas que trabajan con nosotros.
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div data-aos="fade-up" data-aos-delay="1000" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
-                    <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
-                    <div class="relative z-10 max-w-md mx-auto">
-                        <span
-                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
-                            <i class="text-2xl text-white fas fa-suitcase"></i>
-                        </span>
-                        <div
-                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
-                            <h2 class="text-lg font-medium dark:text-white title-font">Guarda tus resultados</h2>
-                            <p
-                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
-                                Agrega tus convocatorias favoritas en tu perfil y compártelas en las redes sociales de
-                                manera fácil y cómoda.</p>
+
+                <div class="relative overflow-hidden shadow-md group rounded-xl">
+                    <div class="h-[25rem]  w-full overflow-hidden">
+                        <img src="{{ asset('storage/ajustes/astro-save.webp') }}" alt="Lago"
+                            class="object-cover w-full h-full transition-transform duration-500 -translate-y-10 scale-120" />
+                    </div>
+
+                    <div
+                        class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                        <div class="transition-transform duration-300">
+                            <h3 class="text-xl font-bold text-white">Guarda tus resultados</h3>
+                            <p class="mt-2 text-sm text-gray-200">Agrega tus convocatorias favoritas en tu perfil y
+                                compártelas en las redes sociales de manera fácil y cómoda.</p>
                         </div>
                     </div>
                 </div>
-                <div data-aos="fade-up" data-aos-delay="1200" data-aos-once="true"
-                    class="relative px-6 pt-10 pb-8 overflow-hidden transition-all duration-300 bg-white border border-white rounded-lg shadow-xl cursor-pointer group dark:bg-tbn-dark dark:border-tbn-secondary hover:-translate-y-1 hover:shadow-2xl sm:mx-auto sm:max-w-5xl sm:px-10">
-                    <span
-                        class="absolute top-10 z-0 h-20 w-20 rounded-full bg-tbn-primary transition-all duration-300 group-hover:scale-[15]"></span>
-                    <div class="relative z-10 max-w-md mx-auto">
-                        <span
-                            class="grid w-20 h-20 transition-all duration-300 rounded-full place-items-center bg-tbn-primary group-hover:bg-tbn-primary">
-                            <i class="text-2xl text-white fas fa-crown"></i>
-                        </span>
-                        <div
-                            class="p-5 space-y-6 text-base leading-7 transition-all duration-300 text-tbn-dark dark:text-tbn-light group-hover:text-white/90">
-                            <h2 class="text-lg font-medium dark:text-white title-font">Convocatorias PRO</h2>
-                            <p
-                                class="text-sm leading-relaxed md:text-base dark:text-tbn-light dark:group-hover:text-white/90">
-                                Desbloquea todas las convocatorias para enterarte de las últimas contrataciones y
-                                encontrar tu trabajo hoy mismo.</p>
+
+                <div class="relative overflow-hidden shadow-md group rounded-xl">
+                    <div class="h-[25rem]  w-full overflow-hidden">
+                        <img src="{{ asset('storage/ajustes/astro-pro.webp') }}" alt="Camino"
+                            class="object-cover w-full h-full transition-transform duration-500" />
+                    </div>
+
+                    <div
+                        class="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                        <div class="transition-transform duration-300">
+                            <h3 class="text-xl font-bold text-white">Convocatorias PRO</h3>
+                            <p class="mt-2 text-sm text-gray-200">Desbloquea todas las convocatorias para enterarte de
+                                las últimas contrataciones y encontrar tu trabajo hoy mismo.</p>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>

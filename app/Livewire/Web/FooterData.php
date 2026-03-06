@@ -17,28 +17,17 @@ class FooterData extends Component
     public function render()
     {
         return <<<'HTML'
-        <div class="grid max-w-6xl grid-cols-1 gap-8 mx-auto sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid max-w-6xl grid-cols-1 gap-8 mx-auto lg:grid-cols-3">
             <div class="text-white">
-                <h5 class="text-lg font-bold">Contacto</h5>
+                <h5 class="text-lg font-bold">Contacto:</h5>
                 <p class="mb-1 text-sm">CEO Ricardo Carlos Oropeza Zárate</p>
                 <p class="mb-1 text-sm">CFO Carla Ximena Vargas Soto de Oropeza</p>
                 <p class="mb-1 text-sm">73858162 - 69616052</p>
                 <p class="mb-2 text-xs">&copy; {{ now()->year }} - Todos los derechos reservados</p>
             </div>
             <div class="text-white">
-                <h5 class="text-lg font-bold">Profesiones</h5>
-                <nav class="mb-10 text-sm list-none">
-                    @forelse($profesions as $profesion)
-                        <li class="mb-1 hover:text-tbn-light">
-                            <a href="{{ route('search', ['title' => $profesion->profesion_name]) }}" wire:navigate>{{ $profesion->profesion_name }}</a>
-                        </li>
-                    @empty
-                        <li class="text-gray-500">No hay profesiones</li>
-                    @endforelse
-                </nav>
-            </div>
-            <div class="text-white">
-                <h5 class="mb-2 text-lg font-bold">Redes sociales</h5>
+                <h5 class="mb-2 text-lg font-bold">Redes sociales:</h5>
+
                 <nav class="flex flex-row gap-4 mb-10 text-sm list-none">
                     <li class="transition-colors duration-150 hover:text-tbn-light">
                         <a href="https://www.facebook.com/share/1DCXk3jMry/?mibextid=wwXIfr" target="_blank">
@@ -57,6 +46,10 @@ class FooterData extends Component
                             <i class="text-4xl fa-brands fa-tiktok"></i></a>
                     </li>
                 </nav>
+            </div>
+            <div class="absolute" style="bottom: -20rem; right: 5rem;">
+                <img src="{{ asset('storage/ajustes/astro-greeting.webp') }}" alt="Astronauta"
+                    class="object-contain h-auto" style="width: 20rem">
             </div>
         </div>
         HTML;

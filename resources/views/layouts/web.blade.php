@@ -63,8 +63,9 @@
         {{ $slot }}
     </main>
     <!-- Footer Content -->
-    <footer class="px-5 py-20 bg-tbn-secondary body-font">
-        <picture class="block max-w-6xl mx-auto mb-5">
+    <footer class="relative overflow-hidden bg-no-repeat bg-cover block px-5 pt-20 h-[50rem] sm:h-[24rem] body-font"
+        style="background-image: url({{ asset('storage/ajustes/tbn-space-reverse.webp') }})">
+        <picture class="block max-w-6xl mx-auto">
             <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-white.webp') }}" alt="tbn-logo">
         </picture>
         @livewire('web.footer-data')
