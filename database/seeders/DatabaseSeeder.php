@@ -14,14 +14,14 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CompanyTypeSeeder::class,
             LocationSeeder::class,
-            ProfesionSeeder::class,
-            CompanySeeder::class,
+            // ProfesionSeeder::class,
+            // CompanySeeder::class,
             AreaSeeder::class,
-            AnnouncementSeeder::class,
+            // AnnouncementSeeder::class,
             RoleUserSeeder::class,
             GradeProfileSeeder::class,
             AccountTypeSeeder::class,
-            NoticeSeeder::class,
+            // NoticeSeeder::class,
             TbnSettingSeeder::class
         ]);
     }
