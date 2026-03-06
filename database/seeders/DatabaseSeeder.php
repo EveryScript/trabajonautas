@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CompanyTypeSeeder::class,
             LocationSeeder::class,
-            // ProfesionSeeder::class,
+            ProfesionSeeder::class,
             // CompanySeeder::class,
             AreaSeeder::class,
             // AnnouncementSeeder::class,
