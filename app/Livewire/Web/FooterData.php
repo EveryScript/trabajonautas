@@ -28,21 +28,21 @@ class FooterData extends Component
             <div class="text-white">
                 <h5 class="mb-2 text-lg font-bold">Redes sociales:</h5>
                 <nav class="flex flex-row gap-4 mb-10 text-sm list-none">
-                    <li class="transition-colors duration-150 hover:text-tbn-light">
-                        <a href="https://www.facebook.com/share/1DCXk3jMry/?mibextid=wwXIfr" target="_blank">
-                            <i class="text-4xl fa-brands fa-facebook"></i></a>
+                    <li class="w-12 h-12 p-3 text-center transition-colors duration-150 rounded-full bg-tbn-dark hover:text-tbn-light">
+                        <a  href="https://www.facebook.com/share/1DCXk3jMry/?mibextid=wwXIfr" target="_blank">
+                            <i class="text-2xl fa-brands fa-facebook"></i></a>
                     </li>    
-                    <li class="transition-colors duration-150 hover:text-tbn-light">
-                        <a href="https://www.youtube.com/@Trabajonautas" target="_blank">
-                            <i class="text-4xl fa-brands fa-youtube"></i></a>
+                    <li class="w-12 h-12 p-3 text-center transition-colors duration-150 rounded-full bg-tbn-dark hover:text-tbn-light">
+                        <a  href="https://www.youtube.com/@Trabajonautas" target="_blank">
+                            <i class="text-2xl fa-brands fa-youtube"></i></a>
                     </li>
-                    <li class="transition-colors duration-150 hover:text-tbn-light">
-                        <a href="https://www.instagram.com/trabajonautas/" target="_blank">
-                            <i class="text-4xl fa-brands fa-instagram"></i></a>
+                    <li class="w-12 h-12 p-3 text-center transition-colors duration-150 rounded-full bg-tbn-dark hover:text-tbn-light">
+                        <a  href="https://www.instagram.com/trabajonautas/" target="_blank">
+                            <i class="text-2xl fa-brands fa-instagram"></i></a>
                     </li>
-                    <li class="transition-colors duration-150 hover:text-tbn-light">
-                        <a href="https://www.tiktok.com/@trabajonautas" target="_blank">
-                            <i class="text-4xl fa-brands fa-tiktok"></i></a>
+                    <li class="w-12 h-12 p-3 text-center transition-colors duration-150 rounded-full bg-tbn-dark hover:text-tbn-light">
+                        <a  href="https://www.tiktok.com/@trabajonautas" target="_blank">
+                            <i class="text-2xl fa-brands fa-tiktok"></i></a>
                     </li>
                 </nav>
             </div>

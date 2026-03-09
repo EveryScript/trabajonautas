@@ -61,7 +61,7 @@
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
-                        <img src="{{ asset('storage/img/tbn-photo-a.webp') }}" alt="photo-1"
+                        <img src="{{ asset('storage/img/tbn-1.webp') }}" alt="photo-1"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
@@ -92,7 +92,7 @@
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
-                        <img src="{{ asset('storage/img/tbn-photo-b.webp') }}" alt="photo-2"
+                        <img src="{{ asset('storage/img/tbn-2.webp') }}" alt="photo-2"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
@@ -121,7 +121,7 @@
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
                         <div class="absolute w-24 h-24 rounded-full -top-4 -left-4 bg-orange-500/10 blur-2xl"></div>
-                        <img src="{{ asset('storage/img/tbn-photo-c.webp') }}" alt="photo-3"
+                        <img src="{{ asset('storage/img/tbn-3.webp') }}" alt="photo-3"
                             class="relative z-10 object-cover border-b-8 shadow-2xl border-tbn-primary rounded-2xl" />
                         <div
                             class="absolute z-20 hidden p-6 shadow-lg bg-tbn-primary -bottom-6 -right-6 rounded-xl lg:block">
@@ -148,7 +148,7 @@
     </section>
     <!-- Instrucions cards -->
     <section class="body-font">
-        <div class="max-w-6xl px-2 py-24 mx-auto sm:px-0">
+        <div class="max-w-6xl px-2 py-24 mx-auto">
             <div class="px-5 mb-8">
                 <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font"
                     data-aos="fade-up" data-aos-delay="200" data-aos-once="true">

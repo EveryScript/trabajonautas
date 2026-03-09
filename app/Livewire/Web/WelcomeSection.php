@@ -17,7 +17,7 @@ class WelcomeSection extends Component
         return <<<'HTML'
         <section class="bg-bottom bg-cover"
             style="background-image: url({{ asset('storage/'.$bg_web_image->value) }})">
-            <div class="z-10 max-w-6xl md:h-[35rem] h-[40rem] flex flex-col-reverse md:flex-row justify-center items-center gap-2 lg:gap-4 mx-auto">
+            <div class="z-10 max-w-6xl md:h-[40rem] h-[45rem] flex flex-col-reverse md:flex-row justify-center items-center gap-2 lg:gap-4 mx-auto">
                 <div class="px-6 mx-auto lg:w-7/12">
                     <h4 class="mb-2 text-3xl font-bold text-center text-white sm:text-left sm:text-4xl lg:text-5xl title-font"
                         data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
