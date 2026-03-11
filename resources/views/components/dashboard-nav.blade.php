@@ -94,7 +94,7 @@
             <a x-on:click="btnNavigation = 1; $wire.updateLastCheck();" wire:poll.60s.visible
                 class="relative flex items-center justify-between py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                 <span><i class="ml-2 mr-2 fa-solid fa-bullhorn"></i> Novedades</span>
-                @if ($has_new_announces && intval($client->account->account_type_id) === 3)
+                @if ($has_new_announces && $client->account && intval($client->account->account_type_id) === 3)
                     <span class="absolute right-0 block w-2 h-2 rounded-full top-4 bg-tbn-primary animate-pulse"></span>
                 @endif
             </a>

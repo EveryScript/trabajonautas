@@ -44,7 +44,7 @@
         </div>
     </section>
     <!-- Latest Notices -->
-    <section class="max-w-6xl px-3 py-24 mx-auto sm:px-6">
+    <section class="max-w-6xl px-3 py-4 mx-auto lg:py-24 sm:px-6">
         <div class="py-5 text-center">
             <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font">
                 Últimas noticias</h4>
@@ -55,8 +55,8 @@
         </div>
     </section>
     <!-- Photo section -->
-    <section class="max-w-6xl px-3 py-12 mx-auto sm:px-6">
-        <div class="py-24 mx-auto">
+    <section class="max-w-6xl px-3 py-4 mx-auto lg:py-12 sm:px-6">
+        <div class="py-4 mx-auto lg:py-24">
             <div class="flex flex-col items-center gap-12 md:flex-row">
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
@@ -87,7 +87,7 @@
                 </div>
             </div>
         </div>
-        <div class="py-24 mx-auto">
+        <div class="py-4 mx-auto lg:py-24">
             <div class="flex flex-col items-center gap-12 md:flex-row-reverse">
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
@@ -116,7 +116,7 @@
                 </div>
             </div>
         </div>
-        <div class="py-24 mx-auto">
+        <div class="py-4 mx-auto lg:py-24">
             <div class="flex flex-col items-center gap-12 md:flex-row">
                 <div class="w-full md:w-1/2" data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
                     <div class="relative">
@@ -148,7 +148,7 @@
     </section>
     <!-- Instrucions cards -->
     <section class="body-font">
-        <div class="max-w-6xl px-2 py-24 mx-auto">
+        <div class="max-w-6xl px-2 py-4 mx-auto lg:py-24">
             <div class="px-5 mb-8">
                 <h4 class="mb-2 text-2xl font-bold text-center font-baloo text-tbn-primary sm:text-3xl title-font"
                     data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
