@@ -86,9 +86,8 @@
                             </td>
                         </tr>
                     @empty
-                        <tr
-                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            <td class="py-4 text-center text-gray-600 font-italic" colspan="4">
+                        <tr class="bg-white border-b dark:bg-tbn-dark">
+                            <td class="py-4 italic text-center text-tbn-secondary" colspan="4">
                                 No se han encontrado datos
                             </td>
                         </tr>
@@ -98,10 +97,6 @@
         </div>
         <div> {{ $companies->links() }} </div>
     </div>
-
-    @assets
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @endassets
 
     @script
         <script>

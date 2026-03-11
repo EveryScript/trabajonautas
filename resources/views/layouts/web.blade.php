@@ -63,17 +63,8 @@
         {{ $slot }}
     </main>
     <!-- Footer Content -->
-    <footer class="relative overflow-hidden bg-no-repeat bg-cover block px-5 pt-16 h-[45rem] sm:h-[24rem] body-font"
-        style="background-image: url({{ asset('storage/img/bg-tbn.webp') }})">
-        <picture class="block max-w-6xl mx-auto mb-6">
-            <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-white.webp') }}" alt="tbn-logo">
-        </picture>
-        @livewire('web.footer-data')
-        <div class="absolute right-4 -bottom-52 lg:right-36">
-            <img src="{{ asset('storage/ajustes/astro-greeting.webp') }}" alt="Astronauta" class="object-contain h-auto"
-                style="width: 16rem">
-        </div>
-    </footer>
+    <livewire:web.footer-data />
+    <!-- Scripts -->
     @livewireScripts
 </body>
 

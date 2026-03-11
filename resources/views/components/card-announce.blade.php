@@ -40,7 +40,7 @@
                     @endforeach
 
                     @if ($remainingCount > 0)
-                        <span class="mt-1 text-xs font-light text-gray-500 dark:text-gray-400">
+                        <span class="mt-[3px] text-xs font-light text-gray-500 dark:text-gray-400">
                             +{{ $remainingCount }} más
                         </span>
                     @endif
