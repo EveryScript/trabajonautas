@@ -40,7 +40,7 @@ class SocialAuthController extends Controller
             // Delete all sessions from user
             DB::table('sessions')
                 ->where('user_id', $user->id)
-                ->where('id', '!=', request()->session()->getId())
+                // ->where('id', '!=', request()->session()->getId())
                 ->delete();
 
             request()->session()->regenerate();
