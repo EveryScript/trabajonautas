@@ -45,6 +45,8 @@ class SocialAuthController extends Controller
                 ->where('id', '!=', $currentSessionId)
                 ->delete();
 
+            request()->session()->save();
+
             return redirect('/panel');
         } catch (\Exception $e) {
             return redirect('/login')->with('error', 'Error al iniciar sesión con Google');
