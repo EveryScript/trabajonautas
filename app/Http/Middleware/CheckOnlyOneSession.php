@@ -15,10 +15,17 @@ class CheckOnlyOneSession
             $sessionId = $request->session()->getId();
             $userId = auth()->id();
 
-            DB::table('sessions')
+            $session = DB::table('sessions')
+                ->where('id', $sessionId)
                 ->where('user_id', $userId)
-                ->where('id', '!=', $sessionId)
-                ->delete();
+                ->exists();
+
+            if (!$session) {
+                auth()->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect('/login')->with('error', 'Se ha iniciado sesión en otro dispositivo');
+            }
         }
 
         return $next($request);
