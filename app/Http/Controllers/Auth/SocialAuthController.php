@@ -35,16 +35,17 @@ class SocialAuthController extends Controller
                 $user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
             }
 
+            Auth::login($user, true);
+
             // Delete all sessions from user
             DB::table('sessions')
                 ->where('user_id', $user->id)
+                ->where('id', '!=', request()->session()->getId())
                 ->delete();
 
-            Auth::login($user, true);
             request()->session()->regenerate();
 
             return redirect()->intended('panel');
-
         } catch (\Exception $e) {
             return redirect('/login')->with('error', 'Error al iniciar sesión con Google');
         }
