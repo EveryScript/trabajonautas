@@ -95,7 +95,7 @@
 
                             <a href="{{ asset('storage/' . $announceFile->url) }}"
                                 class="px-4 py-2 text-sm border rounded-lg border-tbn-primary dark:border-tbn-light text-tbn-primary dark:text-tbn-light hover:border-tbn-secondary hover:text-tbn-secondary dark:hover:text-tbn-primary"
-                                download="{{ basename($announceFile->url) }}">
+                                download="{{ basename($announceFile->original_name) }}">
                                 <i class="{{ $icon }} mr-1"></i> Descargar
                             </a>
                         @endforeach

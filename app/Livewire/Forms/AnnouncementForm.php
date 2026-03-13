@@ -70,10 +70,12 @@ class AnnouncementForm extends Form
         if ($this->announce_files) {
             $announce_files_data = [];
             foreach ($this->announce_files as $index => $file) {
+                $original_name = $file->getClientOriginalName();
                 $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->getClientOriginalName());
                 $announce_files_data[] = [
                     'announcement_id' => $announcement->id,
-                    'url' => $file_url
+                    'url' => $file_url,
+                    'original_name' => $original_name
                 ];
             }
             $announcement->announceFiles()->createMany($announce_files_data);
@@ -112,10 +114,12 @@ class AnnouncementForm extends Form
         $announce_files_data = [];
         if ($this->announce_files) {
             foreach ($this->announce_files as $index => $file) {
+                $original_name = $file->getClientOriginalName();
                 $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->hashName());
                 $announce_files_data[] = [
                     'announcement_id' => $announcement->id,
-                    'url' => $file_url
+                    'url' => $file_url,
+                    'original_name' => $original_name
                 ];
             }
             $announcement->announceFiles()->createMany($announce_files_data);

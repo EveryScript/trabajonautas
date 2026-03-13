@@ -99,7 +99,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr class="bg-white border-b dark:bg-tbn-dark">
+                        <tr class="bg-white dark:bg-tbn-dark">
                             <td class="py-4 italic text-center text-tbn-secondary" colspan="5">
                                 No se han encontrado datos
                             </td>

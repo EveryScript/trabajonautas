@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('announcement_id'); // Foreign key
             $table->string('url')->nullable();
+            $table->string('original_name')->nullable();
             $table->timestamps();
         });
     }
