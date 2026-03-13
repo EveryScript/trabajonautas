@@ -22,13 +22,20 @@ class CheckOnlyOneSession
                 ->exists();
 
             if (!$session) {
-                Auth::guard('web')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-                $request->session()->forget('password_hash_web');
-                return redirect('/login')
-                    ->with('error', 'Se ha iniciado sesión en otro dispositivo')
-                    ->withCookie(cookie()->forget(config('session.cookie')));;
+                $hasOtherSession = DB::table('sessions')
+                    ->where('user_id', $userId)
+                    ->where('id', '!=', $sessionId)
+                    ->exists();
+
+                if ($hasOtherSession) {
+                    Auth::guard('web')->logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    $request->session()->forget('password_hash_web');
+                    return redirect('/login')
+                        ->with('error', 'Se ha iniciado sesión en otro dispositivo')
+                        ->withCookie(cookie()->forget(config('session.cookie')));;
+                }
             }
         }
 
