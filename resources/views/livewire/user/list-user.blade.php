@@ -78,7 +78,7 @@
                         }"
                             x-show="(filter_option === 'all' && info.actived) || (filter_option === 'admin' && info.admin) || (filter_option === 'user' && info.user) || (filter_option === 'inactived' && !info.actived)"
                             x-transition:enter.duration.300ms x-transition:leave.duration.300ms
-                            class="border-b dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
+                            class="border-b text-tbn-secondary dark:text-tbn-light dark:border-b-tbn-secondary hover:bg-gray-300 dark:hover:bg-neutral-900">
                             <th scope="row"
                                 class="px-6 py-4 font-medium text-tbn-dark dark:text-white whitespace-nowrap">
                                 <span class="mr-2" x-html="setUserRole({{ $user->getRoleNames() }})"></span>
