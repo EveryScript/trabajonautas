@@ -31,10 +31,10 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-tbn-secondary dark:divide-tbn-secondary">
                 @forelse ($notices as $notice)
                     <tr wire:key="notice-{{ $notice->id }}"
-                        class="border-b dark:border-b-tbn-secondary text-tbn-secondary dark:text-tbn-light hover:bg-gray-300 dark:hover:bg-neutral-900">
+                        class="text-tbn-secondary dark:text-tbn-light hover:bg-gray-300 dark:hover:bg-neutral-900">
                         <th scope="row"
                             class="px-6 py-4 font-medium max-w-60 sm:max-w-md lg:max-w-lg whitespace-wrap">
                             <div class="flex flex-row gap-3">
@@ -58,7 +58,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr class="bg-white border-b dark:bg-tbn-dark dark:border-b-tbn-secondary">
+                    <tr class="bg-white dark:bg-tbn-dark">
                         <td class="py-4 text-center font-italic text-tbn-secondary dark:text-tbn-light" colspan="4">
                             No se han encontrado datos
                         </td>

@@ -67,7 +67,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="text-tbn-secondary dark:text-tbn-light">
+                <tbody class="divide-y divide-tbn-secondary dark:divide-tbn-secondary">
                     @forelse ($users as $user)
                         <tr wire:key='{{ $user->id }}' x-data="{
                             info: {
