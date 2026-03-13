@@ -36,7 +36,7 @@ class SocialAuthController extends Controller
             }
 
             Auth::login($user, true);
-
+            request()->session()->regenerate();
             $currentSessionId = request()->session()->getId();
 
             // Delete all sessions from user
@@ -44,8 +44,6 @@ class SocialAuthController extends Controller
                 ->where('user_id', $user->id)
                 ->where('id', '!=', $currentSessionId)
                 ->delete();
-
-            request()->session()->regenerate();
 
             return redirect()->intended('panel');
         } catch (\Exception $e) {
