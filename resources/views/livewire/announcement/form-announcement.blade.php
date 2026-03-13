@@ -11,8 +11,7 @@
         <form class="max-w-4xl mb-10 tbn-form" wire:submit="{{ $id ? 'update' : 'save' }}">
             <div class="mb-4">
                 <x-label for="announce_title">Título de la convocatoria</x-label>
-                <x-input wire:model="announcement.announce_title" id="announce_title" type="text"
-                    class="w-full mt-1 dark:bg-tbn-dark dark:text-white" />
+                <x-textarea class="w-full" wire:model="announcement.announce_title" rows="3" name="announce_title" />
                 <x-input-error for="announcement.announce_title" class="mt-2" />
             </div>
             <div class="mb-4">

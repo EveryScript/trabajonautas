@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
-            $table->string('announce_title');
+            $table->text('announce_title');
             $table->text('description');
             $table->dateTime('expiration_time');
             $table->decimal('salary', 10, 0);

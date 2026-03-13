@@ -41,7 +41,7 @@ class AnnouncementForm extends Form
     {
         $this->salary = str_replace(',', '', $this->salary);
         $this->validate([
-            'announce_title' => 'required|min:10|max:200',
+            'announce_title' => 'required|min:10|max:1200',
             'description' => 'required',
             'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',
@@ -84,7 +84,7 @@ class AnnouncementForm extends Form
     {
         $this->salary = str_replace(',', '', $this->salary);
         $this->validate([
-            'announce_title' => 'required|min:10|max:200',
+            'announce_title' => 'required|min:10|max:1200',
             'description' => 'required',
             'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',
