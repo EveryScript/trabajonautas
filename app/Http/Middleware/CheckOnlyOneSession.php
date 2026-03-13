@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,9 +22,8 @@ class CheckOnlyOneSession
                 ->exists();
 
             if (!$session) {
-                auth()->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+                Auth::guard('web')->logout();
+                $request->session()->forget('password_hash_web');
                 return redirect('/login')->with('error', 'Se ha iniciado sesión en otro dispositivo');
             }
         }
