@@ -94,42 +94,39 @@
                     <x-label for="current">Archivos actuales</x-label>
                     <div class="flex flex-row gap-2 mt-2 text-xl">
                         @foreach ($announcement->current_files as $file)
+                            @php
+                                $extension = pathinfo($file->url, PATHINFO_EXTENSION);
+                                $isImage = in_array($extension, ['png', 'jpg', 'jpeg']);
+                                $fileUrl = asset('storage/' . $file->url);
+
+                                $icon = match ($extension) {
+                                    'png', 'jpg', 'jpeg' => 'fa-file-image',
+                                    'pdf' => 'fa-file-pdf',
+                                    'docx' => 'fa-file-word',
+                                    'xls' => 'fa-file-excel',
+                                    'xlsx' => 'fa-file-excel',
+                                    'xlsm' => 'fa-file-excel',
+                                    'csv' => 'fa-file-excel',
+                                    default => 'fa-file',
+                                };
+                            @endphp
+
                             <div class="relative group" x-transition:leave="transition ease-in duration-300">
                                 <div
                                     class="px-8 py-4 transition border rounded cursor-pointer border-tbn-dark dark:border-tbn-light text-tbn-dark dark:text-tbn-light hover:border-tbn-primary hover:text-tbn-primary">
-                                    @switch(pathinfo($file->url, PATHINFO_EXTENSION))
-                                        @case('png')
-                                            <i class="text-3xl fas fa-file-image"
-                                                x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $file->url) }}'"></i>
-                                        @break
-
-                                        @case('jpg')
-                                            <i class="text-3xl fas fa-file-image"
-                                                x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $file->url) }}'"></i>
-                                        @break
-
-                                        @case('jpeg')
-                                            <i class="text-3xl fas fa-file-image"
-                                                x-on:click="modalPreview = true; previewUrl = '{{ asset('storage/' . $file->url) }}'"></i>
-                                        @break
-
-                                        @case('pdf')
-                                            <a href="{{ asset('storage/' . $file->url) }}" target="_blank">
-                                                <i class="text-3xl fas fa-file-pdf"></i></a>
-                                        @break
-
-                                        @case('docx')
-                                            <a href="{{ asset('storage/' . $file->url) }}" target="_blank">
-                                                <i class="text-3xl fas fa-file-word"></i></a>
-                                        @break
-
-                                        @default
-                                            <i class="text-3xl fas fa-file"></i>
-                                    @endswitch
+                                    @if ($isImage)
+                                        <i class="text-3xl fas {{ $icon }}"
+                                            x-on:click="modalPreview = true; previewUrl = '{{ $fileUrl }}'"></i>
+                                    @else
+                                        <a href="{{ $fileUrl }}" target="_blank">
+                                            <i class="text-3xl fas {{ $icon }}"></i>
+                                        </a>
+                                    @endif
                                 </div>
-                                <button type="button" wire:click='deleteCurrentFile({{ $file->id }})'
-                                    class="absolute w-6 h-6 text-white transition rounded-full opacity-0 bg-tbn-primary -top-1 -right-1 group-hover:opacity-100">
-                                    <i class="text-xs -translate-y-1 fa-solid fa-xmark"></i>
+                                <!-- Delete button -->
+                                <button type="button" wire:click="deleteCurrentFile({{ $file->id }})"
+                                    class="absolute flex items-center justify-center w-6 h-6 text-white transition rounded-full opacity-0 bg-tbn-primary -top-1 -right-1 group-hover:opacity-100">
+                                    <i class="text-xs fa-solid fa-xmark"></i>
                                 </button>
                             </div>
                         @endforeach

@@ -89,6 +89,10 @@
                                     'pdf' => 'fas fa-file-pdf',
                                     'docx' => 'fas fa-file-word',
                                     'doc' => 'fas fa-file-word',
+                                    'xls' => 'fas fa-file-excel',
+                                    'xlsx' => 'fas fa-file-excel',
+                                    'xlsm' => 'fas fa-file-excel',
+                                    'csv' => 'fas fa-file-excel',
                                 ];
                                 $icon = $icons[$extension] ?? 'fas fa-file'; // Icono por defecto
                             @endphp
