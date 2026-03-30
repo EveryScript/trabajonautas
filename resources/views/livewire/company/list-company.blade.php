@@ -56,9 +56,9 @@
                                     <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
                                         class="flex-shrink-0 object-cover object-center w-10 h-10 mb-4 rounded-lg sm:mb-0">
                                     <div class="truncate">
-                                        <h5 class="font-bold text-md dark:text-white">{{ $company->company_name }}</h5>
+                                        <h5 class="font-bold truncate text-md dark:text-white">{{ $company->company_name }}</h5>
                                         <span
-                                            class="text-sm font-normal text-tbn-secondary dark:text-tbn-light">{{ $company->description }}</span>
+                                            class="text-sm font-normal truncate text-tbn-secondary dark:text-tbn-light">{{ $company->description }}</span>
                                     </div>
                                 </div>
                             </th>
