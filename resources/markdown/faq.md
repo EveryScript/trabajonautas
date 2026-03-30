@@ -1,35 +1,84 @@
-### ¿Cómo puedo destacar mi perfil de "Trabajonauta"?
+#### SOBRE LA PLATAFORMA
 
-Para atraer a las mejores empresas, completa tu perfil al 100%, sube un portafolio actualizado y solicita validaciones de tus habilidades. Los perfiles con foto y biografía detallada tienen 3 veces más posibilidades de ser contactados.
+**¿Qué es TRABAJONAUTAS?**  
+Es una plataforma digital que reúne y difunde convocatorias laborales en Bolivia, permitiendo a los usuarios encontrar oportunidades de empleo organizadas por área profesional, ubicación y fecha.
 
-### ¿Tiene algún costo postularme a una oferta?
+**¿TRABAJONAUTAS es una agencia de empleo?**  
+No. TRABAJONAUTAS solo difunde convocatorias laborales y facilita el acceso a información de empleo. No participa en procesos de selección o contratación.
 
-¡Para nada! Registrarte y postularte a las misiones (vacantes) es totalmente gratuito para todos los Trabajonautas. Solo cobramos una pequeña comisión de servicio si eres un freelancer contratado a través de nuestra pasarela de pagos protegida.
+**¿TRABAJONAUTAS garantiza conseguir empleo?**  
+No. La plataforma permite acceder a oportunidades laborales, pero la selección y contratación dependen exclusivamente de las empresas o instituciones que publican las convocatorias.
 
-### ¿Qué es el "Escudo Trabajonauta"?
+**¿De dónde provienen las convocatorias?**  
+Las convocatorias pueden provenir de empresas verificadas o de fuentes públicas como páginas institucionales, portales oficiales o medios digitales.
 
-Es nuestro sistema de protección de pagos. Cuando aceptas un proyecto, el cliente deposita los fondos en garantía. Nosotros retenemos el dinero de forma segura y te lo liberamos automáticamente una vez que entregas el trabajo y el cliente lo aprueba.
+#### CUENTA Y REGISTRO
 
----
+**¿Necesito crear una cuenta para usar la plataforma?**  
+Sí. El registro permite acceder a funciones como guardar convocatorias, recibir notificaciones y personalizar la búsqueda de empleo.
 
-## 🏢 Para Empresas y Reclutadores
+**¿Puedo modificar mis datos personales?**  
+Sí. Puedes actualizar tu información en cualquier momento desde la configuración de tu cuenta.
 
-### ¿Cómo publico mi primera vacante o proyecto?
+**¿Mis datos personales son públicos?**  
+No. Tus datos se utilizan únicamente para personalizar convocatorias y mejorar la experiencia dentro de la plataforma.
 
-Es muy sencillo. Solo ve a tu panel de control, haz clic en "Lanzar Misión" y completa los detalles del puesto. Podrás elegir entre una búsqueda pública o invitar directamente a los Trabajonautas que mejor encajen con tu necesidad.
+**¿Cómo elimino mi cuenta?**  
+Puedes solicitar la eliminación de tu cuenta a través del soporte de la plataforma: [**soporte@trabajonautas.com**](mailto:soporte@trabajonautas.com)
 
-### ¿Cómo filtran la calidad de los profesionales?
+#### PLANES Y SUSCRIPCIONES
 
-En Trabajonautas.com utilizamos un sistema de "Reputación Galáctica". Cada profesional es evaluado por clientes anteriores en puntualidad, calidad y comunicación. Además, verificamos manualmente las identidades de los perfiles destacados.
+**¿Existe un plan gratuito?**  
+Sí. El plan **Free** permite acceder a convocatorias generales disponibles en la plataforma.
 
----
+**¿Qué beneficios tienen los planes PRO y PRO MAX?**  
+Estos planes ofrecen ventajas como:
 
-## 🛡️ Seguridad y Soporte
+- ACCESO A CONVOCATORIAS EXCLUSIVAS
+- ALERTAS ANTICIPADAS
+- FILTROS AVANZADOS DE BÚSQUEDA
 
-### ¿Qué hago si tengo un problema con un cliente o profesional?
+El plan **PRO MAX** incluye además **notificaciones en tiempo real**.
 
-Si surge una disputa durante una misión, puedes activar el botón de "Mediación" en el chat del proyecto. Un agente de soporte de Trabajonautas revisará las pruebas y ayudará a resolver el conflicto de forma justa.
+**¿Cuánto tarda en activarse una suscripción?**  
+La activación puede tardar hasta **24 horas hábiles**, mientras se verifica el pago.
 
-### ¿Mis datos personales están protegidos?
+#### CONVOCATORIAS
 
-Totalmente. En Trabajonautas.com cumplimos con las normativas internacionales de protección de datos. Tu información de contacto solo se revela a la contraparte una vez que una oferta ha sido aceptada o un contrato ha sido firmado.
+**¿Cómo puedo postular a una convocatoria?**  
+Cada convocatoria incluye instrucciones específicas para postular, como enlaces, correos o formularios proporcionados por la institución o empresa.
+
+**¿Puedo guardar convocatorias para revisarlas después?**  
+Sí. Puedes guardar convocatorias en tu cuenta para acceder a ellas posteriormente.
+
+**¿Qué es una convocatoria PRO?**  
+Es una convocatoria disponible únicamente para usuarios con planes PRO o PRO MAX.
+
+#### PROBLEMAS FRECUENTES
+
+**No puedo iniciar sesión**
+
+- Verifica que el correo y la contraseña sean correctos.
+- Usa la opción **recuperar contraseña** si olvidaste tus datos.
+
+**Mi suscripción no se activó**
+
+- La activación puede tardar hasta **24 horas hábiles** después del pago.
+
+Si el problema continúa, contacta con soporte: **soporte@trabajonautas.com**
+
+**No recibo notificaciones**
+
+- VERIFICA QUE HAYAS PERMITIDO LAS NOTIFICACIONES EN TU NAVEGADOR.
+- COMPRUEBA LA CONFIGURACIÓN DE NOTIFICACIONES EN TU CUENTA.
+
+**El enlace de una convocatoria no funciona**
+
+En algunos casos el enlace puede haber sido modificado o eliminado por la institución que publicó la convocatoria. Se recomienda revisar la página oficial de la entidad correspondiente.
+
+**Soporte**
+
+**¿Cómo puedo contactar con soporte?**
+
+Correo electrónico:  
+**soporte@trabajonautas.com**
