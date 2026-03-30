@@ -70,7 +70,7 @@
                             <tr wire:key='client-{{ $client->id }}'
                                 class="hover:bg-gray-300 dark:hover:bg-neutral-900">
                                 <th scope="row"
-                                    class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                    class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-wrap">
                                     <h5 class="inline font-medium text-md md:text-lg">
                                         {{ $client->name }}</h5>
                                 </th>
@@ -93,7 +93,7 @@
                                         </span>
                                     @elseif($client->account)
                                         <span
-                                            class="inline-block px-2 py-1 text-xs text-white {{ $client->account->account_type_id == 1 ? 'bg-green-600' : 'bg-tbn-primary' }} rounded-full tracking-wider">
+                                            class="inline-block text-xs {{ $client->account->account_type_id == 1 ? 'text-green-600' : 'text-tbn-primary' }} tracking-wide">
                                             <i
                                                 class="mr-1 fas {{ $client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
                                             {{ $client->account->type->name }}
