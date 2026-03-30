@@ -95,7 +95,7 @@
                                         <span
                                             class="inline-block text-xs {{ $client->account->account_type_id == 1 ? 'text-green-600' : 'text-tbn-primary' }} tracking-wide">
                                             <i
-                                                class="mr-1 fas {{ $client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
+                                                class="hidden mr-1 fas {{ $client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
                                             {{ $client->account->type->name }}
                                         </span>
                                     @else
