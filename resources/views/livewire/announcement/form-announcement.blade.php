@@ -162,18 +162,28 @@
                 </div>
                 <x-input-error for="announcement.description" class="mt-2" />
             </div>
+            <!-- Announcement PRO -->
             <div class="mb-4">
-                <x-input-checkbox-block checked="{{ $announcement->pro ? 'checked' : '' }}"
+                <x-input-checkbox-block x-model="isProAnnounce" checked="{{ $announcement->pro ? 'checked' : '' }}"
                     wire:model="announcement.pro">
-                    <div class="ms-4">
-                        <p class="font-medium text-black text-md dark:text-tbn-primary">Convocatoria PRO</p>
-                        <p class="text-xs text-tbn-dark dark:text-white">
-                            Esta convocatoria es exclusiva para los clientes que tengan una cuenta PRO o PRO-MAX. Se
-                            enviará una
-                            <strong class="dark:text-tbn-primary">notificación</strong> a los clientes PRO-MAX cuando
-                            guarde o actualice esta
-                            convocatoria.
-                        </p>
+                    <div class="divide-y ms-6 divide-tbn-secondary">
+                        <div class="w-full mb-2">
+                            <p class="font-medium text-black text-md dark:text-tbn-primary">Convocatoria PRO</p>
+                            <p class="text-xs text-tbn-dark dark:text-white">
+                                Esta convocatoria es exclusiva para los clientes que tengan una cuenta PRO o PRO-MAX. Se
+                                enviará una
+                                <strong class="dark:text-tbn-primary">notificación</strong> a los clientes PRO-MAX
+                                cuando
+                                guarde o actualice esta
+                                convocatoria.
+                            </p>
+                        </div>
+                        <div x-show="isProAnnounce" class="w-full pt-2 md:w-1/2">
+                            <x-label for="scheduled_at">Programar notificaciones</x-label>
+                            <x-input type="text" wire:model="announcement.scheduled_at" id="scheduled_at"
+                                placeholder="Definir fecha y hora" />
+                            <x-input-error for="announcement.scheduled_at" class="mt-2" />
+                        </div>
                     </div>
                 </x-input-checkbox-block>
                 <x-input-error for="announcement.pro" class="mt-2" />
@@ -254,10 +264,11 @@
             Alpine.data('content', () => ({
                 modalPreview: false,
                 previewUrl: null,
+                isProAnnounce: @json($id) ? $wire.announcement.pro : false,
+                profesionsSelectedIds: [],
                 profesions: @json($profesions),
                 locations: @json($locations),
                 areas: @json($areas),
-                profesionsSelectedIds: [],
                 salary: @json($id) ? $wire.announcement.salary : '',
                 init() {
                     flatpickr("#expiration_time", {
@@ -266,6 +277,15 @@
                         enableTime: true,
                         minDate: "today",
                         time_24hr: false,
+                        dateFormat: "Y-m-d H:i",
+                        "locale": "es"
+                    });
+                    flatpickr("#scheduled_at", {
+                        defaultDate: @json($id) ? $wire.announcement.scheduled_at :
+                            'today',
+                        enableTime: true,
+                        minDate: "today",
+                        time_24hr: true,
                         dateFormat: "Y-m-d H:i",
                         "locale": "es"
                     });

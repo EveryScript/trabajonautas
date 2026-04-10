@@ -21,22 +21,26 @@ class SendAnnouncementNotifications implements ShouldQueue
     public $backoff = 60; // Jobs value: Wait 60 seconds to try again
     public $announcement;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(Announcement $announcement)
     {
         $this->announcement = $announcement;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        // Abort if notification is sended
-        if ($this->announcement->notification_sent)
+        // Check if announcement was not deleted
+        $currentAnnouncement = Announcement::find($this->announcement->id);
+        if (!$currentAnnouncement) {
+            Log::info("Convocatoria {$this->announcement->id} ha sido eliminado antes de enviar las notificaciones.");
             return;
+        }
+
+        // Abort if notification is sended (scheduled too)
+        if ($currentAnnouncement->notification_sent)
+            return;
+
+        // Set current announcement validated
+        $this->announcement = $currentAnnouncement;
 
         // Get company data    
         $company = Company::find($this->announcement->company_id);

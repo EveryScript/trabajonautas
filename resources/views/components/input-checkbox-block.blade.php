@@ -3,7 +3,7 @@
     'disabled' => false,
 ])
 
-<div class="px-4 py-3 border bg-white dark:bg-tbn-dark rounded-lg cursor-pointer mb-4 border-tbn-primary">
+<div class="px-4 py-3 border bg-white dark:bg-tbn-dark rounded-lg cursor-pointer mb-4 border-tbn-primary divide-y divide-tbn-secondary">
     <label class="inline-flex items-center">
         <input type="checkbox" {{ $disabled ? 'disabled' : '' }} {{ $checked ? 'checked' : '' }} {!! $attributes->merge([
             'class' => 'sr-only peer',

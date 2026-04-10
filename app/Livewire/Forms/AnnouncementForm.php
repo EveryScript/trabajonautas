@@ -13,6 +13,7 @@ class AnnouncementForm extends Form
     public $salary;
     public $announce_files = [];
     public $pro = false;
+    public $scheduled_at;
     public $notification_sent = false;
     public $company_id;
     public $user_id;
@@ -29,6 +30,7 @@ class AnnouncementForm extends Form
         $this->expiration_time = $announcement_edit->expiration_time;
         $this->salary = $announcement_edit->salary;
         $this->pro = $announcement_edit->pro;
+        $this->scheduled_at = $announcement_edit->scheduled_at;
         $this->company_id = $announcement_edit->company_id;
         $this->user_id = $announcement_edit->user_id;
         $this->area_id = $announcement_edit->area_id;
@@ -46,6 +48,7 @@ class AnnouncementForm extends Form
             'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
+            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
             'company_id' => 'required',
             'user_id' => 'required',
@@ -60,6 +63,7 @@ class AnnouncementForm extends Form
             'expiration_time' => $this->expiration_time,
             'salary' => $this->salary,
             'pro' => $this->pro,
+            'scheduled_at' => $this->pro ? $this->scheduled_at : null,
             'company_id' => $this->company_id,
             'area_id' => $this->area_id,
             'user_id' => $this->user_id
@@ -91,6 +95,7 @@ class AnnouncementForm extends Form
             'expiration_time' => 'required|date|after:now',
             'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
+            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
             'company_id' => 'required',
             'user_id' => 'required',
@@ -104,6 +109,7 @@ class AnnouncementForm extends Form
             'expiration_time',
             'salary',
             'pro',
+            'scheduled_at',
             'company_id',
             'user_id',
             'area_id'
@@ -132,7 +138,9 @@ class AnnouncementForm extends Form
         return [
             'announce_files.*.max' => 'Los archivos de la convocatoria no deben ser mayores a 30MB',
             'announce_files.*.mimes' => 'Los archivos de la convocatoria deben ser documentos o imagenes',
-            'expiration_time.after' => 'La fecha de expiración debe ser superior al momento actual'
+            'expiration_time.after' => 'La fecha de expiración debe ser superior al momento actual',
+            'scheduled_at.after' => 'La fecha de programación debe ser superior al momento actual',
+            'scheduled_at.before' => 'La fecha de programación debe ser antes de la fecha de expiración'
         ];
     }
 
@@ -144,6 +152,7 @@ class AnnouncementForm extends Form
             'expiration_time' => 'expiración',
             'salary' => 'sueldo',
             'pro' => 'PRO',
+            'scheduled_at' => 'fecha de programación',
             'company_id' => 'empresa',
             'user_id' => 'usuario',
             'area_id' => 'area profesional',

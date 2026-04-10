@@ -10,6 +10,7 @@ use App\Models\Area;
 use App\Models\Company;
 use App\Models\Location;
 use App\Models\Profesion;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
@@ -36,7 +37,14 @@ class FormAnnouncement extends Component
         $this->announcement->user_id = auth()->user()->id;
         $announce_saved = $this->announcement->save();
         if ($this->announcement->pro && !$this->announcement->notification_sent) {
-            SendAnnouncementNotifications::dispatch($announce_saved);
+            if ($this->announcement->scheduled_at) {
+                // Scheduled notification
+                $delay = Carbon::parse($this->announcement->scheduled_at);
+                SendAnnouncementNotifications::dispatch($announce_saved)->delay($delay);
+            } else {
+                // Inmediately
+                SendAnnouncementNotifications::dispatch($announce_saved);
+            }
         }
         $this->redirectRoute('announcement', navigate: true);
     }
@@ -46,7 +54,14 @@ class FormAnnouncement extends Component
         $this->announcement->update($this->id);
         $announce_updated = Announcement::find($this->id);
         if ($this->announcement->pro && !$this->announcement->notification_sent) {
-            SendAnnouncementNotifications::dispatch($announce_updated);
+            if ($this->announcement->scheduled_at) {
+                // Scheduled notification
+                $delay = Carbon::parse($this->announcement->scheduled_at);
+                SendAnnouncementNotifications::dispatch($announce_updated)->delay($delay);
+            } else {
+                // Inmediately
+                SendAnnouncementNotifications::dispatch($announce_updated);
+            }
         }
         $this->redirectRoute('announcement', navigate: true);
     }

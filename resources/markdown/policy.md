@@ -4,29 +4,29 @@ En **TRABAJONAUTAS** valoramos profundamente la privacidad y la protección de l
 
 **TRABAJONAUTAS** adopta un enfoque ético, transparente y responsable en el tratamiento de la información personal, conforme a los siguientes principios:
 
-a)     **Transparencia:** informamos a los usuarios sobre la forma, el propósito y el alcance del tratamiento de sus datos personales. Detallamos qué información recopilamos, con qué finalidad, durante cuánto tiempo se conservará y con quién puede compartirse.
+a)    **Transparencia:** informamos a los usuarios sobre la forma, el propósito y el alcance del tratamiento de sus datos personales. Detallamos qué información recopilamos, con qué finalidad, durante cuánto tiempo se conservará y con quién puede compartirse.
 
-b)     **Consentimiento informado:** los datos se recopilan únicamente con el consentimiento previo, libre, específico e informado del usuario, salvo en los casos donde exista una base legal legítima que autorice su tratamiento.
+b)    **Consentimiento informado:** los datos se recopilan únicamente con el consentimiento previo, libre, específico e informado del usuario, salvo en los casos donde exista una base legal legítima que autorice su tratamiento.
 
-c)     **Minimización y exactitud:** solo solicitamos los datos estrictamente necesarios para el funcionamiento de la plataforma. Los datos deben ser veraces, completos y actualizados; no serán alterados sin autorización del usuario.
+c)    **Minimización y exactitud:** solo solicitamos los datos estrictamente necesarios para el funcionamiento de la plataforma. Los datos deben ser veraces, completos y actualizados; no serán alterados sin autorización del usuario.
 
-d)     **Seguridad y confidencialidad:** aplicamos medidas técnicas y organizativas  apropiadas para evitar accesos no autorizados, pérdidas, alteraciones o usos indebidos de la información. Solo el personal autorizado puede acceder a datos personales y está sujeto a deberes de confidencialidad.
+d)    **Seguridad y confidencialidad:** aplicamos medidas técnicas y organizativas  apropiadas para evitar accesos no autorizados, pérdidas, alteraciones o usos indebidos de la información. Solo el personal autorizado puede acceder a datos personales y está sujeto a deberes de confidencialidad.
 
-e)     **Derechos ARCO:** los usuarios pueden acceder, rectificar, limitar o eliminar sus datos en cualquier momento, de acuerdo con los procedimientos descritos más adelante.
+e)    **Derechos ARCO:** los usuarios pueden acceder, rectificar, limitar o eliminar sus datos en cualquier momento, de acuerdo con los procedimientos descritos más adelante.
 
             **2**. **Recopilación de datos**
 
 **TRABAJONAUTAS** recopila información personal y técnica de los usuarios con el propósito de ofrecer una experiencia personalizada, segura y funcional. Los principales medios de obtención de datos son los siguientes:
 
-a)     **Registro de usuario:** al crear una cuenta, se recaban datos personales básicos como nombre completo, dirección de correo electrónico, número telefónico, profesión, departamento de residencia, género, información profesional edad y contraseña. Se debe tomar en cuenta que no se puede modificar los datos de nombre, correo electrónico, profesión y  departamento de residencia pues son necesarios para el correcto funcionamiento del sistema. En caso de que el cliente requiera cambiar dichos datos de forma forzosa, puede recurrir a la opción de crear otra cuenta. Si está permitido modificar los datos de numero telefónico, género, edad e información profesional, pues estos datos no interfieren con el funcionamiento del sistema.
+a)    **Registro de usuario:** al crear una cuenta, se recaban datos personales básicos como nombre completo, dirección de correo electrónico, número telefónico, profesión, departamento de residencia, género, información profesional edad y contraseña.
 
-b)     **Uso de la plataforma:** se recopilan datos derivados de la interacción del usuario con la plataforma, tales como búsquedas realizadas, convocatorias consultadas, filtros aplicados, historial de inicio de sesión y configuraciones de notificaciones.
+b)    **Uso de la plataforma:** se recopilan datos derivados de la interacción del usuario con la plataforma, tales como búsquedas realizadas, convocatorias consultadas, filtros aplicados, historial de inicio de sesión y configuraciones de notificaciones.
 
-c)     **Soporte técnico o contacto:** cuando el usuario se comunica con nuestro equipo de atención o soporte, se recopilan los datos necesarios para atender su consulta, incluyendo el contenido del mensaje y los datos de contacto utilizados.
+c)    **Soporte técnico o contacto:** cuando el usuario se comunica con nuestro equipo de atención o soporte, se recopilan los datos necesarios para atender su consulta, incluyendo el contenido del mensaje y los datos de contacto utilizados.
 
-d)     **Datos técnicos y de navegación:** **TRABAJONAUTAS** recopila automáticamente información técnica como dirección IP, tipo de navegador, sistema operativo, dispositivo utilizado y fecha de acceso. Además, podrá utilizar cookies y tecnologías similares para mantener la sesión iniciada, recordar preferencias y mejorar la funcionalidad del sitio.
+d)    **Datos técnicos y de navegación:** **TRABAJONAUTAS** recopila automáticamente información técnica como dirección IP, tipo de navegador, sistema operativo, dispositivo utilizado y fecha de acceso. Además, podrá utilizar cookies y tecnologías similares para mantener la sesión iniciada, recordar preferencias y mejorar la funcionalidad del sitio.
 
-e)     **Datos financieros:** en caso de adquirir planes de suscripción (PRO o PRO MAX), se recopilará información sobre el método de pago, monto, fecha de transacción y comprobante correspondiente. **TRABAJONAUTAS** no almacena información de tarjetas de crédito o débito; las transacciones son procesadas mediante pagos QR. Estos datos son gestionados mediante proveedores de servicios de pago autorizados, bajo altos estándares de seguridad, y únicamente se almacenan en la medida estrictamente necesaria.
+e)    **Datos financieros:** en caso de adquirir planes de suscripción (PRO o PRO MAX), se recopilará información sobre el método de pago, monto, fecha de transacción y comprobante correspondiente. **TRABAJONAUTAS** no almacena información de tarjetas de crédito o débito; las transacciones son procesadas mediante pagos QR. Estos datos son gestionados mediante proveedores de servicios de pago autorizados, bajo altos estándares de seguridad, y únicamente se almacenan en la medida estrictamente necesaria.
 
 Los datos personales recopilados nunca serán públicos sin consentimiento, salvo aquellos necesarios para el funcionamiento normal del perfil (por ejemplo, nombre y profesión visibles en una postulación).
 
@@ -34,23 +34,23 @@ Los datos personales recopilados nunca serán públicos sin consentimiento, salv
 
 La información personal recopilada es utilizada por TRABAJONAUTAS con las siguientes finalidades:
 
-●       Permitir la creación y gestión de cuentas de usuario.
+●     Permitir la creación y gestión de cuentas de usuario.
 
-●       Personalizar la experiencia de uso mediante filtros, alertas y convocatorias afines al perfil del usuario.
+●     Personalizar la experiencia de uso mediante filtros, alertas y convocatorias afines al perfil del usuario.
 
-●       Analizar perfiles profesionales y encontrar convocatorias adecuadas para el usuario.
+●     Analizar perfiles profesionales y encontrar convocatorias adecuadas para el usuario.
 
-●       Facilitar la contratación de planes y el procesamiento de pagos.
+●     Facilitar la contratación de planes y el procesamiento de pagos.
 
-●       Enviar notificaciones, avisos de vencimiento, actualizaciones de servicio y mensajes administrativos, como otro tipo de comunicaciones con el usuario.
+●     Enviar notificaciones, recordatorios, avisos de vencimiento, actualizaciones de servicio y mensajes administrativos, como otro tipo de comunicaciones con el usuario.
 
-●       Detectar y prevenir conductas fraudulentas, accesos no autorizados o publicaciones falsas.
+●     Detectar y prevenir conductas fraudulentas, accesos no autorizados o publicaciones falsas.
 
-●       Cumplir con obligaciones legales, tributarias o regulatorias.
+●     Cumplir con obligaciones legales, tributarias o regulatorias.
 
-●       Analizar datos de uso (de forma anónima o agregada) para mejorar la funcionalidad, seguridad y rendimiento de la plataforma.
+●     Analizar datos de uso (de forma anónima o agregada) para mejorar la funcionalidad, seguridad y rendimiento de la plataforma.
 
-●       Mejorar nuestros servicios o crear nuevos productos e identificar cambios en el mercado laboral.
+●     Mejorar nuestros servicios o crear nuevos productos e identificar cambios en el mercado laboral.
 
 **TRABAJONAUTAS** nunca comercializa los datos personales de sus usuarios ni los utiliza con fines publicitarios externos sin su consentimiento explícito. Tampoco los comparte directamente con empresas ofertantes o convocantes. Las postulaciones son voluntarias por parte de los usuarios.
 
@@ -74,7 +74,7 @@ d.    En caso de una brecha de seguridad o intento de ataque, **TRABAJONAUTAS
 
 e.    Auditorías de seguridad internas y externas de forma periódica para identificar vulnerabilidades en nuestra infraestructura, sistemas y procesos.
 
-f.      Auditorías de seguridad internas y externas de forma periódica para identificar vulnerabilidades en nuestra infraestructura, sistemas y procesos.
+f.     Auditorías de seguridad internas y externas de forma periódica para identificar vulnerabilidades en nuestra infraestructura, sistemas y procesos.
 
 g.    Capacitación en Seguridad de la Información a todo el personal de **TRABAJONAUTAS** para evitar errores humanos que puedan comprometer la seguridad de la Plataforma.
 
@@ -86,7 +86,7 @@ En caso de producirse una vulneración de seguridad que comprometa la confidenci
 
 **TRABAJONAUTAS** recuerda a los Usuarios que la seguridad de sus datos también depende del uso responsable de sus credenciales y del mantenimiento de dispositivos actualizados y protegidos frente a virus o software malicioso.
 
-            5. **Compartición de datos**
+            4. **Compartición de datos**
 
 En **TRABAJONAUTAS** nos comprometemos a no compartir los datos personales de nuestros Usuarios con terceros, salvo en los casos estrictamente necesarios y siempre garantizando el cumplimiento de las normativas de protección de datos aplicables. En los supuestos en que la información deba compartirse con proveedores de servicios tecnológicos, pasarelas de pago, sistemas de geolocalización u otros aliados necesarios para el funcionamiento de la Plataforma, se firmarán acuerdos de confidencialidad y se adoptarán medidas de seguridad para asegurar el tratamiento adecuado de la información. Asimismo, en caso de una fusión, adquisición o venta de activos, los datos de los Usuarios podrán ser transferidos a la nueva entidad, lo cual será informado oportunamente mediante la actualización de nuestras Política de Privacidad.
 
@@ -102,7 +102,7 @@ Todos los empleados, colaboradores y terceros que tengan acceso a los sistemas d
 
 **TRABAJONAUTAS** no asume responsabilidad por los errores, omisiones o fallos que puedan surgir de la integración con servicios de terceros, dentro de lo posible. Esto incluye, pero no se limita a, problemas relacionados con cualquier error o inconveniente que pueda surgir durante el procesamiento de pagos o transacciones gestionadas por estos terceros, interrupciones o fallos en los servicios ofrecidos por terceros, la forma en que estos terceros gestionan, almacenan o utilizan los datos que compartimos con ellos, ni de cualquier impacto que pueda resultar del uso de sus servicios.
 
-            **6. Derechos de los usuarios**
+            **5. Derechos de los usuarios**
 
 En **TRABAJONAUTAS** reconocemos y garantizamos a nuestros Usuarios el pleno ejercicio de los derechos vinculados a la protección de sus datos personales, en especial los derechos relacionados a la autodeterminación informática de acceso, rectificación, cancelación y oposición (ARCO) de su información, así como cualquier otro derecho reconocido por la legislación vigente, sin restricción alguna. Estos derechos podrán ejercerse en cualquier momento, siempre que el solicitante acredite debidamente su identidad y capacidad legal para ello.
 
@@ -116,21 +116,21 @@ Se reconoce también el derecho de oposición al Usuario cuando no desee que su 
 
 A continuación, explicamos cómo funcionan nuestros procesos para hacer efectivos los derechos establecidos anteriormente:
 
-a.     **Acceso a la Información:** En cualquier momento el Usuario tiene derecho a solicitar su información, enviando un correo electrónico a nuestros canales de contacto. **TRABAJONAUTAS** procesa dichas solicitudes en un plazo no mayor a cuarenta y cinco (45) días, proporcionando la posibilidad de inspección y revisión de los datos solicitados.
+a.    **Acceso a la Información:** En cualquier momento el Usuario tiene derecho a solicitar su información, enviando un correo electrónico a nuestros canales de contacto. **TRABAJONAUTAS** procesa dichas solicitudes en un plazo no mayor a cuarenta y cinco (45) días, proporcionando la posibilidad de inspección y revisión de los datos solicitados.
 
-b.     **Rectificación:** Si el Usuario considera que su información se encuentra incorrecta y no puede cambiarla, puede solicitar su rectificación a través del correo electrónico de **TRABAJONAUTAS** al [soporte@trabajonautas.com](mailto:soporte@trabajonautas.com) indicando los datos incorrectos y la corrección solicitada. Procesaremos su solicitud en el menor tiempo posible, garantizando la actualización de su información.
+b.    **Rectificación:** Si el Usuario considera que su información se encuentra incorrecta y no puede cambiarla, puede solicitar su rectificación a través del correo electrónico de **TRABAJONAUTAS** al [soporte@trabajonautas.com](mailto:soporte@trabajonautas.com) indicando los datos incorrectos y la corrección solicitada. Procesaremos su solicitud en el menor tiempo posible, garantizando la actualización de su información.
 
 Una vez ingresada la solicitud, se realizará la verificación de la información. En caso de que el error sea evidente y/o cierto, se realizará el cambio, caso contrario se denegará la solicitud. 
 
-c.      **Eliminación:** Conservamos la información de los Usuarios durante el tiempo necesario para proporcionar nuestros servicios de manera efectiva. Si el Usuario tiene una cuenta en **TRABAJONAUTAS**, la información asociada a ella se mantendrá hasta que decida eliminarla; sin embargo, tiene la opción de hacerlo en cualquier momento, solicitando la eliminación de sus datos en la medida en que no haya una obligación legal o contractual que nos impida hacerlo.
+c.     **Eliminación:** Conservamos la información de los Usuarios durante el tiempo necesario para proporcionar nuestros servicios de manera efectiva. Si el Usuario tiene una cuenta en **TRABAJONAUTAS**, la información asociada a ella se mantendrá hasta que decida eliminarla; sin embargo, tiene la opción de hacerlo en cualquier momento, solicitando la eliminación de sus datos en la medida en que no haya una obligación legal o contractual que nos impida hacerlo. Al eliminar su información personal, los datos dejarán de estar disponibles en **TRABAJONAUTAS**.
 
-d.     **Oposición y Restricción:** Si los Usuarios ya no desean que su información sea utilizada para alguna de nuestras finalidades declaradas o si creen que sus datos no están siendo procesados correctamente, pueden oponerse a su procesamiento o restringir su uso, en ejercicio de su autodeterminación informativa. No podremos continuar brindando el servicio si se opone al tratamiento de datos necesarios para su identificación y el uso de funciones básicas de la plataforma.
+d.    **Oposición y Restricción:** Si los Usuarios ya no desean que su información sea utilizada para alguna de nuestras finalidades declaradas o si creen que sus datos no están siendo procesados correctamente, pueden oponerse a su procesamiento o restringir su uso, en ejercicio de su autodeterminación informativa. No podremos continuar brindando el servicio si se opone al tratamiento de datos necesarios para su identificación y el uso de funciones básicas de la plataforma.
 
-**TRABAJONAUTAS** no recopila ni trata de forma consciente datos personales de mayores de 18 años, ya que la plataforma está diseñada exclusivamente para menores de edad, hábiles por ley. En caso de detectarse una cuenta registrada por un menor de edad, será eliminada de inmediato tras verificarse la situación.
+**TRABAJONAUTAS** no recopila ni trata de forma consciente datos personales de menores de 18 años, ya que la plataforma está diseñada exclusivamente para menores de edad, hábiles por ley. En caso de detectarse una cuenta registrada por un menor de edad, será eliminada de inmediato tras verificarse la situación.
 
 En **TRABAJONAUTAS** nos aseguramos de que el Usuario tenga control sobre sus datos personales y le brindamos la posibilidad de acceder y eliminar su información cuando lo desee. Estamos aquí para proteger su privacidad en todo momento**.**
 
-            **7. Cumplimiento internacional de datos**
+            **6. Cumplimiento internacional de datos**
 
 **TRABAJONAUTAS** toma estándares de protección altos como los que dispone la regulación de leyes internacionales y locales aplicables para proteger los datos personales y garantizar el cumplimiento de las normativas de privacidad y seguridad. Entre las principales, se incluyen:
 
@@ -144,7 +144,7 @@ Cuando se transfieran datos personales fuera de las fronteras nacionales, **TRAB
 
 Aseguramos que todos los datos personales de los Usuarios sean protegidos de acuerdo con las mejores prácticas de seguridad cibernética y las leyes de privacidad aplicables, garantizando la confidencialidad y protección contra accesos no autorizados.
 
-            **8**. **Transferencia internacional de datos**
+            **7**. **Transferencia internacional de datos**
 
 En **TRABAJONAUTAS** entendemos la importancia de proteger la privacidad y la seguridad de la información personal de nuestros Usuarios. Nos comprometemos a cumplir con las leyes de protección de datos aplicables.
 
@@ -154,13 +154,13 @@ En los casos en los que sea necesario realizar una transferencia internacional d
 
 En **TRABAJONAUTAS**, nuestra prioridad es garantizar que la información personal de los Usuarios permanezca protegida, independientemente del lugar donde se procese o almacene, manteniendo la transparencia y el control sobre el uso de sus datos.
 
-            **9. Protección al consumidor**
+            **8. Protección al consumidor**
 
 **TRABAJONAUTAS** se compromete a garantizar la protección de los derechos de los consumidores y la transparencia en todos los servicios que ofrece. Para lo cual, **TRABAJONAUTAS** proporciona información clara y accesible sobre los servicios, tarifas y los términos de uso. Los usuarios pueden acceder a toda la información relevante antes de realizar cualquier acuerdo.
 
 Los datos personales de los Usuarios son protegidos de acuerdo con las mejores prácticas de seguridad cibernética y las leyes de privacidad aplicables, garantizando la confidencialidad y protección contra accesos no autorizados. En caso de que surgiera alguna controversia relacionada con la Plataforma, **TRABAJONAUTAS** ofrece mecanismos para la resolución de disputas y se compromete a actuar de manera justa y equitativa en caso de cualquier problema o queja por parte de los Usuarios.
 
-            **10. Actualizacion de politicas**
+            **9. Actualizacion de politicas**
 
 Nos comprometemos a mantener a nuestros Usuarios informados sobre cualquier cambio significativo en nuestras Políticas de Privacidad, Términos de Uso o cualquier otra política relevante. Cualquier modificación será notificada con los detalles de la actualización, cuando sea relevante para su cuenta o sus operaciones en la Plataforma. Además, las actualizaciones se reflejarán en la propia Plataforma, en la sección correspondiente de Términos y Condiciones o Políticas de Privacidad, para que los Usuarios puedan revisar las modificaciones en cualquier momento.
 

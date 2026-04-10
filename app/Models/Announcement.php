@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\AnnouncementObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,12 @@ class Announcement extends Model
 
     // Permissions
     public $guarded = [];
+
+    // Casts
+    protected $casts = [
+        'expiration_time' => 'datetime',
+        'scheduled_at' => 'datetime'
+    ];
 
     // Relationships
     public function user(): BelongsTo
@@ -57,5 +64,11 @@ class Announcement extends Model
             ->where('id', '!=', $currentId)
             ->where('expiration_time', '>=', now())
             ->limit(5);
+    }
+
+    // Observer (delete jobs on delete announcement)
+    protected static function booted(): void
+    {
+        static::observe(AnnouncementObserver::class);
     }
 }

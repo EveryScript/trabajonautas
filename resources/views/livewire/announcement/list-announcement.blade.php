@@ -54,13 +54,25 @@
                         <tr wire:key='{{ $announcement->id }}' class="hover:bg-gray-300 dark:hover:bg-neutral-900">
                             <th scope="row "
                                 class="px-6 py-4 font-medium max-w-60 sm:max-w-md lg:max-w-lg whitespace-wrap">
-                                <h5 class="font-bold truncate text-md dark:text-white">
+                                <h5 class="mb-1 font-bold truncate text-md dark:text-white">
                                     {{ $announcement->announce_title }}
                                 </h5>
                                 <p class="text-xs font-normal text-tbn-dark dark:text-tbn-light">
+                                    <!-- Area name -->
                                     {{ $announcement->area ? $announcement->area->area_name : '(area no definida)' }}
+                                    <!-- Scheduled at -->
+                                    @php
+                                        $scheduled_time_left = Carbon\Carbon::parse($announcement->scheduled_at);
+                                    @endphp
+                                    @if ($scheduled_time_left->isFuture())
+                                        <span class="text-xs font-light text-tbn-primary">
+                                            <i class="inline ml-2 mr-1 fa-solid fa-clock"></i>
+                                            {{ \Carbon\Carbon::parse($announcement->scheduled_at)->format('d-m-Y H:i') }}
+                                        </span>
+                                    @endif
+                                    <!-- Expired -->
                                     @if ($announcement->expiration_time < now())
-                                        <span class="text-xs font-thin text-tbn-primary">(expirada)</span>
+                                        <span class="text-xs font-light text-tbn-primary">(expirada)</span>
                                     @endif
                                 </p>
                             </th>

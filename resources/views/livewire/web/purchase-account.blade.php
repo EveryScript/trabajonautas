@@ -295,11 +295,23 @@
                     this.step = 2
                 },
                 get filteredProfesions() {
-                    if (this.searchProfesion === '')
+                    if (!this.searchProfesion.trim())
                         return this.profesions
-                    return this.profesions.filter(p =>
-                        p.profesion_name.toLowerCase().includes(this.searchProfesion.toLowerCase())
-                    );
+
+                    const normalizeText = (text) => text
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '') // elimina acentos
+                        .replace(/\s+/g, ' ')
+                        .toLowerCase()
+                        .trim()
+
+                    const search = normalizeText(this.searchProfesion)
+                    const terms = search.split(' ').filter(Boolean)
+
+                    return this.profesions.filter(p => {
+                        const name = normalizeText(p.profesion_name)
+                        return terms.every(term => name.includes(term))
+                    })
                 },
                 copyClipboardBankAccount() {
                     navigator.clipboard.writeText(this.bankAccount)
