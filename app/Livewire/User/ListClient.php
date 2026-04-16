@@ -21,7 +21,7 @@ class ListClient extends Component
     public function clients()
     {
         return User::withTrashed()->role(config('app.client_role'))
-            ->select('id', 'name', 'location_id', 'register_completed', 'actived', 'updated_at', 'deleted_at')
+            ->select('id', 'name', 'email', 'phone', 'location_id', 'register_completed', 'actived', 'updated_at', 'deleted_at')
             ->with(['latestPendingSubscription.type', 'account.type', 'location:id,location_name'])
 
             // Filter by account type
@@ -51,7 +51,9 @@ class ListClient extends Component
             })
             // Filter by name
             ->when($this->search, function ($query) {
-                $query->where('name', 'LIkE', '%' . $this->search . '%');
+                $query->where('name', 'LIkE', '%' . $this->search . '%')
+                    ->orWhere('email', 'LIkE', '%' . $this->search . '%')
+                    ->orWhere('phone', 'LIkE', '%' . $this->search . '%');
             })
             ->latest('updated_at')
             ->simplePaginate(10);

@@ -5,10 +5,19 @@
             Todas las convocatorias de trabajo registradas en el portal de empleos Trabajonautas.com
         </x-slot>
         <x-slot name="search_field">
-            <div class="flex flex-row h-full gap-1 sm:h-10">
-                <x-input type="search" name="search" wire:keydown.enter="$set('search', $event.target.value)"
-                    class="w-full" placeholder="Buscar convocatoria" />
-                <x-button type="button" href="{{ route('new-announcement') }}" wire:navigate>Nuevo</x-button>
+            <div class="flex flex-row flex-1 h-full gap-1 sm:h-10">
+                <div wire:ignore class="flex-1 tbn-tom-select">
+                    <select id="announcement-search">
+                        @foreach ($profesions as $profesion)
+                            <option value="{{ $profesion->profesion_name }}">{{ $profesion->profesion_name }}</option>
+                        @endforeach
+                        @foreach ($locations as $location)
+                            <option value="{{ $location->location_name }}">{{ $location->location_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <x-button type="button" class="h-[3.2rem]" href="{{ route('new-announcement') }}"
+                    wire:navigate>Nuevo</x-button>
             </div>
         </x-slot>
     </x-title-app>
@@ -127,6 +136,21 @@
     @script
         <script>
             Alpine.data('content', () => ({
+                search_ts: null,
+                init() {
+                    this.search_ts = new TomSelect('#announcement-search', {
+                        create: true,
+                        placeholder: 'Título, profesión, ubicación',
+                        allowEmptyOption: true,
+                        onChange: (value) => {
+                            $wire.set('search', value || null)
+                        }
+                    })
+                },
+                destroy() {
+                    if (this.search_ts)
+                        this.search_ts.destroy();
+                },
                 confirmModal(id) {
                     Swal.fire({
                         title: "¿Eliminar convocatoria?",

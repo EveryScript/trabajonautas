@@ -6,10 +6,10 @@
                 Administra la información de todos los clientes de Trabajonautas
             </x-slot>
             <x-slot name="search_field" class="relative">
-                <div class="flex flex-row justify-end h-full gap-1 sm:h-10">
+                <div class="flex flex-col justify-end flex-1 h-full gap-1 sm:flex-row sm:h-10">
                     <x-input id="search" type="search" wire:keydown.enter="$set('search', $event.target.value)"
-                        class="w-full" placeholder="Buscar cliente" />
-                    <x-select wire:model.live='filter_client' class="pr-10">
+                        class="w-full" placeholder="Nombre, email, celular" />
+                    <x-select wire:model.live='filter_client' class="pr-10 w-full sm:max-w-[12rem]">
                         <option value="">Todos los clientes</option>
                         <option value="pending">Clientes pendientes</option>
                         <optgroup label="Por tipo de cuenta">
