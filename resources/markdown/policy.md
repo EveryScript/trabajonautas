@@ -126,7 +126,7 @@ c.     **Eliminación:** Conservamos la información de los Usuarios durante
 
 d.    **Oposición y Restricción:** Si los Usuarios ya no desean que su información sea utilizada para alguna de nuestras finalidades declaradas o si creen que sus datos no están siendo procesados correctamente, pueden oponerse a su procesamiento o restringir su uso, en ejercicio de su autodeterminación informativa. No podremos continuar brindando el servicio si se opone al tratamiento de datos necesarios para su identificación y el uso de funciones básicas de la plataforma.
 
-**TRABAJONAUTAS** no recopila ni trata de forma consciente datos personales de menores de 18 años, ya que la plataforma está diseñada exclusivamente para menores de edad, hábiles por ley. En caso de detectarse una cuenta registrada por un menor de edad, será eliminada de inmediato tras verificarse la situación.
+**TRABAJONAUTAS** no recopila ni trata de forma consciente datos personales de menores de 18 años, ya que la plataforma está diseñada exclusivamente para mayores de edad, hábiles por ley. En caso de detectarse una cuenta registrada por un menor de edad, será eliminada de inmediato tras verificarse la situación.
 
 En **TRABAJONAUTAS** nos aseguramos de que el Usuario tenga control sobre sus datos personales y le brindamos la posibilidad de acceder y eliminar su información cuando lo desee. Estamos aquí para proteger su privacidad en todo momento**.**
 

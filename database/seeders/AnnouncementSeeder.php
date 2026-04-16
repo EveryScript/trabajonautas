@@ -42,7 +42,7 @@ class AnnouncementSeeder extends Seeder
         ]);
         */
         Announcement::factory()
-            ->count(20)
+            ->count(120)
             ->create()
             ->each(function ($announcement) {
                 $profesion_ids = Profesion::inRandomOrder()->limit(rand(1, 3))->pluck('id');

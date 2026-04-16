@@ -42,8 +42,7 @@
                         por WhatsApp para habilitar tu cuenta hoy mismo.
                     </x-slot>
                     <x-slot name="buttons">
-                        <x-button-link
-                            href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $this->client->latestPendingSubscription->type->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $this->client->name }}."
+                        <x-button-link href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $this->client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $this->client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $this->client->email }}."
                             target="_blank" class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>

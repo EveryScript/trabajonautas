@@ -27,7 +27,7 @@
                     </p>
                     <a class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary"
                         target="_blank"
-                        href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->latestPendingSubscription->type->name }}%20por%20QR.%20Mi%20nombre%20es%20{{ $client->name }}.">
+                        href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $client->email }}.">
                         <i class="mr-1 fab fa-whatsapp"></i> Enviar mensaje</a>
                 </div>
             @else

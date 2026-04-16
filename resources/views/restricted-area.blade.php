@@ -1,30 +1,36 @@
 <x-web-layout>
-    <section class="flex flex-col justify-center py-48 bg-gray-50 dark:bg-neutral-900 sm:px-6 lg:px-8">
+    <section class="flex flex-col justify-center py-20 bg-gray-50 dark:bg-neutral-900 sm:px-6 lg:px-8">
         <div class="text-center sm:mx-auto sm:w-full sm:max-max-md">
-            <div class="flex items-center justify-center w-24 h-24 mx-auto mb-8 bg-indigo-100 rounded-full">
-                <picture class="block mb-4">
-                    <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty" class="max-w-[8rem] mx-auto mb-2">
+            <div class="flex items-center justify-center mx-auto mb-2 rounded-full">
+                <picture class="block">
+                    <img src="{{ asset('storage/img/astro-res.webp') }}" alt="empty"
+                        class="max-w-[9rem] mx-auto">
                 </picture>
             </div>
 
             <h2
                 class="mb-4 text-3xl font-extrabold tracking-tight text-center text-tbn-dark dark:text-white sm:text-4xl">
-                Planeta restringido
+                Así que quieres ver esta convocatoria...
             </h2>
-
-            <p class="max-w-md mx-auto mb-6 text-base text-tbn-secondary dark:text-tbn-light">
-                Lo sentimos, pero no puedes acceder a convocatorias PRO que <strong>NO</strong> corresponden a tu
-                profesión actual.
-                Existen más convocatorias adecuadas para ti en el Panel de Usuario o encuentra muchas más en el area de
-                Búsqueda.
-            </p>
+            <div class="max-w-3xl mx-auto">
+                <p class="px-4 mb-2 text-xl font-semibold text-tbn-secondary dark:text-tbn-light">
+                    Lo sentimos, esta misión <strong class="text-tbn-primary">NO</strong> coincide con tu profesión
+                    actual. <br> El radar la muestra para que puedas invitar a otros amigos exploradores a unirse y completar el
+                    desafío.
+                </p>
+                <p class="px-4 mb-2 text-base text-tbn-secondary dark:text-tbn-light" hidden>
+                    El radar la muestra para que puedas invitar a otros amigos exploradores a unirse y completar el
+                    desafío.
+                </p>
+                <p class="px-4 mb-6 text-lg italic text-tbn-primary">
+                    ¡No guardes tu casco todavía! Tu próxima gran aventura ya te espera en el <strong>Panel de
+                        Usuario</strong>.
+                </p>
+            </div>
 
             <div class="flex flex-col justify-center gap-2 mb-8 md:flex-row">
-                <a href="{{ route('search') }}" wire:navigate>
-                    <x-button>Buscar convocatorias</x-button>
-                </a>
                 <a href="{{ route('dashboard') }}" wire:navigate>
-                    <x-secondary-button>Ir al Panel de Usuario</x-secondary-button>
+                    <x-button>Ir al Panel de Usuario</x-button>
                 </a>
             </div>
             <div class="text-xs text-tbn-secondary dark:text-tbn-light">

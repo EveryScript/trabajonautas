@@ -31,7 +31,7 @@ class DashboardClient extends Component
     #[Computed(persist: true)]
     public function client()
     {
-        return User::select('id', 'name', 'phone', 'location_id', 'profesion_id', 'grade_profile_id', 'last_announce_check')
+        return User::select('id', 'name', 'email', 'phone', 'location_id', 'profesion_id', 'grade_profile_id', 'last_announce_check')
             ->with([
                 'account:id,user_id,account_type_id,limit_time,device_token',
                 'account.type:id,name,price,duration_days',

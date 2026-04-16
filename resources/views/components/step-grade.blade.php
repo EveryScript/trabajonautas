@@ -53,7 +53,7 @@
                         <label for="profile-5"
                             class="flex justify-center items-center h-14 sm:h-[5rem] px-5 py-16 text-tbn-secondary dark:text-white bg-white dark:bg-tbn-dark border border-tbn-light dark:border-tbn-secondary rounded-lg cursor-pointer peer-checked:border-tbn-primary peer-checked:ring-2 peer-checked:ring-tbn-primary peer-checked:text-tbn-primary hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all">
                             <div>
-                                <span class="block font-bold uppercase">Titulado</span>
+                                <span class="block font-bold uppercase">LICENCIATURA</span>
                                 <p class="text-xs dark:text-tbn-light">Actualmente con titulo en provisión nacional.
                                 </p>
                             </div>

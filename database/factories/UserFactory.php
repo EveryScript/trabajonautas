@@ -12,12 +12,21 @@ class UserFactory extends Factory
 {
     public function definition(): array
     {
+        // Clients factory
         return [
             'id' => Str::uuid(),
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'terms_accepted_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'phone' => $this->faker->randomElement(['6', '7']) . $this->faker->numerify('#######'),
+            'gender' => $this->faker->randomElement(['M', 'F']),
+            'age' => $this->faker->numberBetween(1, 3),
+            'register_completed' => true,
+            'location_id' => $this->faker->numberBetween(1, 9),
+            'profesion_id' => $this->faker->numberBetween(1, 149),
+            'grade_profile_id' => $this->faker->numberBetween(1, 5),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'remember_token' => Str::random(10),
