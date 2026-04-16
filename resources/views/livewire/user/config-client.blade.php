@@ -10,13 +10,13 @@
                 <div class="mb-4">
                     <span class="text-xs font-normal text-tbn-primary">Profesión</span>
                     <p class="text-tbn-dark dark:text-white">
-                        {{ $this->client->profesion->profesion_name ?? 'No definida' }}</p>
+                        {{ $this->client->profesion->profesion_name ?? '(no definida)' }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-2 mb-4">
                     <div>
                         <span class="text-xs font-normal text-tbn-primary">Ubicación</span>
                         <p class="text-tbn-dark dark:text-white">
-                            {{ $this->client->location->location_name ?? 'No definida' }}
+                            {{ $this->client->location->location_name ?? '(no definida)' }}
                     </div>
                     <div>
                         <span class="text-xs font-normal text-tbn-primary">Celular</span>

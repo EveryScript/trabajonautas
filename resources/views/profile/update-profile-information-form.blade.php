@@ -105,15 +105,17 @@
         </div>
 
         <!-- Profesion -->
-        <div class="mb-4">
-            <x-label for="profesion" value="{{ __('Profesion') }}" />
-            <x-select class="block w-full mt-1" wire:model="state.profesion_id" disabled>
-                @foreach ($profesions as $profesion)
-                    <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
-                @endforeach
-            </x-select>
-            <x-input-error for="profesion" class="mt-2" />
-        </div>
+        @if ($this->user->profesion)
+            <div class="mb-4">
+                <x-label for="profesion" value="{{ __('Profesion') }}" />
+                <x-select class="block w-full mt-1" wire:model="state.profesion_id" disabled>
+                    @foreach ($profesions as $profesion)
+                        <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
+                    @endforeach
+                </x-select>
+                <x-input-error for="profesion" class="mt-2" />
+            </div>
+        @endif
 
         <!-- Grade -->
         <div class="mb-4">

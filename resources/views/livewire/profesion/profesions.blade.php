@@ -58,7 +58,7 @@
                                     class="font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
                                     <i class="far fa-edit"></i></a>
                                 @role('ADMIN')
-                                    <a x-on:click="confirmModal({{ $profesion->id }})" hidden
+                                    <a x-on:click="confirmModal({{ $profesion->id }})"
                                         class="ml-3 font-medium transition-colors duration-300 cursor-pointer text-tbn-primary hover:text-tbn-secondary">
                                         <i class="far fa-trash-alt"></i></a>
                                 @endrole

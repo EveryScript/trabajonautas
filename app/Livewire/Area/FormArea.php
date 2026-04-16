@@ -26,6 +26,7 @@ class FormArea extends Component
         $this->form->user_id = Auth::id();
         $this->form->save();
         Cache::forget('areas_list'); // Invalid cache for "areas_list"
+        Cache::forget('profesions_list'); // Invalid cache for "profesions_list"
         $this->dispatch('area-saved');
     }
 

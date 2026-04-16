@@ -23,8 +23,12 @@ class DashboardCard extends Component
     #[Computed]
     public function announcements()
     {
+        $profesion_id = $this->client->profesion?->id;
+        if (!$profesion_id)
+            return collect();
+
         $query = Announcement::where('expiration_time', '>=', now())
-            ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $this->client->profesion->id))
+            ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $profesion_id))
             ->selectRaw(
                 "id, announce_title, company_id, pro, expiration_time, created_at, updated_at,
                 (created_at >= ?) as is_today,

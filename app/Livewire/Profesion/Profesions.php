@@ -5,6 +5,7 @@ namespace App\Livewire\Profesion;
 use App\Livewire\Forms\ProfesionForm;
 use App\Models\Area;
 use App\Models\Profesion;
+use App\Models\User;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -24,6 +25,8 @@ class Profesions extends Component
     public function delete($id)
     {
         $profesion = Profesion::findOrFail($id);
+        User::where('profesion_id', $id)->update(['profesion_id' => null]);
+        $profesion->announcements()->detach();
         $profesion->delete();
     }
 

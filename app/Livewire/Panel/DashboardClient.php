@@ -46,6 +46,8 @@ class DashboardClient extends Component
     public function hasNewAnnounces()
     {
         $client = $this->client;
+        if (!$client->profesion_id)
+            return collect(); // Return a empty collection
 
         return Announcement::where('expiration_time', '>=', now())
             ->where('updated_at', '>', $client->last_announce_check ?? now()->subDays(7))

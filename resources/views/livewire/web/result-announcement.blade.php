@@ -70,7 +70,7 @@
             <div class="my-3">
                 <h3 class="mb-1 text-lg font-medium tbn-special text-tbn-primary">Descripción</h3>
                 <div
-                    class="text-tbn-dark dark:text-white font-normal [&_ol]:list-disc [&_ol]:ml-4 [&_span]:bg-transparent [&_a]:underline [&_a]:text-tbn-primary [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg text-sm">
+                    class="text-tbn-dark dark:text-white font-normal break-all [&_ol]:list-disc [&_ol]:ml-4 [&_span]:bg-transparent [&_a]:underline [&_a]:text-tbn-primary [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg text-sm">
                     {!! $announcement->description !!}
                 </div>
             </div>
