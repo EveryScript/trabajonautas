@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Area;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,7 +21,6 @@ class AnnouncementFactory extends Factory
             'expiration_time' => $this->faker->dateTimeBetween('-10 days', '10 days'),
             'salary' => fake()->numberBetween(1500, 60000),
             'pro' => fake()->boolean(),
-            'area_id' => Area::inRandomOrder()->first()?->id,
             'user_id' => $admin->id,
             'company_id' => Company::inRandomOrder()->first()?->id,
         ];

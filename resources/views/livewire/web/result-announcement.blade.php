@@ -158,25 +158,5 @@
 
             </div>
         </div>
-        <!-- Announcement suggests -->
-        <div class="mb-4">
-            <h3 class="mb-1 font-medium text-tbn-dark dark:text-white text-md">Convocatorias similares</h3>
-            <div class="flex flex-col gap-2">
-                @forelse ($suggests as $announce)
-                    <div wire:key='announce-{{ $announce->id }}'>
-                        <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
-                    </div>
-                @empty
-                    <div class="mt-6 text-center">
-                        <picture class="block mb-2">
-                            <img src="{{ asset('storage/img/tbn-empty.webp') }}" alt="empty"
-                                class="max-w-[6rem] mx-auto mb-2">
-                        </picture>
-                        <p class="text-sm italic text-center text-tbn-dark dark:text-tbn-light">
-                            No hay sugerencias para esta convocatoria</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
     </section>
 </div>

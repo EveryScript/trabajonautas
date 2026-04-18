@@ -37,16 +37,7 @@ class ResultAnnouncement extends Component
     #[Computed]
     public function announcement()
     {
-        return Announcement::with(['company.companyType', 'announceSuggests', 'profesions:id,profesion_name'])->find($this->id);
-    }
-
-    #[Computed]
-    public function suggests()
-    {
-        return $this->announcement->getSuggests(
-            $this->announcement->id,
-            $this->announcement->area_id
-        )->take(6)->get();
+        return Announcement::with(['company.companyType', 'profesions:id,profesion_name'])->find($this->id);
     }
 
     public function saveAnnounce($id)
@@ -77,7 +68,6 @@ class ResultAnnouncement extends Component
     {
         return view('livewire.web.result-announcement', [
             'announcement' => $this->announcement,
-            'suggests' => $this->suggests,
             'total_locations' => Location::count(),
             'client' => $this->getAuthClientWithAccount(),
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent(),

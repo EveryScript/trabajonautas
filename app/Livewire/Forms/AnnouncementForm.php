@@ -17,7 +17,6 @@ class AnnouncementForm extends Form
     public $notification_sent = false;
     public $company_id;
     public $user_id;
-    public $area_id;
     public $locations;
     public $profesions;
     public $current_files;
@@ -33,7 +32,6 @@ class AnnouncementForm extends Form
         $this->scheduled_at = $announcement_edit->scheduled_at;
         $this->company_id = $announcement_edit->company_id;
         $this->user_id = $announcement_edit->user_id;
-        $this->area_id = $announcement_edit->area_id;
         $this->locations = $announcement_edit->locations->pluck('id');
         $this->profesions = $announcement_edit->profesions->pluck('id');
         $this->current_files = $announcement_edit->announceFiles;
@@ -52,7 +50,6 @@ class AnnouncementForm extends Form
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
             'company_id' => 'required',
             'user_id' => 'required',
-            'area_id' => 'required',
             'locations' => 'required',
             'profesions' => 'required'
         ]);
@@ -65,7 +62,6 @@ class AnnouncementForm extends Form
             'pro' => $this->pro,
             'scheduled_at' => $this->pro ? $this->scheduled_at : null,
             'company_id' => $this->company_id,
-            'area_id' => $this->area_id,
             'user_id' => $this->user_id
         ]);
         $announcement->locations()->sync($this->locations);
@@ -99,7 +95,6 @@ class AnnouncementForm extends Form
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
             'company_id' => 'required',
             'user_id' => 'required',
-            'area_id' => 'required',
             'locations' => 'required',
             'profesions' => 'required'
         ]);
@@ -112,7 +107,6 @@ class AnnouncementForm extends Form
             'scheduled_at',
             'company_id',
             'user_id',
-            'area_id'
         ));
         $announcement->locations()->attach($this->locations);
         $announcement->profesions()->attach($this->profesions);
@@ -155,7 +149,6 @@ class AnnouncementForm extends Form
             'scheduled_at' => 'fecha de programación',
             'company_id' => 'empresa',
             'user_id' => 'usuario',
-            'area_id' => 'area profesional',
             'announce_files' => 'archivos de la convocatoria',
             'locations' => 'ubicaciones',
             'profesions' => 'profesiones'

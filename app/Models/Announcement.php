@@ -31,10 +31,6 @@ class Announcement extends Model
     {
         return $this->belongsToMany(Location::class);
     }
-    public function area(): BelongsTo
-    {
-        return $this->belongsTo(Area::class);
-    }
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
@@ -51,21 +47,6 @@ class Announcement extends Model
     {
         return $this->hasMany(AnnouncementFile::class);
     }
-
-    // Special query
-    public function announceSuggests()
-    {
-        return $this->hasMany(Announcement::class, 'area_id', 'area_id');
-    }
-    // Scope for announcements by area
-    public function scopeGetSuggests($query, $currentId, $areaId)
-    {
-        return $query->where('area_id', $areaId)
-            ->where('id', '!=', $currentId)
-            ->where('expiration_time', '>=', now())
-            ->limit(5);
-    }
-
     // Observer (delete jobs on delete announcement)
     protected static function booted(): void
     {

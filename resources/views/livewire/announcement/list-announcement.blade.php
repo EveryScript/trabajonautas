@@ -67,8 +67,6 @@
                                     {{ $announcement->announce_title }}
                                 </h5>
                                 <p class="text-xs font-normal text-tbn-dark dark:text-tbn-light">
-                                    <!-- Area name -->
-                                    {{ $announcement->area ? $announcement->area->area_name : '(area no definida)' }}
                                     <!-- Scheduled at -->
                                     @php
                                         $scheduled_time_left = Carbon\Carbon::parse($announcement->scheduled_at);

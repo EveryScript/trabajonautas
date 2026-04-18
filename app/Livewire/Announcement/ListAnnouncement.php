@@ -44,8 +44,8 @@ class ListAnnouncement extends Component
 
     public function render()
     {
-        $query = Announcement::with(['profesions:id,profesion_name', 'locations:id,location_name', 'area:id,area_name'])
-            ->select(['id', 'announce_title', 'updated_at', 'pro', 'scheduled_at', 'company_id', 'area_id', 'expiration_time'])
+        $query = Announcement::with(['profesions:id,profesion_name', 'locations:id,location_name'])
+            ->select(['id', 'announce_title', 'updated_at', 'pro', 'scheduled_at', 'company_id', 'expiration_time'])
             ->orderBy('updated_at', 'DESC');
 
         if (!empty($this->search))

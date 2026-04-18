@@ -29,31 +29,16 @@
                 </div>
                 <x-input-error for="announcement.company_id" class="mt-2" />
             </div>
-            <div class="flex-grow block gap-2 mb-4 sm:flex">
-                <div class="w-full sm:w-1/2">
-                    <x-label for="area">Area profesional
-                        <span class="font-light">(sugerencias de cliente)</span></x-label>
-                    <div class="mt-1 tbn-tom-select" wire:ignore>
-                        <x-select id="area" wire:model="announcement.area_id">
-                            <option></option>
-                            @forelse ($areas as $area)
-                                <option value="{{ $area->id }}">{{ $area->area_name }}</option>
-                            @empty
-                                <option>No hay opciones para mostrar</option>
-                            @endforelse
-                        </x-select>
-                    </div>
-                    <x-input-error for="announcement.area_id" class="mt-2" />
-                </div>
-                <div class="w-full sm:w-1/2">
-                    <x-label for="area">Areas (añadir profesiones)</x-label>
-                    <x-select class="w-full h-[3.2rem]" x-on:change="onAreaChange" id="areas">
-                        <option>Selecciona un area</option>
-                        <template x-for="area in areas">
-                            <option :key="'area-' + location.id" :value="area.id">
-                                + <span x-text="area.area_name" class="block text-sm font-medium"></span>
-                            </option>
-                        </template>
+            <div class="mb-4">
+                <x-label for="area"><span class="font-bold">Área profesional</span> (añadir profesiones) </x-label>
+                <div class="mt-1 tbn-tom-select" wire:ignore>
+                    <x-select id="area">
+                        <option></option>
+                        @forelse ($areas as $area)
+                            <option value="{{ $area->id }}">{{ $area->area_name }}</option>
+                        @empty
+                            <option>No hay opciones para mostrar</option>
+                        @endforelse
                     </x-select>
                 </div>
             </div>
@@ -224,9 +209,6 @@
     @script
         <script>
             // Tom Select
-            new TomSelect('#area', {
-                plugins: ['remove_button']
-            });
             new TomSelect('#locations', {
                 plugins: ['remove_button']
             });
@@ -258,12 +240,12 @@
                 document.querySelector('#company').tomselect.setValue($wire.announcement.company_id);
                 document.querySelector('#locations').tomselect.setValue($wire.announcement.locations);
                 document.querySelector('#profesions').tomselect.setValue($wire.announcement.profesions);
-                document.querySelector('#area').tomselect.setValue($wire.announcement.area_id);
             }
 
             Alpine.data('content', () => ({
                 modalPreview: false,
                 previewUrl: null,
+                ts_area: null,
                 isProAnnounce: @json($id) ? $wire.announcement.pro : false,
                 profesionsSelectedIds: [],
                 profesions: @json($profesions),
@@ -271,6 +253,11 @@
                 areas: @json($areas),
                 salary: @json($id) ? $wire.announcement.salary : '',
                 init() {
+                    this.ts_area = new TomSelect('#area', {
+                        onChange: (value) => {
+                            this.onAreaChange(value)
+                        }
+                    })
                     flatpickr("#expiration_time", {
                         defaultDate: @json($id) ? $wire.announcement.expiration_time :
                             'today',
@@ -291,8 +278,7 @@
                     });
                 },
                 // Set profesions base on area selected
-                onAreaChange(event) {
-                    const areaId = event.target.value;
+                onAreaChange(areaId) {
                     const profesionsSelected = this.profesions.filter(profesion => profesion.area_id == areaId)
                     const selectedIds = profesionsSelected.map(p => p.id)
                     this.profesionsSelectedIds = [...new Set([...this.profesionsSelectedIds, ...selectedIds])];
