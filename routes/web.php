@@ -13,6 +13,7 @@ use App\Livewire\Profesion\Profesions;
 use App\Livewire\Report\ReportClient;
 use App\Livewire\User\ConfigClient;
 use App\Livewire\User\ConfigUser;
+use App\Livewire\User\FormClient;
 use App\Livewire\User\ListClient;
 use App\Livewire\User\ListUser;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +59,7 @@ Route::group(['middleware' => ['auth', 'verified', 'role:USER|ADMIN', 'only_one_
     // Clients
     Route::get('/admin/cliente', ListClient::class)->name('client');
     Route::get('/admin/config-cliente/{id}', ConfigClient::class)->name('config-client');
+    Route::get('/admin/edit-cliente/{client}', FormClient::class)->name('edit-client');
 });
 
 Route::group(['middleware' => ['auth', 'verified', 'role:ADMIN', 'only_one_session']], function () {

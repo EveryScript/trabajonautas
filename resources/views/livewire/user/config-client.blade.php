@@ -1,6 +1,12 @@
-<aside class="p-5 transition-all duration-300 bg-white rounded-md shadow dark:bg-tbn-dark">
+<aside class="relative p-5 transition-all duration-300 bg-white rounded-md shadow dark:bg-tbn-dark">
     <!-- Client Detail -->
     @if ($this->client)
+        @can('support-permission')
+            <a href="{{ route('edit-client', ['client' => $this->client]) }}" wire:navigate
+                class="absolute p-3 text-white transition-colors duration-200 border rounded-full w-11 h-11 border-tbn-secondary right-4 hover:text-tbn-primary hover:border-tbn-primary">
+                <i class="fa-solid fa-pencil"></i>
+            </a>
+        @endcan
         <form wire:submit='saveClient' wire:key='detail-{{ $this->client->id }}' x-show="!loading_client">
             <div class="mb-4">
                 <p class="text-xl text-tbn-dark dark:text-white">{{ $this->client->name }}</p>

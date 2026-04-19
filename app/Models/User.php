@@ -75,9 +75,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Announcement::class);
     }
-    public function companies(): BelongsToMany
+    public function companies(): HasMany
     {
-        return $this->belongsToMany(Company::class);
+        return $this->HasMany(Company::class);
     }
     public function gradeProfile(): BelongsTo
     {
@@ -99,9 +99,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Announcement::class);
     }
-    public function notices(): BelongsToMany
+    public function notices(): HasMany
     {
-        return $this->belongsToMany(Notice::class);
+        return $this->HasMany(Notice::class);
     }
     public function subscriptions(): HasMany
     {

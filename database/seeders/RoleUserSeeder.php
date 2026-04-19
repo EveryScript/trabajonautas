@@ -28,5 +28,8 @@ class RoleUserSeeder extends Seeder
 
         // Client role
         $role_user = Role::create(['name' => env('CLIENT_ROLE')]);
+
+        // Create permission
+        Permission::firstOrCreate(['name' => 'support-permission']);
     }
 }
