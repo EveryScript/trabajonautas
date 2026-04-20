@@ -28,7 +28,7 @@ class GradeProfileSeeder extends Seeder
         ]);
         GradeProfile::create([
             'id' => 5,
-            'profile_name' => 'Titulado'
+            'profile_name' => 'Licenciatura'
         ]);
     }
 }
