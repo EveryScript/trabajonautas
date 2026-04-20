@@ -64,19 +64,32 @@
         </div>
         <!-- Announcements -->
         @if ($hasResults)
-            <div class="grid w-full grid-cols-1 gap-4 mb-5 lg:grid-cols-2" wire:loading.remove>
+            <div class="grid w-full grid-cols-1 gap-4 mb-5 lg:grid-cols-2" wire:loading.remove
+                wire:target='announcements'>
                 @foreach ($announcements as $announce)
                     <div wire:key='announce-{{ $announce->id }}'>
                         <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
                     </div>
                 @endforeach
             </div>
-            <div class="mb-4" wire:loading.remove> {{ $announcements->links() }} </div>
+            @if ($announcements->count() < $this->totalResults)
+                <div class="flex flex-row justify-center mb-4">
+                    <x-button wire:click="loadMore" wire:loading.attr="disabled" wire:target='loadMore'>
+                        <span wire:loading.remove wire:target="loadMore">
+                            <i class="mr-1 fa-solid fa-angles-down"></i> Ver más
+                        </span>
+                        <span wire:loading wire:target="loadMore">
+                            <i class="mr-1 fa-solid fa-spinner animate-spin"></i> Cargando...
+                        </span>
+                    </x-button>
+                </div>
+            @endif
         @endif
         <!-- Recommends -->
         @if ($recommends->isNotEmpty())
-            <h4 class="mb-4 text-lg font-semibold text-tbn-primary" wire:loading.remove>También te puede interesar</h4>
-            <div class="grid w-full grid-cols-1 gap-4 mb-5 lg:grid-cols-2" wire:loading.remove>
+            <h4 class="mb-4 text-lg font-semibold text-tbn-primary" wire:loading.remove wire:target='recommends'>También
+                te puede interesar</h4>
+            <div class="grid w-full grid-cols-1 gap-4 mb-5 lg:grid-cols-2" wire:loading.remove wire:target='recommends'>
                 @foreach ($recommends as $announce)
                     <div wire:key='announce-{{ $announce->id }}'>
                         <x-card-announce :announce="$announce" :client="$client_pro_authorized" />
@@ -84,7 +97,7 @@
                 @endforeach
             </div>
         @endif
-        <div class="w-full" wire:loading><x-cards-loading /></div>
+        <div class="w-full" wire:loading wire:target='announcements'><x-cards-loading /></div>
     </div>
     @script
         <script>

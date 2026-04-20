@@ -15,6 +15,7 @@ class SearchAnnouncement extends Component
     use AuthorizeClients;
 
     public $profesion_id, $location_id;
+    public int $per_page = 12;
 
     protected function announceBaseQuery()
     {
@@ -43,7 +44,13 @@ class SearchAnnouncement extends Component
                 'locations:id,location_name'
             ])
             ->latest('updated_at')
-            ->simplePaginate(12);
+            ->limit($this->per_page)
+            ->get();
+    }
+
+    public function loadMore()
+    {
+        $this->per_page += 12;
     }
 
     #[Computed]
