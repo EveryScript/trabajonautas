@@ -8,10 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Cache;
 
 class Area extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::saved(fn() => Cache::forget('areas_list'));
+        static::updated(fn() => Cache::forget('areas_list'));
+        static::deleted(fn() => Cache::forget('areas_list'));
+    }
 
     // Permissions
     public $guarded = [];

@@ -14,6 +14,9 @@
                         @foreach ($locations as $location)
                             <option value="{{ $location->location_name }}">{{ $location->location_name }}</option>
                         @endforeach
+                        @foreach ($companies as $company)
+                            <option value="{{ $company->company_name }}">{{ $company->company_name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <x-button type="button" class="h-[3.2rem]" href="{{ route('new-announcement') }}"

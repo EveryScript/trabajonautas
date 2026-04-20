@@ -13,12 +13,12 @@ class TbnSettingSeeder extends Seeder
         TbnSetting::create([
             'id' => 1,
             'key' => 'qr_pro',
-            'value' => 'ajustes/tbn-qr-pro.webp'
+            'value' => 'ajustes/zZQ4ayaCZ3zxtWEBoHyVvYTCcVffE3065TAmXbGF.png'
         ]);
         TbnSetting::create([
             'id' => 2,
             'key' => 'qr_promax',
-            'value' => 'ajustes/tbn-qr-promax.webp'
+            'value' => 'ajustes/VPC6HGCAUuO51hT5ppWHRYQuxAsbqfw7NKtbKpCc.png'
         ]);
         TbnSetting::create([
             'id' => 3,

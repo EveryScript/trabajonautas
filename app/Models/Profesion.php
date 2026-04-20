@@ -7,10 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class Profesion extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::saved(fn() => Cache::forget('profesions_list'));
+        static::updated(fn() => Cache::forget('profesions_list'));
+        static::deleted(fn() => Cache::forget('profesions_list'));
+    }
 
     // Permissions
     public $guarded = [];

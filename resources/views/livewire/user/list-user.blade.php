@@ -7,11 +7,18 @@
             </x-slot>
             <x-slot name="search_field">
                 <div class="flex flex-row justify-end h-full gap-1 sm:h-10">
+                    <!-- Filter button -->
                     <x-secondary-button class="relative w-[10rem]" x-on:click="show_dropdown = true" type="button"
                         id="suggest-menu" aria-expanded="false" data-dropdown-toggle="suggest-dropdown"
                         data-dropdown-placement="bottom">
                         <span x-html="filter_text"></span>
                     </x-secondary-button>
+                    <!-- Clear system (cache) -->
+                    @can('support-permission')
+                        <x-secondary-button x-on:click="clearSystem" type="button" id="clear-system">
+                            Limpiar sistema
+                        </x-secondary-button>
+                    @endcan
                     <x-button type="button" href="{{ route('config-user') }}" wire:navigate>Nuevo</x-button>
                     <!-- Dropdown menu -->
                     <div class="relative">
@@ -124,6 +131,21 @@
                 filter_option: 'all',
                 filter_text: 'Filtrar',
                 // Functions
+                clearSystem() {
+                    Swal.fire({
+                        title: "¿Limpiar sistema?",
+                        text: "Se eliminarán todos los datos de navegación (cache de profesiones, empresas y areas) almacenadas hasta el momento en el sistema.",
+                        showDenyButton: true,
+                        confirmButtonText: "Si",
+                        confirmButtonColor: '#ff420a',
+                        denyButtonText: "No",
+                        denyButtonColor: '#484848'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $wire.clearCacheData()
+                        }
+                    });
+                },
                 setFilterUser(option) {
                     this.filter_option = option
                     switch (option) {

@@ -23,7 +23,7 @@
                     desafío.
                 </p>
                 <p class="px-4 mb-6 text-lg italic text-tbn-primary">
-                    ¡No guardes tu casco todavía! Tu próxima gran aventura ya te espera en el <strong>Panel de
+                    ¡No guardes tu casco todavía! Tu próxima gran aventura ya te espera en tu <strong>Panel de
                         Usuario</strong>.
                 </p>
             </div>
