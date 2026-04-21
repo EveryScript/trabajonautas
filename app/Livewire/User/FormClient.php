@@ -34,7 +34,13 @@ class FormClient extends Component
 
     public function delete()
     {
-        $this->form->forceDelete();
+        $this->form->delete();
+        return $this->redirectRoute('client', navigate: true);
+    }
+
+    public function restore()
+    {
+        $this->form->restore();
         return $this->redirectRoute('client', navigate: true);
     }
 
@@ -47,25 +53,25 @@ class FormClient extends Component
     #[Computed]
     public function locations()
     {
-        return Cache::remember('locations_list', 86400, fn() => Location::all(['id', 'location_name']));
+        return Cache::remember('locations-v1', 86400, fn() => Location::all(['id', 'location_name']));
     }
 
     #[Computed]
     public function gradeProfiles()
     {
-        return Cache::remember('grade_profiles_list', 86400, fn() => GradeProfile::all(['id', 'profile_name']));
+        return Cache::remember('grades-v1', 86400, fn() => GradeProfile::all(['id', 'profile_name']));
     }
 
     #[Computed]
     public function accountTypes()
     {
-        return Cache::remember('account_types_list', 86400, fn() => AccountType::all(['id', 'name', 'price']));
+        return Cache::remember('account-types-v1', 86400, fn() => AccountType::all(['id', 'name', 'price']));
     }
 
     #[Computed]
     public function profesions()
     {
-        return Cache::remember('profesions_list', 86400, fn() => Profesion::all(['id', 'profesion_name']));
+        return Cache::remember('profesions-v1', 86400, fn() => Profesion::all(['id', 'profesion_name']));
     }
 
     public function render()

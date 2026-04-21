@@ -103,12 +103,12 @@
                     <ul class="grid w-full gap-4 md:grid-cols-3">
                         @foreach ($account_types as $type)
                             <li wire:key='type-{{ $type->id }}'>
-                                <input type="radio" id="type-{{ $type->id }}" class="hidden peer"
+                                <input type="radio" id="type-{{ $type->id }}" class="hidden peer" disabled
                                     wire:model='form.account_type_id'
                                     {{ $type->id == $this->form->account_type_id ? 'checked' : '' }}
                                     value="{{ $type->id }}" name="account_type">
                                 <label for="type-{{ $type->id }}"
-                                    class="inline-flex items-center justify-between w-full p-5 bg-white border rounded-lg cursor-pointer text-tbn-secondary dark:text-white dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary peer-checked:border-tbn-primary peer-checked:text-tbn-primary hover:bg-tbn-light dark:hover:text-tbn-light dark:hover:bg-neutral-900">
+                                    class="inline-flex items-center justify-between w-full p-5 bg-white border rounded-lg cursor-pointer text-tbn-secondary dark:text-white dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary hover:bg-tbn-light dark:hover:bg-neutral-900 peer-checked:border-tbn-primary peer-checked:text-tbn-primary peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:hover:bg-transparent peer-disabled:hover:dark:bg-tbn-dark">
                                     <div class="w-2/3">
                                         <div class="w-full text-lg font-semibold">{{ $type->name }}</div>
                                     </div>
@@ -122,27 +122,49 @@
                 </div>
                 <div class="mb-4">
                     <x-button type="button" x-on:click="confirmUpdateModal" wire:loading.attr='disabled'>
-                        <span wire:loading.remove wire:target='save'>Actualizar cliente</span>
-                        <span wire:loading wire:target='save'>Actualizando...</span>
+                        <span wire:loading.remove wire:target='update'>Actualizar cliente</span>
+                        <span wire:loading wire:target='update'>Actualizando...</span>
                     </x-button>
                     <x-secondary-button type="button" href="{{ route('client') }}"
                         wire:navigate>Cancelar</x-secondary-button>
                 </div>
             </form>
         </div>
-        <!-- Force delete client -->
-        <div class="py-8">
-            <x-title-app>
-                <x-slot name="title_page">Eliminar cliente</x-slot>
-                <x-slot name="description_page">Elimina solamente la información del cliente conservando sus datos
-                    relacionados y la información almacenada hasta entonces.</x-slot>
-            </x-title-app>
-            <div class="mb-4">
-                <x-button type="button" x-on:click="confirmDeleteModal">Eliminar cliente</x-button>
-                <x-secondary-button type="button" href="{{ route('client') }}"
-                    wire:navigate>Cancelar</x-secondary-button>
+        @if ($this->form->client?->trashed())
+            <!-- Restore client -->
+            <div class="py-8">
+                <x-title-app>
+                    <x-slot name="title_page">Restaurar cliente</x-slot>
+                    <x-slot name="description_page">Devuelve al cliente a las listas originales. Su información de
+                        cuentas estará nuevamente disponible. </x-slot>
+                </x-title-app>
+                <div class="mb-4">
+                    <x-button type="button" x-on:click="confirmRestoreModal" wire:loading.attr='disabled'>
+                        <span wire:loading.remove wire:target='restore'>Restaurar cliente</span>
+                        <span wire:loading wire:target='restore'>Restaurando...</span>
+                    </x-button>
+                    <x-secondary-button type="button" href="{{ route('client') }}"
+                        wire:navigate>Cancelar</x-secondary-button>
+                </div>
             </div>
-        </div>
+        @else
+            <!-- Delete client -->
+            <div class="py-8">
+                <x-title-app>
+                    <x-slot name="title_page">Eliminar cliente</x-slot>
+                    <x-slot name="description_page">Elimina solamente la información del cliente conservando sus datos
+                        relacionados y la información almacenada hasta entonces.</x-slot>
+                </x-title-app>
+                <div class="mb-4">
+                    <x-button type="button" x-on:click="confirmDeleteModal" wire:loading.attr='disabled'>
+                        <span wire:loading.remove wire:target='delete'>Eliminar cliente</span>
+                        <span wire:loading wire:target='delete'>Eliminando...</span>
+                    </x-button>
+                    <x-secondary-button type="button" href="{{ route('client') }}"
+                        wire:navigate>Cancelar</x-secondary-button>
+                </div>
+            </div>
+        @endif
         <!-- Force delete client -->
         <div class="py-8">
             <x-title-app>
@@ -151,7 +173,10 @@
                     cuenta, notificaciones y convocatorias guardadas del cliente.</x-slot>
             </x-title-app>
             <div class="mb-4">
-                <x-button type="button" x-on:click="confirmForceDeleteModal">Borrar cliente</x-button>
+                <x-button type="button" x-on:click="confirmForceDeleteModal" wire:loading.attr='disabled'>
+                    <span wire:loading.remove wire:target='forceDelete'>Borrar cliente</span>
+                    <span wire:loading wire:target='forceDelete'>Borrando...</span>
+                </x-button>
                 <x-secondary-button type="button" href="{{ route('client') }}"
                     wire:navigate>Cancelar</x-secondary-button>
             </div>
@@ -190,6 +215,21 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $wire.delete()
+                        }
+                    });
+                },
+                confirmRestoreModal() {
+                    Swal.fire({
+                        title: "¿Restaurar cliente?",
+                        text: "El cliente volverá a las listas originales.",
+                        showDenyButton: true,
+                        confirmButtonText: "Si",
+                        confirmButtonColor: '#ff420a',
+                        denyButtonText: "No",
+                        denyButtonColor: '#484848'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $wire.restore()
                         }
                     });
                 },

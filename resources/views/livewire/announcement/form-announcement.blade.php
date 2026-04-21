@@ -246,13 +246,14 @@
                 modalPreview: false,
                 previewUrl: null,
                 ts_area: null,
-                isProAnnounce: @json($id) ? $wire.announcement.pro : false,
-                profesionsSelectedIds: [],
                 profesions: @json($profesions),
                 locations: @json($locations),
                 areas: @json($areas),
+                isProAnnounce: @json($id) ? $wire.announcement.pro : false,
+                profesionsSelectedIds: @json($id) ? $wire.announcement.profesions : [],
                 salary: @json($id) ? $wire.announcement.salary : '',
                 init() {
+                    console.log($wire.announcement.profesions)
                     this.ts_area = new TomSelect('#area', {
                         onChange: (value) => {
                             this.onAreaChange(value)
@@ -279,7 +280,7 @@
                 },
                 // Set profesions base on area selected
                 onAreaChange(areaId) {
-                    const profesionsSelected = this.profesions.filter(profesion => profesion.area_id == areaId)
+                    const profesionsSelected = this.profesions.filter(p => Number(p.area_id) === Number(areaId))
                     const selectedIds = profesionsSelected.map(p => p.id)
                     this.profesionsSelectedIds = [...new Set([...this.profesionsSelectedIds, ...selectedIds])];
                     document.querySelector('#profesions').tomselect.setValue(this.profesionsSelectedIds)

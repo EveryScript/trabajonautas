@@ -46,6 +46,7 @@ class FormAnnouncement extends Component
                 SendAnnouncementNotifications::dispatch($announce_saved);
             }
         }
+        $this->forgetCacheLists();
         $this->redirectRoute('announcement', navigate: true);
     }
 
@@ -80,36 +81,36 @@ class FormAnnouncement extends Component
     }
 
     #[Computed]
-    public function areas()
+    public function profesions()
     {
-        return Cache::remember('areas_list', 86400, fn() => Area::all(['id', 'area_name']));
+        return Cache::remember('profesions-v1', 86400, fn() => Profesion::all(['id', 'profesion_name', 'area_id']));
     }
 
     #[Computed]
     public function locations()
     {
-        return Cache::remember('locations_list', 86400, fn() => Location::all(['id', 'location_name']));
+        return Cache::remember('locations-v1', 86400, fn() => Location::all(['id', 'location_name']));
+    }
+
+    #[Computed]
+    public function areas()
+    {
+        return Cache::remember('areas-v1', 86400, fn() => Area::all(['id', 'area_name']));
     }
 
     #[Computed]
     public function companies()
     {
-        return Cache::remember('companies_list', 86400, fn() => Company::all(['id', 'company_name']));
-    }
-
-    #[Computed]
-    public function profesions()
-    {
-        return Cache::remember('profesions_list', 86400, fn() => Profesion::with('area:id,area_name')->get(['id', 'profesion_name', 'area_id']));
+        return Cache::remember('companies-v1', 86400, fn() => Company::all(['id', 'company_name']));
     }
 
     public function render()
     {
         return view('livewire.announcement.form-announcement', [
-            'areas' => $this->areas,
-            'locations' => $this->locations,
-            'companies' => $this->companies,
             'profesions' => $this->profesions,
+            'locations' => $this->locations,
+            'areas' => $this->areas,
+            'companies' => $this->companies,
         ]);
     }
 }

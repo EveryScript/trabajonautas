@@ -131,6 +131,11 @@ class ClientForm extends Form
         $this->client->delete();
     }
 
+    public function restore()
+    {
+        $this->client->restore();
+    }
+
     public function forceDelete()
     {
         DB::transaction(function () {

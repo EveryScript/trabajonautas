@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
             ProfesionSeeder::class,
             CompanySeeder::class,
             AreaSeeder::class,
-            AnnouncementSeeder::class,
+            // AnnouncementSeeder::class,
             GradeProfileSeeder::class,
             AccountTypeSeeder::class,
-            ClientSeeder::class,
+            // ClientSeeder::class,
             // NoticeSeeder::class,
             TbnSettingSeeder::class
         ]);

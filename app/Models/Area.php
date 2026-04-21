@@ -16,9 +16,9 @@ class Area extends Model
 
     protected static function booted()
     {
-        static::saved(fn() => Cache::forget('areas_list'));
-        static::updated(fn() => Cache::forget('areas_list'));
-        static::deleted(fn() => Cache::forget('areas_list'));
+        static::saved(fn() => Cache::forget('areas-v1'));
+        static::updated(fn() => Cache::forget('areas-v1'));
+        static::deleted(fn() => Cache::forget('areas-v1'));
     }
 
     // Permissions

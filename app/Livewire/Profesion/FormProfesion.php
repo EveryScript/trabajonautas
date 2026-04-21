@@ -25,14 +25,13 @@ class FormProfesion extends Component
     public function save()
     {
         $this->form->save();
-        Cache::forget('profesions_list'); // Invalid cache for "profesions_list"
         $this->dispatch('profesion-saved');
     }
 
     #[Computed]
     public function areas()
     {
-        return Cache::remember('areas_list', 86400, fn() => Area::all(['id', 'area_name']));
+        return Cache::remember('areas-v1', 86400, fn() => Area::all(['id', 'area_name']));
     }
 
     public function render()

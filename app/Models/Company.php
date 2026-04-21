@@ -16,9 +16,9 @@ class Company extends Model
 
     protected static function booted()
     {
-        static::saved(fn() => Cache::forget('companies_list'));
-        static::updated(fn() => Cache::forget('companies_list'));
-        static::deleted(fn() => Cache::forget('companies_list'));
+        static::saved(fn() => Cache::forget('companies-v1'));
+        static::updated(fn() => Cache::forget('companies-v1'));
+        static::deleted(fn() => Cache::forget('companies-v1'));
     }
 
     // Permissions
