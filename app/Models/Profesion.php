@@ -15,9 +15,8 @@ class Profesion extends Model
 
     protected static function booted()
     {
-        static::saved(fn() => Cache::forget('profesions-v1'));
-        static::updated(fn() => Cache::forget('profesions-v1'));
-        static::deleted(fn() => Cache::forget('profesions-v1'));
+        static::saved(fn() => Cache::forget('profesions'));
+        static::deleted(fn() => Cache::forget('profesions'));
     }
 
     // Permissions

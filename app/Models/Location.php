@@ -14,9 +14,8 @@ class Location extends Model
 
     protected static function booted()
     {
-        static::saved(fn() => Cache::forget('locations-v1'));
-        static::updated(fn() => Cache::forget('locations-v1'));
-        static::deleted(fn() => Cache::forget('locations-v1'));
+        static::saved(fn() => Cache::forget('locations'));
+        static::deleted(fn() => Cache::forget('locations'));
     }
 
     // Permissions

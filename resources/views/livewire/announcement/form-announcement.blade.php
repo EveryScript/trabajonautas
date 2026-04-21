@@ -253,7 +253,6 @@
                 profesionsSelectedIds: @json($id) ? $wire.announcement.profesions : [],
                 salary: @json($id) ? $wire.announcement.salary : '',
                 init() {
-                    console.log($wire.announcement.profesions)
                     this.ts_area = new TomSelect('#area', {
                         onChange: (value) => {
                             this.onAreaChange(value)

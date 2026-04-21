@@ -53,25 +53,25 @@ class FormClient extends Component
     #[Computed]
     public function locations()
     {
-        return Cache::remember('locations-v1', 86400, fn() => Location::all(['id', 'location_name']));
+        return Cache::remember('locations', 86400, fn() => Location::all(['id', 'location_name']));
     }
 
     #[Computed]
     public function gradeProfiles()
     {
-        return Cache::remember('grades-v1', 86400, fn() => GradeProfile::all(['id', 'profile_name']));
+        return Cache::remember('grades', 86400, fn() => GradeProfile::all(['id', 'profile_name']));
     }
 
     #[Computed]
     public function accountTypes()
     {
-        return Cache::remember('account-types-v1', 86400, fn() => AccountType::all(['id', 'name', 'price']));
+        return Cache::remember('account-types', 86400, fn() => AccountType::all(['id', 'name', 'price']));
     }
 
     #[Computed]
     public function profesions()
     {
-        return Cache::remember('profesions-v1', 86400, fn() => Profesion::all(['id', 'profesion_name']));
+        return Cache::remember('profesions', 86400, fn() => Profesion::all(['id', 'profesion_name']));
     }
 
     public function render()
