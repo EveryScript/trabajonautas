@@ -46,7 +46,6 @@ class FormAnnouncement extends Component
                 SendAnnouncementNotifications::dispatch($announce_saved);
             }
         }
-        $this->forgetCacheLists();
         $this->redirectRoute('announcement', navigate: true);
     }
 
