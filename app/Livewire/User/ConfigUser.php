@@ -38,8 +38,9 @@ class ConfigUser extends Component
         $user = User::find($this->id);
         if ($this->support_permission)
             $user->givePermissionTo('support-permission');
-        else
+        elseif ($this->id)
             $user->revokePermissionTo('support-permission');
+
         $this->redirectRoute('user', navigate: true);
     }
 

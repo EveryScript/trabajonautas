@@ -119,18 +119,18 @@
                     </li>
                 </ul>
             </div>
-            @if ($id)
-                <span class="text-xs text-tbn-primary">Soporte de clientes</span>
-                <x-input-checkbox-block
-                    checked="{{ auth()->user()->hasPermissionTo('support-permission') ? 'checked' : '' }}"
-                    wire:model='support_permission'>
-                    <div class="ms-4">
-                        <p class="font-medium text-md text-tbn-dark dark:text-white">Privilegios de soporte</p>
-                        <span class="text-xs text-tbn-secondary dark:text-tbn-light">
-                            El usuario puede administrar la información de los clientes.</span>
-                    </div>
-                </x-input-checkbox-block>
-            @endif
+            <!-- Support access -->
+            <span class="text-xs text-tbn-primary">Soporte de clientes</span>
+            <x-input-checkbox-block
+                checked="{{ auth()->user()->hasPermissionTo('support-permission') ? 'checked' : '' }}"
+                wire:model='support_permission'>
+                <div class="ms-4">
+                    <p class="font-medium text-md text-tbn-dark dark:text-white">Privilegios de soporte</p>
+                    <span class="text-xs text-tbn-secondary dark:text-tbn-light">
+                        El usuario puede administrar la información de los clientes.</span>
+                </div>
+            </x-input-checkbox-block>
+            <!-- Enable client -->
             @if ($id)
                 <span class="text-xs text-tbn-primary">Control de acceso</span>
                 <x-input-checkbox-block checked="{{ $user->actived ? 'checked' : '' }}"
