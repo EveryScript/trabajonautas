@@ -20,8 +20,12 @@
                             <span class="text-xs text-tbn-primary">Area profesional</span>
                             <h5 class="mb-2 text-lg font-bold">{{ $area->area_name }}</h5>
                             <p class="mb-2 text-xs text-tbn-dark dark:text-tbn-light">{{ $area->description }}</p>
-                            <p class="text-sm">Creador: <span class="text-tbn-primary">{{ $area->user->name }}</span></p>
-                            <p class="text-sm">Profesiones: <span class="text-tbn-primary">{{ count($area->profesions) }}</span>
+                            <p class="text-sm">Creador: <span class="text-tbn-primary">{{ $area->user->name }}</span>
+                            </p>
+                            {{-- <p class="text-sm">Profesiones: <span class="text-tbn-primary">{{ count($area->profesions) }}</span> --}}
+                            <p class="text-sm">Profesiones: <span class="font-bold underline cursor-pointer text-tbn-primary"
+                                    title="{{ $area->profesions->pluck('profesion_name')->join("\n") }}">{{ count($area->profesions) }}</span>
+                            </p>
                         </div>
                         <div class="flex flex-row justify-end text-lg">
                             <a wire:click="editArea({{ $area->id }})"

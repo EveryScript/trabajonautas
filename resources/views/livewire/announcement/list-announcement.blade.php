@@ -8,6 +8,7 @@
             <div class="flex flex-row flex-1 h-full gap-1 sm:h-10">
                 <div wire:ignore class="flex-1 tbn-tom-select">
                     <select id="announcement-search">
+                        <option></option>
                         @foreach ($profesions as $profesion)
                             <option value="{{ $profesion->profesion_name }}">{{ $profesion->profesion_name }}</option>
                         @endforeach
@@ -142,7 +143,7 @@
                     this.search_ts = new TomSelect('#announcement-search', {
                         create: true,
                         placeholder: 'Título, profesión, ubicación',
-                        allowEmptyOption: true,
+                        // allowEmptyOption: true,
                         onChange: (value) => {
                             $wire.set('search', value || null)
                         }

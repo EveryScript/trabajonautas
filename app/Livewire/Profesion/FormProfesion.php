@@ -31,7 +31,7 @@ class FormProfesion extends Component
     #[Computed]
     public function areas()
     {
-        return Cache::remember('areas-v1', 86400, fn() => Area::all(['id', 'area_name']));
+        return Cache::remember('areas', 86400, fn() => Area::all(['id', 'area_name']));
     }
 
     public function render()
