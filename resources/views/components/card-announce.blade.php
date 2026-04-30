@@ -14,7 +14,10 @@
                 <i class="text-sm fas fa-crown text-tbn-primary"></i>
             </p>
             <p class="text-xs font-normal text-tbn-dark dark:text-tbn-light">
-                <span class="pr-5">Publicado {{ Carbon\Carbon::parse($announce->created_at)->diffForHumans() }}</span>
+                <span class="pr-2">Publicado {{ Carbon\Carbon::parse($announce->created_at)->diffForHumans() }}</span>
+                @if ($announce->expiration_time < now())
+                    <span class="font-light text-tbn-primary">(Convocatoria expirada)</span>
+                @endif
             </p>
             <h2 class="my-2 text-lg font-bold leading-6 dark:text-white">{{ $announce->announce_title }}</h2>
             <div class="grid w-full grid-cols-2 gap-4 mt-1">

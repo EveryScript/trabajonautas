@@ -79,7 +79,8 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     @if ($client->trashed())
-                                        <span class="px-2 py-1 text-xs rounded-full text-tbn-primary bg-neutral-900">
+                                        <span
+                                            class="px-2 py-1 text-xs rounded-full text-tbn-primary bg-neutral-900">
                                             <i class="mr-1 fa-solid fa-ban"></i> Eliminado
                                         </span>
                                     @elseif (!$client->actived)

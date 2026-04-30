@@ -28,9 +28,10 @@
                 @if (auth()->user()->password)
                     <div class="mt-4" x-data="{}"
                         x-on:confirming-delete-user.window="setTimeout(() => $refs.password.focus(), 250)">
-                        Ingresa tu <span class="font-bold">contraseña</span> actual para eliminar tu cuenta
-                        definitivamente. Toma en cuenta que ya no
-                        podrás ingresar al sistema Trabajonautas.com ni utilizar sus funcionalidades.
+                        <p class="mb-4"> Ingresa tu <span class="font-bold">contraseña</span> actual para eliminar tu
+                            cuenta
+                            definitivamente. Toma en cuenta que ya no
+                            podrás ingresar al sistema Trabajonautas.com ni utilizar sus funcionalidades. </p>
                         <x-input-password type="password" class="w-full mt-1" autocomplete="current-password"
                             placeholder="{{ __('Password') }}" x-ref="password" wire:model="password"
                             wire:keydown.enter="deleteUser" />

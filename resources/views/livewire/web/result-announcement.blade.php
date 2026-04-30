@@ -18,8 +18,10 @@
                     @else
                         <p class="mb-2 text-sm text-tbn-dark">(Sin empresa)</p>
                     @endif
+                    <!-- Data list -->
                     <div class="grid grid-cols-1 lg:grid-cols-2">
                         <div class="flex flex-col gap-1 mb-2 text-sm font-normal text-tbn-dark">
+
                             @if ($announcement->locations->count() === $total_locations)
                                 <span class="text-tbn-dark dark:text-white"><i
                                         class="pr-1 fas fa-map-marker-alt text-tbn-primary"></i>
@@ -46,6 +48,13 @@
                                     {{ $this->formatDate($announcement->expiration_time) }}
                                 </span>
                             </div>
+                            @if ($announcement->expiration_time < now())
+                                <div class="mb-2">
+                                    <span class="uppercase text-tbn-primary">
+                                        <i class="pr-1 fas fa-triangle-exclamation text-tbn-primary"></i>
+                                        Convocatoria Expirada</span>
+                                </div>
+                            @endif
                             <div class="mb-2">
                                 <i class="pr-1 fas fa-calendar-alt text-tbn-primary"></i>
                                 <span class="text-tbn-dark dark:text-white"> Publicado

@@ -1,5 +1,5 @@
 <header class="py-4 bg-white dark:bg-tbn-dark">
-    <nav class="flex flex-row justify-between h-full max-w-6xl px-4 mx-auto align-middle sm:px-6 lg:px-8">
+    <nav class="flex flex-row justify-between h-full px-4 mx-auto align-middle max-w-7xl sm:px-6 lg:px-8">
         <div x-data="{ open: false, dropdown: false }" @click.away="open = false, dropdown = false"
             class="relative flex flex-wrap items-center justify-between w-full mx-auto">
             @role(config('app.client_role'))
