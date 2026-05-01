@@ -29,6 +29,7 @@ class ClientsGender extends Component
             ])
             ->selectRaw('gender, count(*) as total')
             ->groupBy('gender')
+            ->orderBy('gender', 'desc')
             ->pluck('total');
         $this->total = $query->sum();
 

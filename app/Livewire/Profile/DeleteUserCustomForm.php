@@ -5,6 +5,7 @@ namespace App\Livewire\Profile;
 use App\Actions\Jetstream\DeleteUser;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -39,7 +40,27 @@ class DeleteUserCustomForm extends Component
                 ]);
             }
         }
-        app(DeleteUser::class)->delete($user);
+        // app(DeleteUser::class)->delete($user);
+        // Envolver en transacción para eliminación segura
+        DB::transaction(function () use ($user) {
+            $user->deleteProfilePhoto();
+            $user->tokens()->delete();
+            if (method_exists($user, 'notificationLogs'))
+                $user->notificationLogs()->delete();
+            $user->subscriptions()->delete();
+            $user->account?->delete();
+            $user->notices()->delete();
+            $user->companies()->delete();
+            $user->announcements->each(function ($announcement) {
+                $announcement->usersOf()->detach();
+                $announcement->locations()->detach();
+                $announcement->profesions()->detach();
+                $announcement->announceFiles()->delete();
+                $announcement->delete();
+            });
+            $user->myAnnounces()->detach();
+            $user->forceDelete();
+        });
 
         Auth::guard('web')->logout();
         session()->invalidate();
