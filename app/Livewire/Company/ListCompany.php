@@ -43,7 +43,7 @@ class ListCompany extends Component
         if (!empty($this->search))
             $query->where('company_name', 'LIKE', '%' . $this->search . '%');
 
-        $companies = $query->simplePaginate(8);
+        $companies = $query->paginate(10);
 
         return view('livewire.company.list-company', [
             'companies' => $companies,

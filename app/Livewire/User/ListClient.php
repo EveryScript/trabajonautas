@@ -56,7 +56,7 @@ class ListClient extends Component
                     ->orWhere('phone', 'LIkE', '%' . $this->search . '%');
             })
             ->latest('updated_at')
-            ->simplePaginate(10);
+            ->paginate(10);
     }
 
     public function updatedSearch()

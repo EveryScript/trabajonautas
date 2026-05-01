@@ -49,7 +49,7 @@ class Profesions extends Component
         if (!empty($this->search))
             $query->where('profesion_name', 'LIKE', '%' . $this->search . '%');
 
-        $profesions = $query->simplePaginate(8);
+        $profesions = $query->paginate(10);
 
         return view('livewire.profesion.profesions', [
             'profesions' => $profesions,

@@ -60,7 +60,7 @@ class ListAnnouncement extends Component
                 ->orWhereHas('company', fn($q) => $q->where('company_name', 'LIKE', '%' . $this->search . '%'))
                 ->orWhereHas('locations', fn($q) => $q->where('location_name', 'LIKE', '%' . $this->search . '%'));
 
-        $announcements = $query->simplePaginate(8);
+        $announcements = $query->paginate(10);
 
         return view('livewire.announcement.list-announcement', [
             'announcements' => $announcements,
