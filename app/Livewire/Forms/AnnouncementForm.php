@@ -39,7 +39,6 @@ class AnnouncementForm extends Form
 
     public function update($update_id)
     {
-        $this->salary = str_replace(',', '', $this->salary);
         $this->validate([
             'announce_title' => 'required|min:10|max:1200',
             'description' => 'required',
@@ -58,7 +57,7 @@ class AnnouncementForm extends Form
             'announce_title' => $this->announce_title,
             'description' => $this->description,
             'expiration_time' => $this->expiration_time,
-            'salary' => $this->salary,
+            'salary' => str_replace('.', '', $this->salary),
             'pro' => $this->pro,
             'scheduled_at' => $this->pro && $this->scheduled_at ? $this->scheduled_at : null,
             'company_id' => $this->company_id,
@@ -84,7 +83,7 @@ class AnnouncementForm extends Form
 
     public function save()
     {
-        $this->salary = str_replace(',', '', $this->salary);
+        $this->salary = str_replace('.', '', $this->salary);
         $this->validate([
             'announce_title' => 'required|min:10|max:1200',
             'description' => 'required',

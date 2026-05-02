@@ -63,12 +63,15 @@
                             </div>
                             <div class="mb-2">
                                 <i class="pr-1 fas fa-money-bill text-tbn-primary"></i>
-                                @if ($announcement->salary > 0)
+                                @if ($announcement->salary == 0)
                                     <span class="text-tbn-dark dark:text-white">
-                                        Sueldo {{ number_format($announcement->salary, 0, '', ',') }} Bs.
-                                    </span>
+                                        Sueldo no declarado por la institución.</span>
+                                @elseif($announcement->salary == 1)
+                                    <span class="text-tbn-dark dark:text-white">
+                                        Los sueldos están detallados en la descripción.</span>
                                 @else
-                                    <span class="text-tbn-dark dark:text-white"> Sueldo no declarado por la institución.
+                                    <span class="text-tbn-dark dark:text-white">
+                                        Sueldo {{ number_format($announcement->salary, 0, '', '.') }} Bs.
                                     </span>
                                 @endif
                             </div>

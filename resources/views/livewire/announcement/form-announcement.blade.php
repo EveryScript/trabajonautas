@@ -134,9 +134,11 @@
                 <div class="w-full sm:w-1/2">
                     <x-label for="salary">Sueldo</x-label>
                     <x-input wire:model="announcement.salary" id="salary" type="text"
-                        x-mask:dynamic="$money($input.replace(/[^\d]/g), '.', ',')" class="block w-full mt-1" />
-                    <span class="text-xs text-tbn-dark dark:text-tbn-light">
-                        "0" = sueldo no declarado por la institución.</span>
+                        x-mask:dynamic="$money($input.replace(/[^\d]/g), ',', '.')" class="block w-full mt-1" />
+                    <span class="block mt-2 text-xs text-tbn-dark dark:text-tbn-light">
+                        "0" = Sueldo no declarado por la institución.</span>
+                    <span class="block text-xs text-tbn-dark dark:text-tbn-light">
+                        "1" = Los sueldos están detallados en la descripción.</span>
                     <x-input-error for="announcement.salary" class="mt-2" />
                 </div>
             </div>
