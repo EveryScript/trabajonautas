@@ -26,43 +26,20 @@ class DeleteUserCustomForm extends Component
     {
         $user = Auth::user();
 
-        if (!$user instanceof User)
-            $user = User::find(Auth::id());
-
+        // Password validation
         if ($user->password) {
-            $this->validate([
-                'password' => 'required|string',
-            ]);
-
+            $this->validate(['password' => 'required|string']);
             if (!Hash::check($this->password, $user->password)) {
                 throw ValidationException::withMessages([
                     'password' => [__('La contraseña es incorrecta.')],
                 ]);
             }
         }
-        // app(DeleteUser::class)->delete($user);
-        // Envolver en transacción para eliminación segura
-        DB::transaction(function () use ($user) {
-            $user->deleteProfilePhoto();
-            $user->tokens()->delete();
-            if (method_exists($user, 'notificationLogs'))
-                $user->notificationLogs()->delete();
-            $user->subscriptions()->delete();
-            $user->account?->delete();
-            $user->notices()->delete();
-            $user->companies()->delete();
-            $user->announcements->each(function ($announcement) {
-                $announcement->usersOf()->detach();
-                $announcement->locations()->detach();
-                $announcement->profesions()->detach();
-                $announcement->announceFiles()->delete();
-                $announcement->delete();
-            });
-            $user->myAnnounces()->detach();
-            $user->forceDelete();
-        });
-
+        // Logout session
         Auth::guard('web')->logout();
+        // Delete user (JetStream)
+        app(DeleteUser::class)->delete($user);
+        // Delete session data
         session()->invalidate();
         session()->regenerateToken();
 

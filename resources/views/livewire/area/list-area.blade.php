@@ -22,8 +22,8 @@
                             <p class="mb-2 text-xs text-tbn-dark dark:text-tbn-light">{{ $area->description }}</p>
                             <p class="text-sm">Creador: <span class="text-tbn-primary">{{ $area->user->name }}</span>
                             </p>
-                            {{-- <p class="text-sm">Profesiones: <span class="text-tbn-primary">{{ count($area->profesions) }}</span> --}}
-                            <p class="text-sm">Profesiones: <span class="font-bold underline cursor-pointer text-tbn-primary"
+                            <p class="text-sm">Profesiones: <span
+                                    class="font-bold underline cursor-pointer text-tbn-primary"
                                     title="{{ $area->profesions->pluck('profesion_name')->join("\n") }}">{{ count($area->profesions) }}</span>
                             </p>
                         </div>
@@ -53,9 +53,17 @@
         <script>
             Alpine.data('content', () => ({
                 areaForm: false,
+                ts_profesions: null,
                 init() {
+                    this.ts_profesions = new TomSelect('#profesions', {
+                        plugins: ['remove_button']
+                    })
                     $wire.on('area-edit', () => {
                         this.openAreaForm()
+                    })
+                    $wire.on('close-form', () => {
+                        this.ts_profesions.setValue([]);
+                        this.closeAreaForm()
                     })
                     $wire.on('area-saved', () => {
                         this.closeAreaForm()

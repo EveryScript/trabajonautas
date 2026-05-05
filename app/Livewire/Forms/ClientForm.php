@@ -38,7 +38,7 @@ class ClientForm extends Form
             'location_id',
         ]));
 
-        $this->account_type_id = $this->client->account->account_type_id;
+        $this->account_type_id = $this->client->account ? $this->client->account->account_type_id : null;
     }
 
     public function store(User $user, $country_code = '+591')
@@ -138,29 +138,7 @@ class ClientForm extends Form
 
     public function forceDelete()
     {
-        DB::transaction(function () {
-            $this->client->deleteProfilePhoto();
-            $this->client->tokens()->delete();
-
-            $this->client->notificationLogs()->delete();
-            $this->client->subscriptions()->delete();
-            $this->client->account?->delete();
-
-            $this->client->notices()->delete();
-            $this->client->companies()->delete();
-
-            $this->client->announcements->each(function ($announcement) {
-                $announcement->usersOf()->detach();
-                $announcement->locations()->detach();
-                $announcement->profesions()->detach();
-                $announcement->announceFiles()->delete();
-                $announcement->delete();
-            });
-
-            $this->client->myAnnounces()->detach();
-
-            $this->client->forceDelete();
-        });
+        $this->client->forceDelete();
     }
 
     public function rules()

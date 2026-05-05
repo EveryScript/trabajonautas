@@ -22,7 +22,7 @@
                             Nombre de profesión
                         </th>
                         <th scope="col" class="hidden px-6 py-3 lg:table-cell">
-                            Area
+                            Areas
                         </th>
                         <th scope="col" class="px-6 py-3 text-right">
                             Opciones
@@ -51,7 +51,13 @@
                                 <h5 class="font-bold text-md">{{ $profesion->profesion_name }}</h5>
                             </th>
                             <td class="hidden px-6 py-4 dark:text-tbn-light lg:table-cell">
-                                {{ $profesion->area ? $profesion->area->area_name : '(area eliminada)' }}
+                                @forelse ($profesion->areas as $area)
+                                    <span
+                                        class="inline-block px-2 py-1 dark:bg-tbn-secondary rounded-md text-[.8rem] leading-4 mb-1">
+                                        {{ $area->area_name }}</span>
+                                @empty
+                                    <span class="text-sm">(sin área)</span>
+                                @endforelse
                             </td>
                             <td class="flex flex-row items-center justify-end px-6 py-4 text-lg h-15">
                                 <a wire:click="editProfesion({{ $profesion->id }})"

@@ -49,7 +49,7 @@
                 <div class="mt-1 tbn-tom-select" wire:ignore>
                     <x-select id="profesions" wire:model="announcement.profesions" multiple>
                         @forelse ($profesions as $profesion)
-                            <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
+                            <option value="{{ $profesion['id'] }}">{{ $profesion['profesion_name'] }}</option>
                         @empty
                             <option>No hay opciones para mostrar</option>
                         @endforelse
@@ -281,10 +281,16 @@
                 },
                 // Set profesions base on area selected
                 onAreaChange(areaId) {
-                    const profesionsSelected = this.profesions.filter(p => Number(p.area_id) === Number(areaId))
-                    const selectedIds = profesionsSelected.map(p => p.id)
+                    const areaSelected = Number(areaId)
+                    const profesionsSelected = this.profesions.filter(p => {
+                        return p.area_ids && p.area_ids.map(Number).includes(areaSelected);
+                    });
+                    const selectedIds = profesionsSelected.map(p => p.id);
                     this.profesionsSelectedIds = [...new Set([...this.profesionsSelectedIds, ...selectedIds])];
-                    document.querySelector('#profesions').tomselect.setValue(this.profesionsSelectedIds)
+
+                    const tsControl = document.querySelector('#profesions').tomselect;
+                    if (tsControl)
+                        tsControl.setValue(this.profesionsSelectedIds);
                 },
                 // Set all locations
                 setAllLocations() {

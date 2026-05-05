@@ -28,16 +28,8 @@ class FormProfesion extends Component
         $this->dispatch('profesion-saved');
     }
 
-    #[Computed]
-    public function areas()
-    {
-        return Cache::remember('areas', 86400, fn() => Area::all(['id', 'area_name']));
-    }
-
     public function render()
     {
-        return view('livewire.profesion.form-profesion', [
-            'areas' => $this->areas
-        ]);
+        return view('livewire.profesion.form-profesion');
     }
 }

@@ -70,6 +70,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_url',
     ];
 
+    // Remove permissions and roles if user is forceDeleted
+    protected static function booted()
+    {
+        static::deleting(function ($user) {
+            if ($user->isForceDeleting()) {
+                $user->roles()->detach();
+                $user->permissions()->detach();
+            }
+        });
+    }
+
     // Relationships
     public function announcements(): HasMany
     {

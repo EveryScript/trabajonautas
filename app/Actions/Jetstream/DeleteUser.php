@@ -18,6 +18,6 @@ class DeleteUser implements DeletesUsers
         // JetStream Original action
         $user->deleteProfilePhoto();
         $user->tokens->each->delete();
-        $user->delete();
+        $user->forceDelete();
     }
 }

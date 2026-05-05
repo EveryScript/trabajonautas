@@ -71,7 +71,15 @@ class FormClient extends Component
     #[Computed]
     public function profesions()
     {
-        return Cache::remember('profesions', 86400, fn() => Profesion::all(['id', 'profesion_name']));
+        return Cache::remember('profesions', 86400, function () {
+            return Profesion::with('areas')->get()->map(function ($p) {
+                return [
+                    'id' => (int) $p->id,
+                    'profesion_name' => $p->profesion_name,
+                    'area_ids' => $p->areas->pluck('id')->map(fn($id) => (int)$id)->toArray()
+                ];
+            })->toArray();
+        });
     }
 
     public function render()

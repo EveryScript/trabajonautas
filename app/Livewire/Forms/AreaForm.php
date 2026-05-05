@@ -16,6 +16,7 @@ class AreaForm extends Form
     public $area_name;
     public $description;
     public $user_id;
+    public $profesions;
 
     public function setArea(Area $area)
     {
@@ -23,17 +24,22 @@ class AreaForm extends Form
         $this->fill($area->only([
             'area_name',
             'description',
-            'user_id'
+            'user_id',
         ]));
+        $this->profesions = $this->area->profesions->pluck('id')->toArray();
     }
 
     public function save()
     {
         $this->validate();
-        if ($this->area)
-            $this->area->update($this->except(['area']));
-        else
-            Area::create($this->except(['area']));
+
+        if ($this->area) {
+            $this->area->update($this->only(['area_name', 'description', 'user_id']));
+            $this->area->profesions()->sync($this->profesions);
+        } else {
+            $new_area = Area::create($this->only(['area_name', 'description', 'user_id']));
+            $new_area->profesions()->sync($this->profesions);
+        }
     }
 
     public function rules()
@@ -46,6 +52,7 @@ class AreaForm extends Form
             ],
             'description' => 'required|max:200',
             'user_id' => 'required|exists:users,id',
+            'profesions' => 'required'
         ];
     }
 
@@ -54,6 +61,7 @@ class AreaForm extends Form
         return [
             'area_name' => 'nombre del area',
             'description' => 'descripción',
+            'profesions' => 'profesiones'
         ];
     }
 }

@@ -36,14 +36,15 @@ class Profesions extends Component
     }
 
     #[On('profesion-saved')]
-    public function refreshList() {
+    public function refreshList()
+    {
         $this->resetPage(); // Reset page when searching
     }
 
     public function render()
     {
-        $query = Profesion::with('area:id,area_name')
-            ->select(['id', 'profesion_name', 'area_id', 'updated_at'])
+        $query = Profesion::with('areas:id,area_name')
+            ->select(['id', 'profesion_name', 'updated_at'])
             ->orderBy('updated_at', 'DESC');
 
         if (!empty($this->search))

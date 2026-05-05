@@ -15,6 +15,7 @@
                     class="hidden dark:block w-[3rem] rounded-full mx-auto">
             </picture>
             <h5 class="text-lg font-medium"> {{ $client->name }} </h5>
+            <small class="block text-xs font-light text-tbn-primary">{{ $client->profesion->profesion_name }}</small>
             <!-- Account Type or Verifing subscription -->
             @if ($client->latestPendingSubscription)
                 <div class="p-4 my-4 text-left border rounded-lg border-tbn-primary">

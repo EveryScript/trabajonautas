@@ -91,7 +91,7 @@
                     <div class="mt-1 tbn-tom-select" wire:ignore>
                         <x-select id="profesions" wire:model="form.profesion_id">
                             @foreach ($profesions as $profesion)
-                                <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
+                                <option value="{{ $profesion['id'] }}">{{ $profesion['profesion_name'] }}</option>
                             @endforeach
                         </x-select>
                     </div>
@@ -100,25 +100,29 @@
                 <!-- Account type -->
                 <div class="mb-4">
                     <x-label for="account" value="{{ __('Tipo de cuenta') }}" />
-                    <ul class="grid w-full gap-4 md:grid-cols-3">
-                        @foreach ($account_types as $type)
-                            <li wire:key='type-{{ $type->id }}'>
-                                <input type="radio" id="type-{{ $type->id }}" class="hidden peer" disabled
-                                    wire:model='form.account_type_id'
-                                    {{ $type->id == $this->form->account_type_id ? 'checked' : '' }}
-                                    value="{{ $type->id }}" name="account_type">
-                                <label for="type-{{ $type->id }}"
-                                    class="inline-flex items-center justify-between w-full p-5 bg-white border rounded-lg cursor-pointer text-tbn-secondary dark:text-white dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary hover:bg-tbn-light dark:hover:bg-neutral-900 peer-checked:border-tbn-primary peer-checked:text-tbn-primary peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:hover:bg-transparent peer-disabled:hover:dark:bg-tbn-dark">
-                                    <div class="w-2/3">
-                                        <div class="w-full text-lg font-semibold">{{ $type->name }}</div>
-                                    </div>
-                                    <i
-                                        class="mr-1 fas {{ $type->id == 1 ? 'fa-leaf text-green-600' : 'fa-crown text-tbn-primary' }}"></i>
-                                </label>
-                            </li>
-                        @endforeach
-                    </ul>
-                    <x-input-error for="form.account_type_id" class="mt-2" />
+                    @if ($this->form->account_type_id)
+                        <ul class="grid w-full gap-4 md:grid-cols-3">
+                            @foreach ($account_types as $type)
+                                <li wire:key='type-{{ $type->id }}'>
+                                    <input type="radio" id="type-{{ $type->id }}" class="hidden peer" disabled
+                                        wire:model='form.account_type_id'
+                                        {{ $type->id == $this->form->account_type_id ? 'checked' : '' }}
+                                        value="{{ $type->id }}" name="account_type">
+                                    <label for="type-{{ $type->id }}"
+                                        class="inline-flex items-center justify-between w-full p-5 bg-white border rounded-lg cursor-pointer text-tbn-secondary dark:text-white dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary hover:bg-tbn-light dark:hover:bg-neutral-900 peer-checked:border-tbn-primary peer-checked:text-tbn-primary peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:hover:bg-transparent peer-disabled:hover:dark:bg-tbn-dark">
+                                        <div class="w-2/3">
+                                            <div class="w-full text-lg font-semibold">{{ $type->name }}</div>
+                                        </div>
+                                        <i
+                                            class="mr-1 fas {{ $type->id == 1 ? 'fa-leaf text-green-600' : 'fa-crown text-tbn-primary' }}"></i>
+                                    </label>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <x-input-error for="form.account_type_id" class="mt-2" />
+                    @else
+                        <span class="text-sm italic text-tbn-secondary">(sin cuenta)</span>
+                    @endif
                 </div>
                 <div class="mb-4">
                     <x-button type="button" x-on:click="confirmUpdateModal" wire:loading.attr='disabled'>

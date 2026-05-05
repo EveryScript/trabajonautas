@@ -36,7 +36,7 @@ class DashboardClient extends Component
                 'account:id,user_id,account_type_id,limit_time,device_token',
                 'account.type:id,name,price,duration_days',
                 'location:id,location_name',
-                'profesion:id,profesion_name,area_id',
+                'profesion:id,profesion_name',
                 'gradeProfile:id,profile_name',
                 'myAnnounces:id'
             ])->findOrFail($this->user_id);
