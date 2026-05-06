@@ -88,13 +88,13 @@ class SearchAnnouncement extends Component
     #[Computed]
     public function profesions()
     {
-        return Cache::remember('t1-profesions', 3600, fn() => Profesion::select('id', 'profesion_name')->orderBy('profesion_name')->get());
+        return Cache::remember('web-profesions', 3600, fn() => Profesion::select('id', 'profesion_name')->orderBy('profesion_name')->get());
     }
 
     #[Computed]
     public function locations()
     {
-        return Cache::remember('t1-locations', 3600, fn() => Location::select('id', 'location_name')->orderBy('location_name')->get());
+        return Cache::remember('web-locations', 3600, fn() => Location::select('id', 'location_name')->orderBy('location_name')->get());
     }
 
     public function render()
@@ -104,7 +104,6 @@ class SearchAnnouncement extends Component
             'recommends' => $this->recommends,
             'hasResults' => $this->hasResults,
             'profesions' => $this->profesions,
-            'locations' => $this->profesions,
             'locations' => $this->locations,
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent()
         ]);

@@ -21,6 +21,7 @@ class UserForm extends Form
     public $location_id;
     public $area_id;
     public $profesions;
+    public $support_permission = false;
 
     public function editUser($user_id)
     {
@@ -43,6 +44,12 @@ class UserForm extends Form
             'password' => Hash::make($this->password)
         ]);
         $user->assignRole($this->role); // Always user
+        // Support permission
+        if ($this->support_permission) {
+            $user->givePermissionTo('support-permission');
+        } else {
+            $user->revokePermissionTo('support-permission');
+        }
     }
     public function updateUser($user_id)
     {
@@ -73,6 +80,12 @@ class UserForm extends Form
             $user->update([
                 'password' => Hash::make($this->password)
             ]);
+        }
+        // Update Support permission
+        if ($this->support_permission) {
+            $user->givePermissionTo('support-permission');
+        } else {
+            $user->revokePermissionTo('support-permission');
         }
     }
 }

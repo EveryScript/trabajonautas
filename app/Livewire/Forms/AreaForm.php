@@ -36,9 +36,11 @@ class AreaForm extends Form
         if ($this->area) {
             $this->area->update($this->only(['area_name', 'description', 'user_id']));
             $this->area->profesions()->sync($this->profesions);
+            $this->area->touch();
         } else {
             $new_area = Area::create($this->only(['area_name', 'description', 'user_id']));
             $new_area->profesions()->sync($this->profesions);
+            $new_area->touch();
         }
     }
 

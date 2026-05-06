@@ -14,12 +14,6 @@ class Company extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected static function booted()
-    {
-        static::saved(fn() => Cache::forget('companies'));
-        static::deleted(fn() => Cache::forget('companies'));
-    }
-
     // Permissions
     public $guarded = [];
 

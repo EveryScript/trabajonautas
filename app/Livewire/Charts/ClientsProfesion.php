@@ -26,7 +26,7 @@ class ClientsProfesion extends Component
 
         $profesions = Profesion::whereHas('users')->withCount(['users' => function ($query) {
             $query->role(config('app.client_role'))
-                ->whereHas('account')
+                ->whereHas('latestVerifiedSubscription')
                 ->whereBetween('created_at', [
                     Carbon::parse($this->startDate)->startOfDay(),
                     Carbon::parse($this->endDate)->endOfDay()

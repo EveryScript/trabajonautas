@@ -14,12 +14,6 @@ class Area extends Model
 {
     use HasFactory;
 
-    protected static function booted()
-    {
-        static::saved(fn() => Cache::forget('areas'));
-        static::deleted(fn() => Cache::forget('areas'));
-    }
-
     // Permissions
     public $guarded = [];
 
@@ -34,6 +28,6 @@ class Area extends Model
     }
     public function profesions(): BelongsToMany
     {
-        return $this->belongsToMany(Profesion::class);
+        return $this->belongsToMany(Profesion::class)->withTimestamps();
     }
 }

@@ -12,12 +12,6 @@ class Location extends Model
 {
     use HasFactory;
 
-    protected static function booted()
-    {
-        static::saved(fn() => Cache::forget('locations'));
-        static::deleted(fn() => Cache::forget('locations'));
-    }
-
     // Permissions
     public $guarded = [];
 

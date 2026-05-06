@@ -23,24 +23,15 @@ class ConfigUser extends Component
 
     public function save()
     {
+        $this->user->support_permission = $this->support_permission;
         $this->user->saveUser();
-        $this->setSupportPermission();
+        $this->redirectRoute('user', navigate: true);
     }
 
     public function update()
     {
+        $this->user->support_permission = $this->support_permission;
         $this->user->updateUser($this->id);
-        $this->setSupportPermission();
-    }
-
-    public function setSupportPermission()
-    {
-        $user = User::find($this->id);
-        if ($this->support_permission)
-            $user->givePermissionTo('support-permission');
-        elseif ($this->id)
-            $user->revokePermissionTo('support-permission');
-
         $this->redirectRoute('user', navigate: true);
     }
 

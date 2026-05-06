@@ -13,12 +13,6 @@ class Profesion extends Model
 {
     use HasFactory;
 
-    protected static function booted()
-    {
-        static::saved(fn() => Cache::forget('profesions'));
-        static::deleted(fn() => Cache::forget('profesions'));
-    }
-
     // Permissions
     public $guarded = [];
 
