@@ -15,17 +15,6 @@ return new class extends Migration
             $table->unsignedBigInteger('profesion_id'); // Foreign key
             $table->timestamps();
         });
-
-        $professions = DB::table('profesions')->whereNotNull('area_id')->get();
-
-        foreach ($professions as $profession) {
-            DB::table('area_profesion')->insert([
-                'profesion_id' => $profession->id,
-                'area_id' => $profession->area_id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
     }
 
     public function down(): void

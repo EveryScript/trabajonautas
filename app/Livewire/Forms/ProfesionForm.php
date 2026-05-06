@@ -11,6 +11,7 @@ class ProfesionForm extends Form
 {
     public ?Profesion $profesion = null;
     public $profesion_name;
+    public $user_id;
 
     public function setProfesion(Profesion $profesion)
     {

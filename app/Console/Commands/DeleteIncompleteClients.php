@@ -14,7 +14,8 @@ class DeleteIncompleteClients extends Command
     public function handle()
     {
         $sevenDaysAgo = Carbon::now()->subDays(7);
-        $usersToDelete = User::where('register_completed', false)
+        $usersToDelete = User::role(config('app.client_role'))
+            ->where('register_completed', false)
             ->where('created_at', '<', $sevenDaysAgo)
             ->get();
 

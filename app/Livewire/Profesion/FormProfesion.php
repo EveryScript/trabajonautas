@@ -24,6 +24,7 @@ class FormProfesion extends Component
 
     public function save()
     {
+        $this->form->user_id = auth()->user()->id;
         $this->form->save();
         $this->dispatch('profesion-saved');
     }

@@ -11,6 +11,7 @@ return new class extends Migration
         $tables = [
             'companies',
             'areas',
+            'profesions',
             'announcements',
             'announcement_user',
             'accounts',

@@ -71,7 +71,9 @@ class SearchAnnouncement extends Component
             ->select('id', 'announce_title', 'company_id', 'pro', 'expiration_time') // Solo lo necesario
             ->with(['company:id,company_name,company_image', 'locations:id,location_name'])
             ->where('expiration_time', '>=', now())
-            ->whereHas('profesions', fn($q) => $q->where('area_id', $profesion->area_id))
+            ->whereHas('profesions.areas', function ($q) use ($profesion) {
+                $q->where('areas.id', $profesion->area_id);
+            })
             ->whereNotIn('id', $this->announcements->pluck('id')->toArray()) // Evitar duplicados
             ->limit(6)
             ->get();
@@ -86,13 +88,13 @@ class SearchAnnouncement extends Component
     #[Computed]
     public function profesions()
     {
-        return Cache::remember('profesions_list', 3600, fn() => Profesion::select('id', 'profesion_name')->orderBy('profesion_name')->get());
+        return Cache::remember('t1-profesions', 3600, fn() => Profesion::select('id', 'profesion_name')->orderBy('profesion_name')->get());
     }
 
     #[Computed]
     public function locations()
     {
-        return Cache::remember('locations_list', 3600, fn() => Location::select('id', 'location_name')->orderBy('location_name')->get());
+        return Cache::remember('t1-locations', 3600, fn() => Location::select('id', 'location_name')->orderBy('location_name')->get());
     }
 
     public function render()
