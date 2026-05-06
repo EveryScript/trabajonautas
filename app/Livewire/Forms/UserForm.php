@@ -41,6 +41,7 @@ class UserForm extends Form
         $user = User::create([
             'name' => $this->name,
             'email' => $this->email,
+            'register_completed' => true,
             'password' => Hash::make($this->password)
         ]);
         $user->assignRole($this->role); // Always user
@@ -66,7 +67,6 @@ class UserForm extends Form
             'role' => 'required|in:' . implode(',', [
                 env('USER_ROLE'),
                 env('ADMIN_ROLE'),
-                env('CLIENT_ROLE'),
             ]),
         ]);
         $user = User::find($user_id);
