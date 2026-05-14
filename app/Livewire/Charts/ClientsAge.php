@@ -29,11 +29,15 @@ class ClientsAge extends Component
             ])
             ->selectRaw('age, count(*) as total')
             ->groupBy('age')
-            ->orderBy('age')
-            ->pluck('total');
+            ->pluck('total', 'age');
+
+        $query_data = collect([1, 2, 3])->mapWithKeys(function ($age) use ($query) {
+            return [$age => $query->get($age, 0)];
+        })->values()->toArray();
+
         $this->total = $query->sum();
 
-        return $query;
+        return $query_data;
     }
 
     public function render()

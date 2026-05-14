@@ -36,6 +36,10 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI')
     ],
+    // ID de Google Analytics
+    'google_analytics' => [
+        'id' => env('GOOGLE_ANALYTICS_ID')
+    ],
     // VAPID Clave Pública de Firebase para notificaciones
     'firebase' => [
         'vapid_key' => env('FIREBASE_VAPID_KEY'),

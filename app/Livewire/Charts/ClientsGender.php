@@ -29,11 +29,15 @@ class ClientsGender extends Component
             ])
             ->selectRaw('gender, count(*) as total')
             ->groupBy('gender')
-            ->orderBy('gender', 'desc')
-            ->pluck('total');
+            ->pluck('total', 'gender');
+
+        $query_data = collect(['M', 'F'])->mapWithKeys(function ($gender) use ($query) {
+            return [$gender => $query->get($gender, 0)];
+        })->values()->toArray();
+
         $this->total = $query->sum();
 
-        return $query;
+        return $query_data;
     }
 
     public function render()

@@ -16,6 +16,18 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
     <script src="{{ asset('js/firebase-notification.js') }}"></script>
 
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_analytics.id') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', {{ config('services.google_analytics.id') }});
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Fonts -->
@@ -45,6 +57,12 @@
     <script>
         document.addEventListener('livewire:navigated', () => {
             AOS.init();
+            // Google Analytics in Livewire (navigate)
+            if (typeof gtag === 'function') {
+                gtag('config', '{{ config('services.google_analytics.id') }}', {
+                    'page_path': window.location.pathname
+                });
+            }
         });
         document.addEventListener('livewire:initialized', () => {
             Livewire.hook('morph.updated', (el, component) => {
