@@ -1,6 +1,6 @@
 En **TRABAJONAUTAS** valoramos profundamente la privacidad y la protección de los datos personales de nuestros usuarios. Estas Políticas de Privacidad explican de forma clara y transparente cómo recopilamos, utilizamos, almacenamos, compartimos y protegemos la información personal de los usuarios que acceden y utilizan nuestro sitio web y los servicios asociados. El uso de la plataforma implica la aceptación plena y expresa de los términos aquí descritos. Si el usuario no está de acuerdo con alguna disposición, deberá abstenerse de utilizar nuestros servicios o podrá contactarnos en [soporte@trabajonautas.com](mailto:soporte@trabajonautas.com) 
 
-1. **GESTIÓN ÉTICA DE DATOS**
+            **1. GESTIÓN ÉTICA DE DATOS**
 
 **TRABAJONAUTAS** adopta un enfoque ético, transparente y responsable en el tratamiento de la información personal, conforme a los siguientes principios:
 
@@ -30,7 +30,7 @@ En **TRABAJONAUTAS** valoramos profundamente la privacidad y la protección de
 
 Los datos personales recopilados nunca serán públicos sin consentimiento, salvo aquellos necesarios para el funcionamiento normal del perfil.
 
-            **3. USO DE LOS DATOS**
+            **3. USO DE LOS DATOS**
 
 La información personal recopilada es utilizada por **TRABAJONAUTAS** con las siguientes finalidades:
 
@@ -58,7 +58,7 @@ Los datos podrán utilizarse para detectar intentos de acceso no autorizados, pu
 
 Asimismo, **TRABAJONAUTAS** podrá analizar de forma agregada el comportamiento de los Usuarios dentro de la plataforma, incluyendo las secciones más visitadas, frecuencia de uso y patrones de interacción, con el propósito de optimizar la funcionalidad, mejorar la experiencia del Usuario y desarrollar nuevos servicios que respondan a las necesidades reales del mercado laboral. Este tratamiento se realiza bajo técnicas de anonimización que impiden la identificación individual de los Usuarios.
 
-            **4. ALMACENAMIENTO Y SEGURIDAD**
+            **4. ALMACENAMIENTO Y SEGURIDAD**
 
 En **TRABAJONAUTAS**, nos tomamos muy en serio la seguridad de los datos de nuestros Usuarios. Por lo que se implementan medidas técnicas, administrativas y organizativas de seguridad para proteger la información personal, comercial y operativa que nos es confiada, así como para preservar la integridad de las operaciones realizadas a través de nuestra Plataforma, protegiendo los datos de accesos no autorizados, alteración, divulgación o destrucción. Los datos se conservan únicamente durante el tiempo estrictamente necesario para cumplir con los fines para los cuales fueron recopilados, salvo que la ley requiera un periodo de conservación más prolongado.
 
@@ -84,7 +84,7 @@ En caso de producirse una vulneración de seguridad que comprometa la confidenci
 
 **TRABAJONAUTAS** recuerda a los Usuarios que la seguridad de sus datos también depende del uso responsable de sus credenciales y del mantenimiento de dispositivos actualizados y protegidos frente a virus o software malicioso.
 
-            **5. COMPARTICIÓN DE DATOS**
+            **5. COMPARTICIÓN DE DATOS**
 
 En **TRABAJONAUTAS** nos comprometemos a no compartir los datos personales de nuestros Usuarios con terceros, salvo en los casos estrictamente necesarios y siempre garantizando el cumplimiento de las normativas de protección de datos aplicables. En los supuestos en que la información deba compartirse con proveedores de servicios tecnológicos, pasarelas de pago, sistemas de geolocalización u otros aliados necesarios para el funcionamiento de la Plataforma, se firmarán acuerdos de confidencialidad y se adoptarán medidas de seguridad para asegurar el tratamiento adecuado de la información. Asimismo, en caso de una fusión, adquisición o venta de activos, los datos de los Usuarios podrán ser transferidos a la nueva entidad, lo cual será informado oportunamente mediante la actualización de nuestras Política de Privacidad.
 

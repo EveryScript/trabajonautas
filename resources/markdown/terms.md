@@ -12,7 +12,7 @@ En caso de no estar de acuerdo con alguno de estos términos o condiciones, le p
 
 En **TRABAJONAUTAS** creemos en la transparencia, la accesibilidad y la innovación tecnológica como medios para impulsar el crecimiento profesional y acercarte más rápido a tu próximo empleo.
 
-    **1. DEFINICIONES**
+            **1. DEFINICIONES**
 
 A fin de identificar claramente los actores y el significado de las palabras clave que utilizamos en el presente documento, exponemos las siguientes definiciones:
 
@@ -38,7 +38,7 @@ A fin de identificar claramente los actores y el significado de las palabras cla
 
 **k)**    **Términos:** Nos referimos a Términos y Condiciones para identificar las normas y cláusulas en el presente documento.
 
-    **2. NUESTRA EMPRESA**
+            **2. NUESTRA EMPRESA**
 
 **TRABAJONAUTAS** es una Sociedad de Responsabilidad Limitada legalmente constituida con Matrícula de comercio y Número de Identificación Tributaria (NIT)689534024, que brinda sus servicios a través de una plataforma digital boliviana, creada con el propósito de facilitar el acceso a oportunidades laborales y fomentar la conexión entre quienes buscan empleo y las empresas o instituciones que requieren talento humano.
 
@@ -48,7 +48,7 @@ A través del sitio web [https://www.trabajonautas.com](https://www.trabajonaut
 
 Nuestra plataforma **TRABAJONAUTAS** no es una agencia de empleo, ni interviene en los procesos de contratación, selección o evaluación de personal. Su rol se limita a funcionar como intermediario tecnológico y difusor de información, poniendo a disposición del público o enviando convocatorias recopiladas de diversas fuentes públicas y privadas publicadas (por ejemplo, SICOES, páginas institucionales, redes sociales, portales de empresas y medios digitales), así como publicaciones solicitadas directamente por empleadores registrados y verificados.
 
-    **3. NATURALEZA DEL SERVICIO**
+            **3. NATURALEZA DEL SERVICIO**
 
 **3.1. TRABAJONAUTAS** es una plataforma tecnológica de intermediación informativa y difusión de convocatorias laborales. Su propósito es facilitar el acceso a información sobre oportunidades de empleo, mediante la recopilación, organización y publicación de avisos provenientes de fuentes públicas, privadas o directamente ingresados por empresas y empleadores verificados.
 
@@ -82,7 +82,7 @@ La activación de dichos planes está sujeta a validación administrativa tras l
 
 **3.7.** El Usuario reconoce que el uso de la Plataforma no implica garantía alguna de contratación, selección o contacto por parte de las empresas publicadoras.
 
-    **4. REGISTRO Y CREACIÓN DE CUENTA**
+            **4. REGISTRO Y CREACIÓN DE CUENTA**
 
 **4.1.** Para acceder a las funcionalidades es necesario registrarse y crear una Cuenta. Al registrarte declaras y garantizas que:
 
@@ -96,7 +96,7 @@ La activación de dichos planes está sujeta a validación administrativa tras l
 
 **4.3.** Cada Usuario es responsable de mantener la confidencialidad de su contraseña y credenciales. Debes notificar inmediatamente a **TRABAJONAUTAS** cualquier uso no autorizado de tu Cuenta.
 
-         **5. PLANES, PAGOS Y FACTURACIÓN**
+            **5. PLANES, PAGOS Y FACTURACIÓN**
 
 **5.1. TRABAJONAUTAS** podrá ofrecer distintos planes de suscripción. Las características, precio y duración de cada plan se describirán en el Sitio y en el proceso de “**REGISTRO**”
 
@@ -108,7 +108,7 @@ La activación de dichos planes está sujeta a validación administrativa tras l
 
 **5.5.** El Usuario acepta expresamente que, al tratarse de un servicio de contenido digital de acceso inmediato, una vez autorizado y habilitado su plan **PRO** o **PRO** **MAX**, se inicia la ejecución del servicio, por lo que no existirá derecho de retracto, devolución ni desistimiento del pago efectuado, salvo error directo del sistema de cobro.
 
-    **6.PUBLICACIÓN Y VERIFICACIÓN DE CONVOCATORIAS**
+            **6. PUBLICACIÓN Y VERIFICACIÓN DE CONVOCATORIAS**
 
 **6.1. TRABAJONAUTAS** es el único que podrá realizar publicaciones de convocatorias dentro de la Plataforma.  
 **6.2.** En algunos casos, tomará convocatorias directamente de empresas o instituciones solicitantes, previamente verificadas por **TRABAJONAUTAS.** La verificación podrá incluir la validación de datos de identidad del representante legal, razón social, matrícula NIT, correo institucional, sitio web, número telefónico y cualquier otro dato que se considere necesario para comprobar la legitimidad de la convocatoria.
@@ -141,7 +141,7 @@ En tales casos, **TRABAJONAUTAS** podrá negar su publicación y sin que ello 
 
 **6.6**. **Reportes y denuncias:** Los Usuarios podrán reportar convocatorias sospechosas, falsas, vencidas o inapropiadas mediante las herramientas disponibles en la Plataforma o a través del correo [**soporte@trabajonautas.com**](mailto:soporte@trabajonautas.com). A partir de ello, **TRABAJONAUTAS** no sólo tomará mayores precauciones con la fuente de información, sino que también pondrá en conocimiento de las autoridades competentes cualquier hecho sospechoso o ilegal.
 
-    **7.CONTENIDO DE USUARIO Y LICENCIA**
+            **7. CONTENIDO DE USUARIO Y LICENCIA**
 
 **7.1. Responsabilidad sobre el contenido:** El Usuario declara y garantiza que:
 
@@ -173,7 +173,7 @@ El Usuario será el único responsable del contenido publicado y de cualquier da
 
 **7.5. Eliminación del contenido:** El Usuario podrá eliminar su contenido en cualquier momento desde su cuenta personal. No obstante, **TRABAJONAUTAS** podrá conservar una copia de respaldo durante el tiempo necesario para cumplir con obligaciones legales, resolver disputas o hacer cumplir estos Términos.
 
-    **8.USO PERMITIDO Y PROHIBICIONES**
+            **8. USO PERMITIDO Y PROHIBICIONES**
 
 **8.1. Uso responsable:** El Usuario se compromete a utilizar la Plataforma de manera responsable, ética y conforme a la legislación vigente, destinando su uso exclusivamente a la búsqueda de empleo, consulta de convocatorias laborales e identificación de ofertas de trabajo. En ese sentido, el Usuario declara que toda la información que proporcione durante su registro, configuración de cuenta, postulación o cualquier interacción dentro de **TRABAJONAUTAS** será veraz, precisa, actual y completa, comprometiéndose además a mantenerla actualizada de forma continua.
 
@@ -189,7 +189,7 @@ El Usuario será el único responsable del contenido publicado y de cualquier da
 
 Finalmente, el Usuario acepta que el uso de **TRABAJONAUTAS** se realiza bajo su exclusiva responsabilidad, liberando expresamente a la empresa administradora de cualquier reclamo, pérdida o daño que pudiera derivarse de su interacción con terceros, del uso de información contenida en convocatorias o de la falta de contratación o selección laboral.
 
-    **9.MODERACIÓN, SUSPENSION Y TERMINACION**
+            **9. MODERACIÓN, SUSPENSION Y TERMINACION**
 
 **TRABAJONAUTAS** se reserva el derecho de revisar, moderar, editar, rechazar o eliminar información o cuentas que vulneren los presentes Términos o la ley aplicable. De la misma manera, podrá eliminar o advertir al Usuario de convocatorias ya enviadas que se hayan demostrado incorrectas, falsas o engañosas.
 
@@ -197,13 +197,13 @@ La Plataforma podrá suspender temporalmente el acceso de un Usuario, inhabilita
 
 La terminación por parte del Usuario, la eliminación o baja de su cuenta no exime al Usuario de obligaciones pendientes (p. ej. pagos debidos) ni impide la conservación de ciertos datos por obligaciones legales o por prevención de fraudes. En caso de que el Usuario solicite la terminación por parte de **TRABAJONAUTAS,**  esta deberá ser realizada por los canales de la página y se responderá a la solicitud en un plazo mínimo de 72 horas o la brevedad posible.
 
-    **10.NOTIFICACIONES Y COMUNICACIONES**
+            **10. NOTIFICACIONES Y COMUNICACIONES**
 
 **TRABAJONAUTAS** podrá comunicarse con el Usuario por correo electrónico, notificaciones web push, o mensajes de WhatsApp, cuando estén habilitadas. El Usuario es responsable de activar y permitir las notificaciones en el navegador correspondiente en el cual ingrese a la plataforma u otro dispositivo, debiendo aceptar en el mensaje emergente que le aparecerá para que se activen las notificaciones, acto seguido deberá dar los permisos solicitados por su navegador para que se activen las notificaciones.
 
 **TRABAJONAUTAS** no será responsable por notificaciones que no lleguen si el Usuario no habilitó las mismas o si su dispositivo o proveedor de servicios bloqueó la entrega.
 
-    **11. PROTECCIÓN DE DATOS Y PRIVACIDAD**
+            **11. PROTECCIÓN DE DATOS Y PRIVACIDAD**
 
 El tratamiento de datos personales se regula en la Política de Privacidad que complementa estos Términos. **TRABAJONAUTAS** recopila datos necesarios para prestar los Servicios, incluyendo datos de identificación, profesión, edad, ubicación, historial de uso y cualquier documento que el Usuario decida subir.
 
@@ -211,7 +211,7 @@ Los Usuarios aceptan que **TRABAJONAUTAS** podrá almacenar y procesar datos e
 
 **TRABAJONAUTAS** adoptará medidas razonables de seguridad técnica y organizativa para proteger la información, pero no garantiza invulnerabilidad absoluta. Los detalles del tratamiento y los derechos ARCO estarán especificados en la Política de Privacidad.
 
-    **12.EXONERACIÓN Y LIMITACIÓN DE RESPONSABILIDAD**
+            **12. EXONERACIÓN Y LIMITACIÓN DE RESPONSABILIDAD**
 
 **12.1. Participación: TRABAJONAUTAS** actúa únicamente como intermediario tecnológico y difusor de información. Su función consiste en recopilar, clasificar y poner a disposición de los Usuarios convocatorias de trabajo provenientes de fuentes públicas o privadas, y facilitar que empresas verificadas publiquen sus propias convocatorias dentro de la Plataforma.
 
@@ -255,7 +255,7 @@ El Usuario exonera expresamente a **TRABAJONAUTAS** de cualquier tipo de recla
 
 Salvo en los casos en que la ley boliviana disponga lo contrario, **TRABAJONAUTAS**, sus representantes, administradores, empleados, filiales o contratistas no serán responsables por daños directos, indirectos, incidentales, especiales, morales o consecuentes, incluyendo pérdida de beneficios, pérdida de datos, interrupción del negocio o cualquier otro perjuicio económico o reputacional derivado del uso o la imposibilidad de uso de la plataforma o de los Servicios.
 
-    **13. INDEMNIZACIÓN**
+            **13. INDEMNIZACIÓN**
 
 **13.1.** El Usuario se compromete a indemnizar, defender a **TRABAJONAUTAS**, así como a sus representantes, empleados, administradores, socios, filiales y afiliadas, frente a cualquier reclamación, daño, pérdida, coste o gasto (incluidos los honorarios razonables de abogados) que surjan directa o indirectamente de:
 
@@ -269,7 +269,7 @@ Salvo en los casos en que la ley boliviana disponga lo contrario, **TRABAJONAUT
 
 Esta obligación de indemnización subsistirá incluso después de la terminación o baja de la cuenta del Usuario.
 
-         **14.MODIFICACIONES A LOS TÉRMINOS**
+            **14. MODIFICACIONES A LOS TÉRMINOS**
 
 **TRABAJONAUTAS** se reserva el derecho de modificar, actualizar o complementar estos Términos en cualquier momento, a su entera discreción, para reflejar cambios en sus prácticas comerciales, ajustes normativos, mejoras en la funcionalidad de la Plataforma o cualquier otro motivo que considere necesario para el adecuado funcionamiento de sus servicios y dichas modificaciones entrarán en vigencia una vez comunicadas de acuerdo con el proceso establecido en este apartado.
 
@@ -279,7 +279,7 @@ En el caso de que el Usuario no esté de acuerdo con las modificaciones realizad
 
 **TRABAJONAUTAS** recomienda a los Usuarios consultar estos Términos y Condiciones periódicamente para estar al tanto de sus derechos, obligaciones y cualquier cambio que pudiera afectarles en el uso de la plataforma.
 
-         **15.LEY APLICABLE Y JURISDICCIÓN**
+            **15. LEY APLICABLE Y JURISDICCIÓN**
 
 Estos Términos se rigen por las leyes del Estado Plurinacional de Bolivia.
 
@@ -287,7 +287,7 @@ Para la interpretación, ejecución y resolución de cualquier conflicto o contr
 
 **TRABAJONAUTAS** promoverá, en la medida de lo posible, la solución amistosa y la conciliación previa como medio de resolución de conflictos.
 
-            **16.DISPOSICIONES FINALES**
+            **16. DISPOSICIONES FINALES**
 
 La nulidad o invalidez de alguna disposición de estos Términos no afectará la validez del resto, que permanecerán plenamente vigentes.
 
@@ -295,7 +295,7 @@ Los presentes Términos constituyen el acuerdo total entre **TRABAJONAUTAS** y
 
 **TRABAJONAUTAS** podrá ceder o transferir sus derechos y obligaciones derivados de estos Términos sin requerir consentimiento previo del Usuario, siempre que dicha cesión no afecte los derechos adquiridos por este.
 
-         **17.CONTACTO**
+            **17. CONTACTO**
 
 Para consultas, solicitudes de baja, reclamos o ejercicio de derechos relacionados con estos Términos o con la Política de Privacidad, el Usuario podrá comunicarse a través de los siguientes medios:
 
