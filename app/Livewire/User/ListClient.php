@@ -51,9 +51,11 @@ class ListClient extends Component
             })
             // Filter by name
             ->when($this->search, function ($query) {
-                $query->where('name', 'LIkE', '%' . $this->search . '%')
-                    ->orWhere('email', 'LIkE', '%' . $this->search . '%')
-                    ->orWhere('phone', 'LIkE', '%' . $this->search . '%');
+                $query->where(function ($subquery) {
+                    $subquery->where('name', 'LIKE', '%' . $this->search . '%')
+                        ->orWhere('email', 'LIKE', '%' . $this->search . '%')
+                        ->orWhere('phone', 'LIKE', '%' . $this->search . '%');
+                });
             })
             ->latest('updated_at')
             ->paginate(10);
