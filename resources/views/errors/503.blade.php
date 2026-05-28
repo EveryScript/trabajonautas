@@ -19,22 +19,22 @@
 </head>
 
 <body class="antialiased">
-    <div class="relative h-screen w-full flex items-center justify-center bg-cover bg-center text-center px-5"
+    <div class="relative flex items-center justify-center w-full h-screen px-5 text-center bg-center bg-cover"
         style="background-image:url({{ asset('storage/img/tbn-space-reverse.webp') }});">
-        <div class="absolute top-0 right-0 bottom-0 left-0 bg-gray-900 opacity-75"></div>
-        <div class="z-50 flex flex-col justify-center text-white w-full h-screen">
-            <h1 class="text-3xl font-semibold md:text-5xl mb-4">Estamos listos para despegar al futuro</h1>
-            <p class="mb-8">Próximamente, las mejores convocatorias de empleo para toda Bolivia.</p>
-            <picture class="mx-auto max-w-64 mb-4">
+        <div class="absolute top-0 bottom-0 left-0 right-0 bg-gray-900 opacity-75"></div>
+        <div class="z-50 flex flex-col justify-center w-full h-screen text-white">
+            <h1 class="mb-4 text-3xl font-semibold md:text-5xl">¿Todo listo?</h1>
+            <p class="mb-8">El despegue ha sido demorado por unas horas. Nuestros ingenieros están trabajando en los últimos detalles.</p>
+            <picture class="mx-auto mb-4 max-w-64">
                 <img class="w-full" src="{{ asset('storage/img/tbn-white-logo.webp') }}" alt="logo-white">
             </picture>
-            <div class="mb-6">
-                <div class="shadow w-full bg-white mt-2 max-w-2xl mx-auto rounded-full">
+            <div class="mb-6" hidden>
+                <div class="w-full max-w-2xl mx-auto mt-2 bg-white rounded-full shadow">
                     <div class="rounded-full bg-[#ff420a] text-xs leading-none text-center text-white py-1"
                         style="width: 85%">85%</div>
                 </div>
             </div>
-            <div class="flex flex-row gap-4  mx-auto text-2xl">
+            <div class="flex flex-row gap-4 mx-auto text-2xl" hidden>
                 <a href="#" class="hover:text-[#ff420a]">
                     <i class="fa-brands fa-facebook"></i>
                 </a>
