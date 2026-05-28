@@ -84,6 +84,25 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Google Registration -->
+                    <div class="relative my-4">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-tbn-light dark:border-tbn-secondary"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span
+                                class="px-2 italic font-light bg-white dark:bg-tbn-dark text-tbn-secondary dark:text-tbn-light">
+                                o también</span>
+                        </div>
+                    </div>
+                    <div class="max-w-xs mx-auto">
+                        <a href="{{ route('auth.google') }}"
+                            class="flex justify-center gap-2 px-4 py-3 text-sm transition duration-150 border rounded-lg border-tbn-secondary text-tbn-dark dark:text-tbn-light dark:hover:text-white hover:shadow">
+                            <img class="w-5 h-5" src="https://www.svgrepo.com/show/475656/google-color.svg"
+                                loading="lazy" alt="google logo">
+                            <span>Iniciar sesión con Google</span>
+                        </a>
+                    </div>
                     @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                         <div class="mt-4">
                             <x-label for="terms">
