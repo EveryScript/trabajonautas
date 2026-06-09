@@ -20,6 +20,8 @@ class SearchAnnouncement extends Component
     protected function announceBaseQuery()
     {
         return Announcement::query()->where('expiration_time', '>=', now())
+            ->whereNull('scheduled_at')
+            ->orWhere('scheduled_at', '<', now())
             // Filter by profesion
             ->when($this->profesion_id, function ($query, $profesion_id) {
                 $query->whereHas('profesions', function ($q) use ($profesion_id) {
@@ -71,6 +73,8 @@ class SearchAnnouncement extends Component
             ->select('id', 'announce_title', 'company_id', 'pro', 'expiration_time') // Solo lo necesario
             ->with(['company:id,company_name,company_image', 'locations:id,location_name'])
             ->where('expiration_time', '>=', now())
+            ->whereNull('scheduled_at')
+            ->orWhere('scheduled_at', '<', now())
             ->whereHas('profesions.areas', function ($q) use ($profesion) {
                 $q->where('areas.id', $profesion->area_id);
             })

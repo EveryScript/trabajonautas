@@ -16,6 +16,8 @@ class RecentAnnouncement extends Component
     {
         $this->client_pro_verified = $this->isAuthClientProVerifiedAndCurrent();
         $this->announcements = Announcement::where('expiration_time', '>=', now())
+            ->whereNull('scheduled_at')
+            ->orWhere('scheduled_at', '<', now())
             ->orderBy('updated_at', 'DESC')
             ->limit(6)->get();
 
