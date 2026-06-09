@@ -19,7 +19,7 @@
                     <span class="font-light text-tbn-primary">(Convocatoria expirada)</span>
                 @endif
             </p>
-            <h2 class="my-2 text-lg font-bold leading-6 dark:text-white">{{ $announce->announce_title }}</h2>
+            <h2 class="my-2 text-lg font-bold leading-6 uppercase dark:text-white">{{ $announce->announce_title }}</h2>
             <div class="grid w-full grid-cols-2 gap-4 mt-1">
                 @if ($announce->company)
                     <h3 class="font-bold text-tbn-primary">{{ $announce->company->company_name }}</h3>
