@@ -8,14 +8,33 @@ use App\Models\Profesion;
 use App\Traits\AuthorizeClients;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class SearchAnnouncement extends Component
 {
     use AuthorizeClients;
 
-    public $profesion_id, $location_id;
+    #[Url(keep: false)]
+    public $profesion_id = null;
+    #[Url(keep: false)]
+    public $location_id = null;
     public int $per_page = 12;
+
+    public function mount()
+    {
+        if ($this->profesion_id) {
+            $exists = Profesion::where('id', $this->profesion_id)->exists();
+            if (!$exists)
+                $this->profesion_id = null;
+        }
+
+        if ($this->location_id) {
+            $exists = Location::where('id', $this->location_id)->exists();
+            if (!$exists)
+                $this->location_id = null;
+        }
+    }
 
     protected function announceBaseQuery()
     {
