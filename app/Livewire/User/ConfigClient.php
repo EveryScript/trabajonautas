@@ -3,6 +3,7 @@
 namespace App\Livewire\User;
 
 use App\Mail\RenewAccount;
+use App\Models\TbnSetting;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -20,10 +21,13 @@ class ConfigClient extends Component
     public $client_id = null;
     public $verified_payment;
     public $client_actived;
+    public $tbn_coins;
 
     public function mount()
     {
         Carbon::setlocale('es');
+        $tbn_coins = TbnSetting::where('key', 'tbn_coins')->first();
+        $this->tbn_coins = (int) $tbn_coins->value;
     }
 
     #[On('load-client')]
@@ -44,7 +48,7 @@ class ConfigClient extends Component
     {
         if (!$this->client_id) return null;
 
-        return User::select('id', 'name', 'email', 'actived', 'phone', 'register_completed', 'location_id', 'profesion_id', 'deleted_at')
+        return User::select('id', 'name', 'email', 'actived', 'phone', 'register_completed', 'location_id', 'profesion_id', 'coins', 'deleted_at')
             ->withTrashed()
             ->with([
                 'latestPendingSubscription.type:id,name,price,duration_days',
@@ -76,6 +80,10 @@ class ConfigClient extends Component
                         'verified_payment' => $this->verified_payment,
                         'verified_by_user_id' => auth()->id()
                     ]);
+
+                    // Set coins
+                    if ($subscription->account_type_id == 3)
+                        $client->update(['coins' => $this->tbn_coins]);
 
                     Mail::to($client->email)->queue(new RenewAccount($client, $subscription->type->name));
                 }

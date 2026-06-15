@@ -3,6 +3,7 @@
 namespace App\Livewire\Panel;
 
 use App\Models\Announcement;
+use App\Models\TbnSetting;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
 use App\Traits\AuthorizeClients;
@@ -31,7 +32,7 @@ class DashboardClient extends Component
     #[Computed(persist: true)]
     public function client()
     {
-        return User::select('id', 'name', 'email', 'phone', 'location_id', 'profesion_id', 'grade_profile_id', 'last_announce_check')
+        return User::select('id', 'name', 'email', 'phone', 'location_id', 'profesion_id', 'grade_profile_id', 'coins', 'last_announce_check')
             ->with([
                 'account:id,user_id,account_type_id,limit_time,device_token',
                 'account.type:id,name,price,duration_days',
@@ -81,6 +82,8 @@ class DashboardClient extends Component
 
     public function render()
     {
-        return view('livewire.panel.dashboard-client');
+        return view('livewire.panel.dashboard-client', [
+            'tbn_coins' => TbnSetting::where('key', 'tbn_coins')->value('value')
+        ]);
     }
 }

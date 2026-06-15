@@ -49,6 +49,14 @@
                                             class="mr-1 fas {{ $this->client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
                                         {{ $this->client->account->type->name }}
                                     </span>
+                                    <!-- Coins -->
+                                    @if ($this->client->account->account_type_id == 3)
+                                        <span
+                                            class="inline-block px-2 py-1 my-2 text-xs text-white border rounded-full border-tbn-primary">
+                                            <i class="mr-1 text-xs text-yellow-500 fa-solid fa-coins"></i>
+                                            {{ $this->client->coins }}
+                                        </span>
+                                    @endif
                                 </p>
                             </div>
                             <div>

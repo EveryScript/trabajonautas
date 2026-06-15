@@ -32,11 +32,19 @@
                         <i class="mr-1 fab fa-whatsapp"></i> Enviar mensaje</a>
                 </div>
             @else
+                <!-- Account name -->
                 <span
                     class="inline-block px-2 py-1 my-2 text-xs text-white {{ $client->account->account_type_id == 1 ? 'bg-green-600' : 'bg-tbn-primary' }} rounded-full tracking-wider">
                     <i class="mr-1 fas {{ $client->account->account_type_id == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
                     {{ $client->account->type->name }}
                 </span>
+                <!-- Coins -->
+                @if ($client->account->account_type_id == 3)
+                    <span class="inline-block px-2 py-1 my-2 text-xs text-white border rounded-full border-tbn-primary">
+                        <i class="mr-1 text-xs text-yellow-500 fa-solid fa-coins"></i>
+                        {{ $client->coins }}
+                    </span>
+                @endif
             @endif
             <!-- Time left -->
             @if ($client->account && intval($client->account->account_type_id) > 1)
