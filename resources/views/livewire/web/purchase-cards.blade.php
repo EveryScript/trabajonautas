@@ -66,6 +66,14 @@
                                 @endif
                                 Notificaciones en tiempo real
                             </li>
+                            <li class="flex items-center">
+                                @if ($account_type->id == 1 || $account_type->id == 2)
+                                    <i class="mr-2 fas fa-times text-tbn-primary"></i>
+                                @else
+                                    <i class="mr-2 text-green-500 fas fa-check"></i>
+                                @endif
+                                {{ $tbn_coins }} Monedas especiales
+                            </li>
                         </ul>
                     </div>
                     <div

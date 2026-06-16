@@ -16,7 +16,7 @@
                 <x-label class="mb-1" for="location" value="{{ __('Departamento o región') }}" />
                 <select id="location" x-model="location_id" @keyup.enter="searchAnnouncements"
                     placeholder="La Paz, Oruro..." class="mt-1">
-                    <option>Toda Bolivia</option>
+                    <option value="">Toda Bolivia</option>
                     @foreach ($locations as $l)
                         <option value="{{ $l->id }}">{{ $l->location_name }}</option>
                     @endforeach
@@ -107,16 +107,35 @@
                 profesion_ts: null,
                 location_ts: null,
                 init() {
+                    // Set url params
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const urlProfesion = urlParams.get('profesion_id');
+                    const urlLocation = urlParams.get('location_id');
+                    this.profesion_id = urlProfesion && urlProfesion !== 'null' ? Number(urlProfesion) : null;
+                    this.location_id = urlLocation && urlLocation !== 'null' ? Number(urlLocation) : null;
+                    // Set values in TomSelect
                     this.profesion_ts = new TomSelect('#profesion', {
-                        onItemAdd: function(value) {
-                            this.profesion_id = value
-                        }
-                    })
+                        allowEmptyOption: true,
+                        items: this.profesion_id ? [this.profesion_id] : []
+                    });
                     this.location_ts = new TomSelect('#location', {
-                        onItemAdd: function(value) {
-                            this.location_id = value
+                        allowEmptyOption: true,
+                        items: this.location_id ? [this.location_id] : []
+                    });
+                    // Listen changes in Tom Select
+                    this.profesion_ts.on('change', (value) => {
+                        this.profesion_id = value ? Number(value) : null;
+                    });
+                    this.location_ts.on('change', (value) => {
+                        if (value) {
+                            this.location_id = Number(value);
+                        } else {
+                            urlParams.delete('location_id');
+                            const nuevaUrl = window.location.pathname + (urlParams.toString() ? '?' +
+                                urlParams.toString() : '');
+                            window.history.replaceState({}, document.title, nuevaUrl);
                         }
-                    })
+                    });
                 },
                 destroy() {
                     if (this.profesion_ts)
@@ -126,11 +145,12 @@
                 },
                 // Functions
                 searchAnnouncements() {
-                    if (this.profesion_id) {
+                    if (this.profesion_id)
                         $wire.set('profesion_id', Number(this.profesion_id))
-                    }
                     if (this.location_id)
                         $wire.set('location_id', Number(this.location_id))
+                    else
+                        $wire.set('location_id', null)
                 }
             }));
         </script>

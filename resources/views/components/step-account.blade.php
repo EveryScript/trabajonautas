@@ -1,3 +1,4 @@
+@props(['tbn_coins'])
 <div x-show="step === 5" x-cloak x-transition:enter.duration.300ms>
     <h5 class="mb-2 font-bold text-md dark:text-white">Elige una cuenta</h5>
     <ul class="grid grid-cols-1 gap-1 md:grid-cols-3">
@@ -34,6 +35,12 @@
                                 class="mr-2 text-red-500 fas fa-times"></i>
                             <i x-show="accountType.id == 3" class="mr-2 text-green-500 fas fa-check"></i>
                             Notificaciones en tiempo real
+                        </li>
+                        <li class="flex items-center">
+                            <i x-show="accountType.id == 1 || accountType.id == 2"
+                                class="mr-2 text-red-500 fas fa-times"></i>
+                            <i x-show="accountType.id == 3" class="mr-2 text-green-500 fas fa-check"></i>
+                            Monedas especiales: {{ $tbn_coins }}
                         </li>
                     </ul>
                 </label>

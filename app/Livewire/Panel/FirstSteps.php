@@ -68,7 +68,8 @@ class FirstSteps extends Component
         return view('livewire.panel.first-steps', [
             'profesions' => $this->profesions,
             'locations' => $this->locations,
-            'account_types' => $this->account_types
+            'account_types' => $this->account_types,
+            'tbn_coins' => TbnSetting::where('key', 'tbn_coins')->value('value')
         ]);
     }
 }

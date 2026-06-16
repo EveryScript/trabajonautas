@@ -18,7 +18,7 @@
             <!-- Step 4 : Locations -->
             <x-step-location />
             <!-- Step 5 : Select your account -->
-            <x-step-account />
+            <x-step-account :tbn_coins="$tbn_coins" />
             <!-- Step 6 : Purchase review -->
             <x-step-purchase :qr_pro="$qr_pro" :qr_promax="$qr_promax" />
         </div>

@@ -47,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'location_id',
         'profesion_id',
         'grade_profile_id',
+        'coins', // Coins to see another announcements
         'last_announce_check',
         'google_id', // Laravel Socialite
         'email_verified_at', // Laravel Socialite
@@ -109,6 +110,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function myAnnounces(): BelongsToMany
     {
         return $this->belongsToMany(Announcement::class);
+    }
+    public function unlockedAnnounces(): BelongsToMany
+    {
+        return $this->belongsToMany(Announcement::class, 'unlocked_announcement_user')->withTimestamps();
     }
     public function notices(): HasMany
     {

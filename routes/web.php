@@ -39,7 +39,6 @@ Route::group(['middleware' => ['user_actived']], function () {
 // All access logged
 Route::group(['middleware' => ['auth', 'verified', 'role:CLIENT|USER|ADMIN', 'only_one_session', 'user_actived']], function () {
     Route::get('/panel', fn() => view('dashboard'))->name('dashboard');
-    Route::get('/prohibido', fn() => view('restricted-area'))->name('restricted-area');
 });
 
 // Only users and admin access

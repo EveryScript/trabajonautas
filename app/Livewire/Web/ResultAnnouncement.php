@@ -7,6 +7,7 @@ use App\Models\Location;
 use App\Models\User;
 use App\Traits\AuthorizeClients;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -20,18 +21,21 @@ class ResultAnnouncement extends Component
 
     public function mount()
     {
-        if (!$this->announcement) return $this->redirect('/', true);
+        if (!$this->announcement)
+            return $this->redirect('/', true);
+        if ($this->announcement->pro && !$this->isAuthClientProVerifiedAndCurrent())
+            return $this->redirect('/panel', true);
+    }
 
-        $client = $this->getAuthClientWithAccount();
+    public function unlock()
+    {
+        /** @var User $user */ // Casting de User
+        $user = auth()->user();
 
-        if ($this->announcement->pro) {
-            if (!$this->isAuthClientProVerifiedAndCurrent()) {
-                return $this->redirect('/panel', true);
-            }
-            if ($client->account && !$this->announcement->profesions->contains($client->profesion_id)) {
-                return $this->redirect('/prohibido', true);
-            }
-        }
+        DB::transaction(function () use ($user) {
+            $user->decrement('coins', 1);
+            $user->unlockedAnnounces()->attach($this->id);
+        });
     }
 
     #[Computed]
@@ -71,6 +75,7 @@ class ResultAnnouncement extends Component
             'total_locations' => Location::count(),
             'client' => $this->getAuthClientWithAccount(),
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent(),
+            'coins' => $this->getAuthClientWithAccount()->coins
         ]);
     }
 }

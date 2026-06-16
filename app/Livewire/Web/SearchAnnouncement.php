@@ -8,20 +8,42 @@ use App\Models\Profesion;
 use App\Traits\AuthorizeClients;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class SearchAnnouncement extends Component
 {
     use AuthorizeClients;
 
-    public $profesion_id, $location_id;
+    #[Url(keep: false)]
+    public $profesion_id = null;
+    #[Url(keep: false)]
+    public $location_id = null;
     public int $per_page = 12;
+
+    public function mount()
+    {
+        if ($this->profesion_id) {
+            $exists = Profesion::where('id', $this->profesion_id)->exists();
+            if (!$exists)
+                $this->profesion_id = null;
+        }
+
+        if ($this->location_id) {
+            $exists = Location::where('id', $this->location_id)->exists();
+            if (!$exists)
+                $this->location_id = null;
+        }
+    }
 
     protected function announceBaseQuery()
     {
         return Announcement::query()->where('expiration_time', '>=', now())
-            // ->whereNull('scheduled_at')
-            // ->orWhere('scheduled_at', '<', now())
+            // Filter no scheduled announcements
+            ->where(function ($query) {
+                $query->whereNull('scheduled_at')
+                    ->orWhere('scheduled_at', '<=', now());
+            })
             // Filter by profesion
             ->when($this->profesion_id, function ($query, $profesion_id) {
                 $query->whereHas('profesions', function ($q) use ($profesion_id) {
@@ -73,8 +95,10 @@ class SearchAnnouncement extends Component
             ->select('id', 'announce_title', 'company_id', 'pro', 'expiration_time') // Solo lo necesario
             ->with(['company:id,company_name,company_image', 'locations:id,location_name'])
             ->where('expiration_time', '>=', now())
-            // ->whereNull('scheduled_at')
-            // ->orWhere('scheduled_at', '<', now())
+            ->where(function ($query) {
+                $query->whereNull('scheduled_at')
+                    ->orWhere('scheduled_at', '<=', now());
+            })
             ->whereHas('profesions.areas', function ($q) use ($profesion) {
                 $q->where('areas.id', $profesion->area_id);
             })

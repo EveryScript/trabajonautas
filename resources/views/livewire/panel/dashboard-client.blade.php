@@ -8,7 +8,7 @@
                 $this->client->account &&
                     intval($this->client->account->account_type_id) === 1 &&
                     !$this->client->latestPendingSubscription)
-                <x-dashboard-ad />
+                <x-dashboard-ad :tbn_coins="$tbn_coins" />
             @endif
             <!-- Suggests component -->
             <div x-show="btnNavigation == 1" x-cloak>

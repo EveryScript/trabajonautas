@@ -1,3 +1,4 @@
+@props(['tbn_coins'])
 <div x-show="btnAd" class="relative mx-auto mb-8">
     <button x-on:click="btnAd = false" class="absolute top-4 right-6 text-md text-tbn-primary">
         <i class="fas fa-times"></i>
@@ -21,6 +22,9 @@
                 </li>
                 <li class="flex items-center">
                     <i class="mr-2 text-green-500 fas fa-check"></i> Notificaciones en tiempo real
+                </li>
+                <li class="flex items-center">
+                    <i class="mr-2 text-green-500 fas fa-check"></i> Monedas especiales: {{ $tbn_coins }}
                 </li>
             </ul>
             <div class="mt-4">
