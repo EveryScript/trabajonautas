@@ -57,7 +57,7 @@ class FirstSteps extends Component
             // Send email "Welcome user"
             Mail::to($this->user->email)->queue(new WelcomeAccount($this->user, $account_type_name));
             // Redirect to Dashboard
-            return $this->redirectRoute('dashboard', navigate: true);
+            return redirect()->route('dashboard');
         } catch (\Exception $e) {
             $this->dispatch('register-failed');
         }
