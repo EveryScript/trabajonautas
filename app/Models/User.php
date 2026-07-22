@@ -133,13 +133,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Subscription::class)->where('verified_payment', true)->latestOfMany();
     }
-    // Client has pending payment with QR generated
-    public function hasPendingPayment(): bool
-    {
-        return $this->latestPendingSubscription()
-            ->whereNotNull('qr_id')
-            ->exists();
-    }
     // Reset password notification (mail content)
     public function sendPasswordResetNotification($token)
     {
