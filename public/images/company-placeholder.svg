@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title description">
+  <title id="title">Empresa sin logotipo</title>
+  <desc id="description">Icono neutro de un edificio</desc>
+  <rect width="96" height="96" rx="16" fill="#fff7ed"/>
+  <path d="M25 78V30l23-12 23 12v48H25Z" fill="#f97316"/>
+  <path d="M35 37h8v8h-8v-8Zm18 0h8v8h-8v-8ZM35 53h8v8h-8v-8Zm18 0h8v8h-8v-8Z" fill="#fff7ed"/>
+  <path d="M43 65h10v13H43V65Z" fill="#7c2d12"/>
+</svg>

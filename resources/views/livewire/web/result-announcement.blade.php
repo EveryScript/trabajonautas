@@ -21,9 +21,9 @@
                 class="p-5 bg-white border rounded-lg shadow-md dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary">
                 @if ($announcement->company)
                     <picture class="block mb-2">
-                        <img alt="company-logo"
+                        <img alt="{{ $announcement->company->company_name }}"
                             class="flex-shrink-0 object-cover object-center w-12 h-12 mb-4 rounded-lg sm:mb-0"
-                            src="{{ asset('storage/' . $announcement->company->company_image) }}">
+                            src="{{ $announcement->company->hasCompanyImageFile() ? $announcement->company->companyImageUrl() : asset('images/company-placeholder.svg') }}">
                     </picture>
                     <h5
                         class="inline font-bold mb-2 {{ $announcement->company->trashed() ? 'line-through opacity-40 ' : 'text-tbn-primary' }}">
