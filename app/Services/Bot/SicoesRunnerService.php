@@ -22,18 +22,18 @@ class SicoesRunnerService
         $this->makeOutputWritable($basePath);
         @unlink($jsonPath);
 
-        if (filter_var(env('SICOES_REFRESH_DOWNLOADS', true), FILTER_VALIDATE_BOOLEAN)) {
+        if ((bool) config('sicoes.refresh_downloads', true)) {
             $this->clearDownloadCacheForDate($basePath, $slug);
         }
 
-        $mode = filter_var(env('SICOES_ASSISTED_DOWNLOAD', true), FILTER_VALIDATE_BOOLEAN)
+        $mode = (bool) config('sicoes.assisted_download', true)
             ? 'full-assisted'
             : 'full';
 
         $process = new Process([$this->nodeBinary(), 'sicoes.js', "--mode={$mode}", "--fecha={$displayDate}"], $basePath);
         $process->setEnv($this->nodeEnvironment($basePath));
-        $process->setTimeout((int) env('SICOES_PROCESS_TIMEOUT', 7200));
-        $process->setIdleTimeout((int) env('SICOES_PROCESS_IDLE_TIMEOUT', 240));
+        $process->setTimeout((int) config('sicoes.process.timeout', 7200));
+        $process->setIdleTimeout((int) config('sicoes.process.idle_timeout', 240));
 
         $output = '';
         $lineBuffer = '';
@@ -239,9 +239,12 @@ class SicoesRunnerService
             'TEMP' => $tempPath,
             'TMP' => $tempPath,
             'TMPDIR' => $tempPath,
-            'SICOES_ASSISTED_DOWNLOAD' => filter_var(env('SICOES_ASSISTED_DOWNLOAD', true), FILTER_VALIDATE_BOOLEAN) ? '1' : '0',
-            'SICOES_MANUAL_DOWNLOAD_TIMEOUT_MS' => (string) env('SICOES_MANUAL_DOWNLOAD_TIMEOUT_MS', 600000),
-            'SICOES_MANUAL_DOWNLOAD_DIR' => env('SICOES_MANUAL_DOWNLOAD_DIR') ?: null,
+            'SICOES_ASSISTED_DOWNLOAD' => (bool) config('sicoes.assisted_download', true) ? '1' : '0',
+            'SICOES_MANUAL_DOWNLOAD_TIMEOUT_MS' => (string) config('sicoes.manual_download.timeout_ms', 600000),
+            'SICOES_MANUAL_DOWNLOAD_DIR' => config('sicoes.manual_download.directory'),
+            'SICOES_BROWSER_PATH' => config('sicoes.browser.path'),
+            'SICOES_CDP_PORT' => (string) config('sicoes.browser.cdp_port', 9222),
+            'SICOES_CDP_URL' => config('sicoes.browser.cdp_url', 'http://127.0.0.1:9222'),
             'PATH' => getenv('PATH') ?: null,
             'SystemRoot' => getenv('SystemRoot') ?: 'C:\\Windows',
             'COMSPEC' => getenv('COMSPEC') ?: 'C:\\Windows\\System32\\cmd.exe',
@@ -308,7 +311,7 @@ class SicoesRunnerService
 
     private function nodeBinary(): string
     {
-        $configured = env('SICOES_NODE_PATH');
+        $configured = config('sicoes.node.path');
 
         if ($configured && is_file($configured)) {
             return $configured;

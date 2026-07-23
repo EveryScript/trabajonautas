@@ -31,12 +31,12 @@ class SicoesDocumentAiAnalyzer
             ]);
         }
 
-        $attempts = max(1, (int) env('SICOES_AI_RETRIES', 2));
+        $attempts = (int) config('sicoes.ai.retries', 2);
         $last = null;
 
         for ($attempt = 1; $attempt <= $attempts; $attempt++) {
             try {
-                $response = Http::timeout((int) env('SICOES_AI_TIMEOUT', 120))
+                $response = Http::timeout((int) config('sicoes.ai.timeout', 120))
                     ->withHeaders([
                         'content-type' => 'application/json',
                         'x-api-key' => $key,
@@ -317,7 +317,7 @@ PROMPT;
 
     private function prepareText(string $text): array
     {
-        $max = (int) env('SICOES_AI_MAX_TEXT_CHARS', 250000);
+        $max = (int) config('sicoes.ai.max_text_chars', 250000);
         $max = $max > 0 ? $max : 250000;
         $text = trim($text);
         $length = mb_strlen($text);
