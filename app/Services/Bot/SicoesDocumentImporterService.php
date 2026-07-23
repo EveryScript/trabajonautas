@@ -51,7 +51,7 @@ class SicoesDocumentImporterService
             'already_previewed' => 0,
             'reactivated_deleted' => 0,
             'skipped_without_cuce' => 0,
-            'ai_provider' => config('services.sicoes_ai_provider', 'anthropic'),
+            'ai_provider' => config('sicoes.ai.provider', 'anthropic'),
             'ai_enabled' => (bool) config('services.anthropic.api_key'),
             'ai_model' => config('services.anthropic.model', 'claude-haiku-4-5-20251001'),
             'ai_calls' => 0,
@@ -443,7 +443,7 @@ class SicoesDocumentImporterService
                 'analysis_key' => $analysisKey,
                 'already_published_detected' => false,
                 'published_announcement_id' => null,
-                'ai_provider' => $analysis['provider'] ?? config('services.sicoes_ai_provider', 'anthropic'),
+                'ai_provider' => $analysis['provider'] ?? config('sicoes.ai.provider', 'anthropic'),
                 'ai_used' => (bool) ($analysis['used'] ?? false),
                 'ai_success' => (bool) ($analysis['success'] ?? false),
                 'ai_error' => $analysis['error'] ?? null,
@@ -586,7 +586,7 @@ class SicoesDocumentImporterService
             'warnings' => $warnings,
             'ai_classification' => $this->classificationData($data),
             'ai_analysis' => $data,
-            'ai_provider' => $analysis['provider'] ?? config('services.sicoes_ai_provider', 'anthropic'),
+            'ai_provider' => $analysis['provider'] ?? config('sicoes.ai.provider', 'anthropic'),
             'ai_used' => (bool) ($analysis['used'] ?? false),
             'ai_success' => (bool) ($analysis['success'] ?? false),
             'ai_error' => $analysis['error'] ?? null,
@@ -720,7 +720,7 @@ class SicoesDocumentImporterService
                 'location_detected_text' => null,
                 'salary_source' => 'error',
                 'salary_detected_text' => null,
-                'ai_provider' => $aiMeta['provider'] ?? config('services.sicoes_ai_provider', 'anthropic'),
+                'ai_provider' => $aiMeta['provider'] ?? config('sicoes.ai.provider', 'anthropic'),
                 'ai_used' => (bool) ($aiMeta['used'] ?? false),
                 'ai_success' => $analysisSuccess,
                 'ai_error' => $aiMeta['error'] ?? $error,
@@ -842,7 +842,7 @@ class SicoesDocumentImporterService
     {
         return hash('sha256', implode('|', [
             (string) ($document['document_hash'] ?? ''),
-            (string) config('services.sicoes_ai_provider', 'anthropic'),
+            (string) config('sicoes.ai.provider', 'anthropic'),
             (string) config('services.anthropic.model', 'claude-haiku-4-5-20251001'),
             self::ANALYSIS_SCHEMA_VERSION,
             $promptVersion ?? self::PROMPT_VERSION,
@@ -865,7 +865,7 @@ class SicoesDocumentImporterService
         return [
             'success' => true,
             'used' => false,
-            'provider' => $meta['provider'] ?? config('services.sicoes_ai_provider', 'anthropic'),
+            'provider' => $meta['provider'] ?? config('sicoes.ai.provider', 'anthropic'),
             'model' => $meta['model'] ?? config('services.anthropic.model', 'claude-haiku-4-5-20251001'),
             'http_status' => $meta['http_status'] ?? null,
             'error' => null,
@@ -885,7 +885,7 @@ class SicoesDocumentImporterService
     private function aiMetadata(array $analysis): array
     {
         return [
-            'provider' => $analysis['provider'] ?? config('services.sicoes_ai_provider', 'anthropic'),
+            'provider' => $analysis['provider'] ?? config('sicoes.ai.provider', 'anthropic'),
             'model' => $analysis['model'] ?? config('services.anthropic.model', 'claude-haiku-4-5-20251001'),
             'http_status' => $analysis['http_status'] ?? null,
             'success' => (bool) ($analysis['success'] ?? false),

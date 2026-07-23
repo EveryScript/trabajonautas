@@ -10,7 +10,7 @@ class SicoesDocumentAiAnalyzer
 {
     public function analyze(array $document, string $text): array
     {
-        $provider = config('services.sicoes_ai_provider', 'anthropic');
+        $provider = config('sicoes.ai.provider', 'anthropic');
         $key = config('services.anthropic.api_key');
         $model = config('services.anthropic.model', 'claude-haiku-4-5-20251001');
         $version = config('services.anthropic.version', '2023-06-01');

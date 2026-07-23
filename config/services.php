@@ -43,5 +43,27 @@ return [
     // VAPID Clave Pública de Firebase para notificaciones
     'firebase' => [
         'vapid_key' => env('FIREBASE_VAPID_KEY'),
-    ]
+    ],
+
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL') ?: 'gemini-2.5-flash-lite',
+        'verify_ssl' => filter_var(
+            env('GEMINI_VERIFY_SSL', true),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'ca_bundle' => env('GEMINI_CA_BUNDLE') ?: null,
+        'max_description_chars' => max(1000, (int) env('GEMINI_MAX_DESCRIPTION_CHARS', 6000)),
+        'debug_ssl' => filter_var(
+            env('GEMINI_DEBUG_SSL', false),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+    ],
+
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL') ?: 'claude-haiku-4-5-20251001',
+        'version' => env('ANTHROPIC_VERSION', '2023-06-01'),
+        'max_tokens' => max(1, (int) env('ANTHROPIC_MAX_TOKENS', 4000)),
+    ],
 ];

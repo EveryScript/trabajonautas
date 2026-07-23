@@ -235,7 +235,7 @@ class ProcessSicoesJob implements ShouldQueue
             'already_previewed' => 0,
             'reactivated_deleted' => 0,
             'skipped_without_cuce' => 0,
-            'ai_provider' => config('services.sicoes_ai_provider', 'anthropic'),
+            'ai_provider' => config('sicoes.ai.provider', 'anthropic'),
             'ai_enabled' => (bool) config('services.anthropic.api_key'),
             'ai_model' => config('services.anthropic.model', 'claude-haiku-4-5-20251001'),
             'ai_calls' => 0,
