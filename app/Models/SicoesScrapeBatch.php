@@ -8,6 +8,25 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SicoesScrapeBatch extends Model
 {
+    public const STATUS_QUEUED = 'queued';
+
+    public const STATUS_RUNNING = 'running';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_PARTIAL = 'partial';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_FINISHED_LEGACY = 'finished';
+
+    public const TERMINAL_STATUSES = [
+        self::STATUS_COMPLETED,
+        self::STATUS_PARTIAL,
+        self::STATUS_FAILED,
+        self::STATUS_FINISHED_LEGACY,
+    ];
+
     public $incrementing = false;
 
     protected $keyType = 'string';
@@ -29,5 +48,10 @@ class SicoesScrapeBatch extends Model
     public function items(): HasMany
     {
         return $this->hasMany(SicoesScrapeBatchItem::class, 'batch_id');
+    }
+
+    public function isTerminal(): bool
+    {
+        return in_array($this->status, self::TERMINAL_STATUSES, true);
     }
 }

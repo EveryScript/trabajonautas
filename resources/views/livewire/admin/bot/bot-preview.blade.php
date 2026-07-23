@@ -91,6 +91,9 @@
                                 @case('failed')
                                     La ejecucion finalizo con error.
                                     @break
+                                @case('partial')
+                                    La ejecucion finalizo parcialmente: {{ $currentSicoesBatch->documents_processed }} procesados y {{ $currentSicoesBatch->errors_count }} con error.
+                                    @break
                                 @case('finished')
                                 @case('completed')
                                     Lote {{ $currentSicoesBatch->requested_date->format('d/m/Y') }}: {{ $currentSicoesBatch->documents_processed }} procesados, {{ $currentSicoesBatch->previews_count }} previews y {{ $currentSicoesBatch->discarded_count }} descartados.
@@ -502,6 +505,9 @@
                                         @break
                                     @case('failed')
                                         La ejecucion finalizo con error.
+                                        @break
+                                    @case('partial')
+                                        El procesamiento fue parcial: {{ $currentSicoesBatch->documents_processed }} documentos procesados y {{ $currentSicoesBatch->errors_count }} con error. Revisa el lote antes de publicar.
                                         @break
                                     @case('finished')
                                     @case('completed')

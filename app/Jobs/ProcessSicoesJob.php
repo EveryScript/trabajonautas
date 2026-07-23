@@ -12,7 +12,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ProcessSicoesJob implements ShouldQueue
 {
@@ -47,14 +49,36 @@ class ProcessSicoesJob implements ShouldQueue
 
     public function handle(SicoesRunnerService $runner, SicoesDocumentImporterService $importer): array
     {
-        $this->batch()?->update([
-            'status' => 'running',
+        $batch = $this->batch();
+
+        if ($this->runId && ! $batch) {
+            throw new \RuntimeException('El lote SICOES no existe o no pertenece a la empresa indicada.');
+        }
+
+        if ($batch?->isTerminal()) {
+            Log::warning('SICOES omitio una entrega duplicada para un lote terminal.', [
+                'date' => $this->date,
+                'bot_company_id' => $this->botCompanyId,
+                'run_id' => $this->runId,
+                'batch_status' => $batch->status,
+            ]);
+
+            return [
+                'status' => strtoupper((string) $batch->status),
+                'runner_status' => 'SKIPPED_TERMINAL',
+                'batch_status' => $batch->status,
+                'skipped_terminal_batch' => true,
+            ];
+        }
+
+        $batch?->update([
+            'status' => SicoesScrapeBatch::STATUS_RUNNING,
             'started_at' => now(),
         ]);
 
         $this->putProgress([
             'run_id' => $this->runId,
-            'status' => 'running',
+            'status' => SicoesScrapeBatch::STATUS_RUNNING,
             'date' => $this->date,
             'total' => 0,
             'processed' => 0,
@@ -84,6 +108,7 @@ class ProcessSicoesJob implements ShouldQueue
                 ]);
             },
         );
+        $runnerStatus = strtoupper((string) ($run['status'] ?? 'UNKNOWN'));
 
         $import = $importer->importRun(
             run: $run,
@@ -121,35 +146,44 @@ class ProcessSicoesJob implements ShouldQueue
             ...$run,
             ...$import,
         ];
+        $errorCount = $this->errorCount($result);
+        $batchStatus = $this->terminalStatus($runnerStatus, $result, $errorCount);
+        $result['runner_status'] = $runnerStatus;
+        $result['batch_status'] = $batchStatus;
 
-        Log::info('SICOES documentos previsualizados correctamente.', [
-            'date' => $this->date,
-            'run_id' => $this->runId,
-            'bot_company_id' => $this->botCompanyId,
-            'json_path' => $run['json_path'] ?? null,
-            'total' => $result['total_items_feed'] ?? null,
-            'saved' => $result['saved'] ?? null,
-            'updated' => $result['updated'] ?? null,
-            'document_processed' => $result['document_processed'] ?? null,
-            'document_errors' => $result['document_errors'] ?? null,
-            'document_discarded' => $result['document_discarded'] ?? null,
-            'preclassified_discards' => $result['preclassified_discards'] ?? null,
-            'discarded_not_individual_consultant' => $result['discarded_not_individual_consultant'] ?? null,
-            'discarded_company_or_goods' => $result['discarded_company_or_goods'] ?? null,
-            'ai_provider' => $result['ai_provider'] ?? null,
-            'ai_calls' => $result['ai_calls'] ?? null,
-            'ai_cache_hits' => $result['ai_cache_hits'] ?? null,
-            'ai_errors' => $result['ai_errors'] ?? null,
-            'errors' => $result['errors'] ?? [],
-        ]);
+        Log::info(
+            $batchStatus === SicoesScrapeBatch::STATUS_COMPLETED
+                ? 'SICOES documentos previsualizados correctamente.'
+                : 'SICOES finalizo con resultados parciales.',
+            [
+                'date' => $this->date,
+                'run_id' => $this->runId,
+                'bot_company_id' => $this->botCompanyId,
+                'runner_status' => $runnerStatus,
+                'batch_status' => $batchStatus,
+                'total' => $result['total_items_feed'] ?? null,
+                'saved' => $result['saved'] ?? null,
+                'updated' => $result['updated'] ?? null,
+                'document_processed' => $result['document_processed'] ?? null,
+                'document_errors' => $errorCount,
+                'document_discarded' => $result['document_discarded'] ?? null,
+                'preclassified_discards' => $result['preclassified_discards'] ?? null,
+                'discarded_not_individual_consultant' => $result['discarded_not_individual_consultant'] ?? null,
+                'discarded_company_or_goods' => $result['discarded_company_or_goods'] ?? null,
+                'ai_provider' => $result['ai_provider'] ?? null,
+                'ai_calls' => $result['ai_calls'] ?? null,
+                'ai_cache_hits' => $result['ai_cache_hits'] ?? null,
+                'ai_errors' => $result['ai_errors'] ?? null,
+            ],
+        );
 
         $this->putProgress([
-            'status' => 'finished',
+            'status' => $batchStatus,
             'total' => $result['total_items_feed'] ?? 0,
             'processed' => $result['document_processed'] ?? ($result['total_items_feed'] ?? 0),
             'saved' => $result['saved'] ?? 0,
             'updated' => $result['updated'] ?? 0,
-            'failed' => ($result['document_errors'] ?? 0) ?: count($result['errors'] ?? []),
+            'failed' => $errorCount,
             'discarded' => $result['document_discarded'] ?? 0,
             'preclassified_discards' => $result['preclassified_discards'] ?? 0,
             'discarded_not_individual_consultant' => $result['discarded_not_individual_consultant'] ?? 0,
@@ -158,18 +192,20 @@ class ProcessSicoesJob implements ShouldQueue
             'ai_cache_hits' => $result['ai_cache_hits'] ?? 0,
             'ai_errors' => $result['ai_errors'] ?? 0,
             'shown_in_batch' => $result['shown_in_batch'] ?? 0,
-            'last_step' => 'SICOES finalizado. Revisa los previews por documento antes de publicar.',
+            'last_step' => $batchStatus === SicoesScrapeBatch::STATUS_COMPLETED
+                ? 'SICOES completado. Revisa los previews por documento antes de publicar.'
+                : 'SICOES finalizo parcialmente. Revisa los errores y previews antes de publicar.',
             'finished_at' => now()->toDateTimeString(),
         ]);
 
         $this->batch()?->update([
-            'status' => 'finished',
+            'status' => $batchStatus,
             'documents_found' => $this->documentsFound($run, $result),
             'documents_downloaded' => (int) ($result['total_items_feed'] ?? 0),
             'documents_processed' => (int) ($result['document_processed'] ?? 0),
             'previews_count' => (int) ($result['shown_in_batch'] ?? 0),
             'discarded_count' => (int) ($result['document_discarded'] ?? 0),
-            'errors_count' => (int) ($result['document_errors'] ?? 0),
+            'errors_count' => $errorCount,
             'ai_calls' => (int) ($result['ai_calls'] ?? 0),
             'ai_cache_hits' => (int) ($result['ai_cache_hits'] ?? 0),
             'summary' => $this->batchSummary($result),
@@ -182,30 +218,40 @@ class ProcessSicoesJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         $current = Cache::get($this->progressKey(), []);
+        $batch = $this->batch();
+        $exceptionType = $this->exceptionType($exception);
 
-        if (! $this->canWriteProgress()) {
-            $this->batch()?->update([
-                'status' => 'failed',
-                'errors_count' => 1,
-                'summary' => ['error' => \Illuminate\Support\Str::limit($exception->getMessage(), 1000, '')],
-                'finished_at' => now(),
-            ]);
-            Log::warning('SICOES job fallo obsoleto ignorado en progreso.', [
+        if ($batch?->isTerminal()) {
+            Log::warning('SICOES job fallo despues de alcanzar un estado terminal; se preservo el lote.', [
                 'date' => $this->date,
                 'bot_company_id' => $this->botCompanyId,
                 'run_id' => $this->runId,
-                'message' => $exception->getMessage(),
+                'batch_status' => $batch->status,
+                'exception_type' => $exceptionType,
             ]);
 
             return;
         }
 
+        if (! $this->canWriteProgress()) {
+            $this->markBatchFailed($exceptionType, 1);
+            Log::warning('SICOES job fallo obsoleto ignorado en progreso.', [
+                'date' => $this->date,
+                'bot_company_id' => $this->botCompanyId,
+                'run_id' => $this->runId,
+                'exception_type' => $exceptionType,
+            ]);
+
+            return;
+        }
+
+        $errorCount = max(1, (int) ($current['failed'] ?? 0) + 1);
         $this->putProgress([
             ...$current,
             'run_id' => $this->runId,
-            'status' => 'failed',
-            'failed' => ((int) ($current['failed'] ?? 0)) + 1,
-            'last_step' => 'Job fallo: '.$exception->getMessage(),
+            'status' => SicoesScrapeBatch::STATUS_FAILED,
+            'failed' => $errorCount,
+            'last_step' => "Job SICOES fallo ({$exceptionType}).",
             'failed_at' => now()->toDateTimeString(),
         ]);
 
@@ -213,15 +259,11 @@ class ProcessSicoesJob implements ShouldQueue
             'date' => $this->date,
             'bot_company_id' => $this->botCompanyId,
             'run_id' => $this->runId,
-            'message' => $exception->getMessage(),
+            'exception_type' => $exceptionType,
+            'exception_code' => $exception->getCode(),
         ]);
 
-        $this->batch()?->update([
-            'status' => 'failed',
-            'errors_count' => max(1, (int) ($current['failed'] ?? 0) + 1),
-            'summary' => ['error' => \Illuminate\Support\Str::limit($exception->getMessage(), 1000, '')],
-            'finished_at' => now(),
-        ]);
+        $this->markBatchFailed($exceptionType, $errorCount);
     }
 
     private function emptyImportSummary(): array
@@ -298,14 +340,109 @@ class ProcessSicoesJob implements ShouldQueue
 
     private function batch(): ?SicoesScrapeBatch
     {
-        return $this->runId ? SicoesScrapeBatch::find($this->runId) : null;
+        return $this->runId
+            ? SicoesScrapeBatch::query()
+                ->whereKey($this->runId)
+                ->where('bot_company_id', $this->botCompanyId)
+                ->first()
+            : null;
+    }
+
+    private function errorCount(array $result): int
+    {
+        $errors = $result['errors'] ?? [];
+
+        return max(
+            0,
+            (int) ($result['document_errors'] ?? 0),
+            is_countable($errors) ? count($errors) : 0,
+        );
+    }
+
+    private function terminalStatus(string $runnerStatus, array $result, int $errorCount): string
+    {
+        $total = max(0, (int) ($result['total_items_feed'] ?? 0));
+        $processed = max(0, (int) ($result['document_processed'] ?? 0));
+
+        return $runnerStatus === 'OK'
+            && $errorCount === 0
+            && $processed >= $total
+                ? SicoesScrapeBatch::STATUS_COMPLETED
+                : SicoesScrapeBatch::STATUS_PARTIAL;
     }
 
     private function batchSummary(array $result): array
     {
-        return collect($result)
-            ->except(['runner_output'])
-            ->all();
+        return [
+            'runner_status' => Str::limit((string) ($result['runner_status'] ?? 'UNKNOWN'), 32, ''),
+            'batch_status' => Str::limit((string) ($result['batch_status'] ?? SicoesScrapeBatch::STATUS_PARTIAL), 32, ''),
+            'total_items_feed' => (int) ($result['total_items_feed'] ?? 0),
+            'saved' => (int) ($result['saved'] ?? 0),
+            'updated' => (int) ($result['updated'] ?? 0),
+            'shown_in_batch' => (int) ($result['shown_in_batch'] ?? 0),
+            'already_published' => (int) ($result['already_published'] ?? 0),
+            'already_previewed' => (int) ($result['already_previewed'] ?? 0),
+            'reactivated_deleted' => (int) ($result['reactivated_deleted'] ?? 0),
+            'skipped_without_cuce' => (int) ($result['skipped_without_cuce'] ?? 0),
+            'document_processed' => (int) ($result['document_processed'] ?? 0),
+            'document_errors' => $this->errorCount($result),
+            'document_discarded' => (int) ($result['document_discarded'] ?? 0),
+            'preclassified_discards' => (int) ($result['preclassified_discards'] ?? 0),
+            'discarded_not_individual_consultant' => (int) ($result['discarded_not_individual_consultant'] ?? 0),
+            'discarded_company_or_goods' => (int) ($result['discarded_company_or_goods'] ?? 0),
+            'ai_provider' => Str::limit((string) ($result['ai_provider'] ?? ''), 64, ''),
+            'ai_model' => Str::limit((string) ($result['ai_model'] ?? ''), 120, ''),
+            'ai_calls' => (int) ($result['ai_calls'] ?? 0),
+            'ai_cache_hits' => (int) ($result['ai_cache_hits'] ?? 0),
+            'ai_errors' => (int) ($result['ai_errors'] ?? 0),
+            'ai_prompt_tokens' => (int) ($result['ai_prompt_tokens'] ?? 0),
+            'ai_output_tokens' => (int) ($result['ai_output_tokens'] ?? 0),
+            'ai_total_tokens' => (int) ($result['ai_total_tokens'] ?? 0),
+        ];
+    }
+
+    private function markBatchFailed(string $exceptionType, int $errorCount): void
+    {
+        if (! $this->runId) {
+            return;
+        }
+
+        DB::transaction(function () use ($exceptionType, $errorCount): void {
+            $batch = SicoesScrapeBatch::query()
+                ->whereKey($this->runId)
+                ->where('bot_company_id', $this->botCompanyId)
+                ->whereIn('status', [
+                    SicoesScrapeBatch::STATUS_QUEUED,
+                    SicoesScrapeBatch::STATUS_RUNNING,
+                ])
+                ->lockForUpdate()
+                ->first();
+
+            if (! $batch) {
+                return;
+            }
+
+            $summary = is_array($batch->summary) ? $batch->summary : [];
+            $summary['batch_status'] = SicoesScrapeBatch::STATUS_FAILED;
+            $summary['failure'] = [
+                'type' => Str::limit($exceptionType, 160, ''),
+                'failed_at' => now()->toIso8601String(),
+            ];
+
+            $batch->update([
+                'status' => SicoesScrapeBatch::STATUS_FAILED,
+                'errors_count' => max(1, (int) $batch->errors_count, $errorCount),
+                'summary' => $summary,
+                'finished_at' => now(),
+            ]);
+        });
+    }
+
+    private function exceptionType(\Throwable $exception): string
+    {
+        $type = preg_replace('/[^A-Za-z0-9_]/', '', class_basename($exception));
+
+        return $type !== '' ? Str::limit($type, 160, '') : 'Throwable';
     }
 
     private function documentsFound(array $run, array $result): int
