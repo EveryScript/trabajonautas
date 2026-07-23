@@ -4,6 +4,7 @@ namespace App\Services\Bot;
 
 use App\Models\Area;
 use App\Models\BotCompany;
+use App\Support\TlsVerification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -17,11 +18,19 @@ class GeminiVacancyAnalyzer
     public function analyzeWithMeta(string $title, BotCompany|string $company, string $description, array $options = []): array
     {
         $key = config('services.gemini.key');
-        $model = config('services.gemini.model', 'gemini-2.5-flash-lite');
+        $model = trim((string) config('services.gemini.model', 'gemini-2.5-flash-lite'));
         $companyName = $company instanceof BotCompany ? $company->name : $company;
-        $caBundle = config('services.gemini.ca_bundle');
-        $verifySsl = filter_var(config('services.gemini.verify_ssl', true), FILTER_VALIDATE_BOOLEAN);
         $preparedDescription = $this->prepareDescription($description);
+
+        if (! preg_match('/^[A-Za-z0-9._-]{1,100}$/', $model)) {
+            return $this->metaError(
+                errorType: 'invalid_configuration',
+                error: 'GEMINI_MODEL contiene un valor no permitido.',
+                used: false,
+                model: 'invalid',
+                extra: $preparedDescription['meta'],
+            );
+        }
 
         if (!empty($options['skip_due_to_quota'])) {
             return $this->metaError(
@@ -55,7 +64,7 @@ class GeminiVacancyAnalyzer
                 $attempts++;
 
                 try {
-                    $response = $this->sendRequest($model, $key, $caBundle ?: $verifySsl, $title, $companyName, $preparedDescription['text']);
+                    $response = $this->sendRequest($model, $key, $title, $companyName, $preparedDescription['text']);
                     $status = $response->status();
 
                     if (in_array($status, [500, 502, 503, 504], true) && $attempts < 3) {
@@ -164,20 +173,31 @@ class GeminiVacancyAnalyzer
                 extra: [
                     'gemini_attempts' => $attempts ?? null,
                     ...$preparedDescription['meta'],
+                    ...$this->sslDiagnostics($exception, $type),
                 ],
             );
         }
     }
 
-    private function sendRequest(string $model, string $key, string|bool $verify, string $title, string $companyName, string $description)
+    private function sendRequest(string $model, string $key, string $title, string $companyName, string $description)
     {
-        return Http::timeout(60)
+        $verify = TlsVerification::option(
+            'Gemini',
+            (bool) config('services.gemini.verify_ssl', true),
+            config('services.gemini.ca_bundle'),
+        );
+
+        return Http::connectTimeout((int) config('services.gemini.connect_timeout', 10))
+            ->timeout((int) config('services.gemini.timeout', 60))
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $key,
             ])
-            ->withOptions(['verify' => $verify])
-            ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
+            ->withOptions([
+                'verify' => $verify,
+                'allow_redirects' => false,
+            ])
+            ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($model).':generateContent', [
                 'contents' => [
                     [
                         'parts' => [
@@ -190,6 +210,29 @@ class GeminiVacancyAnalyzer
                     'responseMimeType' => 'application/json',
                 ],
             ]);
+    }
+
+    private function sslDiagnostics(\Throwable $exception, string $type): array
+    {
+        if (
+            $type !== 'ssl_error'
+            || ! (bool) config('services.gemini.debug_ssl', false)
+            || ! app()->environment('local', 'testing')
+        ) {
+            return [];
+        }
+
+        preg_match('/cURL error\s+(\d+)/i', $exception->getMessage(), $matches);
+        $exceptionType = preg_replace('/[^A-Za-z0-9_]/', '', class_basename($exception)) ?: 'Throwable';
+
+        return [
+            'gemini_ssl_diagnostics' => [
+                'exception_type' => Str::limit($exceptionType, 100, ''),
+                'curl_error_code' => isset($matches[1]) ? (int) $matches[1] : null,
+                'verify_ssl' => (bool) config('services.gemini.verify_ssl', true),
+                'ca_bundle_configured' => trim((string) config('services.gemini.ca_bundle')) !== '',
+            ],
+        ];
     }
 
     public function fallback(): array
@@ -287,7 +330,7 @@ class GeminiVacancyAnalyzer
     {
         $message = $this->normalize($exception->getMessage());
 
-        if (Str::contains($message, ['curl error 60', 'ssl certificate problem'])) {
+        if (Str::contains($message, ['curl error 60', 'ssl certificate problem', 'ca bundle', 'tls'])) {
             return 'ssl_error';
         }
 

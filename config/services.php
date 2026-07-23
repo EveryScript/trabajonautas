@@ -53,11 +53,28 @@ return [
             FILTER_VALIDATE_BOOLEAN,
         ),
         'ca_bundle' => env('GEMINI_CA_BUNDLE') ?: null,
+        'timeout' => max(1, min(300, (int) env('GEMINI_TIMEOUT', 60))),
+        'connect_timeout' => max(1, min(60, (int) env('GEMINI_CONNECT_TIMEOUT', 10))),
         'max_description_chars' => max(1000, (int) env('GEMINI_MAX_DESCRIPTION_CHARS', 6000)),
         'debug_ssl' => filter_var(
             env('GEMINI_DEBUG_SSL', false),
             FILTER_VALIDATE_BOOLEAN,
         ),
+    ],
+
+    'evaluar' => [
+        'verify_ssl' => filter_var(
+            env('EVALUAR_VERIFY_SSL', true),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'ca_bundle' => env('EVALUAR_CA_BUNDLE') ?: null,
+        'timeout' => max(1, min(120, (int) env('EVALUAR_TIMEOUT', 30))),
+        'connect_timeout' => max(1, min(60, (int) env('EVALUAR_CONNECT_TIMEOUT', 10))),
+        'max_redirects' => max(0, min(5, (int) env('EVALUAR_MAX_REDIRECTS', 3))),
+        'allowed_host_suffixes' => [
+            'evaluar.com',
+            'evaluarjobs.com',
+        ],
     ],
 
     'anthropic' => [

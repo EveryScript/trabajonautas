@@ -6,10 +6,15 @@ use App\Models\Announcement;
 use App\Models\BotCompany;
 use App\Models\BotVacancyPreview;
 use App\Services\ProfessionAssignmentService;
+use App\Support\TlsVerification;
 use Carbon\Carbon;
+use Illuminate\Http\Client\Response as HttpResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 class EvaluarScraperService
 {
@@ -59,7 +64,16 @@ class EvaluarScraperService
             'gemini_quota_exceeded' => false,
         ];
 
-        foreach ($this->getFeeds($company->evaluar_url) as $feedUrl) {
+        try {
+            $feedUrls = $this->getFeeds($company->evaluar_url);
+        } catch (\Throwable $exception) {
+            $summary['status'] = 'ERROR';
+            $summary['errors'][] = Str::limit($exception->getMessage(), 300, '');
+
+            return $summary;
+        }
+
+        foreach ($feedUrls as $feedUrl) {
             $feedReport = [
                 'url' => $feedUrl,
                 'status_code' => null,
@@ -69,13 +83,10 @@ class EvaluarScraperService
             ];
 
             try {
-                $response = Http::withoutVerifying()
-                    ->timeout(30)
-                    ->withHeaders([
-                        'User-Agent' => 'Mozilla/5.0',
-                        'Accept' => 'application/rss+xml, application/xml, text/xml, */*',
-                    ])
-                    ->get($feedUrl);
+                $response = $this->evaluarGet($feedUrl, [
+                    'User-Agent' => 'Mozilla/5.0',
+                    'Accept' => 'application/rss+xml, application/xml, text/xml, */*',
+                ]);
 
                 $feedReport['status_code'] = $response->status();
 
@@ -177,13 +188,10 @@ class EvaluarScraperService
 
     public function getFeeds(string $url): array
     {
+        $url = $this->assertSafeEvaluarUrl($url, resolveDns: false);
         $parts = parse_url($url);
-        $scheme = $parts['scheme'] ?? 'https';
-        $host = $parts['host'] ?? null;
-
-        if (!$host) {
-            return [];
-        }
+        $scheme = strtolower((string) $parts['scheme']);
+        $host = strtolower(rtrim((string) $parts['host'], '.'));
 
         $origin = rtrim("{$scheme}://{$host}", '/');
         $path = trim($parts['path'] ?? '', '/');
@@ -205,11 +213,135 @@ class EvaluarScraperService
         return $this->getFeeds($url);
     }
 
+    private function evaluarGet(string $url, array $headers): HttpResponse
+    {
+        $url = $this->assertSafeEvaluarUrl($url);
+        $maxRedirects = (int) config('services.evaluar.max_redirects', 3);
+        $redirectOptions = $maxRedirects > 0
+            ? [
+                'max' => $maxRedirects,
+                'strict' => true,
+                'referer' => false,
+                'protocols' => ['https'],
+                'track_redirects' => false,
+                'on_redirect' => function (
+                    RequestInterface $request,
+                    ResponseInterface $response,
+                    UriInterface $uri,
+                ): void {
+                    $this->assertSafeEvaluarUrl((string) $uri);
+                },
+            ]
+            : false;
+        $verify = TlsVerification::option(
+            'Evaluar',
+            (bool) config('services.evaluar.verify_ssl', true),
+            config('services.evaluar.ca_bundle'),
+        );
+
+        return Http::connectTimeout((int) config('services.evaluar.connect_timeout', 10))
+            ->timeout((int) config('services.evaluar.timeout', 30))
+            ->withHeaders($headers)
+            ->withOptions([
+                'verify' => $verify,
+                'allow_redirects' => $redirectOptions,
+            ])
+            ->get($url);
+    }
+
+    private function assertSafeEvaluarUrl(string $url, bool $resolveDns = true): string
+    {
+        $url = trim($url);
+
+        if (
+            $url === ''
+            || strlen($url) > 2048
+            || preg_match('/[\x00-\x1F\x7F]/', $url)
+            || filter_var($url, FILTER_VALIDATE_URL) === false
+        ) {
+            throw new \InvalidArgumentException('La URL de Evaluar no tiene un formato seguro.');
+        }
+
+        $parts = parse_url($url);
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $host = strtolower(rtrim((string) ($parts['host'] ?? ''), '.'));
+        $port = isset($parts['port']) ? (int) $parts['port'] : null;
+
+        if ($scheme !== 'https') {
+            throw new \InvalidArgumentException('Las URLs de Evaluar deben usar HTTPS.');
+        }
+
+        if (
+            $host === ''
+            || isset($parts['user'])
+            || isset($parts['pass'])
+            || isset($parts['fragment'])
+            || ($port !== null && $port !== 443)
+            || filter_var($host, FILTER_VALIDATE_IP) !== false
+            || ! preg_match('/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/', $host)
+        ) {
+            throw new \InvalidArgumentException('El host de Evaluar no tiene un formato permitido.');
+        }
+
+        $allowed = collect(config('services.evaluar.allowed_host_suffixes', []))
+            ->filter(fn (mixed $suffix): bool => is_string($suffix) && trim($suffix) !== '')
+            ->map(fn (string $suffix): string => strtolower(trim($suffix, " .\t\n\r\0\x0B")))
+            ->contains(fn (string $suffix): bool => $host === $suffix || str_ends_with($host, '.'.$suffix));
+
+        if (! $allowed) {
+            throw new \InvalidArgumentException('El host no pertenece a un portal Evaluar permitido.');
+        }
+
+        if ($resolveDns && ! app()->environment('testing')) {
+            $this->assertPublicDns($host);
+        }
+
+        return $url;
+    }
+
+    private function assertPublicDns(string $host): void
+    {
+        $recordTypes = DNS_A | DNS_AAAA;
+        $records = @dns_get_record($host, $recordTypes);
+        $addresses = [];
+
+        if (is_array($records)) {
+            foreach ($records as $record) {
+                if (isset($record['ip'])) {
+                    $addresses[] = $record['ip'];
+                }
+
+                if (isset($record['ipv6'])) {
+                    $addresses[] = $record['ipv6'];
+                }
+            }
+        }
+
+        $ipv4Addresses = @gethostbynamel($host);
+        if (is_array($ipv4Addresses)) {
+            $addresses = [...$addresses, ...$ipv4Addresses];
+        }
+
+        $addresses = array_values(array_unique(array_filter($addresses, 'is_string')));
+
+        if ($addresses === []) {
+            throw new \RuntimeException('No se pudo resolver el host del portal Evaluar.');
+        }
+
+        $publicFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
+
+        foreach ($addresses as $address) {
+            if (filter_var($address, FILTER_VALIDATE_IP, $publicFlags) === false) {
+                throw new \RuntimeException('El host Evaluar resolvio a una red no permitida.');
+            }
+        }
+    }
+
     private function parseItemsFromXml(string $xml): array
     {
         $previous = libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
-        $loaded = $dom->loadXML($xml, LIBXML_NOCDATA);
+        $loaded = $dom->loadXML($xml, LIBXML_NOCDATA | LIBXML_NONET);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
@@ -250,6 +382,7 @@ class EvaluarScraperService
         if (!$title || !$sourceUrl) {
             throw new \RuntimeException('RSS item sin titulo o link.');
         }
+        $sourceUrl = $this->assertSafeEvaluarUrl($sourceUrl, resolveDns: false);
 
         $originalDescription = $this->cleanDescription($this->extractDescriptionFromItem($item));
 
@@ -763,13 +896,10 @@ class EvaluarScraperService
     private function expirationFromPage(string $url): ?string
     {
         try {
-            $response = Http::withoutVerifying()
-                ->timeout(20)
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0',
-                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                ])
-                ->get($url);
+            $response = $this->evaluarGet($url, [
+                'User-Agent' => 'Mozilla/5.0',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            ]);
 
             if (!$response->successful()) {
                 return null;
@@ -794,7 +924,7 @@ class EvaluarScraperService
     {
         $previous = libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
-        $loaded = $dom->loadHTML($html);
+        $loaded = $dom->loadHTML($html, LIBXML_NONET);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
