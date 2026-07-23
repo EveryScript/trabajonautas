@@ -1,0 +1,332 @@
+<?php
+
+namespace App\Services\Bot;
+
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
+
+class SicoesRunnerService
+{
+    public function run(string $date, ?callable $onItem = null, ?callable $onProgress = null): array
+    {
+        $displayDate = $this->displayDate($date);
+        $slug = str_replace('/', '-', $displayDate);
+        $basePath = storage_path('app/bot/sicoes-scraper/Sicoes');
+        $jsonPath = $basePath.DIRECTORY_SEPARATOR.'fichas-finales'.DIRECTORY_SEPARATOR.$slug.'.json';
+
+        if (! is_file($basePath.DIRECTORY_SEPARATOR.'sicoes.js')) {
+            throw new \RuntimeException("No se encontro sicoes.js en {$basePath}.");
+        }
+
+        $this->makeOutputWritable($basePath);
+        @unlink($jsonPath);
+
+        if (filter_var(env('SICOES_REFRESH_DOWNLOADS', true), FILTER_VALIDATE_BOOLEAN)) {
+            $this->clearDownloadCacheForDate($basePath, $slug);
+        }
+
+        $mode = filter_var(env('SICOES_ASSISTED_DOWNLOAD', true), FILTER_VALIDATE_BOOLEAN)
+            ? 'full-assisted'
+            : 'full';
+
+        $process = new Process([$this->nodeBinary(), 'sicoes.js', "--mode={$mode}", "--fecha={$displayDate}"], $basePath);
+        $process->setEnv($this->nodeEnvironment($basePath));
+        $process->setTimeout((int) env('SICOES_PROCESS_TIMEOUT', 7200));
+        $process->setIdleTimeout((int) env('SICOES_PROCESS_IDLE_TIMEOUT', 240));
+
+        $output = '';
+        $lineBuffer = '';
+        $streamedItems = 0;
+
+        try {
+            $process->run(function (string $type, string $buffer) use (&$output, &$lineBuffer, &$streamedItems, $onItem, $onProgress): void {
+                $output .= $buffer;
+
+                if (strlen($output) > 30000) {
+                    $output = substr($output, -30000);
+                }
+
+                $lineBuffer .= $buffer;
+                $lines = preg_split('/\r\n|\n|\r/', $lineBuffer);
+                $lineBuffer = array_pop($lines) ?? '';
+
+                foreach ($lines as $line) {
+                    if (str_starts_with(trim($line), '[SICOES_ITEM] ')) {
+                        $streamedItems++;
+                    }
+
+                    $this->handleStreamLine($line, $onItem, $onProgress);
+                }
+            });
+
+            if ($lineBuffer !== '') {
+                if (str_starts_with(trim($lineBuffer), '[SICOES_ITEM] ')) {
+                    $streamedItems++;
+                }
+
+                $this->handleStreamLine($lineBuffer, $onItem, $onProgress);
+            }
+        } catch (\Throwable $exception) {
+            $output = trim($output.PHP_EOL.$process->getOutput().PHP_EOL.$process->getErrorOutput());
+            $failure = $this->failureLine($output);
+
+            throw new \RuntimeException(Str::limit(($failure ? $failure.PHP_EOL : '').$exception->getMessage().PHP_EOL.$output, 3000, ''), 0, $exception);
+        }
+
+        if (! $process->isSuccessful()) {
+            $output = trim($output.PHP_EOL.$process->getOutput().PHP_EOL.$process->getErrorOutput());
+            $failure = $this->failureLine($output);
+
+            if ($failure) {
+                $output = $failure.PHP_EOL.$output;
+            }
+
+            if ($streamedItems > 0) {
+                return $this->streamedResult($displayDate, $slug, $jsonPath, $streamedItems, $output, 'PARTIAL');
+            }
+
+            throw new \RuntimeException(Str::limit($output, 3000, ''));
+        }
+
+        if (! is_file($jsonPath)) {
+            if ($streamedItems > 0) {
+                return $this->streamedResult($displayDate, $slug, $jsonPath, $streamedItems, $output, 'STREAMED');
+            }
+
+            throw new \RuntimeException("SICOES no genero JSON final valido: {$jsonPath}");
+        }
+
+        $items = $this->validatedFinalItems($jsonPath);
+
+        return [
+            'status' => 'OK',
+            'date' => $displayDate,
+            'slug' => $slug,
+            'json_path' => $jsonPath,
+            'sicoes_items' => count($items),
+            'runner_output' => Str::limit($output, 3000, ''),
+        ];
+    }
+
+    private function streamedResult(string $displayDate, string $slug, string $jsonPath, int $streamedItems, string $output, string $status): array
+    {
+        return [
+            'status' => $status,
+            'date' => $displayDate,
+            'slug' => $slug,
+            'json_path' => $jsonPath,
+            'sicoes_items' => $streamedItems,
+            'runner_output' => Str::limit($output, 3000, ''),
+        ];
+    }
+
+    private function handleStreamLine(string $line, ?callable $onItem, ?callable $onProgress): void
+    {
+        $line = trim($line);
+
+        if ($line === '') {
+            return;
+        }
+
+        if (str_starts_with($line, '[SICOES_ITEM] ')) {
+            $payload = json_decode(substr($line, strlen('[SICOES_ITEM] ')), true);
+
+            if (is_array($payload) && is_array($payload['item'] ?? null) && $onItem) {
+                $onItem($payload);
+            }
+
+            return;
+        }
+
+        if (str_starts_with($line, '[SICOES_PROGRESS] ')) {
+            $payload = json_decode(substr($line, strlen('[SICOES_PROGRESS] ')), true);
+
+            if (is_array($payload) && $onProgress) {
+                $onProgress($payload);
+            }
+
+            return;
+        }
+
+        if (preg_match('/^\[(STEP|OK|FAIL|MANUAL_[A-Z_]+|DOWNLOAD_[A-Z_]+|PW_[A-Z_]+|REAL_BROWSER[A-Z_]*|CDP|CDP_TRACE|FETCH)\]/', $line)) {
+            if ($onProgress) {
+                $onProgress(['message' => $line]);
+            }
+        }
+    }
+
+    private function displayDate(string $date): string
+    {
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+            return $date;
+        }
+
+        if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $date)) {
+            return str_replace('-', '/', $date);
+        }
+
+        return Carbon::parse($date)->format('d/m/Y');
+    }
+
+    private function makeOutputWritable(string $basePath): void
+    {
+        foreach (['entrada', 'salida', 'fichas-finales', 'runtime'] as $directory) {
+            $path = $basePath.DIRECTORY_SEPARATOR.$directory;
+
+            if (! is_dir($path)) {
+                @mkdir($path, 0777, true);
+            }
+
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST,
+            );
+
+            foreach ($iterator as $item) {
+                @chmod($item->getPathname(), $item->isDir() ? 0777 : 0666);
+            }
+
+            @chmod($path, 0777);
+        }
+    }
+
+    private function clearDownloadCacheForDate(string $basePath, string $slug): void
+    {
+        $wordsBase = realpath($basePath.DIRECTORY_SEPARATOR.'entrada'.DIRECTORY_SEPARATOR.'words');
+        $target = realpath($basePath.DIRECTORY_SEPARATOR.'entrada'.DIRECTORY_SEPARATOR.'words'.DIRECTORY_SEPARATOR.$slug);
+
+        if (! $wordsBase || ! $target) {
+            return;
+        }
+
+        $wordsBase = rtrim($wordsBase, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        $targetPrefix = rtrim($target, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+
+        if (! str_starts_with($targetPrefix, $wordsBase)) {
+            throw new \RuntimeException('La carpeta temporal SICOES quedo fuera de entrada/words.');
+        }
+
+        foreach (glob($target.DIRECTORY_SEPARATOR.'*') ?: [] as $path) {
+            if (! is_file($path)) {
+                continue;
+            }
+
+            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            $isReport = basename($path) === "_descargas-{$slug}.json";
+
+            if ($isReport || in_array($extension, ['doc', 'docx', 'pdf'], true)) {
+                @unlink($path);
+            }
+        }
+    }
+
+    private function nodeEnvironment(string $basePath): array
+    {
+        $runtimePath = $basePath.DIRECTORY_SEPARATOR.'runtime';
+        $tempPath = $runtimePath.DIRECTORY_SEPARATOR.'temp';
+        $cachePath = $runtimePath.DIRECTORY_SEPARATOR.'puppeteer-cache';
+
+        foreach ([$runtimePath, $tempPath, $cachePath] as $path) {
+            if (! is_dir($path)) {
+                @mkdir($path, 0777, true);
+            }
+
+            @chmod($path, 0777);
+        }
+
+        return array_filter([
+            'TEMP' => $tempPath,
+            'TMP' => $tempPath,
+            'TMPDIR' => $tempPath,
+            'SICOES_ASSISTED_DOWNLOAD' => filter_var(env('SICOES_ASSISTED_DOWNLOAD', true), FILTER_VALIDATE_BOOLEAN) ? '1' : '0',
+            'SICOES_MANUAL_DOWNLOAD_TIMEOUT_MS' => (string) env('SICOES_MANUAL_DOWNLOAD_TIMEOUT_MS', 600000),
+            'SICOES_MANUAL_DOWNLOAD_DIR' => env('SICOES_MANUAL_DOWNLOAD_DIR') ?: null,
+            'PATH' => getenv('PATH') ?: null,
+            'SystemRoot' => getenv('SystemRoot') ?: 'C:\\Windows',
+            'COMSPEC' => getenv('COMSPEC') ?: 'C:\\Windows\\System32\\cmd.exe',
+        ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    private function failureLine(string $output): ?string
+    {
+        return preg_match('/\[FAIL\]\s*Fase\s*\d+:[^\r\n]*/', $output, $matches)
+            ? $matches[0]
+            : null;
+    }
+
+    private function validatedFinalItems(string $jsonPath): array
+    {
+        $decoded = json_decode(file_get_contents($jsonPath) ?: '', true);
+
+        if (! is_array($decoded)) {
+            throw new \RuntimeException("SICOES genero un JSON invalido: {$jsonPath}");
+        }
+
+        $items = isset($decoded['fichas_finales']) && is_array($decoded['fichas_finales'])
+            ? $decoded['fichas_finales']
+            : (array_is_list($decoded) ? $decoded : []);
+
+        if (count($items) === 0) {
+            throw new \RuntimeException("SICOES genero JSON final vacio. No se importara: {$jsonPath}");
+        }
+
+        $invalid = collect($items)
+            ->map(fn ($item, $index) => ['item' => is_array($item) ? $item : [], 'index' => $index])
+            ->filter(fn ($row): bool => ! $this->validFinalItem($row['item']))
+            ->take(5)
+            ->map(fn ($row): string => '#'.($row['index'] + 1).' CUCE='.($row['item']['cuce'] ?? 'sin_cuce'))
+            ->values()
+            ->all();
+
+        if ($invalid) {
+            throw new \RuntimeException('SICOES genero fichas finales incompletas: '.implode(', ', $invalid));
+        }
+
+        return $items;
+    }
+
+    private function validFinalItem(array $item): bool
+    {
+        return $this->hasValue($item['cuce'] ?? null)
+            && $this->hasValue($item['titulo_convocatoria'] ?? $item['objeto_contratacion'] ?? null)
+            && $this->hasValue($item['empresa'] ?? $item['entidad'] ?? null);
+    }
+
+    private function hasValue(mixed $value): bool
+    {
+        if (is_array($value)) {
+            return collect($value)->contains(fn ($item): bool => $this->hasValue($item));
+        }
+
+        if (is_object($value)) {
+            return $this->hasValue((array) $value);
+        }
+
+        return trim((string) $value) !== '';
+    }
+
+    private function nodeBinary(): string
+    {
+        $configured = env('SICOES_NODE_PATH');
+
+        if ($configured && is_file($configured)) {
+            return $configured;
+        }
+
+        if (PHP_OS_FAMILY !== 'Windows') {
+            return 'node';
+        }
+
+        foreach ([
+            'C:\\Program Files\\nodejs\\node.exe',
+            'C:\\Program Files (x86)\\nodejs\\node.exe',
+        ] as $candidate) {
+            if (is_file($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return 'node';
+    }
+}
