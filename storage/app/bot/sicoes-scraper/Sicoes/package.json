@@ -1,0 +1,26 @@
+{
+  "name": "sicoes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sicoes.js",
+  "scripts": {
+    "sicoes": "node sicoes.js",
+    "sicoes:full": "node sicoes.js --mode=full",
+    "sicoes:extraer": "node sicoes.js --extraer",
+    "sicoes:words": "node sicoes.js --solo-word",
+    "fichas": "node sicoes.js --solo-word",
+    "descargar:words": "node sicoes.js --descargar-words",
+    "descargar:words:asistido": "node sicoes.js --descargar-words --asistido"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "mammoth": "^1.12.0",
+    "playwright": "^1.53.1",
+    "puppeteer": "^24.11.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

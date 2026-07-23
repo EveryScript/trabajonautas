@@ -1,0 +1,617 @@
+[
+  {
+    "id": 1,
+    "nombre": "Administración de Empresas",
+    "area_id": 1
+  },
+  {
+    "id": 2,
+    "nombre": "Contaduría",
+    "area_id": 1
+  },
+  {
+    "id": 4,
+    "nombre": "Economía",
+    "area_id": 1
+  },
+  {
+    "id": 5,
+    "nombre": "Auditoria",
+    "area_id": 1
+  },
+  {
+    "id": 6,
+    "nombre": "Ingeniería Comercial",
+    "area_id": 1
+  },
+  {
+    "id": 7,
+    "nombre": "Ingeniería Financiera",
+    "area_id": 1
+  },
+  {
+    "id": 12,
+    "nombre": "Marketing y Publicidad",
+    "area_id": 14
+  },
+  {
+    "id": 13,
+    "nombre": "Negocios y Ciencia de Datos",
+    "area_id": 1
+  },
+  {
+    "id": 25,
+    "nombre": "Comercio Internacional y Administración Aduanera o Negocios Internacionales",
+    "area_id": 15
+  },
+  {
+    "id": 29,
+    "nombre": "Administración Secretarial y Gestión Documental",
+    "area_id": 35
+  },
+  {
+    "id": 31,
+    "nombre": "Estadística",
+    "area_id": 4
+  },
+  {
+    "id": 35,
+    "nombre": "Derecho y Ciencias Juridicas",
+    "area_id": 22
+  },
+  {
+    "id": 42,
+    "nombre": "Sociología",
+    "area_id": 3
+  },
+  {
+    "id": 43,
+    "nombre": "Trabajo Social",
+    "area_id": 3
+  },
+  {
+    "id": 44,
+    "nombre": "Archivología, Bibliotecología, Documentación y Museología",
+    "area_id": 6
+  },
+  {
+    "id": 49,
+    "nombre": "Lingüística e Idiomas",
+    "area_id": 25
+  },
+  {
+    "id": 53,
+    "nombre": "Psicología",
+    "area_id": 28
+  },
+  {
+    "id": 54,
+    "nombre": "Psicopedagogía",
+    "area_id": 28
+  },
+  {
+    "id": 57,
+    "nombre": "Turismo y Hotelería",
+    "area_id": 17
+  },
+  {
+    "id": 58,
+    "nombre": "Comunicación y Medios Digitales",
+    "area_id": 18
+  },
+  {
+    "id": 63,
+    "nombre": "Bioquímica y Farmacia",
+    "area_id": 30
+  },
+  {
+    "id": 64,
+    "nombre": "Medicina General",
+    "area_id": 29
+  },
+  {
+    "id": 74,
+    "nombre": "Nutrición y Dietética",
+    "area_id": 31
+  },
+  {
+    "id": 76,
+    "nombre": "Fisioterapia y Kinesiología",
+    "area_id": 32
+  },
+  {
+    "id": 78,
+    "nombre": "Odontología",
+    "area_id": 33
+  },
+  {
+    "id": 79,
+    "nombre": "Biomédica",
+    "area_id": 34
+  },
+  {
+    "id": 81,
+    "nombre": "Estadística de Salud",
+    "area_id": 4
+  },
+  {
+    "id": 84,
+    "nombre": "Ingeniería Ambiental",
+    "area_id": 41
+  },
+  {
+    "id": 87,
+    "nombre": "Ingeniería de Alimentos",
+    "area_id": 37
+  },
+  {
+    "id": 89,
+    "nombre": "Eléctrico/a",
+    "area_id": 16
+  },
+  {
+    "id": 90,
+    "nombre": "Ingeniería Agroindustrial",
+    "area_id": 37
+  },
+  {
+    "id": 91,
+    "nombre": "Ingeniería Industrial",
+    "area_id": 5
+  },
+  {
+    "id": 94,
+    "nombre": "Ingeniería en Desarrollo Rural",
+    "area_id": 37
+  },
+  {
+    "id": 96,
+    "nombre": "Ingeniería Agronómica",
+    "area_id": 37
+  },
+  {
+    "id": 101,
+    "nombre": "Aeronáutica",
+    "area_id": 6
+  },
+  {
+    "id": 105,
+    "nombre": "Metalúrgica y Materiales",
+    "area_id": 42
+  },
+  {
+    "id": 113,
+    "nombre": "Arquitectura y Urbanismo",
+    "area_id": 13
+  },
+  {
+    "id": 118,
+    "nombre": "Ingeniería en Geodesia, Topografía y Geomática",
+    "area_id": 39
+  },
+  {
+    "id": 119,
+    "nombre": "Ingeniería Minera",
+    "area_id": 38
+  },
+  {
+    "id": 140,
+    "nombre": "Veterinaria y Zootecnia",
+    "area_id": 36
+  },
+  {
+    "id": 141,
+    "nombre": "Biología",
+    "area_id": 6
+  },
+  {
+    "id": 143,
+    "nombre": "Física",
+    "area_id": 6
+  },
+  {
+    "id": 144,
+    "nombre": "Matemáticas",
+    "area_id": 6
+  },
+  {
+    "id": 146,
+    "nombre": "Artes Musicales",
+    "area_id": 6
+  },
+  {
+    "id": 147,
+    "nombre": "Artes Plásticas",
+    "area_id": 6
+  },
+  {
+    "id": 150,
+    "nombre": "Diseño Grafico",
+    "area_id": 20
+  },
+  {
+    "id": 152,
+    "nombre": "Enfermería",
+    "area_id": 19
+  },
+  {
+    "id": 153,
+    "nombre": "Sistemas e Informática",
+    "area_id": 9
+  },
+  {
+    "id": 154,
+    "nombre": "Redes y Telecomunicaciones",
+    "area_id": 10
+  },
+  {
+    "id": 155,
+    "nombre": "Química",
+    "area_id": 7
+  },
+  {
+    "id": 156,
+    "nombre": "Petróleo, Gas y Energías",
+    "area_id": 21
+  },
+  {
+    "id": 157,
+    "nombre": "Relaciones Internacionales, Ciencias Políticas y Gestión Pública",
+    "area_id": 2
+  },
+  {
+    "id": 158,
+    "nombre": "Electrónica, Electromecánica y Mecatrónica",
+    "area_id": 11
+  },
+  {
+    "id": 159,
+    "nombre": "Mecánica Automotriz",
+    "area_id": 23
+  },
+  {
+    "id": 160,
+    "nombre": "Mecánica Industrial",
+    "area_id": 24
+  },
+  {
+    "id": 161,
+    "nombre": "Civil y Construcciones Civiles",
+    "area_id": 12
+  },
+  {
+    "id": 162,
+    "nombre": "Antropología, Historia y Filosofía",
+    "area_id": 26
+  },
+  {
+    "id": 163,
+    "nombre": "Ciencias de la Educación y Pedagogía",
+    "area_id": 27
+  },
+  {
+    "id": 164,
+    "nombre": "Secretariado Ejecutivo",
+    "area_id": 35
+  },
+  {
+    "id": 165,
+    "nombre": "Ingeniería Geográfica",
+    "area_id": 40
+  },
+  {
+    "id": 166,
+    "nombre": "Ingeniería Geológica",
+    "area_id": 40
+  },
+  {
+    "id": 167,
+    "nombre": "Anatomía Patológica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 168,
+    "nombre": "Anestesiología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 169,
+    "nombre": "Cirugía General (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 170,
+    "nombre": "Cirugía Oncológica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 171,
+    "nombre": "Cirugía Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 172,
+    "nombre": "Cirugía Vascular (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 173,
+    "nombre": "Coloproctología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 174,
+    "nombre": "Dermatología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 175,
+    "nombre": "Emergenciología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 176,
+    "nombre": "Gastroenterología Clínica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 177,
+    "nombre": "Endocrinología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 178,
+    "nombre": "Ginecología y Obstetricia (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 179,
+    "nombre": "Imagenología (Especialidad) ",
+    "area_id": 43
+  },
+  {
+    "id": 180,
+    "nombre": "Medicina Crítica y Terapia Intensiva (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 181,
+    "nombre": "Medicina del Trabajo (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 182,
+    "nombre": "Medicina Familiar (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 183,
+    "nombre": "Medicina Interna (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 184,
+    "nombre": "Nefrología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 185,
+    "nombre": "Neonatología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 186,
+    "nombre": "Neurocirugía (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 187,
+    "nombre": "Neurología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 188,
+    "nombre": "Neurología Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 189,
+    "nombre": "Oftalmología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 190,
+    "nombre": "Oncología Clínica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 191,
+    "nombre": "Oncología Ginecológica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 192,
+    "nombre": "Pediatría (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 193,
+    "nombre": "Psiquiatría (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 194,
+    "nombre": "Radio Oncología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 195,
+    "nombre": "Reumatología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 196,
+    "nombre": "Salud Familiar Comunitaria Intercultural SAFCI (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 197,
+    "nombre": "Terapia Intensiva Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 198,
+    "nombre": "Traumatología y Ortopedia (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 199,
+    "nombre": "Urología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 200,
+    "nombre": "Anestesiología Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 201,
+    "nombre": "Angiología y Cirugía Vascular (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 202,
+    "nombre": "Cardiología Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 203,
+    "nombre": "Cirugía Bucomaxilofacial (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 204,
+    "nombre": "Geriatría y Gerontología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 205,
+    "nombre": "Hematología y Medicina Transfusional (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 206,
+    "nombre": "Infectología Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 207,
+    "nombre": "Medicina del Dolor (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 208,
+    "nombre": "Medicina Física y Rehabilitación (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 209,
+    "nombre": "Oncología Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 210,
+    "nombre": "Ortopedia Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 211,
+    "nombre": "Otorrinolaringología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 212,
+    "nombre": "Nefrología Pediátrica (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 213,
+    "nombre": "Endoscopia Digestiva Avanzada (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 214,
+    "nombre": "Infectología (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 215,
+    "nombre": "Medicina Materno Fetal (Especialidad)",
+    "area_id": 43
+  },
+  {
+    "id": 216,
+    "nombre": "Chofer Profesional",
+    "area_id": 44
+  },
+  {
+    "id": 217,
+    "nombre": "Limpieza y Lavandería o Mucama (Manuales)",
+    "area_id": 45
+  },
+  {
+    "id": 218,
+    "nombre": "Operador de Maquinaria Pesada",
+    "area_id": 46
+  },
+  {
+    "id": 219,
+    "nombre": "Portero/a",
+    "area_id": 47
+  },
+  {
+    "id": 220,
+    "nombre": "Gastronomía",
+    "area_id": 48
+  },
+  {
+    "id": 221,
+    "nombre": "Cocinero/a",
+    "area_id": 48
+  },
+  {
+    "id": 222,
+    "nombre": "Jardinero/a",
+    "area_id": 49
+  },
+  {
+    "id": 223,
+    "nombre": "Seguridad Física e Institucional",
+    "area_id": 50
+  },
+  {
+    "id": 224,
+    "nombre": "Mesero/a",
+    "area_id": 48
+  },
+  {
+    "id": 225,
+    "nombre": "Plomero",
+    "area_id": 51
+  },
+  {
+    "id": 226,
+    "nombre": "Albañil",
+    "area_id": 51
+  },
+  {
+    "id": 227,
+    "nombre": "Electricista",
+    "area_id": 51
+  },
+  {
+    "id": 228,
+    "nombre": "Ingeniería Forestal",
+    "area_id": 41
+  }
+]

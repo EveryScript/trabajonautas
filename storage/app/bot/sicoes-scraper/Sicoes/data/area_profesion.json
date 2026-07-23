@@ -1,0 +1,494 @@
+[
+  {
+    "area_id": 1,
+    "profesion_id": 1
+  },
+  {
+    "area_id": 1,
+    "profesion_id": 2
+  },
+  {
+    "area_id": 1,
+    "profesion_id": 4
+  },
+  {
+    "area_id": 1,
+    "profesion_id": 5
+  },
+  {
+    "area_id": 1,
+    "profesion_id": 6
+  },
+  {
+    "area_id": 1,
+    "profesion_id": 7
+  },
+  {
+    "area_id": 14,
+    "profesion_id": 12
+  },
+  {
+    "area_id": 1,
+    "profesion_id": 13
+  },
+  {
+    "area_id": 15,
+    "profesion_id": 25
+  },
+  {
+    "area_id": 35,
+    "profesion_id": 29
+  },
+  {
+    "area_id": 4,
+    "profesion_id": 31
+  },
+  {
+    "area_id": 22,
+    "profesion_id": 35
+  },
+  {
+    "area_id": 3,
+    "profesion_id": 42
+  },
+  {
+    "area_id": 3,
+    "profesion_id": 43
+  },
+  {
+    "area_id": 6,
+    "profesion_id": 44
+  },
+  {
+    "area_id": 25,
+    "profesion_id": 49
+  },
+  {
+    "area_id": 28,
+    "profesion_id": 53
+  },
+  {
+    "area_id": 28,
+    "profesion_id": 54
+  },
+  {
+    "area_id": 17,
+    "profesion_id": 57
+  },
+  {
+    "area_id": 18,
+    "profesion_id": 58
+  },
+  {
+    "area_id": 30,
+    "profesion_id": 63
+  },
+  {
+    "area_id": 29,
+    "profesion_id": 64
+  },
+  {
+    "area_id": 31,
+    "profesion_id": 74
+  },
+  {
+    "area_id": 32,
+    "profesion_id": 76
+  },
+  {
+    "area_id": 33,
+    "profesion_id": 78
+  },
+  {
+    "area_id": 34,
+    "profesion_id": 79
+  },
+  {
+    "area_id": 4,
+    "profesion_id": 81
+  },
+  {
+    "area_id": 41,
+    "profesion_id": 84
+  },
+  {
+    "area_id": 37,
+    "profesion_id": 87
+  },
+  {
+    "area_id": 16,
+    "profesion_id": 89
+  },
+  {
+    "area_id": 37,
+    "profesion_id": 90
+  },
+  {
+    "area_id": 5,
+    "profesion_id": 91
+  },
+  {
+    "area_id": 37,
+    "profesion_id": 94
+  },
+  {
+    "area_id": 37,
+    "profesion_id": 96
+  },
+  {
+    "area_id": 6,
+    "profesion_id": 101
+  },
+  {
+    "area_id": 42,
+    "profesion_id": 105
+  },
+  {
+    "area_id": 13,
+    "profesion_id": 113
+  },
+  {
+    "area_id": 39,
+    "profesion_id": 118
+  },
+  {
+    "area_id": 38,
+    "profesion_id": 119
+  },
+  {
+    "area_id": 36,
+    "profesion_id": 140
+  },
+  {
+    "area_id": 6,
+    "profesion_id": 141
+  },
+  {
+    "area_id": 6,
+    "profesion_id": 143
+  },
+  {
+    "area_id": 6,
+    "profesion_id": 144
+  },
+  {
+    "area_id": 6,
+    "profesion_id": 146
+  },
+  {
+    "area_id": 6,
+    "profesion_id": 147
+  },
+  {
+    "area_id": 20,
+    "profesion_id": 150
+  },
+  {
+    "area_id": 19,
+    "profesion_id": 152
+  },
+  {
+    "area_id": 9,
+    "profesion_id": 153
+  },
+  {
+    "area_id": 10,
+    "profesion_id": 154
+  },
+  {
+    "area_id": 7,
+    "profesion_id": 155
+  },
+  {
+    "area_id": 21,
+    "profesion_id": 156
+  },
+  {
+    "area_id": 2,
+    "profesion_id": 157
+  },
+  {
+    "area_id": 11,
+    "profesion_id": 158
+  },
+  {
+    "area_id": 23,
+    "profesion_id": 159
+  },
+  {
+    "area_id": 24,
+    "profesion_id": 160
+  },
+  {
+    "area_id": 12,
+    "profesion_id": 161
+  },
+  {
+    "area_id": 26,
+    "profesion_id": 162
+  },
+  {
+    "area_id": 27,
+    "profesion_id": 163
+  },
+  {
+    "area_id": 35,
+    "profesion_id": 164
+  },
+  {
+    "area_id": 40,
+    "profesion_id": 165
+  },
+  {
+    "area_id": 40,
+    "profesion_id": 166
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 167
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 168
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 169
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 170
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 171
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 172
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 173
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 174
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 175
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 176
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 177
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 178
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 179
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 180
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 181
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 182
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 183
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 184
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 185
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 186
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 187
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 188
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 189
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 190
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 191
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 192
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 193
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 194
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 195
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 196
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 197
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 198
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 199
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 200
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 201
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 202
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 203
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 204
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 205
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 206
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 207
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 208
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 209
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 210
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 211
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 212
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 213
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 214
+  },
+  {
+    "area_id": 43,
+    "profesion_id": 215
+  },
+  {
+    "area_id": 44,
+    "profesion_id": 216
+  },
+  {
+    "area_id": 45,
+    "profesion_id": 217
+  },
+  {
+    "area_id": 46,
+    "profesion_id": 218
+  },
+  {
+    "area_id": 47,
+    "profesion_id": 219
+  },
+  {
+    "area_id": 48,
+    "profesion_id": 220
+  },
+  {
+    "area_id": 48,
+    "profesion_id": 221
+  },
+  {
+    "area_id": 49,
+    "profesion_id": 222
+  },
+  {
+    "area_id": 50,
+    "profesion_id": 223
+  },
+  {
+    "area_id": 48,
+    "profesion_id": 224
+  },
+  {
+    "area_id": 51,
+    "profesion_id": 225
+  },
+  {
+    "area_id": 51,
+    "profesion_id": 226
+  },
+  {
+    "area_id": 51,
+    "profesion_id": 227
+  },
+  {
+    "area_id": 41,
+    "profesion_id": 228
+  }
+]
