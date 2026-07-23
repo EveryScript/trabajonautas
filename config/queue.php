@@ -38,7 +38,8 @@ return [
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',
-            'retry_after' => 90,
+            // Debe permanecer por encima de ProcessSicoesJob::$timeout (7500 s).
+            'retry_after' => (int) env('QUEUE_RETRY_AFTER', 7600),
             'after_commit' => false,
         ],
 
