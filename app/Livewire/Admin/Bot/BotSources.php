@@ -7,6 +7,11 @@ use Livewire\Component;
 
 class BotSources extends Component
 {
+    public function boot(): void
+    {
+        abort_unless(auth()->user()?->hasRole('ADMIN'), 403);
+    }
+
     public function render()
     {
         return view('livewire.admin.bot.bot-sources', [

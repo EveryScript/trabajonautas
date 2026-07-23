@@ -78,6 +78,11 @@ class BotPreview extends Component
         'is_pro' => false,
     ];
 
+    public function boot(): void
+    {
+        abort_unless(auth()->user()?->hasRole('ADMIN'), 403);
+    }
+
     public function mount(BotSource $source, BotCompany $company): void
     {
         abort_unless($source->active, 404);

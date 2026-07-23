@@ -67,8 +67,15 @@ class BotCompanies extends Component
         'active' => true,
     ];
 
+    public function boot(): void
+    {
+        abort_unless(auth()->user()?->hasRole('ADMIN'), 403);
+    }
+
     public function mount(BotSource $source): void
     {
+        abort_unless($source->active, 404);
+
         $this->source = $source;
         $this->categories = $this->categoryOptions();
         $this->sicoesDate = now()->format('Y-m-d');
