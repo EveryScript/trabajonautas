@@ -1,0 +1,39 @@
+# Dependencias instalables
+node_modules/
+
+# Ejecuciones, perfiles y caches de navegadores
+runtime/
+perfil-sicoes/
+perfil-sicoes-real/
+.cache/
+.puppeteer/
+.playwright/
+
+# Entradas, salidas y resultados generados
+entrada/
+salida/
+fichas-finales/
+archivo/
+
+# Metadatos internos o recuperados
+.git/
+.agents/
+
+# Sesiones, cookies, logs, diagnósticos y temporales
+**/Cookies
+**/Cookies-journal
+**/Session Storage/
+**/Sessions/
+**/Cache/
+**/Code Cache/
+**/GPUCache/
+**/diagnosticos/
+**/screenshots/
+*.log
+*.tmp
+*.temp
+*.crdownload
+*.part
+*.doc
+*.docx
+*.png
