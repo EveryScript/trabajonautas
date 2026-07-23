@@ -113,6 +113,10 @@
                                 <span class="sm:block md:hidden lg:block">{{ __('Areas') }}</span>
                                 <i class="hidden md:block lg:hidden fas fa-suitcase text-md"></i>
                             </x-nav-link-responsive>
+                            <x-nav-link-responsive href="{{ route('admin.bot.index') }}" wire:navigate :active="request()->routeIs('admin.bot.*')">
+                                <span class="sm:block md:hidden lg:block"><i class="mr-1 text-xs fas fa-robot"></i>BOT</span>
+                                <i class="hidden md:block lg:hidden fas fa-robot text-md"></i>
+                            </x-nav-link-responsive>
                             <x-nav-link-responsive href="{{ route('report') }}" wire:navigate :active="request()->routeIs('report')">
                                 <span class="sm:block md:hidden lg:block">{{ __('Reportes') }}</span>
                                 <i class="hidden md:block lg:hidden fas fa-clipboard-list text-md"></i>

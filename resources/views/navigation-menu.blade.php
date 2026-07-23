@@ -22,6 +22,9 @@
                         <x-nav-link href="{{ route('area') }}" wire:navigate :active="request()->routeIs('area')">
                             {{ __('Areas') }}
                         </x-nav-link>
+                        <x-nav-link href="{{ route('admin.bot.index') }}" wire:navigate :active="request()->routeIs('admin.bot.*')">
+                            <i class="mr-1 text-xs fas fa-robot"></i>BOT
+                        </x-nav-link>
                         <x-nav-link href="{{ route('company') }}" wire:navigate :active="request()->routeIs('company')">
                             {{ __('Empresas') }}
                         </x-nav-link>
@@ -169,6 +172,11 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @role('ADMIN')
+                <x-responsive-nav-link href="{{ route('admin.bot.index') }}" :active="request()->routeIs('admin.bot.*')">
+                    <i class="mr-1 text-xs fas fa-robot"></i>BOT
+                </x-responsive-nav-link>
+            @endrole
         </div>
 
         <!-- Responsive Settings Options -->
