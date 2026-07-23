@@ -470,7 +470,7 @@ class BotCompanies extends Component
         ];
     }
 
-    public function companyCategory(BotCompany $company): string
+    private function companyCategory(BotCompany $company): string
     {
         $name = Str::of($company->name)->ascii()->lower()->toString();
         $url = Str::of($company->evaluar_url)->ascii()->lower()->toString();

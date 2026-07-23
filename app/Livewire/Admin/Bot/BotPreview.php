@@ -27,10 +27,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 class BotPreview extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     public BotSource $source;
 
@@ -162,6 +163,7 @@ class BotPreview extends Component
         ]);
 
         $this->currentBatchId = (string) Str::uuid();
+        $this->resetPage('previewsPage');
 
         $result = $scraper->scrapeCompany(
             company: $this->company,
@@ -247,7 +249,7 @@ class BotPreview extends Component
             return;
         }
 
-        $preview = BotVacancyPreview::findOrFail($this->editingId);
+        $preview = $this->batchPreviewsQuery()->findOrFail($this->editingId);
         $assignment = $this->areaAssignmentFromPreview($preview);
         $result = $this->professionAssignments()->applyToPreview($preview, $assignment, [
             'source' => 'bot_preview_recalculate',
@@ -265,11 +267,17 @@ class BotPreview extends Component
             ? 'Profesiones recalculadas desde las areas del catalogo.'
             : 'No se asignaron profesiones porque el area no es valida.';
 
-        $this->dispatch('bot-professions-recalculated', ids: $ids);
+        $this->dispatch(
+            'bot-professions-recalculated',
+            ids: $ids,
+            areaId: $this->form['selected_area_id'],
+        );
     }
 
     public function professionsForArea(int $areaId, ProfessionAssignmentService $service): array
     {
+        abort_unless(Area::query()->whereKey($areaId)->exists(), 404);
+
         return $service->resolve([$areaId])['profession_ids'];
     }
 
@@ -388,6 +396,8 @@ class BotPreview extends Component
         if ($failed > 0) {
             $this->errorMessage = "{$failed} convocatoria(s) no se pudieron publicar y quedaron marcadas como error.";
         }
+
+        $this->resetPage('previewsPage');
     }
 
     public function closeModal(): void
@@ -421,6 +431,7 @@ class BotPreview extends Component
         }
 
         $this->message = 'Convocatoria quitada del lote actual.';
+        $this->resetPage('previewsPage');
     }
 
     public function retryGeminiErrors(GeminiVacancyAnalyzer $analyzer): void
@@ -519,14 +530,25 @@ class BotPreview extends Component
 
     public function render()
     {
+        $previews = $this->currentBatchId
+            ? $this->batchPreviewsQuery()
+                ->latest()
+                ->paginate(12, ['*'], 'previewsPage')
+            : BotVacancyPreview::query()
+                ->whereRaw('1 = 0')
+                ->paginate(12, ['*'], 'previewsPage');
+
         return view('livewire.admin.bot.bot-preview', [
-            'previews' => $this->currentBatchId ? $this->batchPreviewsQuery()->latest()->get() : collect(),
+            'previews' => $previews,
             'currentSicoesBatch' => $this->currentSicoesBatch(),
             'profesions' => $this->profesions,
             'locations' => $this->locations,
             'areas' => $this->areas,
             'companies' => $this->companies,
             'currentGeminiErrors' => $this->currentBatchId ? $this->geminiErrorPreviewsQuery()->count() : 0,
+            'publishablePreviewCount' => $this->currentBatchId
+                ? $this->batchPreviewsQuery()->whereIn('status', ['preview', 'edited'])->count()
+                : 0,
         ]);
     }
 

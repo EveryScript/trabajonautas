@@ -521,7 +521,13 @@
             @endforelse
         </div>
 
-        @if ($previews->whereIn('status', ['preview', 'edited'])->count() > 0)
+        @if ($previews->hasPages())
+            <div class="mt-6">
+                {{ $previews->links() }}
+            </div>
+        @endif
+
+        @if ($publishablePreviewCount > 0)
             <button type="button" x-on:click="confirmPublish"
                 class="fixed bottom-8 right-8 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-2xl font-black text-white shadow-2xl shadow-orange-300 transition hover:-translate-y-1 hover:from-orange-400 hover:to-red-400 dark:shadow-orange-950/40"
                 title="Subir todas">
@@ -541,7 +547,7 @@
                             profesions: @js($profesions),
                             locations: @js($locations),
                         })"
-                        x-on:bot-professions-recalculated.window="syncRecalculatedProfessions($event.detail.ids)">
+                        x-on:bot-professions-recalculated.window="syncRecalculatedProfessions($event.detail.ids, $event.detail.areaId)">
                         <div class="flex items-start justify-between gap-4 mb-5">
                             <div>
                                 <h3 class="text-xl font-bold text-tbn-primary">Editar previsualizacion BOT</h3>
@@ -861,18 +867,21 @@
                     }
                     $wire.form.selected_profession_ids = merged;
                 },
-                syncRecalculatedProfessions(ids) {
+                syncRecalculatedProfessions(ids, areaId) {
                     const selectedIds = (ids || []).map(Number);
+                    const selectedAreaId = areaId ? Number(areaId) : null;
 
                     if (this.tsArea) {
-                        this.tsArea.clear(true);
+                        selectedAreaId
+                            ? this.tsArea.setValue(selectedAreaId, true)
+                            : this.tsArea.clear(true);
                     }
 
                     if (this.tsProfesions) {
                         this.tsProfesions.setValue(selectedIds, true);
                     }
 
-                    $wire.form.selected_area_id = null;
+                    $wire.form.selected_area_id = selectedAreaId;
                     $wire.form.selected_profession_ids = selectedIds;
                 },
                 setAllLocations() {
