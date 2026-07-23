@@ -280,17 +280,25 @@
                     });
                 },
                 // Set profesions base on area selected
-                onAreaChange(areaId) {
+                async onAreaChange(areaId) {
                     const areaSelected = Number(areaId)
-                    const profesionsSelected = this.profesions.filter(p => {
-                        return p.area_ids && p.area_ids.map(Number).includes(areaSelected);
-                    });
-                    const selectedIds = profesionsSelected.map(p => p.id);
-                    this.profesionsSelectedIds = [...new Set([...this.profesionsSelectedIds, ...selectedIds])];
 
+                    if (!areaSelected) {
+                        return;
+                    }
+
+                    const selectedIds = (await $wire.professionsForArea(areaSelected)).map(Number);
                     const tsControl = document.querySelector('#profesions').tomselect;
-                    if (tsControl)
+                    const currentIds = tsControl
+                        ? tsControl.getValue().map(Number)
+                        : (this.profesionsSelectedIds || []).map(Number);
+
+                    this.profesionsSelectedIds = [...new Set([...currentIds, ...selectedIds])];
+                    $wire.announcement.profesions = this.profesionsSelectedIds;
+
+                    if (tsControl) {
                         tsControl.setValue(this.profesionsSelectedIds);
+                    }
                 },
                 // Set all locations
                 setAllLocations() {
@@ -302,6 +310,7 @@
                 clearProfesionsSelected() {
                     this.profesionsSelectedIds = []
                     document.querySelector('#profesions').tomselect.clear()
+                    $wire.announcement.profesions = []
                 }
             }))
         </script>

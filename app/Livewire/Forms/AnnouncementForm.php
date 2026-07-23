@@ -23,7 +23,7 @@ class AnnouncementForm extends Form
 
     public function edit($id)
     {
-        $announcement_edit = Announcement::find($id);
+        $announcement_edit = Announcement::findOrFail($id);
         $this->announce_title = $announcement_edit->announce_title;
         $this->description = $announcement_edit->description;
         $this->expiration_time = $announcement_edit->expiration_time;
@@ -32,13 +32,15 @@ class AnnouncementForm extends Form
         $this->scheduled_at = $announcement_edit->scheduled_at;
         $this->company_id = $announcement_edit->company_id;
         $this->user_id = $announcement_edit->user_id;
-        $this->locations = $announcement_edit->locations->pluck('id');
-        $this->profesions = $announcement_edit->profesions->pluck('id');
+        $this->locations = $announcement_edit->locations->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $this->profesions = $announcement_edit->profesions->pluck('id')->map(fn ($id) => (int) $id)->all();
         $this->current_files = $announcement_edit->announceFiles;
     }
 
     public function update($update_id)
     {
+        $this->normalizeRelationSelections();
+
         $this->validate([
             'announce_title' => 'required|min:10|max:1200',
             'description' => 'required',
@@ -47,12 +49,13 @@ class AnnouncementForm extends Form
             'pro' => 'boolean',
             'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
-            'company_id' => 'required',
-            'user_id' => 'required',
-            'locations' => 'required',
-            'profesions' => 'required'
+            'company_id' => 'required|integer|exists:companies,id',
+            'locations' => 'required|array|min:1',
+            'locations.*' => 'integer|distinct|exists:locations,id',
+            'profesions' => 'required|array|min:1',
+            'profesions.*' => 'integer|distinct|exists:profesions,id',
         ]);
-        $announcement = Announcement::find($update_id);
+        $announcement = Announcement::findOrFail($update_id);
         $announcement->update([
             'announce_title' => $this->announce_title,
             'description' => $this->description,
@@ -61,7 +64,6 @@ class AnnouncementForm extends Form
             'pro' => $this->pro,
             'scheduled_at' => $this->pro && $this->scheduled_at ? $this->scheduled_at : null,
             'company_id' => $this->company_id,
-            'user_id' => $this->user_id
         ]);
         $announcement->locations()->sync($this->locations);
         $announcement->profesions()->sync($this->profesions);
@@ -84,6 +86,8 @@ class AnnouncementForm extends Form
     public function save()
     {
         $this->salary = str_replace('.', '', $this->salary);
+        $this->normalizeRelationSelections();
+
         $this->validate([
             'announce_title' => 'required|min:10|max:1200',
             'description' => 'required',
@@ -92,10 +96,12 @@ class AnnouncementForm extends Form
             'pro' => 'boolean',
             'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
             'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
-            'company_id' => 'required',
-            'user_id' => 'required',
-            'locations' => 'required',
-            'profesions' => 'required'
+            'company_id' => 'required|integer|exists:companies,id',
+            'user_id' => 'required|integer|exists:users,id',
+            'locations' => 'required|array|min:1',
+            'locations.*' => 'integer|distinct|exists:locations,id',
+            'profesions' => 'required|array|min:1',
+            'profesions.*' => 'integer|distinct|exists:profesions,id',
         ]);
         $announcement = Announcement::create($this->only(
             'announce_title',
@@ -107,8 +113,8 @@ class AnnouncementForm extends Form
             'company_id',
             'user_id',
         ));
-        $announcement->locations()->attach($this->locations);
-        $announcement->profesions()->attach($this->profesions);
+        $announcement->locations()->sync($this->locations);
+        $announcement->profesions()->sync($this->profesions);
 
         $announce_files_data = [];
         if ($this->announce_files) {
@@ -124,6 +130,24 @@ class AnnouncementForm extends Form
             $announcement->announceFiles()->createMany($announce_files_data);
         }
         return $announcement;
+    }
+
+    private function normalizeRelationSelections(): void
+    {
+        $this->locations = $this->normalizeIds($this->locations);
+        $this->profesions = $this->normalizeIds($this->profesions);
+    }
+
+    private function normalizeIds(mixed $values): array
+    {
+        return collect($values ?? [])
+            ->filter(fn (mixed $value): bool => is_int($value)
+                || (is_string($value) && ctype_digit(trim($value))))
+            ->map(fn (mixed $value): int => (int) $value)
+            ->filter(fn (int $value): bool => $value > 0)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     public function messages()
