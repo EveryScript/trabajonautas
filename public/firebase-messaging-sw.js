@@ -5,30 +5,40 @@ importScripts(
     "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"
 );
 
-firebase.initializeApp({
-    apiKey: "AIzaSyBKn9I--sruLzQFQVgAayPMZuTt6tKU8A8",
-    authDomain: "trabajonautas-notifications.firebaseapp.com",
-    projectId: "trabajonautas-notifications",
-    storageBucket: "trabajonautas-notifications.firebasestorage.app",
-    messagingSenderId: "888362496290",
-    appId: "1:888362496290:web:04394616572da440fef57b",
-    measurementId: "G-FTYMBGYPTP",
-});
+const params = new URL(self.location.href).searchParams;
+const firebaseConfig = {
+    apiKey: params.get("apiKey"),
+    authDomain: params.get("authDomain"),
+    projectId: params.get("projectId"),
+    storageBucket: params.get("storageBucket"),
+    messagingSenderId: params.get("messagingSenderId"),
+    appId: params.get("appId"),
+    measurementId: params.get("measurementId"),
+};
 
-const messaging = firebase.messaging();
+if (
+    firebaseConfig.apiKey
+    && firebaseConfig.projectId
+    && firebaseConfig.messagingSenderId
+    && firebaseConfig.appId
+) {
+    firebase.initializeApp(firebaseConfig);
 
-// Handle background messages
-messaging.onBackgroundMessage(function (payload) {
-    const title = payload.data.title || "Trabajonautas";
-    const body = payload.data.body || "";
-    const icon = payload.data.icon || "storage/img/tbn-icon.ico";
-    const clickAction = payload.data.click_action || "https://trabajonautas.com";
-    self.registration.showNotification(title, {
-        body: body,
-        icon: icon,
-        data: { url: clickAction },
+    const messaging = firebase.messaging();
+
+    // Handle background messages
+    messaging.onBackgroundMessage(function (payload) {
+        const title = payload.data.title || "Trabajonautas";
+        const body = payload.data.body || "";
+        const icon = payload.data.icon || "storage/img/tbn-icon.ico";
+        const clickAction = payload.data.click_action || "https://trabajonautas.com";
+        self.registration.showNotification(title, {
+            body: body,
+            icon: icon,
+            data: { url: clickAction },
+        });
     });
-});
+}
 
 // Handle notification click
 self.addEventListener('notificationclick', function(event) {

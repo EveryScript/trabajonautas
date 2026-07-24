@@ -1,21 +1,20 @@
 // Esperar a que el DOM esté listo
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("firebase notifications foreground loaded!");
+    const firebaseConfig = window.firebaseConfig || {};
 
-    // Configurations
-    const firebaseConfig = {
-        apiKey: "AIzaSyBKn9I--sruLzQFQVgAayPMZuTt6tKU8A8",
-        authDomain: "trabajonautas-notifications.firebaseapp.com",
-        projectId: "trabajonautas-notifications",
-        storageBucket: "trabajonautas-notifications.firebasestorage.app",
-        messagingSenderId: "888362496290",
-        appId: "1:888362496290:web:04394616572da440fef57b",
-    };
+    if (
+        !firebaseConfig.apiKey
+        || !firebaseConfig.projectId
+        || !firebaseConfig.messagingSenderId
+        || !firebaseConfig.appId
+    ) {
+        console.warn("Firebase notifications disabled: missing web configuration.");
+        return;
+    }
 
-    // Initialize Firebase
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-    const messaging = firebase.messaging();
+    window.messaging = firebase.messaging();
 
     // Request permission for notifications
     Notification.requestPermission().then((permission) => {
@@ -25,8 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Foreground message handler
-    messaging.onMessage((payload) => {
-        console.log("¡Mensaje en primer plano!", payload);
+    window.messaging.onMessage((payload) => {
+        console.info("Mensaje de Firebase recibido en primer plano.");
 
         const title = payload.data.title || "Nueva Notificación";
         const body = payload.data.body || "";

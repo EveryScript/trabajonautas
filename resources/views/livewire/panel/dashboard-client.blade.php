@@ -107,6 +107,13 @@
                 },
                 async activateNotificationsAndSaveCurrentToken() {
                     this.button_notify_loading = true
+                    if (!window.messaging || !window.firebaseConfig?.apiKey) {
+                        console.warn('Firebase no esta configurado para este entorno')
+                        this.modal_notifications = false
+                        this.button_notify_loading = false
+                        return
+                    }
+
                     if (this.isServiceWorkerSupported()) {
                         // Request client activate notifications
                         const permission = await Notification.requestPermission();
@@ -118,9 +125,14 @@
                         // Save current token with Service Worker registration
                         try {
                             console.log('Getting current token...')
+                            const workerConfig = new URLSearchParams(
+                                Object.entries(window.firebaseConfig)
+                                    .filter(([, value]) => value !== null && value !== '')
+                            )
                             const registration = await navigator.serviceWorker.register(
-                                '/firebase-messaging-sw.js')
-                            const currentToken = await messaging.getToken({
+                                `/firebase-messaging-sw.js?${workerConfig.toString()}`
+                            )
+                            const currentToken = await window.messaging.getToken({
                                 vapidKey: this.VAPID_KEY,
                                 serviceWorkerRegistration: registration,
                             })
