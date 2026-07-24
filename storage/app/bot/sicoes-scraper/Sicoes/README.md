@@ -2,6 +2,10 @@
 
 Sistema de extraccion y normalizacion de convocatorias SICOES.
 
+## Requisitos
+
+- Node.js 18 o superior; el scraper utiliza el `fetch` global incluido en Node.
+
 ## Archivo principal
 
 - `sicoes.js`: contiene la extraccion, normalizacion y generacion de ficha final.

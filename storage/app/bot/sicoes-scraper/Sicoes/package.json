@@ -1,8 +1,12 @@
 {
   "name": "sicoes",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "main": "sicoes.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "sicoes": "node sicoes.js",
     "sicoes:full": "node sicoes.js --mode=full",

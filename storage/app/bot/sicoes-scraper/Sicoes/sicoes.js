@@ -1,3 +1,15 @@
+const nodeMajorVersion = Number.parseInt(process.versions.node.split('.')[0], 10);
+
+if (
+  !Number.isInteger(nodeMajorVersion)
+  || nodeMajorVersion < 18
+  || typeof globalThis.fetch !== 'function'
+) {
+  console.error('SICOES requiere Node.js 18 o superior con fetch global.');
+  process.exit(1);
+}
+
+const nodeFetch = globalThis.fetch.bind(globalThis);
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -4548,7 +4560,7 @@ function resolverBrowserExecutable() {
 
 async function cdpDisponible() {
   try {
-    const response = await fetch(`${CDP_URL}/json/version`);
+    const response = await nodeFetch(`${CDP_URL}/json/version`);
     return response.ok;
   } catch (_) {
     return false;
@@ -4889,7 +4901,7 @@ async function localizarLinkArchivoEnTabla(page, convocatoria, archivo) {
 
 // ─── Interceptar la request real que genera window.descargarArchivo() ───────────
 // Usamos CDP Network para capturar la petición exacta (URL, method, headers, body)
-// que el JS del portal envía al servidor. Luego la reproducimos con node-fetch
+// que el JS del portal envía al servidor. Luego la reproducimos con fetch nativo
 // para obtener el binario sin depender del sistema de descargas del browser.
 async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, archivo, index, archivoIndex) {
   const cuce = convocatoria?.cuce || 'sin_cuce';
@@ -5076,24 +5088,16 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
     'Accept'        : 'application/octet-stream, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*',
     'Accept-Language': 'es-BO,es;q=0.9',
   };
-  // Eliminar headers que node-fetch no acepta o que causarían conflictos
+  // Eliminar headers que fetch no acepta o que causarían conflictos
   delete headers['content-length'];
   delete headers['transfer-encoding'];
 
   console.log(`  [CDP] Reproduciendo ${reqInfo.method} ${redactUrl(reqInfo.url)}`);
   console.log(`  [CDP] Body: ${JSON.stringify(summarizePostData(reqInfo.postData))}`);
 
-  // Reproducir la request con node-fetch (disponible en Node 18+ o via require)
-  let fetchFn;
-  try {
-    fetchFn = fetch; // Node 18+ tiene fetch nativo
-  } catch (_) {
-    fetchFn = require('node-fetch');
-  }
-
   let response;
   try {
-    response = await fetchFn(reqInfo.url, {
+    response = await nodeFetch(reqInfo.url, {
       method : reqInfo.method,
       headers,
       body   : reqInfo.method !== 'GET' ? reqInfo.postData : undefined,
