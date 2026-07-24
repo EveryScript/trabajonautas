@@ -8,6 +8,7 @@ use App\Models\BotSource;
 use App\Models\BotVacancyPreview;
 use App\Models\SicoesScrapeBatch;
 use App\Support\SensitiveDataSanitizer;
+use App\Support\SicoesProgressCache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -329,7 +330,9 @@ class BotCompanies extends Component
                 'last_step' => 'Job en cola',
                 'queued_at' => now()->toDateTimeString(),
             ];
-            Cache::put($this->sicoesProgressKey($requestedDate), $this->sicoesProgress, now()->addDay());
+            if (! SicoesProgressCache::replace($requestedDate, $this->sicoesProgress)) {
+                throw new \RuntimeException('No se pudo inicializar el progreso SICOES.');
+            }
 
             ProcessSicoesJob::dispatch(
                 $requestedDate,
@@ -380,10 +383,21 @@ class BotCompanies extends Component
                 ];
 
                 try {
-                    Cache::put(
-                        $this->sicoesProgressKey($this->sicoesDate),
-                        $this->sicoesProgress,
-                        now()->addDay(),
+                    SicoesProgressCache::update(
+                        $this->sicoesDate,
+                        function (array $current) use ($batch): ?array {
+                            $currentRunId = $current['run_id'] ?? null;
+                            $failedRunId = (string) $batch->getKey();
+
+                            if (
+                                $currentRunId
+                                && ! hash_equals((string) $currentRunId, $failedRunId)
+                            ) {
+                                return null;
+                            }
+
+                            return $this->sicoesProgress;
+                        },
                     );
                 } catch (\Throwable $cacheException) {
                     Log::warning('SICOES no pudo actualizar la cache de un despacho fallido.', [
@@ -600,7 +614,7 @@ class BotCompanies extends Component
 
     private function sicoesProgressKey(string $date): string
     {
-        return 'sicoes:progress:'.str_replace(['/', '\\', ' '], '-', $date);
+        return SicoesProgressCache::key($date);
     }
 
     private function ensureSicoesCompany(): BotCompany

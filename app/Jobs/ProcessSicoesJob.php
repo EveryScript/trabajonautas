@@ -2,10 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Models\BotCompany;
 use App\Models\SicoesScrapeBatch;
 use App\Services\Bot\SicoesDocumentImporterService;
 use App\Services\Bot\SicoesRunnerService;
 use App\Support\SensitiveDataSanitizer;
+use App\Support\SicoesProgressCache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,20 +26,60 @@ class ProcessSicoesJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    private const RETRY_WINDOW_HOURS = 8;
+
+    private const PROGRESS_FIELDS = [
+        'run_id',
+        'status',
+        'date',
+        'total',
+        'processed',
+        'saved',
+        'updated',
+        'failed',
+        'discarded',
+        'preclassified_discards',
+        'discarded_not_individual_consultant',
+        'discarded_company_or_goods',
+        'ai_calls',
+        'ai_cache_hits',
+        'ai_errors',
+        'shown_in_batch',
+        'last_cuce',
+        'last_preview_id',
+        'last_document',
+        'last_step',
+        'started_at',
+        'updated_at',
+        'finished_at',
+        'failed_at',
+    ];
+
     public int $timeout = 7500;
 
-    public int $tries = 120;
+    // Es un respaldo para workers externos. Laravel prioriza retryUntil() para
+    // liberaciones por solapamiento y maxExceptions para excepciones reales.
+    public int $tries = 135;
 
     public int $maxExceptions = 1;
 
     public bool $failOnTimeout = true;
+
+    public \DateTimeImmutable $retryUntilAt;
 
     public function __construct(
         public string $date,
         public int $botCompanyId,
         public string $userId,
         public ?string $runId = null,
-    ) {}
+    ) {
+        $this->retryUntilAt = new \DateTimeImmutable('+'.self::RETRY_WINDOW_HOURS.' hours');
+    }
+
+    public function retryUntil(): \DateTimeInterface
+    {
+        return $this->retryUntilAt;
+    }
 
     public function middleware(): array
     {
@@ -50,32 +92,87 @@ class ProcessSicoesJob implements ShouldQueue
 
     public function handle(SicoesRunnerService $runner, SicoesDocumentImporterService $importer): array
     {
-        $batch = $this->batch();
+        $claim = $this->claimBatch();
+        $batch = $claim['batch'];
+
+        foreach ($claim['recovered_others'] as $recoveredBatch) {
+            $this->syncRecoveredBatchProgress($recoveredBatch);
+        }
+
+        if ($claim['recovered_others'] !== []) {
+            $this->safeLog('warning', 'SICOES recupero lotes running vencidos antes de reclamar uno nuevo.', [
+                'date' => $this->date,
+                'run_id' => $this->runId,
+                'bot_company_id' => $this->botCompanyId,
+                'recovered_batches' => count($claim['recovered_others']),
+            ]);
+        }
 
         if ($this->runId && ! $batch) {
             throw new \RuntimeException('El lote SICOES no existe o no pertenece a la empresa indicada.');
         }
 
-        if ($batch?->isTerminal()) {
-            Log::warning('SICOES omitio una entrega duplicada para un lote terminal.', [
+        if (! $claim['claimed']) {
+            if ($claim['release']) {
+                $this->release(60);
+                $this->safeLog('warning', 'SICOES libero una entrega porque el lote running aun esta dentro de su lease.', [
+                    'date' => $this->date,
+                    'run_id' => $this->runId,
+                    'bot_company_id' => $this->botCompanyId,
+                    'batch_status' => $batch?->status,
+                    'attempt' => $this->attempts(),
+                ]);
+
+                return [
+                    'status' => strtoupper((string) $batch?->status),
+                    'runner_status' => 'RELEASED_ACTIVE',
+                    'batch_status' => $batch?->status,
+                    'released_active_batch' => true,
+                ];
+            }
+
+            $isTerminal = $batch?->isTerminal() ?? false;
+            $runnerStatus = $claim['recovered']
+                ? 'RECOVERED_ABANDONED'
+                : ($isTerminal ? 'SKIPPED_TERMINAL' : 'SKIPPED_ACTIVE');
+
+            if ($claim['recovered']) {
+                try {
+                    $this->putProgress([
+                        'run_id' => $this->runId,
+                        'status' => SicoesScrapeBatch::STATUS_FAILED,
+                        'date' => $this->date,
+                        'failed' => 1,
+                        'last_step' => 'Se recupero como fallido un lote running sin bloqueo activo.',
+                        'failed_at' => now()->toDateTimeString(),
+                    ]);
+                } catch (\Throwable $progressException) {
+                    $this->safeLog('warning', 'SICOES recupero un lote abandonado, pero no pudo actualizar la cache.', [
+                        'date' => $this->date,
+                        'run_id' => $this->runId,
+                        'bot_company_id' => $this->botCompanyId,
+                        'exception_type' => $this->exceptionType($progressException),
+                    ]);
+                }
+            }
+
+            $this->safeLog('warning', 'SICOES omitio una entrega que no pudo reclamar el lote.', [
                 'date' => $this->date,
                 'bot_company_id' => $this->botCompanyId,
                 'run_id' => $this->runId,
-                'batch_status' => $batch->status,
+                'batch_status' => $batch?->status,
+                'reason' => $runnerStatus,
             ]);
 
             return [
-                'status' => strtoupper((string) $batch->status),
-                'runner_status' => 'SKIPPED_TERMINAL',
-                'batch_status' => $batch->status,
-                'skipped_terminal_batch' => true,
+                'status' => strtoupper((string) $batch?->status),
+                'runner_status' => $runnerStatus,
+                'batch_status' => $batch?->status,
+                'skipped_terminal_batch' => $isTerminal,
+                'skipped_active_batch' => ! $isTerminal,
+                'recovered_abandoned_batch' => $claim['recovered'],
             ];
         }
-
-        $batch?->update([
-            'status' => SicoesScrapeBatch::STATUS_RUNNING,
-            'started_at' => now(),
-        ]);
 
         $this->putProgress([
             'run_id' => $this->runId,
@@ -94,7 +191,7 @@ class ProcessSicoesJob implements ShouldQueue
         $run = $runner->run(
             $this->date,
             onProgress: function (array $payload): void {
-                Log::info('SICOES progreso.', $this->progressLogContext([
+                $this->safeLog('info', 'SICOES progreso.', $this->progressLogContext([
                     'date' => $this->date,
                     'run_id' => $this->runId,
                     ...$payload,
@@ -117,7 +214,7 @@ class ProcessSicoesJob implements ShouldQueue
             userId: $this->userId,
             batchId: $this->runId,
             onProgress: function (array $payload) use (&$import): void {
-                Log::info('SICOES documento procesado.', $this->progressLogContext([
+                $this->safeLog('info', 'SICOES documento procesado.', $this->progressLogContext([
                     'date' => $this->date,
                     'run_id' => $this->runId,
                     ...$payload,
@@ -152,7 +249,29 @@ class ProcessSicoesJob implements ShouldQueue
         $result['runner_status'] = $runnerStatus;
         $result['batch_status'] = $batchStatus;
 
-        Log::info(
+        $persistedStatus = $this->finishBatch($batchStatus, $run, $result, $errorCount);
+
+        if ($this->runId && $persistedStatus === null) {
+            throw new \RuntimeException('El lote SICOES desaparecio antes de guardar su resultado.');
+        }
+
+        if ($this->runId && $persistedStatus !== $batchStatus) {
+            $result['batch_status'] = $persistedStatus;
+            $result['state_write_skipped'] = true;
+
+            $this->safeLog('warning', 'SICOES preservo un estado de lote que cambio durante el procesamiento.', [
+                'date' => $this->date,
+                'run_id' => $this->runId,
+                'bot_company_id' => $this->botCompanyId,
+                'calculated_status' => $batchStatus,
+                'persisted_status' => $persistedStatus,
+            ]);
+
+            return $result;
+        }
+
+        $this->safeLog(
+            'info',
             $batchStatus === SicoesScrapeBatch::STATUS_COMPLETED
                 ? 'SICOES documentos previsualizados correctamente.'
                 : 'SICOES finalizo con resultados parciales.',
@@ -178,93 +297,119 @@ class ProcessSicoesJob implements ShouldQueue
             ],
         );
 
-        $this->putProgress([
-            'status' => $batchStatus,
-            'total' => $result['total_items_feed'] ?? 0,
-            'processed' => $result['document_processed'] ?? ($result['total_items_feed'] ?? 0),
-            'saved' => $result['saved'] ?? 0,
-            'updated' => $result['updated'] ?? 0,
-            'failed' => $errorCount,
-            'discarded' => $result['document_discarded'] ?? 0,
-            'preclassified_discards' => $result['preclassified_discards'] ?? 0,
-            'discarded_not_individual_consultant' => $result['discarded_not_individual_consultant'] ?? 0,
-            'discarded_company_or_goods' => $result['discarded_company_or_goods'] ?? 0,
-            'ai_calls' => $result['ai_calls'] ?? 0,
-            'ai_cache_hits' => $result['ai_cache_hits'] ?? 0,
-            'ai_errors' => $result['ai_errors'] ?? 0,
-            'shown_in_batch' => $result['shown_in_batch'] ?? 0,
-            'last_step' => $batchStatus === SicoesScrapeBatch::STATUS_COMPLETED
-                ? 'SICOES completado. Revisa los previews por documento antes de publicar.'
-                : 'SICOES finalizo parcialmente. Revisa los errores y previews antes de publicar.',
-            'finished_at' => now()->toDateTimeString(),
-        ]);
-
-        $this->batch()?->update([
-            'status' => $batchStatus,
-            'documents_found' => $this->documentsFound($run, $result),
-            'documents_downloaded' => (int) ($result['total_items_feed'] ?? 0),
-            'documents_processed' => (int) ($result['document_processed'] ?? 0),
-            'previews_count' => (int) ($result['shown_in_batch'] ?? 0),
-            'discarded_count' => (int) ($result['document_discarded'] ?? 0),
-            'errors_count' => $errorCount,
-            'ai_calls' => (int) ($result['ai_calls'] ?? 0),
-            'ai_cache_hits' => (int) ($result['ai_cache_hits'] ?? 0),
-            'summary' => $this->batchSummary($result),
-            'finished_at' => now(),
-        ]);
+        try {
+            $this->putProgress([
+                'status' => $batchStatus,
+                'total' => $result['total_items_feed'] ?? 0,
+                'processed' => $result['document_processed'] ?? ($result['total_items_feed'] ?? 0),
+                'saved' => $result['saved'] ?? 0,
+                'updated' => $result['updated'] ?? 0,
+                'failed' => $errorCount,
+                'discarded' => $result['document_discarded'] ?? 0,
+                'preclassified_discards' => $result['preclassified_discards'] ?? 0,
+                'discarded_not_individual_consultant' => $result['discarded_not_individual_consultant'] ?? 0,
+                'discarded_company_or_goods' => $result['discarded_company_or_goods'] ?? 0,
+                'ai_calls' => $result['ai_calls'] ?? 0,
+                'ai_cache_hits' => $result['ai_cache_hits'] ?? 0,
+                'ai_errors' => $result['ai_errors'] ?? 0,
+                'shown_in_batch' => $result['shown_in_batch'] ?? 0,
+                'last_step' => $batchStatus === SicoesScrapeBatch::STATUS_COMPLETED
+                    ? 'SICOES completado. Revisa los previews por documento antes de publicar.'
+                    : 'SICOES finalizo parcialmente. Revisa los errores y previews antes de publicar.',
+                'finished_at' => now()->toDateTimeString(),
+            ]);
+        } catch (\Throwable $progressException) {
+            $this->safeLog('warning', 'SICOES completo el lote, pero no pudo actualizar la cache de progreso.', [
+                'date' => $this->date,
+                'run_id' => $this->runId,
+                'bot_company_id' => $this->botCompanyId,
+                'exception_type' => $this->exceptionType($progressException),
+            ]);
+        }
 
         return $result;
     }
 
     public function failed(\Throwable $exception): void
     {
-        $current = Cache::get($this->progressKey(), []);
-        $batch = $this->batch();
         $exceptionType = $this->exceptionType($exception);
+        $markedAsFailed = false;
 
-        if ($batch?->isTerminal()) {
-            Log::warning('SICOES job fallo despues de alcanzar un estado terminal; se preservo el lote.', [
+        try {
+            $markedAsFailed = $this->markBatchFailed($exceptionType, 1);
+        } catch (\Throwable $databaseException) {
+            $this->safeLog('error', 'SICOES no pudo persistir el estado fallido del lote.', [
+                'date' => $this->date,
+                'run_id' => $this->runId,
+                'bot_company_id' => $this->botCompanyId,
+                'exception_type' => $this->exceptionType($databaseException),
+            ]);
+
+            return;
+        }
+
+        if ($this->runId && ! $markedAsFailed) {
+            $batch = $this->batch();
+            $this->safeLog('warning', 'SICOES job fallo despues de que el lote cambio de estado; se preservo la base y la cache.', [
                 'date' => $this->date,
                 'bot_company_id' => $this->botCompanyId,
                 'run_id' => $this->runId,
-                'batch_status' => $batch->status,
+                'batch_status' => $batch?->status,
                 'exception_type' => $exceptionType,
             ]);
 
             return;
         }
 
-        if (! $this->canWriteProgress()) {
-            $this->markBatchFailed($exceptionType, 1);
-            Log::warning('SICOES job fallo obsoleto ignorado en progreso.', [
+        try {
+            $progressMarkedAsFailed = $this->markProgressFailed($exceptionType);
+        } catch (\Throwable $cacheException) {
+            $this->safeLog('warning', 'SICOES marco el lote fallido, pero no pudo guardar la cache de progreso.', [
+                'date' => $this->date,
+                'bot_company_id' => $this->botCompanyId,
+                'run_id' => $this->runId,
+                'exception_type' => $this->exceptionType($cacheException),
+            ]);
+
+            $progressMarkedAsFailed = null;
+        }
+
+        if ($progressMarkedAsFailed === false) {
+            $this->safeLog('warning', 'SICOES preservo el progreso de una ejecucion distinta al fallar el job.', [
                 'date' => $this->date,
                 'bot_company_id' => $this->botCompanyId,
                 'run_id' => $this->runId,
                 'exception_type' => $exceptionType,
             ]);
-
-            return;
         }
 
-        $errorCount = max(1, (int) ($current['failed'] ?? 0) + 1);
-        $this->putProgress([
-            ...$current,
-            'run_id' => $this->runId,
-            'status' => SicoesScrapeBatch::STATUS_FAILED,
-            'failed' => $errorCount,
-            'last_step' => "Job SICOES fallo ({$exceptionType}).",
-            'failed_at' => now()->toDateTimeString(),
-        ]);
-
-        Log::error('SICOES job fallo.', [
+        $this->safeLog('error', 'SICOES job fallo.', [
             'date' => $this->date,
             'bot_company_id' => $this->botCompanyId,
             'run_id' => $this->runId,
             'exception_type' => $exceptionType,
             'exception_code' => $exception->getCode(),
         ]);
+    }
 
-        $this->markBatchFailed($exceptionType, $errorCount);
+    private function markProgressFailed(string $exceptionType): bool
+    {
+        return SicoesProgressCache::update($this->date, function (array $current) use ($exceptionType): ?array {
+            if (! $this->canWriteProgress($current)) {
+                return null;
+            }
+
+            $progress = array_intersect_key([
+                ...$current,
+                'run_id' => $this->runId,
+                'status' => SicoesScrapeBatch::STATUS_FAILED,
+                'failed' => max(1, (int) ($current['failed'] ?? 0) + 1),
+                'last_step' => "Job SICOES fallo ({$exceptionType}).",
+                'failed_at' => now()->toDateTimeString(),
+            ], array_flip(self::PROGRESS_FIELDS));
+
+            return $this->sanitizeProgress($progress);
+        });
     }
 
     private function emptyImportSummary(): array
@@ -304,62 +449,24 @@ class ProcessSicoesJob implements ShouldQueue
         ];
     }
 
-    private function putProgress(array $data): void
+    private function putProgress(array $data): bool
     {
-        if (! $this->canWriteProgress()) {
-            return;
-        }
+        return SicoesProgressCache::update($this->date, function (array $current) use ($data): ?array {
+            if (! $this->canWriteProgress($current) || $this->hasTerminalProgress($current)) {
+                return null;
+            }
 
-        $current = Cache::get($this->progressKey(), []);
-        $allowed = array_flip([
-            'run_id',
-            'status',
-            'date',
-            'total',
-            'processed',
-            'saved',
-            'updated',
-            'failed',
-            'discarded',
-            'preclassified_discards',
-            'discarded_not_individual_consultant',
-            'discarded_company_or_goods',
-            'ai_calls',
-            'ai_cache_hits',
-            'ai_errors',
-            'shown_in_batch',
-            'last_cuce',
-            'last_preview_id',
-            'last_document',
-            'last_step',
-            'started_at',
-            'updated_at',
-            'finished_at',
-            'failed_at',
-        ]);
-        $progress = array_intersect_key([
-            ...(is_array($current) ? $current : []),
-            ...$data,
-        ], $allowed);
+            $progress = array_intersect_key([
+                ...$current,
+                ...$data,
+            ], array_flip(self::PROGRESS_FIELDS));
 
-        if (array_key_exists('last_document', $progress)) {
-            $progress['last_document'] = SensitiveDataSanitizer::basename($progress['last_document']);
-        }
-
-        if (array_key_exists('last_step', $progress)) {
-            $progress['last_step'] = SensitiveDataSanitizer::text($progress['last_step'], 240);
-        }
-
-        Cache::put(
-            $this->progressKey(),
-            SensitiveDataSanitizer::context($progress, 240, 3, 40),
-            now()->addDay(),
-        );
+            return $this->sanitizeProgress($progress);
+        });
     }
 
-    private function canWriteProgress(): bool
+    private function canWriteProgress(array $current): bool
     {
-        $current = Cache::get($this->progressKey(), []);
         $currentRunId = $current['run_id'] ?? null;
 
         if ($currentRunId && ! $this->runId) {
@@ -373,9 +480,269 @@ class ProcessSicoesJob implements ShouldQueue
         return true;
     }
 
+    private function hasTerminalProgress(array $progress): bool
+    {
+        return in_array(
+            strtolower((string) ($progress['status'] ?? '')),
+            SicoesScrapeBatch::TERMINAL_STATUSES,
+            true,
+        );
+    }
+
     private function progressKey(): string
     {
-        return 'sicoes:progress:'.str_replace(['/', '\\', ' '], '-', $this->date);
+        return $this->progressKeyForDate($this->date);
+    }
+
+    private function progressKeyForDate(string $date): string
+    {
+        return SicoesProgressCache::key($date);
+    }
+
+    /**
+     * @return array{
+     *     batch: SicoesScrapeBatch|null,
+     *     claimed: bool,
+     *     recovered: bool,
+     *     release: bool,
+     *     recovered_others: array<int, array{run_id: string, date: string}>
+     * }
+     */
+    private function claimBatch(): array
+    {
+        if (! $this->runId) {
+            return [
+                'batch' => null,
+                'claimed' => true,
+                'recovered' => false,
+                'release' => false,
+                'recovered_others' => [],
+            ];
+        }
+
+        return DB::transaction(function (): array {
+            $company = BotCompany::query()
+                ->whereKey($this->botCompanyId)
+                ->lockForUpdate()
+                ->first(['id']);
+
+            if (! $company) {
+                return [
+                    'batch' => null,
+                    'claimed' => false,
+                    'recovered' => false,
+                    'release' => false,
+                    'recovered_others' => [],
+                ];
+            }
+
+            $batch = SicoesScrapeBatch::query()
+                ->whereKey($this->runId)
+                ->where('bot_company_id', $this->botCompanyId)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $batch) {
+                return [
+                    'batch' => null,
+                    'claimed' => false,
+                    'recovered' => false,
+                    'release' => false,
+                    'recovered_others' => [],
+                ];
+            }
+
+            if ($batch->status === SicoesScrapeBatch::STATUS_RUNNING) {
+                if (! $this->batchLeaseExpired($batch)) {
+                    return [
+                        'batch' => $batch,
+                        'claimed' => false,
+                        'recovered' => false,
+                        'release' => true,
+                        'recovered_others' => [],
+                    ];
+                }
+
+                $this->failAbandonedBatch($batch);
+
+                return [
+                    'batch' => $batch->fresh(),
+                    'claimed' => false,
+                    'recovered' => true,
+                    'release' => false,
+                    'recovered_others' => [],
+                ];
+            }
+
+            if ($batch->status !== SicoesScrapeBatch::STATUS_QUEUED) {
+                return [
+                    'batch' => $batch,
+                    'claimed' => false,
+                    'recovered' => false,
+                    'release' => false,
+                    'recovered_others' => [],
+                ];
+            }
+
+            $runningBatches = SicoesScrapeBatch::query()
+                ->where('bot_company_id', $this->botCompanyId)
+                ->whereKeyNot($batch->getKey())
+                ->where('status', SicoesScrapeBatch::STATUS_RUNNING)
+                ->lockForUpdate()
+                ->get();
+            $recoveredOthers = [];
+
+            foreach ($runningBatches as $runningBatch) {
+                if (! $this->batchLeaseExpired($runningBatch)) {
+                    return [
+                        'batch' => $batch,
+                        'claimed' => false,
+                        'recovered' => false,
+                        'release' => true,
+                        'recovered_others' => $recoveredOthers,
+                    ];
+                }
+
+                $this->failAbandonedBatch($runningBatch);
+                $recoveredOthers[] = [
+                    'run_id' => (string) $runningBatch->getKey(),
+                    'date' => $runningBatch->requested_date->format('Y-m-d'),
+                ];
+            }
+
+            $batch->update([
+                'status' => SicoesScrapeBatch::STATUS_RUNNING,
+                'started_at' => now(),
+                'finished_at' => null,
+            ]);
+
+            return [
+                'batch' => $batch->fresh(),
+                'claimed' => true,
+                'recovered' => false,
+                'release' => false,
+                'recovered_others' => $recoveredOthers,
+            ];
+        }, 3);
+    }
+
+    /**
+     * @param  array{run_id: string, date: string}  $recoveredBatch
+     */
+    private function syncRecoveredBatchProgress(array $recoveredBatch): void
+    {
+        $runId = $recoveredBatch['run_id'];
+        $date = $recoveredBatch['date'];
+
+        try {
+            SicoesProgressCache::update($date, function (array $current) use ($runId, $date): ?array {
+                if (
+                    ! isset($current['run_id'])
+                    || ! hash_equals((string) $current['run_id'], $runId)
+                ) {
+                    return null;
+                }
+
+                $progress = array_intersect_key([
+                    ...$current,
+                    'run_id' => $runId,
+                    'status' => SicoesScrapeBatch::STATUS_FAILED,
+                    'date' => $date,
+                    'failed' => max(1, (int) ($current['failed'] ?? 0) + 1),
+                    'last_step' => 'Se recupero como fallido un lote running sin bloqueo activo.',
+                    'failed_at' => now()->toDateTimeString(),
+                ], array_flip(self::PROGRESS_FIELDS));
+
+                return $this->sanitizeProgress($progress);
+            });
+        } catch (\Throwable $exception) {
+            $this->safeLog('warning', 'SICOES recupero un lote abandonado, pero no pudo sincronizar su cache.', [
+                'date' => $date,
+                'run_id' => $runId,
+                'bot_company_id' => $this->botCompanyId,
+                'exception_type' => $this->exceptionType($exception),
+            ]);
+        }
+    }
+
+    private function sanitizeProgress(array $progress): array
+    {
+        if (array_key_exists('last_document', $progress)) {
+            $progress['last_document'] = SensitiveDataSanitizer::basename($progress['last_document']);
+        }
+
+        if (array_key_exists('last_step', $progress)) {
+            $progress['last_step'] = SensitiveDataSanitizer::text($progress['last_step'], 240);
+        }
+
+        return SensitiveDataSanitizer::context($progress, 240, 3, 40);
+    }
+
+    private function batchLeaseExpired(SicoesScrapeBatch $batch): bool
+    {
+        $leaseStartedAt = $batch->started_at ?? $batch->updated_at ?? $batch->created_at;
+
+        return (bool) $leaseStartedAt
+            && $leaseStartedAt->copy()->addSeconds($this->timeout + 300)->isPast();
+    }
+
+    private function failAbandonedBatch(SicoesScrapeBatch $batch): void
+    {
+        $summary = is_array($batch->summary) ? $batch->summary : [];
+        $summary['batch_status'] = SicoesScrapeBatch::STATUS_FAILED;
+        $summary['failure'] = [
+            'type' => 'AbandonedRunningBatch',
+            'failed_at' => now()->toIso8601String(),
+        ];
+        $batch->update([
+            'status' => SicoesScrapeBatch::STATUS_FAILED,
+            'errors_count' => max(1, (int) $batch->errors_count + 1),
+            'summary' => $summary,
+            'finished_at' => now(),
+        ]);
+    }
+
+    private function finishBatch(
+        string $batchStatus,
+        array $run,
+        array $result,
+        int $errorCount,
+    ): ?string {
+        if (! $this->runId) {
+            return $batchStatus;
+        }
+
+        return DB::transaction(function () use ($batchStatus, $run, $result, $errorCount): ?string {
+            $batch = SicoesScrapeBatch::query()
+                ->whereKey($this->runId)
+                ->where('bot_company_id', $this->botCompanyId)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $batch) {
+                return null;
+            }
+
+            if ($batch->status !== SicoesScrapeBatch::STATUS_RUNNING) {
+                return (string) $batch->status;
+            }
+
+            $batch->update([
+                'status' => $batchStatus,
+                'documents_found' => $this->documentsFound($run, $result),
+                'documents_downloaded' => (int) ($result['total_items_feed'] ?? 0),
+                'documents_processed' => (int) ($result['document_processed'] ?? 0),
+                'previews_count' => (int) ($result['shown_in_batch'] ?? 0),
+                'discarded_count' => (int) ($result['document_discarded'] ?? 0),
+                'errors_count' => $errorCount,
+                'ai_calls' => (int) ($result['ai_calls'] ?? 0),
+                'ai_cache_hits' => (int) ($result['ai_cache_hits'] ?? 0),
+                'summary' => $this->batchSummary($result),
+                'finished_at' => now(),
+            ]);
+
+            return $batchStatus;
+        }, 3);
     }
 
     private function batch(): ?SicoesScrapeBatch
@@ -441,13 +808,13 @@ class ProcessSicoesJob implements ShouldQueue
         ];
     }
 
-    private function markBatchFailed(string $exceptionType, int $errorCount): void
+    private function markBatchFailed(string $exceptionType, int $errorCount): bool
     {
         if (! $this->runId) {
-            return;
+            return true;
         }
 
-        DB::transaction(function () use ($exceptionType, $errorCount): void {
+        return DB::transaction(function () use ($exceptionType, $errorCount): bool {
             $batch = SicoesScrapeBatch::query()
                 ->whereKey($this->runId)
                 ->where('bot_company_id', $this->botCompanyId)
@@ -459,7 +826,7 @@ class ProcessSicoesJob implements ShouldQueue
                 ->first();
 
             if (! $batch) {
-                return;
+                return false;
             }
 
             $summary = is_array($batch->summary) ? $batch->summary : [];
@@ -471,11 +838,13 @@ class ProcessSicoesJob implements ShouldQueue
 
             $batch->update([
                 'status' => SicoesScrapeBatch::STATUS_FAILED,
-                'errors_count' => max(1, (int) $batch->errors_count, $errorCount),
+                'errors_count' => max(1, (int) $batch->errors_count + 1, $errorCount),
                 'summary' => $summary,
                 'finished_at' => now(),
             ]);
-        });
+
+            return true;
+        }, 3);
     }
 
     private function exceptionType(\Throwable $exception): string
@@ -483,6 +852,19 @@ class ProcessSicoesJob implements ShouldQueue
         $type = preg_replace('/[^A-Za-z0-9_]/', '', class_basename($exception));
 
         return $type !== '' ? Str::limit($type, 160, '') : 'Throwable';
+    }
+
+    private function safeLog(string $level, string $message, array $context = []): void
+    {
+        try {
+            Log::log(
+                $level,
+                $message,
+                SensitiveDataSanitizer::context($context, 240, 3, 40),
+            );
+        } catch (\Throwable) {
+            // El diagnóstico nunca debe revertir un estado de lote ya persistido.
+        }
     }
 
     private function documentsFound(array $run, array $result): int
