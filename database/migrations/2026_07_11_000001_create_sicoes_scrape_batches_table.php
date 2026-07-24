@@ -40,6 +40,10 @@ return new class extends Migration
 
             $table->index(['bot_company_id', 'created_at'], 'sicoes_batches_company_created_idx');
             $table->index(
+                ['bot_company_id', 'status', 'started_at'],
+                'sicoes_batches_company_status_started_idx',
+            );
+            $table->index(
                 ['bot_company_id', 'requested_date', 'status', 'created_at'],
                 'sicoes_batches_company_date_status_created_idx',
             );
