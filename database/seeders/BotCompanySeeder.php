@@ -14,7 +14,7 @@ class BotCompanySeeder extends Seeder
 {
     public function run(): void
     {
-        $evaluarSource = BotSource::updateOrCreate(
+        $evaluarSource = BotSource::firstOrCreate(
             ['slug' => 'evaluar'],
             [
                 'name' => 'EVALUAR',
@@ -57,16 +57,22 @@ class BotCompanySeeder extends Seeder
         ];
 
         foreach ($companies as [$name, $url]) {
-            $botCompany = BotCompany::firstOrNew(['slug' => Str::slug($name)]);
-            $logo = $botCompany->logo ?: $this->findLogoFor($name) ?: 'empresas/tbn-new-default.webp';
+            $slug = Str::slug($name);
 
-            $botCompany->fill([
-                'bot_source_id' => $evaluarSource->id,
-                'name' => $name,
-                'evaluar_url' => $url,
-                'logo' => StoragePath::normalizePublicPath($logo),
-                'active' => true,
-            ])->save();
+            if (BotCompany::where('slug', $slug)->exists()) {
+                continue;
+            }
+
+            BotCompany::firstOrCreate(
+                ['slug' => $slug],
+                [
+                    'bot_source_id' => $evaluarSource->id,
+                    'name' => $name,
+                    'evaluar_url' => $url,
+                    'logo' => StoragePath::normalizePublicPath($this->findLogoFor($name)),
+                    'active' => (bool) $evaluarSource->active,
+                ],
+            );
         }
     }
 
@@ -88,13 +94,7 @@ class BotCompanySeeder extends Seeder
 
                 $companyName = $this->normalize($company->company_name);
 
-                foreach ($aliases as $alias) {
-                    if ($companyName === $alias || Str::contains($companyName, $alias) || Str::contains($alias, $companyName)) {
-                        return true;
-                    }
-                }
-
-                return false;
+                return in_array($companyName, $aliases, true);
             })?->company_image;
     }
 
@@ -105,10 +105,8 @@ class BotCompanySeeder extends Seeder
         foreach (Storage::disk('public')->files('empresas') as $file) {
             $filename = $this->normalize(pathinfo($file, PATHINFO_FILENAME));
 
-            foreach ($aliases as $alias) {
-                if ($filename === $alias || Str::contains($filename, $alias) || Str::contains($alias, $filename)) {
-                    return $file;
-                }
+            if (in_array($filename, $aliases, true)) {
+                return $file;
             }
         }
 

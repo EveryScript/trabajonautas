@@ -41,23 +41,30 @@ class BotSourceSeeder extends Seeder
         ];
 
         foreach ($sources as $source) {
-            BotSource::updateOrCreate(
+            BotSource::firstOrCreate(
                 ['slug' => $source['slug']],
-                $source,
+                [
+                    'name' => $source['name'],
+                    'description' => $source['description'],
+                    'icon' => $source['icon'],
+                    'scraper_type' => $source['scraper_type'],
+                    'active' => $source['active'],
+                    'sort_order' => $source['sort_order'],
+                ],
             );
         }
 
         $sicoesSource = BotSource::where('slug', 'sicoes')->first();
 
         if ($sicoesSource) {
-            BotCompany::updateOrCreate(
+            BotCompany::firstOrCreate(
                 ['slug' => 'sicoes'],
                 [
                     'bot_source_id' => $sicoesSource->id,
                     'name' => 'SICOES',
                     'evaluar_url' => 'https://www.sicoes.gob.bo',
-                    'logo' => 'empresas/tbn-new-default.webp',
-                    'active' => true,
+                    'logo' => null,
+                    'active' => (bool) $sicoesSource->active,
                 ],
             );
         }
