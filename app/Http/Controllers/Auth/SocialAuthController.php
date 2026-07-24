@@ -32,7 +32,7 @@ class SocialAuthController extends Controller
                     'email_verified_at' => now(),
                     'terms_accepted_at' => now()
                 ]);
-                $user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
+                $user->assignRole(config('trabajonautas.roles.client', 'CLIENT')); // Every user is CLIENT
             }
 
             Auth::login($user, true);

@@ -37,8 +37,8 @@ class ConfigUser extends Component
 
     public function render()
     {
-        define('USER', env('USER_ROLE'));
-        define('ADMIN', env('ADMIN_ROLE'));
+        define('USER', config('trabajonautas.roles.user', 'USER'));
+        define('ADMIN', config('trabajonautas.roles.admin', 'ADMIN'));
         return view('livewire.user.config-user');
     }
 }

@@ -56,7 +56,7 @@
 
             <div class="px-4 text-xs text-tbn-secondary dark:text-tbn-light" hidden>
                 ¿Necesitas ayuda o tienes preguntas? Comunícate con nosotros
-                <a href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com%2C%20necesito%20ayuda%20con%20mis%20monedas%20para%20desbloquear%20una%20misión%20PRO"
+                <a href="https://wa.me/{{ config('trabajonautas.support_phone') }}?text=Hola%20Trabajonautas.com%2C%20necesito%20ayuda%20con%20mis%20monedas%20para%20desbloquear%20una%20misión%20PRO"
                     class="underline text-tbn-primary" target="_blank">
                     ahora mismo</a>
             </div>

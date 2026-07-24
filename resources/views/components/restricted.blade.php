@@ -36,7 +36,7 @@
             </div>
             <div class="text-xs text-tbn-secondary dark:text-tbn-light" hidden>
                 ¿Necesitas ayuda?. Comunícate con nosotros.
-                <a href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com%2C%20parece%20que%20no%20puedo%20acceder%20a%20una%20convocatoria%20PRO%2C%20podrían%20ayudarme%3F"
+                <a href="https://wa.me/{{ config('trabajonautas.support_phone') }}?text=Hola%20Trabajonautas.com%2C%20parece%20que%20no%20puedo%20acceder%20a%20una%20convocatoria%20PRO%2C%20podrían%20ayudarme%3F"
                     class="underline text-tbn-primary" target="_blank">
                     ahora mismo</a>
             </div>
