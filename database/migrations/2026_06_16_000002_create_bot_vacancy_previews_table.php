@@ -8,9 +8,26 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('bot_vacancy_previews')) {
+            throw new \RuntimeException(
+                'No se puede crear bot_vacancy_previews: la tabla ya existe y debe revisarse manualmente.'
+            );
+        }
+
+        $missingTables = array_values(array_filter(
+            ['bot_companies', 'announcements'],
+            fn (string $table): bool => ! Schema::hasTable($table),
+        ));
+
+        if ($missingTables !== []) {
+            throw new \RuntimeException(
+                'No se puede crear bot_vacancy_previews; faltan tablas: '.implode(', ', $missingTables).'.'
+            );
+        }
+
         Schema::create('bot_vacancy_previews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bot_company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('bot_company_id')->constrained()->restrictOnDelete();
             $table->string('title');
             $table->string('source_url')->unique();
             $table->longText('original_description')->nullable();
@@ -30,6 +47,12 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('bot_vacancy_previews');
+        if (! Schema::hasTable('bot_vacancy_previews')) {
+            throw new \RuntimeException(
+                'No se puede revertir bot_vacancy_previews: la tabla esperada no existe.'
+            );
+        }
+
+        Schema::drop('bot_vacancy_previews');
     }
 };

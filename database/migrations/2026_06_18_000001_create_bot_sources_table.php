@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('bot_sources')) {
-            return;
+            throw new \RuntimeException(
+                'No se puede crear bot_sources: la tabla ya existe y debe revisarse manualmente.'
+            );
         }
 
         Schema::create('bot_sources', function (Blueprint $table) {
@@ -27,6 +29,12 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('bot_sources');
+        if (! Schema::hasTable('bot_sources')) {
+            throw new \RuntimeException(
+                'No se puede revertir bot_sources: la tabla esperada no existe.'
+            );
+        }
+
+        Schema::drop('bot_sources');
     }
 };

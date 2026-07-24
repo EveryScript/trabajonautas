@@ -8,9 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('sicoes_scrape_batches')) {
+            throw new \RuntimeException(
+                'No se puede crear sicoes_scrape_batches: la tabla ya existe y debe revisarse manualmente.'
+            );
+        }
+
+        if (! Schema::hasTable('bot_companies')) {
+            throw new \RuntimeException(
+                'No se puede crear sicoes_scrape_batches: falta la tabla bot_companies.'
+            );
+        }
+
         Schema::create('sicoes_scrape_batches', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('bot_company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('bot_company_id')->constrained()->restrictOnDelete();
             $table->date('requested_date');
             $table->string('status', 32)->default('queued');
             $table->unsignedInteger('documents_found')->default(0);
@@ -27,12 +39,21 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['bot_company_id', 'created_at'], 'sicoes_batches_company_created_idx');
-            $table->index(['bot_company_id', 'requested_date'], 'sicoes_batches_company_date_idx');
+            $table->index(
+                ['bot_company_id', 'requested_date', 'status', 'created_at'],
+                'sicoes_batches_company_date_status_created_idx',
+            );
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('sicoes_scrape_batches');
+        if (! Schema::hasTable('sicoes_scrape_batches')) {
+            throw new \RuntimeException(
+                'No se puede revertir sicoes_scrape_batches: la tabla esperada no existe.'
+            );
+        }
+
+        Schema::drop('sicoes_scrape_batches');
     }
 };
