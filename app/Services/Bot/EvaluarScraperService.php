@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\BotCompany;
 use App\Models\BotVacancyPreview;
 use App\Services\ProfessionAssignmentService;
+use App\Support\SensitiveDataSanitizer;
 use App\Support\TlsVerification;
 use Carbon\Carbon;
 use Illuminate\Http\Client\Response as HttpResponse;
@@ -68,14 +69,19 @@ class EvaluarScraperService
             $feedUrls = $this->getFeeds($company->evaluar_url);
         } catch (\Throwable $exception) {
             $summary['status'] = 'ERROR';
-            $summary['errors'][] = Str::limit($exception->getMessage(), 300, '');
+            $safeException = SensitiveDataSanitizer::exception($exception, 300);
+            $this->appendSummaryError($summary, $safeException['message']);
+            Log::warning('BOT Evaluar no pudo descubrir feeds.', [
+                'company_id' => $company->id,
+                ...$safeException,
+            ]);
 
             return $summary;
         }
 
         foreach ($feedUrls as $feedUrl) {
             $feedReport = [
-                'url' => $feedUrl,
+                'url' => SensitiveDataSanitizer::url($feedUrl, 1000),
                 'status_code' => null,
                 'parsed_xml' => false,
                 'items_count' => 0,
@@ -160,18 +166,31 @@ class EvaluarScraperService
                             }
                         }
                     } catch (\Throwable $exception) {
-                        report($exception);
-                        $summary['errors'][] = $exception->getMessage();
+                        $safeException = SensitiveDataSanitizer::exception($exception, 300);
+                        $this->appendSummaryError($summary, $safeException['message']);
+                        Log::warning('BOT Evaluar no pudo procesar un item.', [
+                            'company_id' => $company->id,
+                            'feed_url' => SensitiveDataSanitizer::url($feedUrl, 1000),
+                            ...$safeException,
+                        ]);
                     }
                 }
 
                 break;
             } catch (\Throwable $exception) {
-                report($exception);
-                $feedReport['error'] = $exception->getMessage();
+                $safeException = SensitiveDataSanitizer::exception($exception, 300);
+                $feedReport['error'] = $safeException['message'];
                 $summary['feeds_tested'][] = $feedReport;
-                $summary['errors'][] = $feedUrl . ': ' . $exception->getMessage();
+                $this->appendSummaryError(
+                    $summary,
+                    (SensitiveDataSanitizer::url($feedUrl, 1000) ?: 'feed').': '.$safeException['message'],
+                );
                 $summary['status'] = 'ERROR';
+                Log::warning('BOT Evaluar no pudo leer un feed.', [
+                    'company_id' => $company->id,
+                    'feed_url' => SensitiveDataSanitizer::url($feedUrl, 1000),
+                    ...$safeException,
+                ]);
             }
         }
 
@@ -541,6 +560,7 @@ class EvaluarScraperService
             'gemini_candidates_tokens' => $gemini['candidates_tokens'] ?? null,
             'gemini_total_tokens' => $gemini['total_tokens'] ?? null,
             'gemini_thoughts_tokens' => $gemini['thoughts_tokens'] ?? null,
+            'gemini_response_metadata' => $gemini['gemini_response_metadata'] ?? null,
             'gemini_skipped_due_to_quota' => (bool) ($gemini['gemini_skipped_due_to_quota'] ?? false),
             'description_truncated_for_gemini' => (bool) ($gemini['description_truncated_for_gemini'] ?? false),
             'description_original_length' => $gemini['description_original_length'] ?? null,
@@ -562,10 +582,6 @@ class EvaluarScraperService
                 : [],
             'municipality' => $normalizedFields['municipality'],
         ];
-
-        if (config('app.debug') && !empty($gemini['raw_response'])) {
-            $rawData['gemini_raw_response'] = $gemini['raw_response'];
-        }
 
         $status = $this->savePreview($company, $sourceUrl, [
             'bot_company_id' => $company->id,
@@ -780,12 +796,12 @@ class EvaluarScraperService
 
     private function logGeminiDecision(BotCompany $company, string $title, string $status, array $context = []): void
     {
-        Log::info('BOT Gemini analysis decision', [
+        Log::info('BOT Gemini analysis decision', SensitiveDataSanitizer::context([
             'company' => $company->name,
             'title' => Str::limit($title, 120, ''),
             'status' => $status,
             ...$context,
-        ]);
+        ], 300, 4, 40));
     }
 
     private function existingPublishedAnnouncementExists(string $sourceUrl, ?string $sourceHash = null, mixed $convocatoriaId = null): bool
@@ -914,7 +930,10 @@ class EvaluarScraperService
 
             return $this->expirationFromDescription($this->cleanDescription($html));
         } catch (\Throwable $exception) {
-            report($exception);
+            Log::warning('BOT Evaluar no pudo obtener la fecha de expiracion.', [
+                'url' => SensitiveDataSanitizer::url($url, 1000),
+                ...SensitiveDataSanitizer::exception($exception, 300),
+            ]);
 
             return null;
         }
@@ -1164,6 +1183,19 @@ class EvaluarScraperService
         $workplace = $workplace . '<p>' . e($municipalityName) . ', ' . e($department) . '<br></p><br>';
 
         return $workplace . $description;
+    }
+
+    private function appendSummaryError(array &$summary, mixed $error): void
+    {
+        if (count($summary['errors'] ?? []) >= 25) {
+            return;
+        }
+
+        $safe = SensitiveDataSanitizer::text($error, 500);
+
+        if ($safe !== null && $safe !== '') {
+            $summary['errors'][] = $safe;
+        }
     }
 
     private function normalize(string $value): string

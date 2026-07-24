@@ -3,6 +3,7 @@
 namespace App\Services\Bot;
 
 use App\Models\Area;
+use App\Support\SensitiveDataSanitizer;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -68,6 +69,7 @@ class SicoesDocumentAiAnalyzer
                         [
                             'provider' => $provider,
                             'http_status' => $response->status(),
+                            'anthropic_response_metadata' => SensitiveDataSanitizer::payloadMetadata($response->body()),
                             'ai_attempts' => $attempt,
                             'anthropic_attempts' => $attempt,
                             ...$usage,
@@ -96,7 +98,7 @@ class SicoesDocumentAiAnalyzer
                         [
                             'provider' => $provider,
                             'http_status' => $response->status(),
-                            'raw_response' => config('app.debug') ? Str::limit($rawText, 2500, '') : null,
+                            'anthropic_response_metadata' => SensitiveDataSanitizer::payloadMetadata($rawText),
                             'ai_attempts' => $attempt,
                             'anthropic_attempts' => $attempt,
                             'anthropic_stop_reason' => $stopReason,
@@ -117,7 +119,7 @@ class SicoesDocumentAiAnalyzer
                         [
                             'provider' => $provider,
                             'http_status' => $response->status(),
-                            'raw_response' => config('app.debug') ? Str::limit($rawText, 2500, '') : null,
+                            'anthropic_response_metadata' => SensitiveDataSanitizer::payloadMetadata($rawText),
                             'ai_attempts' => $attempt,
                             'anthropic_attempts' => $attempt,
                             'anthropic_stop_reason' => $stopReason,
@@ -144,7 +146,7 @@ class SicoesDocumentAiAnalyzer
                     'error' => null,
                     'error_type' => null,
                     'data' => $this->normalizeResponse($decoded),
-                    'raw_response' => config('app.debug') ? Str::limit($rawText, 2500, '') : null,
+                    'anthropic_response_metadata' => SensitiveDataSanitizer::payloadMetadata($rawText),
                     'ai_attempts' => $attempt,
                     'anthropic_attempts' => $attempt,
                     'anthropic_stop_reason' => $stopReason,
@@ -462,13 +464,16 @@ PROMPT;
 
     private function error(string $type, string $message, bool $used, string $model, array $extra = []): array
     {
+        unset($extra['raw_response'], $extra['anthropic_raw_response']);
+        $extra = SensitiveDataSanitizer::context($extra, 500, 4, 50);
+
         return [
             'success' => false,
             'used' => $used,
             'provider' => $extra['provider'] ?? 'anthropic',
             'model' => $model,
             'http_status' => $extra['http_status'] ?? null,
-            'error' => Str::limit($message, 500, ''),
+            'error' => SensitiveDataSanitizer::text($message, 500),
             'error_type' => $type,
             'data' => null,
             ...$extra,
@@ -526,7 +531,8 @@ PROMPT;
         return match ($this->classifyThrowable($exception)) {
             'ssl_error' => 'Error SSL al conectar con Anthropic. Verifica curl.cainfo, openssl.cafile o el certificado del entorno.',
             'api_key_error' => 'Error de configuracion Anthropic. Verifica ANTHROPIC_API_KEY.',
-            default => Str::limit($exception->getMessage(), 500, ''),
+            default => SensitiveDataSanitizer::text($exception->getMessage(), 500)
+                ?: 'Error al conectar con Anthropic.',
         };
     }
 
@@ -535,7 +541,7 @@ PROMPT;
         $decoded = json_decode($body, true);
         $message = data_get($decoded, 'error.message') ?: data_get($decoded, 'message');
 
-        return 'HTTP '.$status.': '.($message ?: Str::limit($body, 300, ''));
+        return 'HTTP '.$status.($message ? ': '.SensitiveDataSanitizer::text($message, 300) : '');
     }
 
     private function shouldRetryHttp(int $status): bool

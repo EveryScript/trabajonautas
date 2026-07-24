@@ -11,6 +11,7 @@ use App\Models\Location;
 use App\Models\SicoesScrapeBatch;
 use App\Models\SicoesScrapeBatchItem;
 use App\Services\ProfessionAssignmentService;
+use App\Support\SensitiveDataSanitizer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -141,7 +142,7 @@ class SicoesDocumentImporterService
 
                 if (! empty($result['document_error'])) {
                     $summary['document_errors']++;
-                    $summary['errors'][] = $result['document_error'];
+                    $this->appendSummaryError($summary, $result['document_error']);
                 }
 
                 if (! empty($result['preview_id'])) {
@@ -171,12 +172,18 @@ class SicoesDocumentImporterService
             } catch (\InvalidArgumentException) {
                 $summary['skipped_without_cuce']++;
             } catch (\Throwable $exception) {
-                report($exception);
+                Log::warning('SICOES no pudo procesar un documento.', [
+                    'cuce' => SensitiveDataSanitizer::text($document['cuce'] ?? null, 100),
+                    'document' => SensitiveDataSanitizer::basename($document['filename'] ?? null),
+                    ...SensitiveDataSanitizer::exception($exception, 300),
+                ]);
                 $summary['document_errors']++;
-                $summary['errors'][] = Str::limit($exception->getMessage(), 500, '');
+                $safeError = SensitiveDataSanitizer::exception($exception, 500)['message']
+                    ?: 'Error no identificado al procesar el documento.';
+                $this->appendSummaryError($summary, $safeError);
                 $this->recordBatchItem($batchId, $document, [
                     'status' => 'error',
-                    'document_error' => $exception->getMessage(),
+                    'document_error' => $safeError,
                 ]);
                 $recordedItem = $this->batchItem($batchId, $document);
 
@@ -204,7 +211,7 @@ class SicoesDocumentImporterService
                     'ai_errors' => $summary['ai_errors'],
                     'cuce' => $document['cuce'] ?? null,
                     'document' => $document['filename'] ?? null,
-                    'message' => '[STEP 8] Documento con error: '.Str::limit($exception->getMessage(), 160, ''),
+                    'message' => '[STEP 8] Documento con error: '.SensitiveDataSanitizer::text($safeError, 160),
                 ]);
             }
         }
@@ -428,8 +435,8 @@ class SicoesDocumentImporterService
                 'document_id' => $document['document_id'],
                 'document_hash' => $document['document_hash'],
                 'document_filename' => $document['filename'],
-                'document_path' => $document['path'],
-                'document_text_path' => $textResult['text_path'] ?? null,
+                'document_path' => $this->storageRelativePath($document['path']),
+                'document_text_path' => $this->storageRelativePath($textResult['text_path'] ?? null),
                 'document_text_method' => $textResult['method'] ?? null,
                 'row_source_url' => $document['source_url'] ?? null,
                 'source_hash' => $sourceHash,
@@ -489,8 +496,8 @@ class SicoesDocumentImporterService
                 'anthropic_input_tokens' => $analysis['anthropic_input_tokens'] ?? null,
                 'anthropic_output_tokens' => $analysis['anthropic_output_tokens'] ?? null,
                 'anthropic_total_tokens' => $analysis['anthropic_total_tokens'] ?? null,
-                'anthropic_raw_response' => $analysis['raw_response'] ?? null,
-                'item' => $document['row'] ?? [],
+                'anthropic_response_metadata' => $analysis['anthropic_response_metadata'] ?? null,
+                'item' => $this->safeSourceItem($document['row'] ?? []),
             ],
             'status' => 'preview',
             'scrape_batch_id' => $batchId,
@@ -564,8 +571,8 @@ class SicoesDocumentImporterService
             'document_id' => $document['document_id'] ?? null,
             'document_hash' => $document['document_hash'] ?? null,
             'document_filename' => $document['filename'] ?? null,
-            'document_path' => $document['path'] ?? null,
-            'document_text_path' => $textMeta['text_path'] ?? null,
+            'document_path' => $this->storageRelativePath($document['path'] ?? null),
+            'document_text_path' => $this->storageRelativePath($textMeta['text_path'] ?? null),
             'document_text_method' => $textMeta['method'] ?? null,
             'row_source_url' => $document['source_url'] ?? null,
             'source_hash' => $sourceHash,
@@ -613,22 +620,22 @@ class SicoesDocumentImporterService
             'anthropic_input_tokens' => $analysis['anthropic_input_tokens'] ?? null,
             'anthropic_output_tokens' => $analysis['anthropic_output_tokens'] ?? null,
             'anthropic_total_tokens' => $analysis['anthropic_total_tokens'] ?? null,
-            'anthropic_raw_response' => $analysis['raw_response'] ?? null,
-            'item' => $document['row'] ?? [],
+            'anthropic_response_metadata' => $analysis['anthropic_response_metadata'] ?? null,
+            'item' => $this->safeSourceItem($document['row'] ?? []),
         ];
 
         $this->markDiscardedPreviewRemoved($sourceUrl, $batchId, $rawData);
 
-        Log::info('SICOES documento descartado por clasificacion.', [
+        Log::info('SICOES documento descartado por clasificacion.', SensitiveDataSanitizer::context([
             'cuce' => $document['cuce'] ?? null,
-            'document' => $document['filename'] ?? null,
+            'document' => SensitiveDataSanitizer::basename($document['filename'] ?? null),
             'classifier' => ! empty($analysis['used']) ? 'anthropic' : 'local_rules',
             'cache_hit' => (bool) ($analysis['cache_hit'] ?? false),
             'preclassified' => (bool) ($analysis['preclassified'] ?? false),
             'type' => $type,
             'category' => $category,
             'reason' => $reason,
-        ]);
+        ], 300, 3, 20));
 
         return [
             'status' => 'discarded',
@@ -680,7 +687,9 @@ class SicoesDocumentImporterService
             'bot_company_id' => $botCompany->id,
             'title' => $this->previewTitle($document, []),
             'source_url' => $sourceUrl,
-            'original_description' => $textMeta['text'] ?? null,
+            'original_description' => isset($textMeta['text'])
+                ? Str::limit((string) $textMeta['text'], 65000, '')
+                : null,
             'description' => $this->errorDescription($cuce, $errorType, $error),
             'area' => 'No especificado',
             'professions' => 'No especificado',
@@ -694,8 +703,8 @@ class SicoesDocumentImporterService
                 'document_id' => $document['document_id'] ?? null,
                 'document_hash' => $document['document_hash'] ?? null,
                 'document_filename' => $document['filename'] ?? null,
-                'document_path' => $document['path'] ?? null,
-                'document_text_path' => $textMeta['text_path'] ?? null,
+                'document_path' => $this->storageRelativePath($document['path'] ?? null),
+                'document_text_path' => $this->storageRelativePath($textMeta['text_path'] ?? null),
                 'document_text_method' => $textMeta['method'] ?? null,
                 'row_source_url' => $document['source_url'] ?? null,
                 'source_hash' => $sourceHash,
@@ -710,7 +719,7 @@ class SicoesDocumentImporterService
                 'manual_review_required' => true,
                 'manual_review_reasons' => [$errorType],
                 'document_error_type' => $errorType,
-                'document_error' => $error,
+                'document_error' => SensitiveDataSanitizer::text($error, 500),
                 'raw_ai_areas' => data_get($aiMeta, 'data.area_ids', []),
                 'raw_ai_professions' => [],
                 'resolved_area_ids' => data_get($aiMeta, 'area_assignment.area_ids', []),
@@ -745,8 +754,8 @@ class SicoesDocumentImporterService
                 'anthropic_input_tokens' => $aiMeta['anthropic_input_tokens'] ?? null,
                 'anthropic_output_tokens' => $aiMeta['anthropic_output_tokens'] ?? null,
                 'anthropic_total_tokens' => $aiMeta['anthropic_total_tokens'] ?? null,
-                'anthropic_raw_response' => $aiMeta['raw_response'] ?? null,
-                'item' => $document['row'] ?? [],
+                'anthropic_response_metadata' => $aiMeta['anthropic_response_metadata'] ?? null,
+                'item' => $this->safeSourceItem($document['row'] ?? []),
             ],
             'status' => 'error',
             'scrape_batch_id' => $batchId,
@@ -779,7 +788,10 @@ class SicoesDocumentImporterService
         return [
             'status' => $status,
             'preview_id' => $previewId ? (int) $previewId : null,
-            'document_error' => "{$cuce} {$document['filename']}: {$error}",
+            'document_error' => SensitiveDataSanitizer::text(
+                "{$cuce} ".SensitiveDataSanitizer::basename($document['filename'] ?? null).": {$error}",
+                500,
+            ),
             'ai_used' => (bool) ($aiMeta['used'] ?? false),
             'ai_cache_hit' => (bool) ($aiMeta['cache_hit'] ?? false),
             'ai_error' => $analysisSuccess ? null : ($aiMeta['error'] ?? $error),
@@ -902,6 +914,7 @@ class SicoesDocumentImporterService
             'prompt_version' => self::PROMPT_VERSION,
             'cached_from_batch_id' => $analysis['cached_from_batch_id'] ?? null,
             'cached_from_item_id' => $analysis['cached_from_item_id'] ?? null,
+            'response_metadata' => $analysis['anthropic_response_metadata'] ?? null,
         ];
     }
 
@@ -942,8 +955,14 @@ class SicoesDocumentImporterService
             'status' => $status,
             'eligible' => $analysis === null ? $existingItem?->eligible : (bool) ($analysis['eligible'] ?? ! ($analysis['debe_descartarse'] ?? true)),
             'contract_type' => $analysis['contract_type'] ?? data_get($analysis, 'preclassification.contract_type') ?? $existingItem?->contract_type,
-            'discard_reason' => $discardDetail['reason'] ?? ($analysis['motivo_descarte'] ?? ($result['document_error'] ?? null)),
-            'classification_evidence' => $discardDetail['evidence'] ?? ($analysis['evidencia_clasificacion'] ?? null),
+            'discard_reason' => SensitiveDataSanitizer::text(
+                $discardDetail['reason'] ?? ($analysis['motivo_descarte'] ?? ($result['document_error'] ?? null)),
+                500,
+            ),
+            'classification_evidence' => SensitiveDataSanitizer::text(
+                $discardDetail['evidence'] ?? ($analysis['evidencia_clasificacion'] ?? null),
+                500,
+            ),
             'removed_at' => null,
         ];
 
@@ -1101,7 +1120,8 @@ class SicoesDocumentImporterService
             } catch (\Throwable $exception) {
                 return [
                     'ok' => false,
-                    'error' => 'No se pudo extraer texto DOCX: '.$exception->getMessage(),
+                    'error' => 'No se pudo extraer texto DOCX: '
+                        .(SensitiveDataSanitizer::text($exception->getMessage(), 300) ?: 'error no identificado'),
                     'method' => 'php_zip_docx',
                 ];
             }
@@ -1848,6 +1868,62 @@ class SicoesDocumentImporterService
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    private function appendSummaryError(array &$summary, mixed $error): void
+    {
+        if (count($summary['errors'] ?? []) >= 25) {
+            return;
+        }
+
+        $safe = SensitiveDataSanitizer::text($error, 500);
+
+        if ($safe !== null && $safe !== '') {
+            $summary['errors'][] = $safe;
+        }
+    }
+
+    private function safeSourceItem(array $row): array
+    {
+        $safe = array_intersect_key($row, array_flip([
+            'cuce',
+            'entidad',
+            'empresa',
+            'objetoContratacion',
+            'objeto_contratacion',
+            'titulo_convocatoria',
+            'fechaPublicacion',
+            'fecha_publicacion',
+            'fechaPresentacion',
+            'fecha_presentacion',
+            'modalidad',
+            'estado',
+            'ficha',
+            'pagina',
+            'numero',
+        ]));
+
+        if (isset($safe['ficha'])) {
+            $safe['ficha'] = SensitiveDataSanitizer::url($safe['ficha'], 1000);
+        }
+
+        return SensitiveDataSanitizer::context($safe, 1000, 3, 30);
+    }
+
+    private function storageRelativePath(mixed $path): ?string
+    {
+        if ($path === null || trim((string) $path) === '') {
+            return null;
+        }
+
+        $normalized = str_replace('\\', '/', (string) $path);
+        $storageRoot = rtrim(str_replace('\\', '/', storage_path('app')), '/').'/';
+
+        if (str_starts_with(strtolower($normalized), strtolower($storageRoot))) {
+            return ltrim(substr($normalized, strlen($storageRoot)), '/');
+        }
+
+        return SensitiveDataSanitizer::basename($normalized);
     }
 
     private function text(mixed $value): string

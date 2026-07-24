@@ -4,6 +4,7 @@ namespace App\Services\Bot;
 
 use App\Models\Area;
 use App\Models\BotCompany;
+use App\Support\SensitiveDataSanitizer;
 use App\Support\TlsVerification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -109,6 +110,7 @@ class GeminiVacancyAnalyzer
                     httpStatus: $status,
                     extra: [
                         'gemini_attempts' => $attempts,
+                        'gemini_response_metadata' => SensitiveDataSanitizer::payloadMetadata($response->body()),
                         ...$usageMetadata,
                         ...$preparedDescription['meta'],
                     ],
@@ -139,9 +141,9 @@ class GeminiVacancyAnalyzer
                     used: true,
                     model: $model,
                     httpStatus: $response->status(),
-                    rawResponse: config('app.debug') ? Str::limit($text, 2000, '') : null,
                     extra: [
                         'gemini_attempts' => $attempts,
+                        'gemini_response_metadata' => SensitiveDataSanitizer::payloadMetadata($text),
                         ...$usageMetadata,
                         ...$preparedDescription['meta'],
                     ],
@@ -156,7 +158,7 @@ class GeminiVacancyAnalyzer
                 'error' => null,
                 'error_type' => null,
                 'http_status' => $response->status(),
-                'raw_response' => config('app.debug') ? Str::limit($text, 2000, '') : null,
+                'gemini_response_metadata' => SensitiveDataSanitizer::payloadMetadata($text),
                 'gemini_attempts' => $attempts,
                 'analyzed_at' => now()->toIso8601String(),
                 ...$usageMetadata,
@@ -258,18 +260,19 @@ class GeminiVacancyAnalyzer
         bool $used,
         string $model,
         ?int $httpStatus = null,
-        ?string $rawResponse = null,
         array $extra = [],
     ): array {
+        unset($extra['raw_response'], $extra['gemini_raw_response']);
+        $extra = SensitiveDataSanitizer::context($extra, 300, 4, 50);
+
         return [
             'data' => $this->fallback(),
             'used' => $used,
             'success' => false,
             'model' => $model,
-            'error' => Str::limit($error, 300, ''),
+            'error' => SensitiveDataSanitizer::text($error, 300),
             'error_type' => $errorType,
             'http_status' => $httpStatus,
-            'raw_response' => $rawResponse,
             ...$extra,
         ];
     }
@@ -351,7 +354,8 @@ class GeminiVacancyAnalyzer
             return 'Error SSL. Verifica curl.cainfo y openssl.cafile en php.ini, y ejecuta php artisan optimize:clear.';
         }
 
-        return Str::limit($exception->getMessage(), 300, '');
+        return SensitiveDataSanitizer::text($exception->getMessage(), 300)
+            ?: 'Error al conectar con Gemini.';
     }
 
     private function prompt(string $title, string $company, string $description): string
@@ -583,7 +587,7 @@ PROMPT;
     private function httpError(int $status, string $body): string
     {
         $message = data_get(json_decode($body, true), 'error.message');
-        $message = $message ?: Str::limit(strip_tags($body), 220, '');
+        $message = $message ? SensitiveDataSanitizer::text(strip_tags((string) $message), 220) : null;
 
         return trim("HTTP {$status}" . ($message ? ": {$message}" : ''));
     }

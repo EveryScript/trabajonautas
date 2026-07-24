@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const os = require('os');
+const crypto = require('crypto');
 const { spawnSync, spawn } = require('child_process');
 const mammoth = require('mammoth');
 const JSZip = require('jszip');
@@ -38,6 +39,275 @@ if (!usableEnvPath(process.env.TMPDIR)) process.env.TMPDIR = TEMP_DIR;
 function truthyEnv(value) {
   return ['1', 'true', 'yes', 'si', 'sí', 'on'].includes(String(value || '').trim().toLowerCase());
 }
+
+const LOG_TEXT_MAX_CHARS = 2000;
+const TRACE_REQUEST_LIMIT = 100;
+const TRACE_TARGET_LIMIT = 25;
+const rawConsole = {
+  log: console.log.bind(console),
+  warn: console.warn.bind(console),
+  error: console.error.bind(console),
+};
+const SENSITIVE_OBJECT_KEYS = new Set([
+  'token',
+  'tokenarchivo',
+  'accesstoken',
+  'refreshtoken',
+  'downloadtoken',
+  'auth',
+  'authtoken',
+  'authorization',
+  'proxyauthorization',
+  'apikey',
+  'xapikey',
+  'xgoogapikey',
+  'cookie',
+  'cookies',
+  'setcookie',
+  'session',
+  'sessionid',
+  'secret',
+  'clientsecret',
+  'key',
+  'signature',
+  'sig',
+  'credential',
+  'xamzsignature',
+  'xamzcredential',
+  'xamzsecuritytoken',
+  'xgoogsignature',
+  'xgoogcredential',
+  'password',
+  'postdata',
+  'postdatapreview',
+  'requestbody',
+  'responsebody',
+  'rawresponse',
+  'documenttext',
+  'documentcontent',
+]);
+
+function normalizedDiagnosticKey(key) {
+  return String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function isSensitiveDiagnosticKey(key) {
+  return SENSITIVE_OBJECT_KEYS.has(normalizedDiagnosticKey(key));
+}
+
+function truncateDiagnostic(value, maxChars = LOG_TEXT_MAX_CHARS) {
+  const text = String(value ?? '');
+
+  if (text.length <= maxChars) return text;
+
+  return `${text.slice(0, maxChars)}...[truncado ${text.length - maxChars} caracteres]`;
+}
+
+function redactSensitiveText(value, maxChars = LOG_TEXT_MAX_CHARS) {
+  let text = String(value ?? '');
+
+  text = text
+    .replace(/\b(Bearer|Basic)\s+[A-Za-z0-9+/_=.~-]+/gi, '$1 [REDACTED]')
+    .replace(
+      /([?&#](?:access[_-]?token|refresh[_-]?token|download[_-]?token|auth(?:[_-]?token)?|token(?:archivo)?|authorization|api[_-]?key|apikey|key|signature|sig|credential|x[_-]?(?:amz[_-]?(?:signature|credential|security[_-]?token)|goog[_-]?(?:signature|credential))|cookie|session(?:[_-]?id)?|secret|password)=)[^&#\s"'<>]*/gi,
+      '$1[REDACTED]'
+    )
+    .replace(
+      /(^|[&;\s])((?:access[_-]?token|refresh[_-]?token|download[_-]?token|auth(?:[_-]?token)?|token(?:archivo)?|authorization|api[_-]?key|apikey|key|signature|sig|credential|x[_-]?(?:amz[_-]?(?:signature|credential|security[_-]?token)|goog[_-]?(?:signature|credential))|cookie|session(?:[_-]?id)?|secret|password)=)[^&;\s]*/gim,
+      '$1$2[REDACTED]'
+    )
+    .replace(
+      /(\b(?:access[_-]?token|refresh[_-]?token|download[_-]?token|auth(?:[_-]?token)?|token(?:archivo)?|authorization|api[_-]?key|apikey|key|signature|sig|credential|x[_-]?(?:amz[_-]?(?:signature|credential|security[_-]?token)|goog[_-]?(?:signature|credential))|cookie|session(?:[_-]?id)?|secret|password|post[_-]?data)\b\s*[:=]\s*)(?!\[REDACTED\])[^,\s;}\]]+/gi,
+      '$1[REDACTED]'
+    )
+    .replace(
+      /(["']?(?:access[_-]?token|refresh[_-]?token|download[_-]?token|auth(?:[_-]?token)?|token(?:archivo)?|authorization|api[_-]?key|apikey|key|signature|sig|credential|x[_-]?(?:amz[_-]?(?:signature|credential|security[_-]?token)|goog[_-]?(?:signature|credential))|cookie|session(?:[_-]?id)?|secret|password|post[_-]?data)["']?\s*:\s*["'])[^"']*(["'])/gi,
+      '$1[REDACTED]$2'
+    )
+    .replace(
+      /(\b(?:authorization|proxy-authorization|x-api-key|x-goog-api-key|api-key|cookie|set-cookie)\b\s*:\s*)[^\r\n]+/gi,
+      '$1[REDACTED]'
+    )
+    .replace(
+      /(descargarArchivo\(\s*['"])[^'"]+(['"]\s*\))/gi,
+      '$1[REDACTED]$2'
+    )
+    .replace(
+      /(<input\b(?=[^>]*(?:name|id)=["'][^"']*(?:token|session|password|secret)[^"']*["'])[^>]*\bvalue=["'])[^"']*(["'][^>]*>)/gi,
+      '$1[REDACTED]$2'
+    )
+    .replace(/https?:\/\/[^/\s:@]+:[^@\s/]+@/gi, 'https://[REDACTED]@')
+    .replace(/\bC:\\Users\\[^\\\s]+(?:\\[^\r\n\t]*)?/gi, '[LOCAL_PATH]')
+    .replace(/\bD:\\[^\r\n\t]*/gi, '[LOCAL_PATH]');
+
+  return truncateDiagnostic(text, maxChars);
+}
+
+function redactUrl(value) {
+  const raw = String(value || '');
+
+  try {
+    const parsed = new URL(raw);
+
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return '[UNSAFE_URL_SCHEME]';
+    }
+
+    parsed.username = '';
+    parsed.password = '';
+    parsed.hash = '';
+
+    for (const key of [...parsed.searchParams.keys()]) {
+      if (isSensitiveDiagnosticKey(key)) {
+        parsed.searchParams.set(key, '[REDACTED]');
+      }
+    }
+
+    return redactSensitiveText(parsed.toString());
+  } catch (_) {
+    return redactSensitiveText(raw);
+  }
+}
+
+function sanitizeDiagnosticValue(value, depth = 0, seen = new WeakSet()) {
+  if (typeof value === 'string') return redactSensitiveText(value);
+  if (value === null || typeof value !== 'object') return value;
+  if (depth >= 4) return '[TRUNCATED]';
+  if (seen.has(value)) return '[CIRCULAR]';
+
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    const safe = value.slice(0, 50)
+      .map(item => sanitizeDiagnosticValue(item, depth + 1, seen));
+
+    if (value.length > safe.length) {
+      safe.push(`[TRUNCATED ${value.length - safe.length} ITEMS]`);
+    }
+
+    return safe;
+  }
+
+  const clean = {};
+
+  for (const [key, item] of Object.entries(value).slice(0, 50)) {
+    clean[key] = isSensitiveDiagnosticKey(key)
+      ? '[REDACTED]'
+      : sanitizeDiagnosticValue(item, depth + 1, seen);
+  }
+
+  return clean;
+}
+
+function sanitizeHeadersForDiagnostics(headers) {
+  const clean = {};
+  const allowed = new Set([
+    'accept',
+    'content-type',
+    'content-length',
+    'content-disposition',
+    'user-agent',
+  ]);
+
+  for (const [key, value] of Object.entries(headers || {})) {
+    const normalized = String(key).toLowerCase();
+
+    if (isSensitiveDiagnosticKey(key)) {
+      clean[key] = '[REDACTED]';
+    } else if (allowed.has(normalized)) {
+      clean[key] = redactSensitiveText(value, 512);
+    }
+  }
+
+  return clean;
+}
+
+function summarizePostData(value) {
+  const raw = String(value || '');
+  const fields = [];
+
+  if (raw) {
+    try {
+      const trimmed = raw.trim();
+      const candidates = trimmed.startsWith('{')
+        ? Object.keys(JSON.parse(trimmed))
+        : [...new URLSearchParams(raw).keys()];
+
+      for (const key of candidates) {
+        if (/^[A-Za-z0-9_.[\]-]{1,80}$/.test(key) && !fields.includes(key)) {
+          fields.push(isSensitiveDiagnosticKey(key) ? '[SENSITIVE_FIELD]' : key);
+        }
+
+        if (fields.length >= 20) break;
+      }
+    } catch (_) {}
+  }
+
+  return {
+    present: raw.length > 0,
+    length: raw.length,
+    fields,
+  };
+}
+
+function payloadMetadata(value) {
+  const buffer = Buffer.isBuffer(value) ? value : Buffer.from(String(value ?? ''), 'utf8');
+
+  return {
+    bytes: buffer.length,
+    sha256: crypto.createHash('sha256').update(buffer).digest('hex'),
+  };
+}
+
+function safePathForLog(filePath) {
+  const resolved = path.resolve(String(filePath || ''));
+  const relative = path.relative(BASE_DIR, resolved);
+
+  if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {
+    return relative.replace(/\\/g, '/');
+  }
+
+  return path.basename(resolved);
+}
+
+function sanitizeDownloadReportResult(result) {
+  const value = result || {};
+
+  return {
+    cuce: redactSensitiveText(value.cuce || '', 100),
+    ok: Boolean(value.ok),
+    archivo: value.archivo === 'existente'
+      ? 'existente'
+      : path.basename(String(value.archivo || '')),
+    metodo: redactSensitiveText(value.metodo || '', 100),
+    size: Number.isFinite(Number(value.size)) ? Number(value.size) : null,
+    motivo: value.motivo ? redactSensitiveText(value.motivo, 300) : null,
+  };
+}
+
+function errorMessage(error) {
+  return redactSensitiveText(
+    error?.message || String(error || 'error desconocido')
+  );
+}
+
+function safeErrorDetails(error) {
+  return redactSensitiveText(
+    error?.stack || error?.message || String(error || 'error desconocido'),
+    4000
+  );
+}
+
+function sanitizeConsoleArgument(value) {
+  if (value instanceof Error) return safeErrorDetails(value);
+  if (value !== null && typeof value === 'object') return sanitizeDiagnosticValue(value);
+
+  return typeof value === 'string' ? redactSensitiveText(value) : value;
+}
+
+console.log = (...args) => rawConsole.log(...args.map(sanitizeConsoleArgument));
+console.warn = (...args) => rawConsole.warn(...args.map(sanitizeConsoleArgument));
+console.error = (...args) => rawConsole.error(...args.map(sanitizeConsoleArgument));
 
 function waitEnter(message) {
   const rl = readline.createInterface({
@@ -229,7 +499,7 @@ function writeAuxFileSafe(filePath, data, encoding) {
     writeFileSafe(filePath, data, encoding, 1);
     return true;
   } catch (error) {
-    console.log(`[SICOES] No se pudo escribir archivo auxiliar ${filePath}: ${errorMessage(error)}. Se continua.`);
+    console.log(`[SICOES] No se pudo escribir archivo auxiliar ${safePathForLog(filePath)}: ${errorMessage(error)}. Se continua.`);
     return false;
   }
 }
@@ -293,7 +563,7 @@ function writeFileThroughNodeChild(filePath, data, encoding) {
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, Buffer.concat(chunks));
       } catch (error) {
-        console.error(error && error.stack ? error.stack : String(error));
+        console.error(String(error?.name || 'Error') + ' ' + String(error?.code || ''));
         process.exit(1);
       }
     });
@@ -338,26 +608,25 @@ function delay(ms) {
 }
 
 function phaseOk(number, message) {
-  console.log(`[OK] Fase ${number}: ${message}`);
+  console.log(`[OK] Fase ${number}: ${redactSensitiveText(message)}`);
 }
 
 function phaseFail(number, message) {
-  const formatted = `[FAIL] Fase ${number}: ${message}`;
+  const formatted = `[FAIL] Fase ${number}: ${redactSensitiveText(message)}`;
   console.error(formatted);
   return new Error(formatted);
 }
 
-function errorMessage(error) {
-  return error?.message || String(error || 'error desconocido');
-}
-
 function emitProgress(step, message, data = {}) {
-  console.log(`[STEP ${step}] ${message}`);
-  console.log(`[SICOES_PROGRESS] ${JSON.stringify({ step, message, ...data })}`);
+  const safeMessage = redactSensitiveText(message);
+  const payload = sanitizeDiagnosticValue({ step, message: safeMessage, ...data });
+
+  console.log(`[STEP ${step}] ${safeMessage}`);
+  console.log(`[SICOES_PROGRESS] ${JSON.stringify(payload)}`);
 }
 
 function emitItem(index, total, item) {
-  console.log(`[SICOES_ITEM] ${JSON.stringify({ index, total, cuce: item?.cuce || '', item })}`);
+  rawConsole.log(`[SICOES_ITEM] ${JSON.stringify({ index, total, cuce: item?.cuce || '', item })}`);
 }
 
 function withTimeout(promise, timeoutMs, label) {
@@ -384,7 +653,7 @@ async function withRetries(label, attempts, task) {
       return await task(attempt);
     } catch (error) {
       lastError = error;
-      console.log(`[SICOES] ${label} fallo en intento ${attempt}: ${error.message}`);
+      console.log(`[SICOES] ${label} fallo en intento ${attempt}: ${errorMessage(error)}`);
 
       if (attempt < attempts) {
         await delay(2000 * attempt);
@@ -3996,7 +4265,7 @@ function escribirOrdenConvocatorias(convocatorias, ordenPath) {
   try {
     writeFileSafe(ordenPath, lines.join('\n'), 'utf8', 1);
   } catch (error) {
-    console.log(`[SICOES] No se pudo escribir guia de orden ${ordenPath}: ${errorMessage(error)}. Se continua el procesamiento.`);
+    console.log(`[SICOES] No se pudo escribir guia de orden ${safePathForLog(ordenPath)}: ${errorMessage(error)}. Se continua el procesamiento.`);
   }
 }
 
@@ -4125,7 +4394,7 @@ async function extraerConvocatorias(fecha, convocatoriasPath, options = {}) {
     }
 
     writeFileSafe(convocatoriasPath, JSON.stringify(convocatorias, null, 2), 'utf8');
-    console.log(`\nConvocatorias guardadas en: ${convocatoriasPath}`);
+    console.log(`\nConvocatorias guardadas en: ${safePathForLog(convocatoriasPath)}`);
     if (!convocatorias.length) {
       throw phaseFail(4, `filas detectadas: 0 para la fecha ${fecha}`);
     }
@@ -4380,29 +4649,28 @@ async function guardarDiagnosticoPagina(page, label) {
   try {
     ensureDirs(dir);
   } catch (error) {
-    console.log(`[SICOES] No se pudo crear carpeta de diagnosticos: ${error.message}`);
+    console.log(`[SICOES] No se pudo crear carpeta de diagnosticos: ${errorMessage(error)}`);
     return;
   }
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const base = `${stamp}-${safeFileName(label)}`;
-  const htmlPath = path.join(dir, `${base}.html`);
-  const pngPath = path.join(dir, `${base}.png`);
+  const diagnosticPath = path.join(dir, `${base}.json`);
+  const diagnostic = {
+    capturedAt: new Date().toISOString(),
+    label: redactSensitiveText(label, 200),
+    url: redactUrl(page.url()),
+    title: redactSensitiveText(await page.title().catch(() => ''), 300),
+  };
 
   try {
-    writeFileSafe(htmlPath, await page.content(), 'utf8');
+    writeFileSafe(diagnosticPath, JSON.stringify(diagnostic, null, 2), 'utf8');
   } catch (error) {
-    console.log(`[SICOES] No se pudo guardar diagnostico HTML: ${error.message}`);
+    console.log(`[SICOES] No se pudo guardar diagnostico: ${errorMessage(error)}`);
+    return;
   }
 
-  try {
-    await page.screenshot({ path: pngPath, fullPage: true });
-  } catch (error) {
-    console.log(`[SICOES] No se pudo guardar diagnostico PNG: ${error.message}`);
-  }
-
-  console.log(`[SICOES] Diagnostico de pagina: ${htmlPath}`);
-  console.log(`[SICOES] Captura de pagina: ${pngPath}`);
+  console.log(`[SICOES] Diagnostico de pagina: ${safePathForLog(diagnosticPath)}`);
 }
 
 async function gotoSicoes(page) {
@@ -4426,7 +4694,7 @@ async function gotoSicoes(page) {
           waitUntil: 'domcontentloaded',
           timeout: TABLE_TIMEOUT_MS,
         }), TABLE_TIMEOUT_MS, 'Fase 2 navegacion convocatorias');
-        phaseOk(2, `URL convocatorias cargada: ${page.url().replace(/token=[^&]+/i, 'token=***')}`);
+        phaseOk(2, `URL convocatorias cargada: ${redactUrl(page.url())}`);
       } catch (error) {
         throw phaseFail(2, `no se pudo cargar URL convocatorias: ${errorMessage(error)}`);
       }
@@ -4439,7 +4707,7 @@ async function gotoSicoes(page) {
       }
     });
   } catch (error) {
-    console.log(`[SICOES] URL actual: ${page.url()}`);
+    console.log(`[SICOES] URL actual: ${redactUrl(page.url())}`);
     console.log(`[SICOES] Titulo actual: ${await page.title().catch(() => '')}`);
     await guardarDiagnosticoPagina(page, 'carga-tabla-sicoes');
     if (errorMessage(error).startsWith('[FAIL] Fase')) {
@@ -4633,19 +4901,12 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
   // Habilitar domain de red CDP
   await client.send('Network.enable');
 
-  console.log(`  [CDP] Habilitando intercepción para token ${token}`);
-
-  const sanitizeHeaders = headers => {
-    const clean = {};
-    for (const [key, value] of Object.entries(headers || {})) {
-      if (/^(cookie|authorization)$/i.test(key)) continue;
-      clean[key] = value;
-    }
-    return clean;
-  };
+  console.log(`  [CDP] Habilitando intercepcion; token presente longitud=${String(token || '').length}`);
 
   const requestTrace = [];
   const targetTrace = [];
+  let requestTraceTotal = 0;
+  let targetTraceTotal = 0;
   const browser = typeof page.browser === 'function' ? page.browser() : null;
   const tracePath = path.join(inputDir, `_cdp-requests-${safeFileName(cuce)}.json`);
 
@@ -4653,33 +4914,37 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
     const payload = {
       status,
       cuce,
-      tokenPreview: String(token || '').slice(0, 48),
+      tokenPresent: Boolean(token),
+      tokenLength: String(token || '').length,
       capturedAt: new Date().toISOString(),
-      currentUrl: page.url(),
-      requestCount: requestTrace.length,
-      targetCount: targetTrace.length,
-      requests: requestTrace,
-      targets: targetTrace,
+      currentUrl: redactUrl(page.url()),
+      requestCount: requestTraceTotal,
+      targetCount: targetTraceTotal,
+      requests: requestTrace.slice(-TRACE_REQUEST_LIMIT),
+      targets: targetTrace.slice(-TRACE_TARGET_LIMIT),
     };
 
     try {
       writeFileSafe(tracePath, JSON.stringify(payload, null, 2), 'utf8');
-      console.log(`  [CDP_TRACE] Guardado: ${tracePath} requests=${requestTrace.length} targets=${targetTrace.length}`);
-      requestTrace.slice(-20).forEach((req, idx) => {
-        console.log(`  [CDP_TRACE] #${requestTrace.length - 20 + idx + 1} ${req.method} ${req.resourceType || '-'} ${req.url}`);
+      console.log(`  [CDP_TRACE] Guardado: ${safePathForLog(tracePath)} requests=${requestTraceTotal} targets=${targetTraceTotal}`);
+      const recentRequests = requestTrace.slice(-20);
+      recentRequests.forEach((req, idx) => {
+        console.log(`  [CDP_TRACE] #${requestTraceTotal - recentRequests.length + idx + 1} ${req.method} ${req.resourceType || '-'} ${req.url}`);
       });
     } catch (error) {
-      console.log(`  [CDP_TRACE] No se pudo guardar diagnostico: ${error.message}`);
+      console.log(`  [CDP_TRACE] No se pudo guardar diagnostico: ${errorMessage(error)}`);
     }
   };
 
   const targetHandler = target => {
     const entry = {
       type: typeof target.type === 'function' ? target.type() : '',
-      url: typeof target.url === 'function' ? target.url() : '',
+      url: typeof target.url === 'function' ? redactUrl(target.url()) : '',
       createdAt: new Date().toISOString(),
     };
+    targetTraceTotal += 1;
     targetTrace.push(entry);
+    if (targetTrace.length > TRACE_TARGET_LIMIT) targetTrace.shift();
     console.log(`  [CDP_TRACE] Target nuevo: ${entry.type || '-'} ${entry.url || '(sin url)'}`);
   };
 
@@ -4720,25 +4985,24 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
       const entry = {
         ts: new Date().toISOString(),
         method,
-        url,
+        url: redactUrl(url),
         resourceType,
-        frameId: params.frameId || '',
-        loaderId: params.loaderId || '',
-        documentURL: params.documentURL || '',
-        hasPostData: Boolean(body),
-        postDataPreview: body ? body.slice(0, 1200) : '',
+        documentURL: redactUrl(params.documentURL || ''),
+        postData: summarizePostData(body),
         initiator: {
           type: params.initiator?.type || '',
-          url: params.initiator?.url || '',
+          url: redactUrl(params.initiator?.url || ''),
           lineNumber: params.initiator?.lineNumber ?? null,
           columnNumber: params.initiator?.columnNumber ?? null,
-          functionName: params.initiator?.stack?.callFrames?.[0]?.functionName || '',
+          functionName: redactSensitiveText(params.initiator?.stack?.callFrames?.[0]?.functionName || '', 200),
         },
-        headers: sanitizeHeaders(params.request?.headers || {}),
+        headers: sanitizeHeadersForDiagnostics(params.request?.headers || {}),
       };
 
+      requestTraceTotal += 1;
       requestTrace.push(entry);
-      console.log(`  [CDP_TRACE] ${method || '-'} ${resourceType || '-'} ${url}`);
+      if (requestTrace.length > TRACE_REQUEST_LIMIT) requestTrace.shift();
+      console.log(`  [CDP_TRACE] ${method || '-'} ${resourceType || '-'} ${entry.url}`);
 
       const esDescarga = (
         url.includes('descargar') ||
@@ -4756,7 +5020,7 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
           headers : params.request.headers,
           postData: params.request.postData || '',
         };
-        console.log(`  [CDP] Request candidata capturada: ${method} ${url}`);
+        console.log(`  [CDP] Request candidata capturada: ${method} ${redactUrl(url)}`);
       }
     };
 
@@ -4784,7 +5048,7 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
       }
     }, token);
   } catch (evalErr) {
-    console.log(`  [CDP] Error al disparar descarga: ${evalErr.message}`);
+    console.log(`  [CDP] Error al disparar descarga: ${errorMessage(evalErr)}`);
     return null;
   }
 
@@ -4793,7 +5057,7 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
   try {
     reqInfo = await requestCapture;
   } catch (timeoutErr) {
-    console.log(`  [CDP] ${timeoutErr.message}`);
+    console.log(`  [CDP] ${errorMessage(timeoutErr)}`);
     return null;
   }
 
@@ -4816,8 +5080,8 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
   delete headers['content-length'];
   delete headers['transfer-encoding'];
 
-  console.log(`  [CDP] Reproduciendo ${reqInfo.method} ${reqInfo.url}`);
-  console.log(`  [CDP] Body: ${reqInfo.postData || '(vacío)'}`);
+  console.log(`  [CDP] Reproduciendo ${reqInfo.method} ${redactUrl(reqInfo.url)}`);
+  console.log(`  [CDP] Body: ${JSON.stringify(summarizePostData(reqInfo.postData))}`);
 
   // Reproducir la request con node-fetch (disponible en Node 18+ o via require)
   let fetchFn;
@@ -4835,15 +5099,15 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
       body   : reqInfo.method !== 'GET' ? reqInfo.postData : undefined,
     });
   } catch (fetchErr) {
-    console.log(`  [CDP] Error en fetch reproducido: ${fetchErr.message}`);
+    console.log(`  [CDP] Error en fetch reproducido: ${errorMessage(fetchErr)}`);
     return null;
   }
 
   const contentType  = response.headers.get('content-type')        || '';
   const contentDisp  = response.headers.get('content-disposition') || '';
   const xDebug       = response.headers.get('x-debug')             || '';
-  console.log(`  [CDP] Respuesta: ${response.status} content-type=${contentType} content-disposition=${contentDisp}`);
-  if (xDebug) console.log(`  [CDP] X-Debug: ${xDebug}`);
+  console.log(`  [CDP] Respuesta: ${response.status} content-type=${redactSensitiveText(contentType, 200)} content-disposition=${redactSensitiveText(contentDisp, 300)}`);
+  if (xDebug) console.log('  [CDP] La respuesta incluyo cabecera X-Debug (valor omitido).');
 
   const esArchivoBinario = (
     contentType.includes('octet-stream')    ||
@@ -4855,13 +5119,20 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
   );
 
   if (!response.ok || !esArchivoBinario) {
-    // Guardar respuesta de debug para diagnóstico
+    // Guardar solo metadatos; el cuerpo puede contener tokens, HTML de sesion o documentos.
     try {
       const debugText = await response.text();
-      const debugPath = path.join(inputDir, `_http-debug-${safeFileName(cuce)}.html`);
-      writeFileSafe(debugPath, Buffer.from(debugText, 'utf8'));
-      console.log(`  [CDP] Respuesta no binaria guardada en: ${debugPath}`);
-      console.log(`  [CDP] Primeros 500 chars: ${debugText.slice(0, 500)}`);
+      const debugPath = path.join(inputDir, `_http-debug-${safeFileName(cuce)}.json`);
+      const metadata = {
+        capturedAt: new Date().toISOString(),
+        status: response.status,
+        url: redactUrl(reqInfo.url),
+        contentType: redactSensitiveText(contentType, 200),
+        contentDisposition: redactSensitiveText(contentDisp, 300),
+        ...payloadMetadata(debugText),
+      };
+      writeFileSafe(debugPath, JSON.stringify(metadata, null, 2), 'utf8');
+      console.log(`  [CDP] Metadatos de respuesta no binaria: ${safePathForLog(debugPath)}`);
     } catch (_) {}
     return null;
   }
@@ -4879,7 +5150,7 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
   const destino      = path.join(inputDir, nombreDescargaWord(convocatoria, archivo, index, archivoIndex, nombreArch));
 
   writeFileSafe(destino, buffer);
-  console.log(`  [CDP_OK] Guardado: ${destino} (${buffer.length} bytes)`);
+  console.log(`  [CDP_OK] Guardado: ${safePathForLog(destino)} (${buffer.length} bytes)`);
   return { ok: true, path: destino, archivo: archivo?.nombre || '', metodo: 'cdp_intercept', size: buffer.length };
 }
 
@@ -4933,7 +5204,7 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
 
       if (!esArchivo) {
         const texto = await resp.text();
-        return { ok: false, motivo: 'respuesta_no_binaria', status: resp.status, ct, preview: texto.slice(0, 300) };
+        return { ok: false, motivo: 'respuesta_no_binaria', status: resp.status, ct, responseLength: texto.length };
       }
 
       const buf = await resp.arrayBuffer();
@@ -4947,12 +5218,12 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
       const filename = (cd.match(/filename[^;=\n]*=(['"]?)([^'";\n]*)['"]?/i) || [])[2] || '';
       return { ok: true, base64, filename, endpoint: formAction, ct, size: buf.byteLength };
     } catch (e) {
-      return { ok: false, motivo: e.message };
+      return { ok: false, motivo: String(e?.name || 'error_fetch_browser') };
     }
   }, token);
 
   if (!resultado.ok) {
-    console.log(`  [FETCH] Falló: ${resultado.motivo || '?'} ${resultado.preview ? '| preview: ' + resultado.preview : ''}`);
+    console.log(`  [FETCH] Fallo: ${resultado.motivo || '?'} status=${resultado.status || 'N/A'} bytes=${resultado.responseLength || 0}`);
     return null;
   }
 
@@ -4961,7 +5232,7 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
   const nombre = resultado.filename || `archivo_${safeFileName(cuce)}${ext}`;
   const destino = path.join(inputDir, nombreDescargaWord(convocatoria, archivo, index, archivoIndex, nombre));
   writeFileSafe(destino, buffer);
-  console.log(`  [FETCH_OK] Guardado: ${destino} (${buffer.length} bytes)`);
+  console.log(`  [FETCH_OK] Guardado: ${safePathForLog(destino)} (${buffer.length} bytes)`);
   return { ok: true, path: destino, archivo: archivo?.nombre || '', metodo: 'fetch_browser', size: buffer.length };
 }
 
@@ -5135,7 +5406,7 @@ async function descargarViaManualAsistida(page, target, inputDir, convocatoria, 
   console.log(`[MANUAL_WAIT] CUCE ${cuce} esperando descarga manual hasta ${Math.round(timeoutMs / 1000)}s`);
   console.log(`[MANUAL_ACTION] En el navegador visible resuelve Cloudflare/Turnstile si aparece y haz click en el enlace resaltado: ${target?.nombre || archivo?.nombre || 'Documento Base de Contratacion'}`);
   for (const dir of watchDirs) {
-    console.log(`[MANUAL_DIR] Vigilando: ${dir}`);
+    console.log(`[MANUAL_DIR] Vigilando: ${safePathForLog(dir)}`);
   }
 
   if (marcado) {
@@ -5143,7 +5414,7 @@ async function descargarViaManualAsistida(page, target, inputDir, convocatoria, 
       await page.click('a[data-sicoes-manual-download="1"]', { delay: 80 });
       console.log('[MANUAL_CLICK] Click inicial enviado. Si Cloudflare aparece, resuelvelo y vuelve a hacer click si hace falta.');
     } catch (error) {
-      console.log(`[MANUAL_CLICK] No se pudo enviar click inicial: ${error.message}`);
+      console.log(`[MANUAL_CLICK] No se pudo enviar click inicial: ${errorMessage(error)}`);
     }
   }
 
@@ -5155,7 +5426,7 @@ async function descargarViaManualAsistida(page, target, inputDir, convocatoria, 
 
   const resultado = guardarWordManual(filePath, inputDir, convocatoria, archivo, index, archivoIndex);
   if (resultado.ok) {
-    console.log(`[MANUAL_OK] Guardado: ${resultado.path} origen: ${resultado.sourcePath}`);
+    console.log(`[MANUAL_OK] Guardado: ${safePathForLog(resultado.path)} origen omitido`);
   } else {
     console.log(`[MANUAL_FAIL] CUCE ${cuce} motivo: ${resultado.motivo}`);
   }
@@ -5267,8 +5538,14 @@ async function guardarPlaywrightResponse(response, inputDir, convocatoria, archi
   const ext = extensionArchivoDesdeBytes_buffer(buffer) || extensionArchivoDesdeNombre(cdFilename, '.docx');
 
   if (!['.doc', '.docx', '.pdf'].includes(ext) || buffer.length < 1000) {
-    const debugPath = path.join(inputDir, `_playwright-response-debug-${safeFileName(convocatoria?.cuce || 'sin_cuce')}.bin`);
-    writeFileSafe(debugPath, buffer);
+    const debugPath = path.join(inputDir, `_playwright-response-debug-${safeFileName(convocatoria?.cuce || 'sin_cuce')}.json`);
+    writeFileSafe(debugPath, JSON.stringify({
+      capturedAt: new Date().toISOString(),
+      status: response.status(),
+      url: redactUrl(response.url()),
+      headers: sanitizeHeadersForDiagnostics(headers),
+      ...payloadMetadata(buffer),
+    }, null, 2), 'utf8');
     return { ok: false, motivo: 'response_no_es_word', archivo: archivo?.nombre || '', path: debugPath };
   }
 
@@ -5305,7 +5582,7 @@ async function descargarArchivoDesdeFilaPlaywright(page, convocatoria, archivo, 
   }
 
   console.log(`[PW_DOWNLOAD_START] CUCE ${cuce}`);
-  console.log(`[PW_DOWNLOAD_TOKEN] ${target.token}`);
+  console.log(`[PW_DOWNLOAD_TOKEN] presente longitud=${String(target.token).length}`);
   console.log(`[PW_DOWNLOAD_NOMBRE] ${target.nombre || archivo?.nombre || '?'}`);
 
   const link = await page.$('a[data-sicoes-playwright-download="1"]');
@@ -5334,19 +5611,19 @@ async function descargarArchivoDesdeFilaPlaywright(page, convocatoria, archivo, 
   try {
     if (result.tipo === 'download') {
       const saved = await guardarPlaywrightDownload(result.download, inputDir, convocatoria, archivo, index, archivoIndex);
-      if (saved.ok) console.log(`[PW_DOWNLOAD_OK] ${saved.path}`);
+      if (saved.ok) console.log(`[PW_DOWNLOAD_OK] ${safePathForLog(saved.path)}`);
       return saved;
     }
 
     if (result.tipo === 'response') {
       const saved = await guardarPlaywrightResponse(result.response, inputDir, convocatoria, archivo, index, archivoIndex);
-      if (saved.ok) console.log(`[PW_RESPONSE_OK] ${saved.path}`);
+      if (saved.ok) console.log(`[PW_RESPONSE_OK] ${safePathForLog(saved.path)}`);
       return saved;
     }
 
     if (result.tipo === 'popup') {
       const saved = await esperarPopupArchivo(result.popup, inputDir, convocatoria, archivo, index, archivoIndex);
-      if (saved.ok) console.log(`[PW_POPUP_OK] ${saved.path}`);
+      if (saved.ok) console.log(`[PW_POPUP_OK] ${safePathForLog(saved.path)}`);
       return saved;
     }
   } catch (error) {
@@ -5368,7 +5645,7 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
   }
 
   console.log(`[DOWNLOAD_START] CUCE ${cuce}`);
-  console.log(`[DOWNLOAD_TOKEN] ${target.token}`);
+  console.log(`[DOWNLOAD_TOKEN] presente longitud=${String(target.token).length}`);
   console.log(`[DOWNLOAD_NOMBRE] ${target.nombre || archivo?.nombre || '?'}`);
 
   // 2. Estrategia principal: interceptar la request real via CDP
@@ -5377,7 +5654,7 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
       page, target.token, inputDir, convocatoria, archivo, index, archivoIndex
     );
     if (cdpResult?.ok) {
-      console.log(`[DOWNLOAD_OK] Método CDP intercept: ${cdpResult.path}`);
+      console.log(`[DOWNLOAD_OK] Método CDP intercept: ${safePathForLog(cdpResult.path)}`);
       return cdpResult;
     }
   } catch (e) {
@@ -5390,7 +5667,7 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
       page, target.token, inputDir, convocatoria, archivo, index, archivoIndex
     );
     if (fetchResult?.ok) {
-      console.log(`[DOWNLOAD_OK] Método fetch browser: ${fetchResult.path}`);
+      console.log(`[DOWNLOAD_OK] Método fetch browser: ${safePathForLog(fetchResult.path)}`);
       return fetchResult;
     }
   } catch (e) {
@@ -5412,7 +5689,7 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
       );
 
       if (manualResult?.ok) {
-        console.log(`[DOWNLOAD_OK] Metodo manual asistido: ${manualResult.path}`);
+        console.log(`[DOWNLOAD_OK] Metodo manual asistido: ${safePathForLog(manualResult.path)}`);
         return manualResult;
       }
     } catch (e) {
@@ -5547,10 +5824,10 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
             resultado = {
               ok: false,
               archivo: archivo.nombre || '',
-              motivo: error.message,
+              motivo: errorMessage(error),
             };
             if (intento < MAX_REINTENTOS) {
-              console.log(`  Error en intento ${intento}: ${error.message}. Reintentando...`);
+              console.log(`  Error en intento ${intento}: ${errorMessage(error)}. Reintentando...`);
               await delay(2000 * intento);
             }
           }
@@ -5565,7 +5842,7 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
             archivo: resultado.archivo || archivo.nombre || '',
           });
         }
-        console.log(resultado.ok ? `  OK: ${resultado.path}` : `  Omitido tras ${MAX_REINTENTOS} intentos: ${resultado.motivo}`);
+        console.log(resultado.ok ? `  OK: ${safePathForLog(resultado.path)}` : `  Omitido tras ${MAX_REINTENTOS} intentos: ${resultado.motivo}`);
 
         if (!page.isClosed()) {
           await delay(1200);
@@ -5585,7 +5862,7 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
     fecha,
     total: resultados.length,
     descargados: resultados.filter(r => r.ok).length,
-    resultados,
+    resultados: resultados.map(sanitizeDownloadReportResult),
   }, null, 2), 'utf8');
 
   const okDownloads = resultados.filter(r => r.ok).length;
@@ -5593,7 +5870,7 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
     throw phaseFail(5, 'descarga Word completada con 0 archivos validos');
   }
 
-  console.log(`\nReporte de descargas: ${reportePath}`);
+  console.log(`\nReporte de descargas: ${safePathForLog(reportePath)}`);
   return resultados;
 }
 
@@ -5783,8 +6060,9 @@ async function procesarWords(fecha, slug, convocatorias, inputDir, options = {})
         longitudTextoCompleto: textoCompletoWord.length,
       }, null, 2), 'utf8');
     } catch (error) {
-      console.log(`No se pudo leer ${asignacion.docx.name}: ${error.message}`);
-      emitProgress(5, `Word procesado con error: ${error.message}`, {
+      const safeError = errorMessage(error);
+      console.log(`No se pudo leer ${asignacion.docx.name}: ${safeError}`);
+      emitProgress(5, `Word procesado con error: ${safeError}`, {
         index: numero,
         total: convocatorias.length,
         cuce: convocatoria.cuce || '',
@@ -5795,7 +6073,7 @@ async function procesarWords(fecha, slug, convocatorias, inputDir, options = {})
         cuce: convocatoria?.cuce || '',
         tipo_real_word: detectarTipoWord(asignacion.docx.path),
         metodo_extraccion: 'error',
-        error: error.message,
+        error: safeError,
         fragmentos_sueldo: [],
         fragmentos_cronograma_pagos: [],
         fragmentos_ubicacion: [],
@@ -5814,7 +6092,7 @@ async function procesarWords(fecha, slug, convocatorias, inputDir, options = {})
         estado: 'error_word',
         convocatoria,
         docx: asignacion.docx,
-        error: error.message,
+        error: safeError,
         clasificacion: clasificacionSinWord,
       });
 
@@ -6031,7 +6309,7 @@ async function main() {
   console.log('SICOES - FLUJO UNIFICADO');
   console.log('====================================================');
   console.log(`Fecha: ${fecha}`);
-  console.log(`Carpeta Word: ${inputDir}`);
+  console.log(`Carpeta Word: ${safePathForLog(inputDir)}`);
 
   let convocatorias = [];
   const fullAutomatico = mode === 'full' || flags.has('--full');
@@ -6059,12 +6337,12 @@ async function main() {
     console.log('\n====================================================');
     console.log('LISTO');
     console.log('====================================================');
-    console.log(`Ficha final limpia: ${resultado.fichaFinalVisiblePath}`);
-    console.log(`Datos unificados JSON: ${resultado.unificadoPath}`);
-    console.log(`Resumen TXT: ${resultado.resumenTxtPath}`);
-    console.log(`Resumen CSV: ${resultado.csvPath}`);
-    console.log(`Debug extraccion: ${resultado.debugPath}`);
-    console.log(`Excluidas JSON: ${resultado.excluidasPath}`);
+    console.log(`Ficha final limpia: ${safePathForLog(resultado.fichaFinalVisiblePath)}`);
+    console.log(`Datos unificados JSON: ${safePathForLog(resultado.unificadoPath)}`);
+    console.log(`Resumen TXT: ${safePathForLog(resultado.resumenTxtPath)}`);
+    console.log(`Resumen CSV: ${safePathForLog(resultado.csvPath)}`);
+    console.log(`Debug extraccion: ${safePathForLog(resultado.debugPath)}`);
+    console.log(`Excluidas JSON: ${safePathForLog(resultado.excluidasPath)}`);
     console.log(`Procesados: ${resultado.unificado.total_procesados}/${resultado.unificado.total_convocatorias}`);
     console.log(`Incluidas: ${resultado.unificado.total_incluidas}`);
     console.log(`Excluidas: ${resultado.unificado.total_excluidas}`);
@@ -6075,7 +6353,7 @@ async function main() {
     convocatorias = await extraerConvocatorias(fecha, convocatoriasPath, { interactive: !modoBatch, assistedDownload: descargaAsistida });
   } else if (fs.existsSync(convocatoriasPath)) {
     convocatorias = JSON.parse(fs.readFileSync(convocatoriasPath, 'utf8'));
-    console.log(`\nUsando convocatorias existentes: ${convocatoriasPath}`);
+    console.log(`\nUsando convocatorias existentes: ${safePathForLog(convocatoriasPath)}`);
   } else {
     console.log('\nNo existe el JSON de convocatorias para esta fecha.');
     console.log('Ejecuta sin --solo-word, --preparar o --usar-cache para extraerlas primero.');
@@ -6105,8 +6383,8 @@ async function main() {
     escribirOrdenConvocatorias(convocatorias, ordenPath);
 
     console.log('\nPreparacion lista.');
-    console.log(`Copia tus Word en: ${inputDir}`);
-    console.log(`Guia de orden: ${ordenPath}`);
+    console.log(`Copia tus Word en: ${safePathForLog(inputDir)}`);
+    console.log(`Guia de orden: ${safePathForLog(ordenPath)}`);
     return;
   }
 
@@ -6115,18 +6393,18 @@ async function main() {
   console.log('\n====================================================');
   console.log('LISTO');
   console.log('====================================================');
-  console.log(`Ficha final limpia: ${resultado.fichaFinalVisiblePath}`);
-  console.log(`Datos unificados JSON: ${resultado.unificadoPath}`);
-  console.log(`Resumen TXT: ${resultado.resumenTxtPath}`);
-  console.log(`Resumen CSV: ${resultado.csvPath}`);
-  console.log(`Debug extraccion: ${resultado.debugPath}`);
-  console.log(`Excluidas JSON: ${resultado.excluidasPath}`);
+  console.log(`Ficha final limpia: ${safePathForLog(resultado.fichaFinalVisiblePath)}`);
+  console.log(`Datos unificados JSON: ${safePathForLog(resultado.unificadoPath)}`);
+  console.log(`Resumen TXT: ${safePathForLog(resultado.resumenTxtPath)}`);
+  console.log(`Resumen CSV: ${safePathForLog(resultado.csvPath)}`);
+  console.log(`Debug extraccion: ${safePathForLog(resultado.debugPath)}`);
+  console.log(`Excluidas JSON: ${safePathForLog(resultado.excluidasPath)}`);
   console.log(`Procesados: ${resultado.unificado.total_procesados}/${resultado.unificado.total_convocatorias}`);
   console.log(`Incluidas: ${resultado.unificado.total_incluidas}`);
   console.log(`Excluidas: ${resultado.unificado.total_excluidas}`);
 }
 
 main().catch(error => {
-  console.error(error);
+  console.error(safeErrorDetails(error));
   process.exitCode = 1;
 });

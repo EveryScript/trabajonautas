@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\SicoesScrapeBatch;
 use App\Services\Bot\SicoesDocumentImporterService;
 use App\Services\Bot\SicoesRunnerService;
+use App\Support\SensitiveDataSanitizer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -93,17 +94,17 @@ class ProcessSicoesJob implements ShouldQueue
         $run = $runner->run(
             $this->date,
             onProgress: function (array $payload): void {
-                Log::info('SICOES progreso.', [
+                Log::info('SICOES progreso.', $this->progressLogContext([
                     'date' => $this->date,
                     'run_id' => $this->runId,
                     ...$payload,
-                ]);
+                ]));
 
                 $this->putProgress([
                     'status' => 'running',
                     'total' => (int) ($payload['total'] ?? Cache::get($this->progressKey(), [])['total'] ?? 0),
                     'last_cuce' => $payload['cuce'] ?? null,
-                    'last_step' => $payload['message'] ?? 'SICOES progreso',
+                    'last_step' => SensitiveDataSanitizer::text($payload['message'] ?? 'SICOES progreso', 240),
                     'updated_at' => now()->toDateTimeString(),
                 ]);
             },
@@ -116,11 +117,11 @@ class ProcessSicoesJob implements ShouldQueue
             userId: $this->userId,
             batchId: $this->runId,
             onProgress: function (array $payload) use (&$import): void {
-                Log::info('SICOES documento procesado.', [
+                Log::info('SICOES documento procesado.', $this->progressLogContext([
                     'date' => $this->date,
                     'run_id' => $this->runId,
                     ...$payload,
-                ]);
+                ]));
 
                 $this->putProgress([
                     'status' => 'running',
@@ -135,8 +136,8 @@ class ProcessSicoesJob implements ShouldQueue
                     'ai_errors' => (int) ($payload['ai_errors'] ?? ($import['ai_errors'] ?? 0)),
                     'last_cuce' => $payload['cuce'] ?? null,
                     'last_preview_id' => $payload['preview_id'] ?? null,
-                    'last_document' => $payload['document'] ?? null,
-                    'last_step' => $payload['message'] ?? 'SICOES procesando documento con IA',
+                    'last_document' => SensitiveDataSanitizer::basename($payload['document'] ?? null),
+                    'last_step' => SensitiveDataSanitizer::text($payload['message'] ?? 'SICOES procesando documento con IA', 240),
                     'updated_at' => now()->toDateTimeString(),
                 ]);
             },
@@ -310,11 +311,50 @@ class ProcessSicoesJob implements ShouldQueue
         }
 
         $current = Cache::get($this->progressKey(), []);
-
-        Cache::put($this->progressKey(), [
-            ...$current,
+        $allowed = array_flip([
+            'run_id',
+            'status',
+            'date',
+            'total',
+            'processed',
+            'saved',
+            'updated',
+            'failed',
+            'discarded',
+            'preclassified_discards',
+            'discarded_not_individual_consultant',
+            'discarded_company_or_goods',
+            'ai_calls',
+            'ai_cache_hits',
+            'ai_errors',
+            'shown_in_batch',
+            'last_cuce',
+            'last_preview_id',
+            'last_document',
+            'last_step',
+            'started_at',
+            'updated_at',
+            'finished_at',
+            'failed_at',
+        ]);
+        $progress = array_intersect_key([
+            ...(is_array($current) ? $current : []),
             ...$data,
-        ], now()->addDay());
+        ], $allowed);
+
+        if (array_key_exists('last_document', $progress)) {
+            $progress['last_document'] = SensitiveDataSanitizer::basename($progress['last_document']);
+        }
+
+        if (array_key_exists('last_step', $progress)) {
+            $progress['last_step'] = SensitiveDataSanitizer::text($progress['last_step'], 240);
+        }
+
+        Cache::put(
+            $this->progressKey(),
+            SensitiveDataSanitizer::context($progress, 240, 3, 40),
+            now()->addDay(),
+        );
     }
 
     private function canWriteProgress(): bool
@@ -448,5 +488,34 @@ class ProcessSicoesJob implements ShouldQueue
     private function documentsFound(array $run, array $result): int
     {
         return (int) ($result['total_items_feed'] ?? $run['sicoes_items'] ?? 0);
+    }
+
+    private function progressLogContext(array $payload): array
+    {
+        $context = array_intersect_key($payload, array_flip([
+            'date',
+            'run_id',
+            'status',
+            'step',
+            'message',
+            'total',
+            'processed',
+            'saved',
+            'updated',
+            'failed',
+            'discarded',
+            'ai_calls',
+            'ai_cache_hits',
+            'ai_errors',
+            'cuce',
+            'preview_id',
+            'document',
+        ]));
+
+        if (array_key_exists('document', $context)) {
+            $context['document'] = SensitiveDataSanitizer::basename($context['document']);
+        }
+
+        return SensitiveDataSanitizer::context($context, 240, 3, 30);
     }
 }

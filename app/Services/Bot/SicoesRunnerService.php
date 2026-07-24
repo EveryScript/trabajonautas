@@ -2,6 +2,7 @@
 
 namespace App\Services\Bot;
 
+use App\Support\SensitiveDataSanitizer;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
@@ -36,46 +37,52 @@ class SicoesRunnerService
         $process->setIdleTimeout((int) config('sicoes.process.idle_timeout', 240));
 
         $output = '';
-        $lineBuffer = '';
+        $lineBuffers = [
+            Process::OUT => '',
+            Process::ERR => '',
+        ];
         $streamedItems = 0;
 
         try {
-            $process->run(function (string $type, string $buffer) use (&$output, &$lineBuffer, &$streamedItems, $onItem, $onProgress): void {
-                $output .= $buffer;
-
-                if (strlen($output) > 30000) {
-                    $output = substr($output, -30000);
-                }
-
-                $lineBuffer .= $buffer;
-                $lines = preg_split('/\r\n|\n|\r/', $lineBuffer);
-                $lineBuffer = array_pop($lines) ?? '';
+            $process->run(function (string $type, string $buffer) use (&$output, &$lineBuffers, &$streamedItems, $onItem, $onProgress): void {
+                $stream = $type === Process::ERR ? Process::ERR : Process::OUT;
+                $lineBuffers[$stream] .= $buffer;
+                $lines = preg_split('/\r\n|\n|\r/', $lineBuffers[$stream]);
+                $lineBuffers[$stream] = array_pop($lines) ?? '';
 
                 foreach ($lines as $line) {
-                    if (str_starts_with(trim($line), '[SICOES_ITEM] ')) {
-                        $streamedItems++;
-                    }
+                    $isItem = $this->handleStreamLine($line, $onItem, $onProgress);
 
-                    $this->handleStreamLine($line, $onItem, $onProgress);
+                    if ($isItem) {
+                        $streamedItems++;
+                    } else {
+                        $this->appendDiagnosticLine($output, $line);
+                    }
                 }
             });
 
-            if ($lineBuffer !== '') {
-                if (str_starts_with(trim($lineBuffer), '[SICOES_ITEM] ')) {
-                    $streamedItems++;
+            foreach ($lineBuffers as $lineBuffer) {
+                if ($lineBuffer === '') {
+                    continue;
                 }
 
-                $this->handleStreamLine($lineBuffer, $onItem, $onProgress);
+                $isItem = $this->handleStreamLine($lineBuffer, $onItem, $onProgress);
+                if ($isItem) {
+                    $streamedItems++;
+                } else {
+                    $this->appendDiagnosticLine($output, $lineBuffer);
+                }
             }
         } catch (\Throwable $exception) {
-            $output = trim($output.PHP_EOL.$process->getOutput().PHP_EOL.$process->getErrorOutput());
+            $this->appendProcessDiagnostics($output, $process->getOutput(), $process->getErrorOutput());
             $failure = $this->failureLine($output);
+            $message = SensitiveDataSanitizer::text($exception->getMessage(), 500) ?: 'Error al ejecutar el proceso SICOES.';
 
-            throw new \RuntimeException(Str::limit(($failure ? $failure.PHP_EOL : '').$exception->getMessage().PHP_EOL.$output, 3000, ''), 0, $exception);
+            throw new \RuntimeException(Str::limit(($failure ? $failure.PHP_EOL : '').$message.PHP_EOL.$output, 3000, ''));
         }
 
         if (! $process->isSuccessful()) {
-            $output = trim($output.PHP_EOL.$process->getOutput().PHP_EOL.$process->getErrorOutput());
+            $this->appendProcessDiagnostics($output, $process->getOutput(), $process->getErrorOutput());
             $failure = $this->failureLine($output);
 
             if ($failure) {
@@ -105,7 +112,7 @@ class SicoesRunnerService
             'slug' => $slug,
             'json_path' => $jsonPath,
             'sicoes_items' => count($items),
-            'runner_output' => Str::limit($output, 3000, ''),
+            'runner_output' => SensitiveDataSanitizer::text($output, 3000),
         ];
     }
 
@@ -117,42 +124,76 @@ class SicoesRunnerService
             'slug' => $slug,
             'json_path' => $jsonPath,
             'sicoes_items' => $streamedItems,
-            'runner_output' => Str::limit($output, 3000, ''),
+            'runner_output' => SensitiveDataSanitizer::text($output, 3000),
         ];
     }
 
-    private function handleStreamLine(string $line, ?callable $onItem, ?callable $onProgress): void
+    private function handleStreamLine(string $line, ?callable $onItem, ?callable $onProgress): bool
     {
         $line = trim($line);
 
         if ($line === '') {
-            return;
+            return false;
         }
 
         if (str_starts_with($line, '[SICOES_ITEM] ')) {
             $payload = json_decode(substr($line, strlen('[SICOES_ITEM] ')), true);
 
-            if (is_array($payload) && is_array($payload['item'] ?? null) && $onItem) {
+            if (! is_array($payload) || ! is_array($payload['item'] ?? null)) {
+                throw new \RuntimeException('SICOES emitio un item invalido en el canal de streaming.');
+            }
+
+            if ($onItem) {
                 $onItem($payload);
             }
 
-            return;
+            return true;
         }
 
         if (str_starts_with($line, '[SICOES_PROGRESS] ')) {
             $payload = json_decode(substr($line, strlen('[SICOES_PROGRESS] ')), true);
 
             if (is_array($payload) && $onProgress) {
-                $onProgress($payload);
+                $onProgress(SensitiveDataSanitizer::context($payload, 500));
             }
 
-            return;
+            return false;
         }
 
         if (preg_match('/^\[(STEP|OK|FAIL|MANUAL_[A-Z_]+|DOWNLOAD_[A-Z_]+|PW_[A-Z_]+|REAL_BROWSER[A-Z_]*|CDP|CDP_TRACE|FETCH)\]/', $line)) {
             if ($onProgress) {
-                $onProgress(['message' => $line]);
+                $onProgress(['message' => SensitiveDataSanitizer::text($line, 500)]);
             }
+        }
+
+        return false;
+    }
+
+    private function appendProcessDiagnostics(string &$output, string ...$streams): void
+    {
+        foreach ($streams as $stream) {
+            foreach (preg_split('/\r\n|\n|\r/', $stream) ?: [] as $line) {
+                if (str_starts_with(trim($line), '[SICOES_ITEM] ')) {
+                    continue;
+                }
+
+                $this->appendDiagnosticLine($output, $line);
+            }
+        }
+    }
+
+    private function appendDiagnosticLine(string &$output, string $line): void
+    {
+        $line = SensitiveDataSanitizer::text(trim($line), 1000);
+
+        if ($line === null || $line === '') {
+            return;
+        }
+
+        $output = trim($output.PHP_EOL.$line);
+
+        if (strlen($output) > 30000) {
+            $output = substr($output, -30000);
         }
     }
 
