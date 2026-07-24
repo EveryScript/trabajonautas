@@ -14,7 +14,7 @@ class SicoesProcessingRulesTest extends TestCase
 {
     public function test_analysis_cache_key_includes_prompt_version(): void
     {
-        config()->set('services.sicoes_ai_provider', 'anthropic');
+        config()->set('sicoes.ai.provider', 'anthropic');
         config()->set('services.anthropic.model', 'claude-haiku-4-5-20251001');
 
         $importer = (new ReflectionClass(SicoesDocumentImporterService::class))->newInstanceWithoutConstructor();

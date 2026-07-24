@@ -79,11 +79,6 @@ class BotProfessionAssignmentTest extends TestCase
     protected function tearDown(): void
     {
         Carbon::setTestNow();
-        Schema::dropIfExists('bot_vacancy_previews');
-        Schema::dropIfExists('bot_companies');
-        Schema::dropIfExists('area_profesion');
-        Schema::dropIfExists('profesions');
-        Schema::dropIfExists('areas');
         parent::tearDown();
     }
 
@@ -206,7 +201,7 @@ class BotProfessionAssignmentTest extends TestCase
 
     public function test_anthropic_returns_only_catalog_area_ids_for_professional_assignment(): void
     {
-        config()->set('services.sicoes_ai_provider', 'anthropic');
+        config()->set('sicoes.ai.provider', 'anthropic');
         config()->set('services.anthropic.api_key', 'test-key');
         Http::fake([
             'api.anthropic.com/v1/messages' => Http::response([
@@ -306,12 +301,6 @@ class BotProfessionAssignmentTest extends TestCase
 
     private function createSchema(): void
     {
-        Schema::dropIfExists('bot_vacancy_previews');
-        Schema::dropIfExists('bot_companies');
-        Schema::dropIfExists('area_profesion');
-        Schema::dropIfExists('profesions');
-        Schema::dropIfExists('areas');
-
         Schema::create('areas', function (Blueprint $table): void {
             $table->id();
             $table->string('area_name')->unique();

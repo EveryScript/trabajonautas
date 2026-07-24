@@ -12,6 +12,7 @@ use App\Models\CompanyType;
 use App\Models\Profesion;
 use App\Models\SicoesScrapeBatch;
 use App\Models\SicoesScrapeBatchItem;
+use App\Models\User;
 use App\Services\Bot\SicoesDocumentImporterService;
 use App\Services\Bot\SicoesRunnerService;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,14 +21,16 @@ use Illuminate\Http\Request as LaravelRequest;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use ReflectionMethod;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class SicoesBatchIsolationTest extends TestCase
 {
-    private string $basePath;
+    private ?string $basePath = null;
 
     private BotSource $source;
 
@@ -41,10 +44,11 @@ class SicoesBatchIsolationTest extends TestCase
     {
         parent::setUp();
 
+        Storage::fake('public');
+        $this->basePath = storage_path('framework/testing/sicoes-batch-isolation-'.Str::uuid());
+        $this->deleteTemporaryRunDirectory();
         $this->createSchema();
-        $this->basePath = storage_path('app/testing/sicoes-batch-isolation-'.Str::uuid());
-        File::deleteDirectory($this->basePath);
-        File::deleteDirectory(storage_path('app/public/convocatorias/sicoes/07-07-2099'));
+        $this->authenticateAdministrator();
 
         $this->source = BotSource::create([
             'name' => 'SICOES',
@@ -66,34 +70,50 @@ class SicoesBatchIsolationTest extends TestCase
         $this->area->profesions()->sync([$this->profession->id]);
         CompanyType::create(['company_type_name' => 'Publica']);
 
-        config()->set('services.sicoes_ai_provider', 'anthropic');
+        config()->set('sicoes.ai.provider', 'anthropic');
         config()->set('services.anthropic.api_key', 'test-key');
         config()->set('services.anthropic.model', 'claude-haiku-4-5-20251001');
     }
 
     protected function tearDown(): void
     {
-        File::deleteDirectory($this->basePath);
-        File::deleteDirectory(storage_path('app/public/convocatorias/sicoes/07-07-2099'));
-
-        foreach ([
-            'sicoes_scrape_batch_items',
-            'sicoes_scrape_batches',
-            'bot_vacancy_previews',
-            'announcements',
-            'locations',
-            'companies',
-            'company_types',
-            'bot_companies',
-            'bot_sources',
-            'area_profesion',
-            'profesions',
-            'areas',
-        ] as $table) {
-            Schema::dropIfExists($table);
-        }
+        $this->deleteTemporaryRunDirectory();
+        Storage::disk('public')->deleteDirectory('convocatorias/sicoes');
 
         parent::tearDown();
+    }
+
+    private function deleteTemporaryRunDirectory(): void
+    {
+        if ($this->basePath === null) {
+            return;
+        }
+
+        $testingRoot = str_replace('\\', '/', storage_path('framework/testing')).'/';
+        $candidate = str_replace('\\', '/', $this->basePath);
+
+        if (! str_starts_with($candidate, $testingRoot.'sicoes-batch-isolation-')) {
+            throw new \RuntimeException('Se rechazó limpiar una ruta fuera del directorio temporal de pruebas.');
+        }
+
+        File::deleteDirectory($this->basePath);
+    }
+
+    private function authenticateAdministrator(): void
+    {
+        $role = (new Role)->forceFill([
+            'name' => 'ADMIN',
+            'guard_name' => 'web',
+        ]);
+        $user = (new User)->forceFill([
+            'id' => (string) Str::uuid(),
+            'name' => 'BOT Test Administrator',
+            'email' => 'bot-admin@example.test',
+            'email_verified_at' => now(),
+        ]);
+        $user->setRelation('roles', collect([$role]));
+
+        $this->actingAs($user);
     }
 
     public function test_same_document_is_cached_and_batches_do_not_mix_previews(): void
@@ -445,14 +465,6 @@ class SicoesBatchIsolationTest extends TestCase
 
     private function createSchema(): void
     {
-        foreach ([
-            'sicoes_scrape_batch_items', 'sicoes_scrape_batches', 'bot_vacancy_previews', 'announcements',
-            'locations', 'companies', 'company_types', 'bot_companies', 'bot_sources', 'area_profesion',
-            'profesions', 'areas',
-        ] as $table) {
-            Schema::dropIfExists($table);
-        }
-
         Schema::create('areas', function (Blueprint $table): void {
             $table->id();
             $table->string('area_name');
