@@ -4857,6 +4857,85 @@ async function irAPaginaSiHaceFalta(page, pagina) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const SICOES_BASE = 'https://www.sicoes.gob.bo';
+const SICOES_ALLOWED_HOSTS = new Set(['www.sicoes.gob.bo']);
+const SICOES_REPLAY_METHODS = new Set(['GET', 'POST']);
+const SICOES_MAX_REPLAY_BODY_BYTES = 1024 * 1024;
+const SICOES_MAX_REPLAY_RESPONSE_BYTES = 100 * 1024 * 1024;
+const SICOES_MAX_BROWSER_RESPONSE_BYTES = 25 * 1024 * 1024;
+const SICOES_MAX_DIAGNOSTIC_RESPONSE_BYTES = 1024 * 1024;
+const SICOES_REPLAY_TIMEOUT_MS = 55000;
+const SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS = 150000;
+
+function safeSicoesRequestUrl(value) {
+  try {
+    const url = new URL(String(value || ''));
+
+    if (
+      url.protocol !== 'https:'
+      || !SICOES_ALLOWED_HOSTS.has(url.hostname.toLowerCase())
+      || (url.port && url.port !== '443')
+      || url.username
+      || url.password
+    ) {
+      return null;
+    }
+
+    return url;
+  } catch (_) {
+    return null;
+  }
+}
+
+function capturedHeaderValue(headers, name, maxChars = 500) {
+  const pair = Object.entries(headers || {})
+    .find(([key]) => key.toLowerCase() === name.toLowerCase());
+  const value = String(pair?.[1] || '').trim();
+
+  if (!value || value.length > maxChars || /[\r\n\0]/.test(value)) {
+    return '';
+  }
+
+  return value;
+}
+
+async function readResponseBufferLimited(response, maxBytes, abortController) {
+  const contentLength = Number(response.headers.get('content-length') || 0);
+
+  if (Number.isFinite(contentLength) && contentLength > maxBytes) {
+    abortController.abort();
+    throw new Error(`respuesta_http_supera_limite_${maxBytes}`);
+  }
+
+  if (!response.body) {
+    return Buffer.alloc(0);
+  }
+
+  const reader = response.body.getReader();
+  const chunks = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) break;
+
+      const chunk = Buffer.from(value);
+      totalBytes += chunk.length;
+
+      if (totalBytes > maxBytes) {
+        abortController.abort();
+        throw new Error(`respuesta_http_supera_limite_${maxBytes}`);
+      }
+
+      chunks.push(chunk);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  return Buffer.concat(chunks, totalBytes);
+}
 
 // ─── Localizar link de descarga en la tabla ────────────────────────────────────
 // Retorna { token, nombre, onclick } o null.
@@ -4966,9 +5045,11 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
 
   // Durante 15s registramos TODO lo que sale despues de llamar descargarArchivo().
   // Si alguna request parece descarga, la guardamos como candidata para reproducirla.
+  let cancelRequestCapture = () => {};
   const requestCapture = new Promise((resolve, reject) => {
     let timeout;
     let matchedRequest = null;
+    let settled = false;
 
     const cleanup = () => {
       clearTimeout(timeout);
@@ -4979,6 +5060,8 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
     };
 
     const finish = () => {
+      if (settled) return;
+      settled = true;
       cleanup();
       saveTrace(matchedRequest ? 'matched' : 'timeout_sin_match');
       if (matchedRequest) {
@@ -4988,11 +5071,26 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
       reject(new Error('timeout_captura_request_cdp'));
     };
 
+    cancelRequestCapture = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      saveTrace('cancelled');
+      resolve(null);
+    };
+
     const handler = (params) => {
       const url = params.request?.url || '';
       const body = params.request?.postData || '';
-      const method = params.request?.method || '';
+      const method = String(params.request?.method || '').toUpperCase();
       const resourceType = params.type || '';
+      const safeUrl = safeSicoesRequestUrl(url);
+      const searchableUrl = safeUrl
+        ? `${safeUrl.pathname}${safeUrl.search}`.toLowerCase()
+        : '';
+      const includesExpectedToken = Boolean(
+        token && safeUrl && (body.includes(token) || safeUrl.search.includes(token))
+      );
 
       const entry = {
         ts: new Date().toISOString(),
@@ -5016,13 +5114,14 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
       if (requestTrace.length > TRACE_REQUEST_LIMIT) requestTrace.shift();
       console.log(`  [CDP_TRACE] ${method || '-'} ${resourceType || '-'} ${entry.url}`);
 
-      const esDescarga = (
-        url.includes('descargar') ||
-        url.includes('Descargar') ||
-        url.includes('archivo') ||
-        url.includes('Archivo') ||
-        (url.includes('sicoes.gob.bo') && (body.includes(token) || url.includes(token))) ||
-        (body && /token|archivo|descarga|documento/i.test(body))
+      const esDescarga = Boolean(
+        safeUrl
+        && SICOES_REPLAY_METHODS.has(method)
+        && (
+          searchableUrl.includes('descargar')
+          || searchableUrl.includes('archivo')
+          || includesExpectedToken
+        )
       );
 
       if (esDescarga && !matchedRequest) {
@@ -5042,9 +5141,10 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
 
   // Disparar la función JS del portal — esto enviará la request real
   try {
-    await page.evaluate(tok => {
+    const triggered = await page.evaluate(tok => {
       if (typeof window.descargarArchivo === 'function') {
         window.descargarArchivo(tok);
+        return true;
       } else {
         // Fallback: simular el submit del formulario si existe
         const form = document.getElementById('formDescargaArchivoPortal') ||
@@ -5054,14 +5154,21 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
                       form.querySelector('input[name="token"]');
           if (inp) inp.value = tok;
           form.submit();
+          return true;
         } else {
-          throw new Error('No se encontró window.descargarArchivo ni formulario de descarga');
+          return false;
         }
       }
     }, token);
+
+    if (!triggered) {
+      cancelRequestCapture();
+      console.log('  [CDP] No se encontro funcion ni formulario de descarga.');
+      return null;
+    }
   } catch (evalErr) {
     console.log(`  [CDP] Error al disparar descarga: ${errorMessage(evalErr)}`);
-    return null;
+    console.log('  [CDP] Se esperara la captura por si la navegacion destruyo el contexto.');
   }
 
   // Esperar la captura de la request
@@ -5073,14 +5180,28 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
     return null;
   }
 
-  // Obtener cookies actuales de la sesión del browser
-  const cookies = await page.cookies();
+  const requestUrl = safeSicoesRequestUrl(reqInfo.url);
+  const requestMethod = String(reqInfo.method || '').toUpperCase();
+  const requestBody = String(reqInfo.postData || '');
+
+  if (!requestUrl || !SICOES_REPLAY_METHODS.has(requestMethod)) {
+    console.log('  [CDP] Request candidata rechazada por politica de destino.');
+    return null;
+  }
+
+  if (Buffer.byteLength(requestBody, 'utf8') > SICOES_MAX_REPLAY_BODY_BYTES) {
+    console.log('  [CDP] Request candidata rechazada por tamano de body.');
+    return null;
+  }
+
+  // Obtener solo cookies aplicables al endpoint SICOES permitido, incluyendo su Path.
+  const cookies = await page.cookies(requestUrl.href);
   const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+  const requestContentType = capturedHeaderValue(reqInfo.headers, 'content-type');
+  const requestedWith = capturedHeaderValue(reqInfo.headers, 'x-requested-with', 100);
 
   // Construir headers para la request reproducida en Node.js
-  // Preservamos los headers originales pero forzamos las cookies actuales
   const headers = {
-    ...reqInfo.headers,
     'Cookie'        : cookieHeader,
     'Referer'       : `${SICOES_BASE}/portal/contrataciones/busqueda/convocatorias.php`,
     'Origin'        : SICOES_BASE,
@@ -5088,27 +5209,48 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
     'Accept'        : 'application/octet-stream, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*',
     'Accept-Language': 'es-BO,es;q=0.9',
   };
-  // Eliminar headers que fetch no acepta o que causarían conflictos
-  delete headers['content-length'];
-  delete headers['transfer-encoding'];
 
-  console.log(`  [CDP] Reproduciendo ${reqInfo.method} ${redactUrl(reqInfo.url)}`);
-  console.log(`  [CDP] Body: ${JSON.stringify(summarizePostData(reqInfo.postData))}`);
+  if (requestContentType) headers['Content-Type'] = requestContentType;
+  if (requestedWith.toLowerCase() === 'xmlhttprequest') {
+    headers['X-Requested-With'] = 'XMLHttpRequest';
+  }
 
+  console.log(`  [CDP] Reproduciendo ${requestMethod} ${redactUrl(requestUrl.href)}`);
+  console.log(`  [CDP] Body: ${JSON.stringify(summarizePostData(requestBody))}`);
+
+  const abortController = new AbortController();
+  const abortTimeout = setTimeout(
+    () => abortController.abort(new Error('timeout_fetch_sicoes')),
+    SICOES_REPLAY_TIMEOUT_MS
+  );
   let response;
+  let responseBuffer = Buffer.alloc(0);
+  let contentType = '';
+  let contentDisp = '';
+
   try {
-    response = await nodeFetch(reqInfo.url, {
-      method : reqInfo.method,
+    response = await nodeFetch(requestUrl.href, {
+      method : requestMethod,
       headers,
-      body   : reqInfo.method !== 'GET' ? reqInfo.postData : undefined,
+      body   : requestMethod !== 'GET' ? requestBody : undefined,
+      redirect: 'manual',
+      signal: abortController.signal,
     });
   } catch (fetchErr) {
+    clearTimeout(abortTimeout);
     console.log(`  [CDP] Error en fetch reproducido: ${errorMessage(fetchErr)}`);
     return null;
   }
 
-  const contentType  = response.headers.get('content-type')        || '';
-  const contentDisp  = response.headers.get('content-disposition') || '';
+  if (response.status >= 300 && response.status < 400) {
+    abortController.abort();
+    clearTimeout(abortTimeout);
+    console.log(`  [CDP] Redireccion HTTP bloqueada (status=${response.status}).`);
+    return null;
+  }
+
+  contentType = response.headers.get('content-type') || '';
+  contentDisp = response.headers.get('content-disposition') || '';
   const xDebug       = response.headers.get('x-debug')             || '';
   console.log(`  [CDP] Respuesta: ${response.status} content-type=${redactSensitiveText(contentType, 200)} content-disposition=${redactSensitiveText(contentDisp, 300)}`);
   if (xDebug) console.log('  [CDP] La respuesta incluyo cabecera X-Debug (valor omitido).');
@@ -5122,18 +5264,32 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
     contentDisp.includes('filename')
   );
 
+  try {
+    responseBuffer = await readResponseBufferLimited(
+      response,
+      response.ok && esArchivoBinario
+        ? SICOES_MAX_REPLAY_RESPONSE_BYTES
+        : SICOES_MAX_DIAGNOSTIC_RESPONSE_BYTES,
+      abortController
+    );
+  } catch (readErr) {
+    console.log(`  [CDP] Error al leer respuesta: ${errorMessage(readErr)}`);
+    return null;
+  } finally {
+    clearTimeout(abortTimeout);
+  }
+
   if (!response.ok || !esArchivoBinario) {
     // Guardar solo metadatos; el cuerpo puede contener tokens, HTML de sesion o documentos.
     try {
-      const debugText = await response.text();
       const debugPath = path.join(inputDir, `_http-debug-${safeFileName(cuce)}.json`);
       const metadata = {
         capturedAt: new Date().toISOString(),
         status: response.status,
-        url: redactUrl(reqInfo.url),
+        url: redactUrl(requestUrl.href),
         contentType: redactSensitiveText(contentType, 200),
         contentDisposition: redactSensitiveText(contentDisp, 300),
-        ...payloadMetadata(debugText),
+        ...payloadMetadata(responseBuffer),
       };
       writeFileSafe(debugPath, JSON.stringify(metadata, null, 2), 'utf8');
       console.log(`  [CDP] Metadatos de respuesta no binaria: ${safePathForLog(debugPath)}`);
@@ -5142,7 +5298,7 @@ async function descargarViaInterceptCDP(page, token, inputDir, convocatoria, arc
   }
 
   // Tenemos un archivo binario — guardarlo
-  const buffer = Buffer.from(await response.arrayBuffer());
+  const buffer = responseBuffer;
   if (buffer.length < 1000) {
     console.log(`  [CDP] Archivo muy pequeño (${buffer.length} bytes), ignorando`);
     return null;
@@ -5165,13 +5321,37 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
   const cuce = convocatoria?.cuce || 'sin_cuce';
   console.log(`  [FETCH] Intentando fetch interno del browser para CUCE ${cuce}`);
 
-  const resultado = await page.evaluate(async (tok) => {
+  const resultado = await page.evaluate(async (
+    tok,
+    maxRequestBytes,
+    maxResponseBytes,
+    requestTimeoutMs
+  ) => {
     const BASE = 'https://www.sicoes.gob.bo';
 
     // Intentar obtener la URL real del form si existe
     const form = document.getElementById('formDescargaArchivoPortal') ||
                  document.querySelector('form[action*="descargar"]');
     const formAction = form?.action || `${BASE}/portal/contrataciones/busqueda/descargarArchivo.php`;
+    let safeFormAction;
+
+    try {
+      const parsed = new URL(formAction, window.location.href);
+
+      if (
+        parsed.protocol !== 'https:'
+        || parsed.hostname.toLowerCase() !== 'www.sicoes.gob.bo'
+        || (parsed.port && parsed.port !== '443')
+        || parsed.username
+        || parsed.password
+      ) {
+        return { ok: false, motivo: 'destino_descarga_no_permitido' };
+      }
+
+      safeFormAction = parsed.href;
+    } catch (_) {
+      return { ok: false, motivo: 'destino_descarga_invalido' };
+    }
 
     // Recopilar campos ocultos del formulario
     const formFields = {};
@@ -5181,10 +5361,17 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
       }
     }
 
-    const body = new URLSearchParams({ tokenarchivo: tok, ...formFields });
+    const body = new URLSearchParams({ ...formFields, tokenarchivo: tok }).toString();
+
+    if (new TextEncoder().encode(body).byteLength > maxRequestBytes) {
+      return { ok: false, motivo: 'cuerpo_descarga_supera_limite' };
+    }
+
+    const abortController = new AbortController();
+    const abortTimeout = setTimeout(() => abortController.abort(), requestTimeoutMs);
 
     try {
-      const resp = await fetch(formAction, {
+      const resp = await fetch(safeFormAction, {
         method     : 'POST',
         headers    : {
           'Content-Type'    : 'application/x-www-form-urlencoded',
@@ -5195,7 +5382,9 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
           'X-Requested-With': 'XMLHttpRequest',
         },
         credentials: 'include',
-        body       : body.toString(),
+        redirect   : 'error',
+        signal     : abortController.signal,
+        body,
       });
 
       const ct = resp.headers.get('content-type') || '';
@@ -5207,27 +5396,57 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
       );
 
       if (!esArchivo) {
-        const texto = await resp.text();
-        return { ok: false, motivo: 'respuesta_no_binaria', status: resp.status, ct, responseLength: texto.length };
+        await resp.body?.cancel().catch(() => {});
+        return { ok: false, motivo: 'respuesta_no_binaria', status: resp.status, ct };
       }
 
-      const buf = await resp.arrayBuffer();
-      if (buf.byteLength < 1000) return { ok: false, motivo: 'archivo_muy_pequeno', size: buf.byteLength };
+      const declaredSize = Number(resp.headers.get('content-length') || 0);
+      if (Number.isFinite(declaredSize) && declaredSize > maxResponseBytes) {
+        await resp.body?.cancel().catch(() => {});
+        return { ok: false, motivo: 'archivo_supera_limite', size: declaredSize };
+      }
+
+      const reader = resp.body?.getReader();
+      if (!reader) return { ok: false, motivo: 'respuesta_sin_stream' };
+
+      const chunks = [];
+      let totalBytes = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        totalBytes += value.byteLength;
+        if (totalBytes > maxResponseBytes) {
+          await reader.cancel().catch(() => {});
+          return { ok: false, motivo: 'archivo_supera_limite', size: totalBytes };
+        }
+        chunks.push(value);
+      }
+
+      if (totalBytes < 1000) return { ok: false, motivo: 'archivo_muy_pequeno', size: totalBytes };
 
       // Convertir a base64 para retornar a Node.js
-      const uint8  = new Uint8Array(buf);
+      const uint8 = new Uint8Array(totalBytes);
+      let offset = 0;
+      for (const chunk of chunks) {
+        uint8.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
       let binary   = '';
       for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
       const base64 = btoa(binary);
       const filename = (cd.match(/filename[^;=\n]*=(['"]?)([^'";\n]*)['"]?/i) || [])[2] || '';
-      return { ok: true, base64, filename, endpoint: formAction, ct, size: buf.byteLength };
+      return { ok: true, base64, filename, endpoint: safeFormAction, ct, size: totalBytes };
     } catch (e) {
       return { ok: false, motivo: String(e?.name || 'error_fetch_browser') };
+    } finally {
+      clearTimeout(abortTimeout);
     }
-  }, token);
+  }, token, SICOES_MAX_REPLAY_BODY_BYTES, SICOES_MAX_BROWSER_RESPONSE_BYTES, SICOES_REPLAY_TIMEOUT_MS);
 
   if (!resultado.ok) {
-    console.log(`  [FETCH] Fallo: ${resultado.motivo || '?'} status=${resultado.status || 'N/A'} bytes=${resultado.responseLength || 0}`);
+    console.log(`  [FETCH] Fallo: ${resultado.motivo || '?'} status=${resultado.status || 'N/A'} bytes=${resultado.size || resultado.responseLength || 0}`);
     return null;
   }
 
@@ -5662,7 +5881,7 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
       return cdpResult;
     }
   } catch (e) {
-    console.log(`  [CDP] Error inesperado: ${e.message}`);
+    console.log(`  [CDP] Error inesperado: ${errorMessage(e)}`);
   }
 
   // 3. Fallback: fetch desde dentro del browser con credentials include
@@ -5675,7 +5894,7 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
       return fetchResult;
     }
   } catch (e) {
-    console.log(`  [FETCH] Error inesperado: ${e.message}`);
+    console.log(`  [FETCH] Error inesperado: ${errorMessage(e)}`);
   }
 
   // 4. Modo asistido: humano resuelve Cloudflare y el scraper espera el Word.
@@ -5697,7 +5916,7 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
         return manualResult;
       }
     } catch (e) {
-      console.log(`  [MANUAL] Error inesperado: ${e.message}`);
+      console.log(`  [MANUAL] Error inesperado: ${errorMessage(e)}`);
     }
   }
 
@@ -5814,7 +6033,7 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
                   assistedDownload: false,
                   manualDownloadTimeoutMs,
                 }),
-                WORD_DOWNLOAD_TIMEOUT_MS,
+                SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS,
                 `descarga Word CUCE ${convocatoria.cuce || 'sin_cuce'}`
               );
             }
