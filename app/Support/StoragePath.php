@@ -95,7 +95,20 @@ class StoragePath
             return null;
         }
 
-        return asset('storage/'.$path);
+        $encodedPath = implode('/', array_map('rawurlencode', explode('/', $path)));
+
+        return asset('storage/'.$encodedPath);
+    }
+
+    public static function existingUrl(?string $path): ?string
+    {
+        $path = self::normalizePublicPath($path);
+
+        if (! $path || ! Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return self::url($path);
     }
 
     private static function startsWithPublicPrefix(string $path): bool

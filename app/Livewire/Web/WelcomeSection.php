@@ -3,20 +3,31 @@
 namespace App\Livewire\Web;
 
 use App\Models\TbnSetting;
+use App\Support\StoragePath;
 use Livewire\Component;
 
 class WelcomeSection extends Component
 {
-    public $bg_web_image, $thumb_web_image;
+    public ?string $bgWebImageUrl = null;
+
+    public ?string $thumbWebImageUrl = null;
+
+    public function mount(): void
+    {
+        $images = TbnSetting::whereIn('key', ['bg_web_image', 'thumb_web_image'])
+            ->pluck('value', 'key');
+
+        $this->bgWebImageUrl = StoragePath::existingUrl($images->get('bg_web_image'));
+        $this->thumbWebImageUrl = StoragePath::existingUrl($images->get('thumb_web_image'));
+    }
 
     public function render()
     {
-        $this->bg_web_image = TbnSetting::where('key', 'bg_web_image')->first();
-        $this->thumb_web_image = TbnSetting::where('key', 'thumb_web_image')->first();
-
         return <<<'HTML'
-        <section class="bg-bottom bg-cover"
-            style="background-image: url({{ asset('storage/'.$bg_web_image->value) }})">
+        <section class="bg-bottom bg-cover bg-tbn-dark"
+            @if ($bgWebImageUrl)
+                style="background-image: url('{{ $bgWebImageUrl }}')"
+            @endif>
             <div class="z-10 max-w-6xl md:h-[40rem] h-[45rem] flex flex-col-reverse md:flex-row justify-center items-center gap-2 lg:gap-4 mx-auto">
                 <div class="px-6 mx-auto lg:w-7/12">
                     <h4 class="mb-2 text-3xl font-bold text-center text-white sm:text-left sm:text-4xl lg:text-5xl title-font"
@@ -42,11 +53,18 @@ class WelcomeSection extends Component
                         </div>
                     </div>
                 </div>
-                <picture class="z-1 lg:w-5/12" data-aos="zoom-in" data-aos-delay="800"
+                <div class="z-1 lg:w-5/12" data-aos="zoom-in" data-aos-delay="800"
                     data-aos-duration="1000" data-aos-once="true">
-                    <img class="z-0 animate-astronaut mx-auto max-w-[9rem] md:max-w-[15rem] lg:max-w-[20rem]"
-                        src="{{ asset('storage/'.$thumb_web_image->value) }}" alt="astronaut-image">
-                </picture>
+                    @if ($thumbWebImageUrl)
+                        <img class="z-0 animate-astronaut mx-auto max-w-[9rem] md:max-w-[15rem] lg:max-w-[20rem]"
+                            src="{{ $thumbWebImageUrl }}" alt="Astronauta">
+                    @else
+                        <div class="flex items-center justify-center mx-auto text-white/70 w-36 h-36 md:w-60 md:h-60"
+                            aria-label="Imagen del astronauta no configurada">
+                            <i class="text-7xl fa-solid fa-user-astronaut" aria-hidden="true"></i>
+                        </div>
+                    @endif
+                </div>
             </div>
         </section>
         HTML;

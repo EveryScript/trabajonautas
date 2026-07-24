@@ -3,22 +3,30 @@
 namespace App\Livewire\Web;
 
 use App\Models\TbnSetting;
+use App\Support\StoragePath;
 use Livewire\Component;
 
 class FooterData extends Component
 {
-    public $bg_web_image;
+    public ?string $bgWebImageUrl = null;
 
-    public function mount()
+    public ?string $greetingImageUrl = null;
+
+    public function mount(): void
     {
-        $this->bg_web_image = TbnSetting::where('key', 'bg_web_image')->first();
+        $this->bgWebImageUrl = StoragePath::existingUrl(
+            TbnSetting::where('key', 'bg_web_image')->value('value'),
+        );
+        $this->greetingImageUrl = StoragePath::existingUrl('ajustes/astro-greeting.webp');
     }
 
     public function render()
     {
         return <<<'HTML'
-            <footer class="relative overflow-hidden bg-no-repeat bg-cover block px-5 pt-16 h-[45rem] sm:h-[24rem] body-font"
-            style="background-image: url({{ asset('storage/'.$bg_web_image->value) }})">
+            <footer class="relative overflow-hidden bg-no-repeat bg-cover block px-5 pt-16 h-[45rem] sm:h-[24rem] body-font bg-tbn-dark"
+                @if ($bgWebImageUrl)
+                    style="background-image: url('{{ $bgWebImageUrl }}')"
+                @endif>
                 <picture class="block max-w-6xl mx-auto mb-6">
                     <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-white.webp') }}" alt="tbn-logo">
                 </picture>
@@ -53,10 +61,12 @@ class FooterData extends Component
                         </nav>
                     </div>
                 </div>
-                <div class="absolute right-4 -bottom-52 lg:right-36">
-                    <img src="{{ asset('storage/ajustes/astro-greeting.webp') }}" alt="Astronauta" class="object-contain h-auto"
-                        style="width: 16rem">
-                </div>
+                @if ($greetingImageUrl)
+                    <div class="absolute right-4 -bottom-52 lg:right-36">
+                        <img src="{{ $greetingImageUrl }}" alt="Astronauta" class="object-contain h-auto"
+                            style="width: 16rem">
+                    </div>
+                @endif
             </footer>
         HTML;
     }
