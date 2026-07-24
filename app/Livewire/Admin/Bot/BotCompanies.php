@@ -7,8 +7,11 @@ use App\Models\BotCompany;
 use App\Models\BotSource;
 use App\Models\BotVacancyPreview;
 use App\Models\SicoesScrapeBatch;
+use App\Support\SensitiveDataSanitizer;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -261,32 +264,63 @@ class BotCompanies extends Component
             }
 
             $company = $this->ensureSicoesCompany();
-            $activeBatch = SicoesScrapeBatch::query()
-                ->where('bot_company_id', $company->id)
-                ->whereDate('requested_date', $this->sicoesDate)
-                ->whereIn('status', ['queued', 'running'])
-                ->where('created_at', '>=', now()->subHours(3))
-                ->latest('created_at')
-                ->first();
 
-            if ($activeBatch) {
+            if (! $company->active) {
+                $this->errorMessage = 'La fuente SICOES esta deshabilitada. Reactivala antes de iniciar una ejecucion.';
+
+                return;
+            }
+
+            $requestedDate = $this->sicoesDate;
+            $batch = DB::transaction(function () use ($company, $requestedDate): ?SicoesScrapeBatch {
+                $lockedCompany = BotCompany::query()
+                    ->whereKey($company->getKey())
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if (! $lockedCompany->active) {
+                    throw new \RuntimeException(
+                        'La empresa SICOES fue deshabilitada mientras se preparaba la ejecucion.'
+                    );
+                }
+
+                if ((int) $lockedCompany->bot_source_id !== (int) $this->source->id) {
+                    throw new \RuntimeException(
+                        'La empresa SICOES cambio de fuente mientras se preparaba la ejecucion.'
+                    );
+                }
+
+                $activeBatch = SicoesScrapeBatch::query()
+                    ->where('bot_company_id', $lockedCompany->getKey())
+                    ->where('requested_date', $requestedDate)
+                    ->whereIn('status', SicoesScrapeBatch::ACTIVE_STATUSES)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($activeBatch) {
+                    return null;
+                }
+
+                return SicoesScrapeBatch::query()->create([
+                    'id' => (string) Str::uuid(),
+                    'bot_company_id' => $lockedCompany->getKey(),
+                    'requested_date' => $requestedDate,
+                    'status' => SicoesScrapeBatch::STATUS_QUEUED,
+                ]);
+            }, 3);
+
+            if (! $batch) {
                 $this->errorMessage = 'Ya existe una ejecucion SICOES activa para esa fecha. Espera a que termine antes de volver a enviarla.';
 
                 return;
             }
 
-            $runId = (string) Str::uuid();
-            $batch = SicoesScrapeBatch::create([
-                'id' => $runId,
-                'bot_company_id' => $company->id,
-                'requested_date' => $this->sicoesDate,
-                'status' => 'queued',
-            ]);
+            $runId = (string) $batch->getKey();
 
             $this->sicoesProgress = [
                 'run_id' => $runId,
-                'status' => 'queued',
-                'date' => $this->sicoesDate,
+                'status' => SicoesScrapeBatch::STATUS_QUEUED,
+                'date' => $requestedDate,
                 'total' => 0,
                 'processed' => 0,
                 'saved' => 0,
@@ -295,27 +329,86 @@ class BotCompanies extends Component
                 'last_step' => 'Job en cola',
                 'queued_at' => now()->toDateTimeString(),
             ];
-            Cache::put($this->sicoesProgressKey($this->sicoesDate), $this->sicoesProgress, now()->addDay());
+            Cache::put($this->sicoesProgressKey($requestedDate), $this->sicoesProgress, now()->addDay());
 
             ProcessSicoesJob::dispatch(
-                $this->sicoesDate,
-                $company->id,
+                $requestedDate,
+                (int) $company->getKey(),
                 (string) auth()->id(),
                 $runId,
-            );
+            )->afterCommit();
 
             $this->message = 'SICOES fue enviado a la cola. El scraper correra en background y mostrara resultados para revisar antes de publicar.';
         } catch (\Throwable $exception) {
-            $batch?->update([
-                'status' => 'failed',
-                'summary' => ['error' => Str::limit($exception->getMessage(), 500, '')],
-                'finished_at' => now(),
+            $failure = SensitiveDataSanitizer::exception($exception, 240);
+            $storedFailure = [
+                'type' => $failure['type'],
+                'code' => $failure['code'],
+                'failed_at' => now()->toIso8601String(),
+            ];
+            $markedAsFailed = false;
+
+            if ($batch) {
+                try {
+                    $markedAsFailed = SicoesScrapeBatch::query()
+                        ->whereKey($batch->getKey())
+                        ->where('status', SicoesScrapeBatch::STATUS_QUEUED)
+                        ->update([
+                            'status' => SicoesScrapeBatch::STATUS_FAILED,
+                            'summary' => json_encode(
+                                ['failure' => $storedFailure],
+                                JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+                            ),
+                            'finished_at' => now(),
+                        ]) === 1;
+                } catch (\Throwable $recoveryException) {
+                    Log::warning('SICOES no pudo marcar como fallido un lote cuyo despacho fallo.', [
+                        'run_id' => (string) $batch->getKey(),
+                        'exception_type' => get_debug_type($recoveryException),
+                    ]);
+                }
+            }
+
+            if ($batch && $markedAsFailed) {
+                $this->sicoesProgress = [
+                    'run_id' => (string) $batch->getKey(),
+                    'status' => SicoesScrapeBatch::STATUS_FAILED,
+                    'date' => $this->sicoesDate,
+                    'failed' => 1,
+                    'last_step' => 'No se pudo enviar el trabajo SICOES a la cola.',
+                    'failed_at' => now()->toDateTimeString(),
+                ];
+
+                try {
+                    Cache::put(
+                        $this->sicoesProgressKey($this->sicoesDate),
+                        $this->sicoesProgress,
+                        now()->addDay(),
+                    );
+                } catch (\Throwable $cacheException) {
+                    Log::warning('SICOES no pudo actualizar la cache de un despacho fallido.', [
+                        'run_id' => (string) $batch->getKey(),
+                        'exception_type' => get_debug_type($cacheException),
+                    ]);
+                }
+            }
+
+            Log::error('SICOES no pudo crear o despachar el trabajo.', [
+                'run_id' => $batch ? (string) $batch->getKey() : null,
+                'bot_company_id' => $batch?->bot_company_id,
+                'requested_date' => $this->sicoesDate,
+                'failure' => $failure,
             ]);
-            report($exception);
-            $this->errorMessage = 'SICOES no pudo ejecutarse: '.Str::limit($exception->getMessage(), 240, '');
+            $this->errorMessage = 'SICOES no pudo iniciar la ejecucion. Revisa la configuracion de la cola e intentalo nuevamente.';
         }
 
-        $this->refreshDashboardStats();
+        try {
+            $this->refreshDashboardStats();
+        } catch (\Throwable $refreshException) {
+            Log::warning('SICOES no pudo refrescar las estadisticas despues del despacho.', [
+                'exception_type' => get_debug_type($refreshException),
+            ]);
+        }
     }
 
     public function refreshSicoesProgress(): void
@@ -512,16 +605,35 @@ class BotCompanies extends Component
 
     private function ensureSicoesCompany(): BotCompany
     {
-        return BotCompany::updateOrCreate(
-            ['slug' => 'sicoes'],
-            [
-                'bot_source_id' => $this->source->id,
-                'name' => 'SICOES',
-                'evaluar_url' => 'https://www.sicoes.gob.bo',
-                'logo' => 'empresas/tbn-new-default.webp',
-                'active' => true,
-            ],
-        );
+        $company = BotCompany::query()->where('slug', 'sicoes')->first();
+
+        if (! $company) {
+            $company = DB::transaction(function (): BotCompany {
+                BotSource::query()
+                    ->whereKey($this->source->getKey())
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                return BotCompany::firstOrCreate(
+                    ['slug' => 'sicoes'],
+                    [
+                        'bot_source_id' => $this->source->id,
+                        'name' => 'SICOES',
+                        'evaluar_url' => 'https://www.sicoes.gob.bo',
+                        'logo' => null,
+                        'active' => true,
+                    ],
+                );
+            }, 3);
+        }
+
+        if ((int) $company->bot_source_id !== (int) $this->source->id) {
+            throw new \RuntimeException(
+                'La empresa SICOES esta vinculada a una fuente distinta y requiere revision administrativa.'
+            );
+        }
+
+        return $company;
     }
 
     private function normalizeEvaluarUrl(string $url): string

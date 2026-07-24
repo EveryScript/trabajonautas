@@ -20,6 +20,11 @@ class SicoesScrapeBatch extends Model
 
     public const STATUS_FINISHED_LEGACY = 'finished';
 
+    public const ACTIVE_STATUSES = [
+        self::STATUS_QUEUED,
+        self::STATUS_RUNNING,
+    ];
+
     public const TERMINAL_STATUSES = [
         self::STATUS_COMPLETED,
         self::STATUS_PARTIAL,
