@@ -7,6 +7,7 @@ use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\TbnSetting;
 use App\Models\User;
+use App\Services\BanecoService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
@@ -50,24 +51,50 @@ class PurchaseAccount extends Component
 
         try {
             DB::transaction(function () use ($validated) {
-                $acc_type = AccountType::select('price')->findOrFail($this->account_type_id);
+
+                $acc_type = AccountType::select('price')
+                    ->findOrFail($this->account_type_id);
 
                 $this->client->update([
                     'location_id' => $validated['location_id'],
                     'profesion_id' => $validated['profesion_id']
                 ]);
-                $this->client->subscriptions()->create([
-                    'account_type_id' => $this->account_type_id,
-                    'price' => $acc_type->price
+
+                $subscription = $this->client->subscriptions()->create([
+                    'account_type_id'  => $this->account_type_id,
+                    'price'            => $acc_type->price,
+                    'verified_payment' => false,
                 ]);
 
-                return $this->redirectRoute('dashboard', navigate: true);
+                $expiresAt = now()->addDay();
+
+                $baneco = app(BanecoService::class);
+
+                $qr = $baneco->generateQR(
+                    transactionId: (string) $subscription->id,
+                    amount: (float) $acc_type->price,
+                    description: 'Suscripción ' . $this->client->name,
+                    dueDate: $expiresAt->format('Y-m-d'),
+                );
+
+                $subscription->update([
+                    'qr_id'         => $qr['qrId'],
+                    'qr_image'      => $qr['qrImage'],
+                    'qr_expires_at' => $expiresAt,
+                ]);
             });
+
+            $this->redirectRoute('dashboard', navigate: true);
         } catch (\Exception $e) {
-            Log::error("Error al comprar la cuenta: " . $e->getMessage());
-            $this->addError('transaction', 'No pudimos procesar tu pago. Revisa los datos.');
+            Log::error('Error al comprar la cuenta', [
+                'user_id' => $this->client->id,
+                'error'   => $e->getMessage(),
+            ]);
+            $this->addError(
+                'transaction',
+                'No pudimos procesar la compra. Por favor, intenta nuevamente.'
+            );
         }
-        $this->redirectRoute('dashboard', navigate: true);
     }
 
     public function backToDashboard()
@@ -95,9 +122,6 @@ class PurchaseAccount extends Component
 
     public function render()
     {
-        return view('livewire.web.purchase-account', [
-            'qr_pro' => TbnSetting::where('key', 'qr_pro')->first(),
-            'qr_promax' => TbnSetting::where('key', 'qr_promax')->first()
-        ]);
+        return view('livewire.web.purchase-account');
     }
 }
