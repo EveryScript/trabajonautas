@@ -48,7 +48,7 @@
                         </div>
                         <ul class="my-6 space-y-2 text-sm text-tbn-dark dark:text-white">
                             <li class="flex items-center">
-                                <i class="mr-2 text-green-500 fas fa-check"></i> Convocatorias estandar
+                                <i class="mr-2 text-green-500 fas fa-check"></i> Convocatorias Free
                             </li>
                             <li class="flex items-center">
                                 @if ($account_type->id == 1)
