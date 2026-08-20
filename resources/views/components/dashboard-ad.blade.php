@@ -25,6 +25,22 @@
                 </li>
                 <li class="flex items-center">
                     <i class="mr-2 text-green-500 fas fa-check"></i> Monedas especiales: {{ $tbn_coins }}
+                    {{-- Coins tooltip --}}
+                    <div class="relative inline-block ml-2 group">
+                        <button class="rounded-full text-tbn-primary hover:text-tbn-secondary focus:outline-none">
+                            <i class="text-xs fa-regular fa-circle-question"></i>
+                        </button>
+                        <div
+                            class="absolute bottom-full left-1/3 mb-2 mr-2 hidden -translate-x-1/2 group-hover:block
+                w-64 max-w-[85vw] sm:w-max sm:max-w-xs
+                rounded-md bg-neutral-900 px-4 py-3 text-xs text-white shadow-lg transition-opacity">
+                            Estas monedas te permiten ver convocatorias que NO son de tu profesión por si
+                            tienes interés en explorar alguna otra oferta laboral.
+                            <div
+                                class="absolute -mt-1 -translate-x-1/2 border-4 border-transparent top-full left-1/2 border-t-neutral-900">
+                            </div>
+                        </div>
+                    </div>
                 </li>
             </ul>
             <div class="mt-4">

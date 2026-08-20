@@ -113,23 +113,15 @@
                             <x-label for="terms">
                                 <div class="flex items-center">
                                     <x-checkbox name="terms" id="terms" required />
-
-                                    <div class="text-xs ms-2">
-                                        {!! __('I agree to the :terms_of_service and :privacy_policy', [
-                                            'terms_of_service' =>
-                                                '<a target="_blank" href="' .
-                                                route('terms.show') .
-                                                '" class="underline transition-colors duration-150 rounded-md hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2">' .
-                                                __('Terms of Service') .
-                                                '</a>',
-                                            'privacy_policy' =>
-                                                '<a target="_blank" href="' .
-                                                route('policy.show') .
-                                                '" class="underline transition-colors duration-150 rounded-md hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2">' .
-                                                __('Privacy Policy') .
-                                                '</a>',
-                                        ]) !!}
-                                    </div>
+                                    <p class="ml-2 text-xs text-tbn-dark dark:text-tbn-light">
+                                        Al iniciar sesión con Google, aceptas nuestros
+                                        <a href="{{ route('terms.show') }}" target="_blank"
+                                            class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Términos
+                                            de servicio</a> y
+                                        <a href="{{ route('policy.show') }}" target="_blank"
+                                            class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Política
+                                            de privacidad</a>.
+                                    </p>
                                 </div>
                             </x-label>
                         </div>
