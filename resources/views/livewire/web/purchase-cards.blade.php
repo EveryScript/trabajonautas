@@ -27,7 +27,7 @@
                         <p class="mt-2 text-sm text-tbn-secondary dark:text-white">
                             @switch($account_type->id)
                                 @case(1)
-                                    La mejor opción para comenzar
+                                    La opción para comenzar
                                 @break
 
                                 @case(2)
@@ -35,7 +35,7 @@
                                 @break
 
                                 @case(3)
-                                    Navega sin límites en nuestra plataforma Trabajonautas.
+                                    Navega sin límites en nuestra plataforma.
                                 @break
                             @endswitch
                         </p>
