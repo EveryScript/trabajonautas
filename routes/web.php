@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\ExportDownloadController;
 use App\Http\Controllers\FaqController;
+use App\Livewire\Announcement\ExportAnnouncement;
 use App\Livewire\Announcement\FormAnnouncement;
 use App\Livewire\Announcement\ListAnnouncement;
 use App\Livewire\Area\FormArea;
@@ -59,6 +61,9 @@ Route::group(['middleware' => ['auth', 'verified', 'role:USER|ADMIN', 'only_one_
     Route::get('/admin/cliente', ListClient::class)->name('client');
     Route::get('/admin/config-cliente/{id}', ConfigClient::class)->name('config-client');
     Route::get('/admin/edit-cliente/{client}', FormClient::class)->name('edit-client');
+
+    // Export announcements
+    Route::get('/admin/exportar-convocatorias', ExportAnnouncement::class)->name('export-announces');
 });
 
 Route::group(['middleware' => ['auth', 'verified', 'role:ADMIN', 'only_one_session']], function () {
@@ -74,6 +79,9 @@ Route::group(['middleware' => ['auth', 'verified', 'role:ADMIN', 'only_one_sessi
 
     // Notices
     Route::get('/admin/noticias', ListNotices::class)->name('notice');
+
+    // Download announcements
+    Route::get('/exports/download/{file}', ExportDownloadController::class)->name('exports.download');
 });
 
 // Disabled
