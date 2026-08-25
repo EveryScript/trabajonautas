@@ -16,9 +16,9 @@ class SearchAnnouncement extends Component
     use AuthorizeClients;
 
     #[Url(keep: false)]
-    public $profesion_id = null;
+    public ?int $profesion_id = null;
     #[Url(keep: false)]
-    public $location_id = null;
+    public ?int $location_id = null;
     public int $per_page = 12;
 
     public function mount()

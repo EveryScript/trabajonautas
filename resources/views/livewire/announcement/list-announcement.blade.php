@@ -9,15 +9,22 @@
                 <div wire:ignore class="flex-1 tbn-tom-select">
                     <select id="announcement-search">
                         <option></option>
-                        @foreach ($profesions as $profesion)
-                            <option value="{{ $profesion->profesion_name }}">{{ $profesion->profesion_name }}</option>
-                        @endforeach
-                        @foreach ($locations as $location)
-                            <option value="{{ $location->location_name }}">{{ $location->location_name }}</option>
-                        @endforeach
-                        @foreach ($companies as $company)
-                            <option value="{{ $company->company_name }}">{{ $company->company_name }}</option>
-                        @endforeach
+                        <optgroup label="Profesiones">
+                            @foreach ($profesions as $profesion)
+                                <option value="{{ $profesion->profesion_name }}">{{ $profesion->profesion_name }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                        <optgroup label="Ubicaciones">
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->location_name }}">{{ $location->location_name }}</option>
+                            @endforeach
+                        </optgroup>
+                        <optgroup label="Empresas">
+                            @foreach ($companies as $company)
+                                <option value="{{ $company->company_name }}">{{ $company->company_name }}</option>
+                            @endforeach
+                        </optgroup>
                     </select>
                 </div>
                 <x-button type="button" class="h-[3.2rem]" href="{{ route('new-announcement') }}"

@@ -37,6 +37,11 @@
     font-size: 1rem !important;
     padding: 3px 6px !important;
 }
+.tbn-tom-select .ts-dropdown .optgroup-header {
+    font-weight: bold !important;
+    color: #ff420a !important;
+    font-size: 0.75rem !important;
+}
 
 /* Quill Editor */
 .tbn-quill-editor .ql-editor {
