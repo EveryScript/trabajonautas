@@ -43,5 +43,80 @@ return [
     // VAPID Clave Pública de Firebase para notificaciones
     'firebase' => [
         'vapid_key' => env('FIREBASE_VAPID_KEY'),
-    ]
+        'web' => [
+            'apiKey' => env('FIREBASE_API_KEY'),
+            'authDomain' => env('FIREBASE_AUTH_DOMAIN'),
+            'projectId' => env('FIREBASE_PROJECT_ID'),
+            'storageBucket' => env('FIREBASE_STORAGE_BUCKET'),
+            'messagingSenderId' => env('FIREBASE_MESSAGING_SENDER_ID'),
+            'appId' => env('FIREBASE_APP_ID'),
+            'measurementId' => env('FIREBASE_MEASUREMENT_ID'),
+        ],
+    ],
+
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL') ?: 'gemini-2.5-flash-lite',
+        'verify_ssl' => filter_var(
+            env('GEMINI_VERIFY_SSL', true),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'ca_bundle' => env('GEMINI_CA_BUNDLE') ?: null,
+        'timeout' => max(1, min(300, (int) env('GEMINI_TIMEOUT', 60))),
+        'connect_timeout' => max(1, min(60, (int) env('GEMINI_CONNECT_TIMEOUT', 10))),
+        'max_description_chars' => max(1000, (int) env('GEMINI_MAX_DESCRIPTION_CHARS', 6000)),
+        'max_output_tokens' => max(256, min(4096, (int) env('GEMINI_MAX_OUTPUT_TOKENS', 2048))),
+        'debug_ssl' => filter_var(
+            env('GEMINI_DEBUG_SSL', false),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+    ],
+
+    'evaluar' => [
+        'verify_ssl' => filter_var(
+            env('EVALUAR_VERIFY_SSL', true),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'ca_bundle' => env('EVALUAR_CA_BUNDLE') ?: null,
+        'timeout' => max(1, min(120, (int) env('EVALUAR_TIMEOUT', 30))),
+        'connect_timeout' => max(1, min(60, (int) env('EVALUAR_CONNECT_TIMEOUT', 10))),
+        'max_redirects' => max(0, min(5, (int) env('EVALUAR_MAX_REDIRECTS', 3))),
+        'allowed_host_suffixes' => [
+            'evaluar.com',
+            'evaluarjobs.com',
+        ],
+    ],
+
+    'etalent' => [
+        'verify_ssl' => filter_var(
+            env('ETALENT_VERIFY_SSL', true),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'ca_bundle' => env('ETALENT_CA_BUNDLE')
+            ?: env('EVALUAR_CA_BUNDLE')
+            ?: null,
+        'timeout' => max(1, min(120, (int) env('ETALENT_TIMEOUT', 30))),
+        'connect_timeout' => max(1, min(60, (int) env('ETALENT_CONNECT_TIMEOUT', 10))),
+        'max_redirects' => max(0, min(5, (int) env('ETALENT_MAX_REDIRECTS', 3))),
+        'feed_per_page' => max(10, min(100, (int) env('ETALENT_FEED_PER_PAGE', 100))),
+        'use_native_ca' => filter_var(
+            env('ETALENT_USE_NATIVE_CA', PHP_OS_FAMILY === 'Windows'),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'allowed_host_suffixes' => [
+            'e-talent.jobs',
+        ],
+    ],
+
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL') ?: 'claude-haiku-4-5-20251001',
+        'version' => env('ANTHROPIC_VERSION', '2023-06-01'),
+        'max_tokens' => max(1, (int) env('ANTHROPIC_MAX_TOKENS', 4000)),
+        'verify_ssl' => filter_var(
+            env('ANTHROPIC_VERIFY_SSL', true),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'ca_bundle' => env('ANTHROPIC_CA_BUNDLE') ?: null,
+    ],
 ];

@@ -5,8 +5,9 @@
     <span class="absolute top-6 right-6 {{ $announcement->pro ? '' : 'hidden' }}">
         <i class="fas fa-crown text-md text-tbn-primary"></i></span>
     <div class="flex flex-col w-full gap-2 sm:flex-row sm:gap-6">
-        <img alt="team" class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
-            src="{{ $announcement->company ? asset('storage/' . $announcement->company->company_image) : asset('storage/empresas/tbn-new-default.webp') }}">
+        <img alt="{{ $announcement->company?->company_name ?? 'Empresa' }}"
+            class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
+            src="{{ $announcement->company && $announcement->company->hasCompanyImageFile() ? $announcement->company->companyImageUrl() : asset('images/company-placeholder.svg') }}">
         <div class="flex-grow">
             <h2 class="text-xl font-bold leading-6 uppercase text-tbn-dark dark:text-white">
                 {{ $announcement->announce_title }}</h2>

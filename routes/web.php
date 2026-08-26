@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\FaqController;
+use App\Livewire\Admin\Bot\BotCompanies;
+use App\Livewire\Admin\Bot\BotPreview;
+use App\Livewire\Admin\Bot\BotSources;
 use App\Livewire\Announcement\FormAnnouncement;
 use App\Livewire\Announcement\ListAnnouncement;
 use App\Livewire\Area\FormArea;
@@ -64,6 +67,12 @@ Route::group(['middleware' => ['auth', 'verified', 'role:USER|ADMIN', 'only_one_
 Route::group(['middleware' => ['auth', 'verified', 'role:ADMIN', 'only_one_session']], function () {
     // Areas
     Route::get('/admin/area', ListArea::class)->name('area');
+
+    // BOT
+    Route::get('/admin/bot', BotSources::class)->name('admin.bot.index');
+    Route::get('/admin/bot/{source:slug}', BotCompanies::class)->name('admin.bot.source');
+    Route::get('/admin/bot/{source:slug}/empresa/{company:slug}', BotPreview::class)
+        ->name('admin.bot.company.preview');
 
     // Users
     Route::get('/admin/usuario', ListUser::class)->name('user');

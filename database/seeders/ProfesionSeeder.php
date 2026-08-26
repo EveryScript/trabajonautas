@@ -2,18 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\Profesion;
-use App\Models\User;
+use App\Services\ProfessionCatalogSynchronizer;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class ProfesionSeeder extends Seeder
 {
-    public $admin_id;
-
-    public function run(): void
+    public function run(ProfessionCatalogSynchronizer $synchronizer): void
     {
-        $profesions_data = [
+        $synchronizer->synchronize(
+            areas: AreaSeeder::catalog(),
+            professions: self::catalog(),
+            aliases: ProfesionAliasSeeder::catalog(),
+        );
+    }
+
+    public static function catalog(): array
+    {
+        return array_map(static fn (array $profession): array => [
+            'id' => (int) $profession[0],
+            'profesion_name' => trim((string) $profession[1]),
+            'area_id' => (int) $profession[2],
+        ], [
             [1, 'Administración de Empresas', 1, '2026-04-21 15:10:16', '2026-04-21 15:10:16'],
             [2, 'Contaduría', 1, '2026-04-21 15:10:16', '2026-04-27 15:37:50'],
             [4, 'Economía', 1, '2026-04-21 15:10:16', '2026-04-21 15:10:16'],
@@ -137,30 +146,6 @@ class ProfesionSeeder extends Seeder
             [226, 'Albañil', 51, '2026-04-28 11:22:03', '2026-04-28 11:22:03'],
             [227, 'Electricista', 51, '2026-04-28 11:22:44', '2026-04-28 11:22:44'],
             [228, 'Ingeniería Forestal', 41, '2026-04-28 11:58:49', '2026-04-28 11:58:49'],
-        ];
-
-        $this->admin_id = User::where('email', 'ricardooropeza15@gmail.com')->first()->id;
-        if (!$this->admin_id) return;
-
-        $profesions = array_map(function ($profesion) {
-            DB::table('area_profesion')->insert([
-                'profesion_id' => $profesion[0],
-                'area_id' => $profesion[2],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            return [
-                'id' => $profesion[0],
-                'profesion_name' => $profesion[1],
-                'user_id' => $this->admin_id,
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
-        }, $profesions_data);
-
-
-
-        Profesion::insert($profesions);
+        ]);
     }
 }

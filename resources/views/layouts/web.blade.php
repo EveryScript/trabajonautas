@@ -14,6 +14,9 @@
     <!-- Firebase Foreground Notifications -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+    <script>
+        window.firebaseConfig = {{ Illuminate\Support\Js::from(config('services.firebase.web')) }};
+    </script>
     <script src="{{ asset('js/firebase-notification.js') }}"></script>
 
     <!-- Google Analytics -->

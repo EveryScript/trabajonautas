@@ -42,7 +42,7 @@
                         por WhatsApp para habilitar tu cuenta hoy mismo.
                     </x-slot>
                     <x-slot name="buttons">
-                        <x-button-link href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $this->client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $this->client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $this->client->email }}."
+                        <x-button-link href="https://wa.me/{{ config('trabajonautas.support_phone') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $this->client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $this->client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $this->client->email }}."
                             target="_blank" class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>
@@ -107,6 +107,13 @@
                 },
                 async activateNotificationsAndSaveCurrentToken() {
                     this.button_notify_loading = true
+                    if (!window.messaging || !window.firebaseConfig?.apiKey) {
+                        console.warn('Firebase no esta configurado para este entorno')
+                        this.modal_notifications = false
+                        this.button_notify_loading = false
+                        return
+                    }
+
                     if (this.isServiceWorkerSupported()) {
                         // Request client activate notifications
                         const permission = await Notification.requestPermission();
@@ -118,9 +125,14 @@
                         // Save current token with Service Worker registration
                         try {
                             console.log('Getting current token...')
+                            const workerConfig = new URLSearchParams(
+                                Object.entries(window.firebaseConfig)
+                                    .filter(([, value]) => value !== null && value !== '')
+                            )
                             const registration = await navigator.serviceWorker.register(
-                                '/firebase-messaging-sw.js')
-                            const currentToken = await messaging.getToken({
+                                `/firebase-messaging-sw.js?${workerConfig.toString()}`
+                            )
+                            const currentToken = await window.messaging.getToken({
                                 vapidKey: this.VAPID_KEY,
                                 serviceWorkerRegistration: registration,
                             })

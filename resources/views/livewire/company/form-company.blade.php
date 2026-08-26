@@ -36,7 +36,8 @@
                 @if ($form->company && $preview_image)
                     <div class="mb-4">
                         <x-label value="Logotipo actual" />
-                        <img src="{{ asset('storage/' . $preview_image) }}" alt="logotipo-empresa"
+                        <img src="{{ \App\Support\StoragePath::exists($preview_image) ? \App\Support\StoragePath::url($preview_image) : asset('images/company-placeholder.svg') }}"
+                            alt="Logotipo de la empresa"
                             class="object-cover w-32 h-32 rounded" />
                     </div>
                 @endif

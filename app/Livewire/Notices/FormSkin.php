@@ -3,6 +3,7 @@
 namespace App\Livewire\Notices;
 
 use App\Models\TbnSetting;
+use App\Support\StoragePath;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -37,22 +38,27 @@ class FormSkin extends Component
     private function processAndSaveImage($property, $key)
     {
         $setting = TbnSetting::where('key', $key)->first();
-
-        if ($setting && $setting->value)
-            Storage::disk('public')->delete($setting->value);
+        $oldPath = StoragePath::normalizePublicPath($setting?->value);
         $path = $this->$property->store('ajustes', 'public');
 
         TbnSetting::updateOrCreate(
             ['key' => $key],
             ['value' => $path]
         );
+
+        if ($oldPath && $oldPath !== $path && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
     }
 
     public function render()
     {
+        $images = TbnSetting::whereIn('key', ['bg_web_image', 'thumb_web_image'])
+            ->pluck('value', 'key');
+
         return view('livewire.notices.form-skin', [
-            'bg_web_image' => TbnSetting::where('key', 'bg_web_image')->first(),
-            'thumb_web_image' => TbnSetting::where('key', 'thumb_web_image')->first()
+            'bg_web_image_url' => StoragePath::existingUrl($images->get('bg_web_image')),
+            'thumb_web_image_url' => StoragePath::existingUrl($images->get('thumb_web_image')),
         ]);
     }
 }

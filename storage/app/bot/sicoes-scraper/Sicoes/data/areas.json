@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "nombre": "Área ECONÓMICA, ADMINISTRATIVA Y FINANCIERA"
+  },
+  {
+    "id": 2,
+    "nombre": "Área RELACIONES INTERNACIONALES, POLÍTICA Y GESTIÓN PÚBLICA"
+  },
+  {
+    "id": 3,
+    "nombre": "Área SOCIAL"
+  },
+  {
+    "id": 4,
+    "nombre": "Área ESTADÍSTICA"
+  },
+  {
+    "id": 5,
+    "nombre": "Área INDUSTRIAL"
+  },
+  {
+    "id": 6,
+    "nombre": "Áreas POCO FRECUENTES"
+  },
+  {
+    "id": 7,
+    "nombre": "Área QUÍMICA"
+  },
+  {
+    "id": 9,
+    "nombre": "Área SISTEMAS Y INFORMÁTICA"
+  },
+  {
+    "id": 10,
+    "nombre": "Área REDES Y TELECOMUNICACIONES"
+  },
+  {
+    "id": 11,
+    "nombre": "Área ELECTRÓNICA, ELECTROMECÁNICA Y MECATRÓNICA"
+  },
+  {
+    "id": 12,
+    "nombre": "Área CIVIL Y CONSTRUCCIÓN"
+  },
+  {
+    "id": 13,
+    "nombre": "Área ARQUITECTURA Y URBANISMO"
+  },
+  {
+    "id": 14,
+    "nombre": "Área MARKETING Y PUBLICIDAD"
+  },
+  {
+    "id": 15,
+    "nombre": "Área COMERCIO INTERNACIONAL"
+  },
+  {
+    "id": 16,
+    "nombre": "Área ELÉCTRICA"
+  },
+  {
+    "id": 17,
+    "nombre": "Área TURISMO Y HOTELERÍA"
+  },
+  {
+    "id": 18,
+    "nombre": "Área COMUNICACIÓN Y MEDIOS DIGITALES"
+  },
+  {
+    "id": 19,
+    "nombre": "Área ENFERMERÍA"
+  },
+  {
+    "id": 20,
+    "nombre": "Área DISEÑO GRÁFICO"
+  },
+  {
+    "id": 21,
+    "nombre": "Área PETROLERA"
+  },
+  {
+    "id": 22,
+    "nombre": "Área DERECHO"
+  },
+  {
+    "id": 23,
+    "nombre": "Área MECÁNICA AUTOMOTRIZ"
+  },
+  {
+    "id": 24,
+    "nombre": "Área MECÁNICA INDUSTRIAL"
+  },
+  {
+    "id": 25,
+    "nombre": "Área LINGÜÍSTICA E IDIOMAS"
+  },
+  {
+    "id": 26,
+    "nombre": "Área ANTROPOLOGÍA, HISTORIA Y FILOSOFÍA"
+  },
+  {
+    "id": 27,
+    "nombre": "Área EDUCACIÓN"
+  },
+  {
+    "id": 28,
+    "nombre": "Área PSICOLOGÍA Y PSICOPEDAGOGÍA"
+  },
+  {
+    "id": 29,
+    "nombre": "Área MEDICINA"
+  },
+  {
+    "id": 30,
+    "nombre": "Área BIOQUÍMICA Y FARMACIA"
+  },
+  {
+    "id": 31,
+    "nombre": "Área NUTRICIÓN Y DIETÉTICA"
+  },
+  {
+    "id": 32,
+    "nombre": "Área FISIOTERAPIA Y KINESIOLOGÍA"
+  },
+  {
+    "id": 33,
+    "nombre": "Área ODONTOLOGÍA"
+  },
+  {
+    "id": 34,
+    "nombre": "Área BIOMÉDICA"
+  },
+  {
+    "id": 35,
+    "nombre": "Área SECRETARIADO"
+  },
+  {
+    "id": 36,
+    "nombre": "Área VETERINARIA Y ZOOTECNIA"
+  },
+  {
+    "id": 37,
+    "nombre": "Área AGRONÓMICA"
+  },
+  {
+    "id": 38,
+    "nombre": "Área MINERA"
+  },
+  {
+    "id": 39,
+    "nombre": "Área GEODESIA, TOPOGRAFÍA Y GEOMÁTICA"
+  },
+  {
+    "id": 40,
+    "nombre": "Área GEOLÓGICA Y GEOGRÁFICA"
+  },
+  {
+    "id": 41,
+    "nombre": "Área AMBIENTAL"
+  },
+  {
+    "id": 42,
+    "nombre": "Área METALÚRGICA Y MATERIALES"
+  },
+  {
+    "id": 43,
+    "nombre": "Área MEDICINA - ESPECIALIDADES"
+  },
+  {
+    "id": 44,
+    "nombre": "Área CHOFERES"
+  },
+  {
+    "id": 45,
+    "nombre": "Área LIMPIEZA"
+  },
+  {
+    "id": 46,
+    "nombre": "Área OPERADORES DE MAQUINARIA"
+  },
+  {
+    "id": 47,
+    "nombre": "Área PORTERÍA"
+  },
+  {
+    "id": 48,
+    "nombre": "Área GASTRONOMÍA Y COCINA"
+  },
+  {
+    "id": 49,
+    "nombre": "Área JARDINERÍA"
+  },
+  {
+    "id": 50,
+    "nombre": "Área SEGURIDAD"
+  },
+  {
+    "id": 51,
+    "nombre": "Área MANTENIMIENTO"
+  }
+]
