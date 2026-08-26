@@ -11,9 +11,11 @@ final class SicoesProgressCache
 
     private const LOCK_WAIT_SECONDS = 5;
 
-    public static function key(string $date): string
+    public static function key(string $date, string $sourceType = 'consulting_services'): string
     {
-        return 'sicoes:progress:'.str_replace(['/', '\\', ' '], '-', $date);
+        $suffix = $sourceType === 'consulting_services' ? '' : ':personnel';
+
+        return 'sicoes:progress:'.str_replace(['/', '\\', ' '], '-', $date).$suffix;
     }
 
     /**
@@ -22,11 +24,11 @@ final class SicoesProgressCache
      *
      * @param  Closure(array): ?array  $transform
      */
-    public static function update(string $date, Closure $transform): bool
+    public static function update(string $date, Closure $transform, string $sourceType = 'consulting_services'): bool
     {
-        return Cache::lock(self::lockKey($date), self::LOCK_SECONDS)
-            ->block(self::LOCK_WAIT_SECONDS, function () use ($date, $transform): bool {
-                $key = self::key($date);
+        return Cache::lock(self::lockKey($date, $sourceType), self::LOCK_SECONDS)
+            ->block(self::LOCK_WAIT_SECONDS, function () use ($date, $transform, $sourceType): bool {
+                $key = self::key($date, $sourceType);
                 $cached = Cache::get($key, []);
                 $current = is_array($cached) ? $cached : [];
                 $next = $transform($current);
@@ -43,13 +45,13 @@ final class SicoesProgressCache
             });
     }
 
-    public static function replace(string $date, array $progress): bool
+    public static function replace(string $date, array $progress, string $sourceType = 'consulting_services'): bool
     {
-        return self::update($date, static fn (): array => $progress);
+        return self::update($date, static fn (): array => $progress, $sourceType);
     }
 
-    private static function lockKey(string $date): string
+    private static function lockKey(string $date, string $sourceType): string
     {
-        return self::key($date).':lock';
+        return self::key($date, $sourceType).':lock';
     }
 }

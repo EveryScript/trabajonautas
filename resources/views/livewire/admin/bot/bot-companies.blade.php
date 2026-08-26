@@ -16,7 +16,7 @@
                         </p>
                     </div>
 
-                    @if ($source->scraper_type === 'evaluar')
+                    @if (in_array($source->scraper_type, ['evaluar', 'etalent'], true))
                         <div class="grid gap-3 sm:grid-cols-3 xl:min-w-[680px]">
                             <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-400/20 dark:bg-emerald-400/10">
                                 <p class="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">Empresas</p>
@@ -56,12 +56,39 @@
             @endif
 
             @if ($source->scraper_type === 'sicoes')
+                @if ($sicoesSourceType === '')
+                    <div class="rounded-[2rem] border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/20">
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-orange-600 dark:text-orange-300">SICOES</p>
+                        <h2 class="mt-2 text-2xl font-black text-slate-950 dark:text-white">¿Qué tipo de publicación deseas procesar?</h2>
+                        <p class="mt-2 text-sm font-medium leading-6 text-slate-600 dark:text-slate-300">Cada opción conserva su propio lote, progreso y documentos.</p>
+
+                        <div class="mt-6 grid gap-5 md:grid-cols-2">
+                            <button type="button" wire:click="selectSicoesSource('{{ \App\Models\SicoesScrapeBatch::SOURCE_CONSULTING }}')"
+                                class="group rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 to-white p-6 text-left transition hover:-translate-y-1 hover:border-orange-400 hover:shadow-xl hover:shadow-orange-100 dark:border-orange-400/20 dark:from-orange-500/10 dark:to-white/[0.03] dark:hover:border-orange-400/50 dark:hover:shadow-black/20">
+                                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500 text-xl text-white"><i class="fas fa-file-contract"></i></span>
+                                <span class="mt-5 block text-xl font-black text-slate-950 dark:text-white">Servicios de consultoría</span>
+                                <span class="mt-2 block text-sm font-medium leading-6 text-slate-600 dark:text-slate-300">Convocatorias nacionales identificadas mediante CUCE.</span>
+                                <span class="mt-4 inline-flex items-center text-sm font-black text-orange-700 dark:text-orange-300">Ingresar <i class="ml-2 fas fa-arrow-right transition group-hover:translate-x-1"></i></span>
+                            </button>
+
+                            <button type="button" wire:click="selectSicoesSource('{{ \App\Models\SicoesScrapeBatch::SOURCE_PERSONNEL }}')"
+                                class="group rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-6 text-left transition hover:-translate-y-1 hover:border-sky-400 hover:shadow-xl hover:shadow-sky-100 dark:border-sky-400/20 dark:from-sky-500/10 dark:to-white/[0.03] dark:hover:border-sky-400/50 dark:hover:shadow-black/20">
+                                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-600 text-xl text-white"><i class="fas fa-users"></i></span>
+                                <span class="mt-5 block text-xl font-black text-slate-950 dark:text-white">Requerimientos de personal</span>
+                                <span class="mt-2 block text-sm font-medium leading-6 text-slate-600 dark:text-slate-300">Publicaciones identificadas por referencia, incluidos PDF escaneados.</span>
+                                <span class="mt-4 inline-flex items-center text-sm font-black text-sky-700 dark:text-sky-300">Ingresar <i class="ml-2 fas fa-arrow-right transition group-hover:translate-x-1"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                @else
                 <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
                     <div class="rounded-[2rem] border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/20">
                         <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                             <div>
                                 <p class="text-xs font-black uppercase tracking-[0.2em] text-orange-600 dark:text-orange-300">SICOES</p>
-                                <h2 class="mt-2 text-2xl font-black text-slate-950 dark:text-white">Buscar convocatorias para revisar</h2>
+                                <h2 class="mt-2 text-2xl font-black text-slate-950 dark:text-white">
+                                    {{ $sicoesSourceType === \App\Models\SicoesScrapeBatch::SOURCE_PERSONNEL ? 'Requerimientos de personal' : 'Servicios de consultoría' }}
+                                </h2>
                                 <p class="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-600 dark:text-slate-300">
                                     Procesa la fecha seleccionada y muestra los resultados encontrados. No se publican hasta revisarlos en el modal.
                                 </p>
@@ -73,10 +100,14 @@
                             </span>
                         </div>
 
+                        <button type="button" wire:click="chooseAnotherSicoesSource" class="mt-4 inline-flex items-center text-xs font-black text-slate-500 transition hover:text-orange-600 dark:text-slate-300">
+                            <i class="mr-2 fas fa-arrow-left"></i> Elegir otra sección de SICOES
+                        </button>
+
                         <div class="mt-6 grid items-end gap-4 md:grid-cols-[1fr_auto]">
                             <div>
-                                <x-label for="sicoes-date">Fecha SICOES</x-label>
-                                <x-input id="sicoes-date" type="date" wire:model="sicoesDate"
+                                <x-label for="sicoes-date">Fecha de publicación</x-label>
+                                <x-input id="sicoes-date" type="date" wire:model.live="sicoesDate"
                                     class="mt-1 block w-full rounded-2xl border-slate-200 bg-white shadow-sm focus:border-orange-400 focus:ring-orange-400 dark:border-white/10 dark:bg-slate-950/70 dark:text-white" />
                                 <x-input-error for="sicoesDate" class="mt-2" />
                             </div>
@@ -123,9 +154,10 @@
                                         <div class="h-full rounded-full bg-orange-500 transition-all" style="width: {{ $percent }}%"></div>
                                     </div>
                                     <div class="mt-3 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-4">
-                                        <span>Estado: {{ $sicoesProgress['status'] ?? 'n/a' }}</span>
-                                        <span>Nuevas previews: {{ $sicoesProgress['saved'] ?? 0 }}</span>
-                                        <span>Previews actualizadas: {{ $sicoesProgress['updated'] ?? 0 }}</span>
+                                        <span>Fecha ejecutada: {{ !empty($sicoesProgress['date']) ? \Illuminate\Support\Carbon::parse($sicoesProgress['date'])->format('d/m/Y') : '-' }}</span>
+                                        <span>Estado: {{ \App\Support\BotUiLabels::processStatus($sicoesProgress['status'] ?? null) }}</span>
+                                        <span>Nuevas previsualizaciones: {{ $sicoesProgress['saved'] ?? 0 }}</span>
+                                        <span>Previsualizaciones actualizadas: {{ $sicoesProgress['updated'] ?? 0 }}</span>
                                         <span>Fallidas: {{ $sicoesProgress['failed'] ?? 0 }}</span>
                                         <span>Descartadas: {{ $sicoesProgress['discarded'] ?? 0 }}</span>
                                         <span>Descartes sin IA: {{ $sicoesProgress['preclassified_discards'] ?? 0 }}</span>
@@ -144,7 +176,7 @@
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <p class="text-xs font-black uppercase tracking-[0.2em] text-sky-700 dark:text-sky-200/80">Resumen</p>
-                                <h2 class="mt-1 text-xl font-black text-slate-950 dark:text-white">Previews</h2>
+                                <h2 class="mt-1 text-xl font-black text-slate-950 dark:text-white">Previsualizaciones</h2>
                             </div>
                             <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 dark:bg-sky-400/10 dark:text-sky-200">
                                 <i class="fas fa-database"></i>
@@ -157,7 +189,7 @@
                                 <p class="mt-2 text-3xl font-black text-slate-950 dark:text-white">{{ $sicoesStats['published'] }}</p>
                             </div>
                             <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-400/20 dark:bg-emerald-400/10">
-                                <p class="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">Previews hoy</p>
+                                <p class="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-200">Previsualizaciones hoy</p>
                                 <p class="mt-2 text-3xl font-black text-slate-950 dark:text-white">{{ $sicoesStats['today_count'] }}</p>
                             </div>
                             <div class="rounded-2xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-400/20 dark:bg-orange-400/10">
@@ -169,11 +201,12 @@
                         </div>
                     </aside>
                 </div>
-            @elseif ($source->scraper_type !== 'evaluar')
+                @endif
+            @elseif (!in_array($source->scraper_type, ['evaluar', 'etalent'], true))
                 <div class="rounded-[2rem] border border-slate-200 bg-white p-10 text-center shadow-xl shadow-slate-200/70 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/20">
                     <div class="mb-3 text-5xl">{{ $source->icon }}</div>
                     <h2 class="text-2xl font-black text-slate-950 dark:text-white">{{ $source->name }}</h2>
-                    <p class="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">Este grupo todavía no tiene scraper implementado.</p>
+                    <p class="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">Este grupo todavía no tiene extractor implementado.</p>
                 </div>
             @else
                 <div class="rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/20 lg:p-5">
@@ -215,7 +248,7 @@
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <p class="text-xs font-black uppercase tracking-[0.2em] text-sky-700 dark:text-sky-200/80">Filtros</p>
-                                <h2 class="mt-1 text-xl font-black text-slate-950 dark:text-white">Panel Evaluar</h2>
+                                <h2 class="mt-1 text-xl font-black text-slate-950 dark:text-white">Panel {{ $source->name }}</h2>
                             </div>
                             <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 dark:bg-sky-400/10 dark:text-sky-200">
                                 <i class="fas fa-sliders-h"></i>
@@ -224,7 +257,7 @@
 
                         <div class="mt-6 space-y-6">
                             <div>
-                                <p class="mb-3 text-sm font-bold text-slate-700 dark:text-slate-200">Estado del scraper</p>
+                                <p class="mb-3 text-sm font-bold text-slate-700 dark:text-slate-200">Estado del extractor</p>
                                 <div class="space-y-2">
                                     <button type="button" wire:click="$set('statusFilter', 'active')" wire:loading.attr="disabled" wire:target="statusFilter"
                                         class="flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-bold transition disabled:cursor-wait disabled:opacity-70 {{ $statusFilter === 'active' ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-100' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-white/[0.06]' }}">
@@ -248,7 +281,7 @@
                                         class="flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-bold transition disabled:cursor-wait disabled:opacity-70 {{ $statusFilter === 'without_scraper' ? 'border-slate-300 bg-slate-100 text-slate-900 dark:border-slate-300/40 dark:bg-slate-300/10 dark:text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-white/[0.06]' }}">
                                         <span class="inline-flex items-center gap-2">
                                             <span class="h-2 w-2 rounded-full bg-slate-400"></span>
-                                            Sin scraper
+                                            Sin extractor
                                         </span>
                                         <span>{{ $companyStats['without_scraper'] }}</span>
                                     </button>
@@ -310,7 +343,7 @@
                                             </span>
                                         @elseif (blank($company->evaluar_url))
                                             <span class="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-slate-600 ring-1 ring-slate-200 dark:bg-slate-400/10 dark:text-slate-200 dark:ring-slate-400/30">
-                                                Sin scraper
+                                                Sin extractor
                                             </span>
                                         @else
                                             <span class="shrink-0 rounded-full bg-red-50 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-red-700 ring-1 ring-red-200 dark:bg-red-400/10 dark:text-red-200 dark:ring-red-400/30">
@@ -419,10 +452,12 @@
                 <div class="mb-5 flex items-start justify-between gap-4">
                     <div>
                         <h3 class="text-xl font-bold text-tbn-primary">
-                            {{ $editingCompanyId ? 'Editar empresa Evaluar' : 'Agregar empresa Evaluar' }}
+                            {{ $editingCompanyId ? 'Editar empresa '.$source->name : 'Agregar empresa '.$source->name }}
                         </h3>
                         <p class="text-sm text-tbn-secondary dark:text-tbn-light">
-                            La URL debe pertenecer a un subdominio de evaluar.com o evaluarjobs.com.
+                            {{ $source->scraper_type === 'etalent'
+                                ? 'La URL debe pertenecer a e-talent.jobs/bolsa-de-trabajo/ e incluir search_keywords.'
+                                : 'La URL debe pertenecer a un subdominio de evaluar.com o evaluarjobs.com.' }}
                         </p>
                     </div>
                     <button type="button" wire:click="closeForm" class="text-2xl leading-none text-tbn-secondary dark:text-tbn-light">
@@ -437,9 +472,11 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="bot-company-url">URL Evaluar</x-label>
+                    <x-label for="bot-company-url">URL {{ $source->name }}</x-label>
                     <x-input id="bot-company-url" type="text" wire:model="form.evaluar_url" class="mt-1 block w-full"
-                        placeholder="https://empresa.evaluar.com" />
+                        placeholder="{{ $source->scraper_type === 'etalent'
+                            ? 'https://e-talent.jobs/bolsa-de-trabajo/?search_keywords=EMPRESA'
+                            : 'https://empresa.evaluar.com' }}" />
                     <x-input-error for="form.evaluar_url" class="mt-2" />
                 </div>
 
@@ -447,7 +484,7 @@
                     <x-checkbox wire:model="form.active" />
                     <span>
                         <span class="block text-sm font-semibold text-tbn-dark dark:text-white">Activa</span>
-                        <span class="block text-xs text-tbn-secondary dark:text-tbn-light">Mostrar esta empresa en el BOT Evaluar.</span>
+                        <span class="block text-xs text-tbn-secondary dark:text-tbn-light">Mostrar esta empresa en el BOT {{ $source->name }}.</span>
                     </span>
                 </label>
 

@@ -20,38 +20,44 @@ class SicoesDocumentAiAnalyzerNormalizationTest extends TestCase
             'es_oportunidad_consultor_persona' => true,
             'tipo_oportunidad' => 'consultor_linea',
             'debe_descartarse' => false,
-            'sueldo' => $salary,
+            'salarios' => $salary,
         ]);
 
-        $this->assertSame($expected, $normalized['sueldo']['valor']);
+        $this->assertSame($expected, $normalized['salarios']['valor']);
     }
 
     public static function salaryCases(): array
     {
         return [
             'not declared' => [
-                ['valor' => 0, 'sueldos' => []],
+                ['tipo' => 'no_declarado', 'cantidad' => 0, 'detalle' => []],
+                0,
+            ],
+            'role without declared salary' => [
+                ['tipo' => 'no_declarado', 'cantidad' => 1, 'detalle' => [
+                    ['cargo' => 'CONSULTOR', 'monto_bob' => 0, 'evidencia' => 'Cargo: Consultor'],
+                ]],
                 0,
             ],
             'single monthly salary' => [
-                ['valor' => 3045, 'sueldos' => [['cargo' => 'CONTADOR', 'monto' => 'Bs. 3.045,00']]],
+                ['tipo' => 'unico', 'cantidad' => 1, 'detalle' => [['cargo' => 'CONTADOR', 'monto_bob' => 3045, 'evidencia' => 'Bs. 3.045,00']]],
                 3045,
             ],
             'different roles with same salary' => [
-                ['valor' => 3045, 'sueldos' => [
-                    ['cargo' => 'CONTADOR', 'monto' => 'Bs. 3.045,00'],
-                    ['cargo' => 'AUXILIAR', 'monto' => 'Bs. 3.045,00'],
+                ['tipo' => 'multiple', 'cantidad' => 2, 'detalle' => [
+                    ['cargo' => 'CONTADOR', 'monto_bob' => 3045, 'evidencia' => 'Bs. 3.045,00'],
+                    ['cargo' => 'AUXILIAR', 'monto_bob' => 3045, 'evidencia' => 'Bs. 3.045,00'],
                 ]],
                 1,
             ],
             'several vacancies of the same role' => [
-                ['valor' => 4567, 'sueldos' => [['cargo' => '5 CONSULTORES DE CAMPO', 'monto' => 'Bs. 4.567,00']]],
+                ['tipo' => 'unico', 'cantidad' => 5, 'detalle' => [['cargo' => '5 CONSULTORES DE CAMPO', 'monto_bob' => 4567, 'evidencia' => 'Bs. 4.567,00']]],
                 4567,
             ],
             'different salaries' => [
-                ['valor' => 2, 'sueldos' => [
-                    ['cargo' => 'CONTADOR', 'monto' => 'Bs. 3.045,00'],
-                    ['cargo' => 'AUXILIAR', 'monto' => 'Bs. 2.800,00'],
+                ['tipo' => 'multiple', 'cantidad' => 2, 'detalle' => [
+                    ['cargo' => 'CONTADOR', 'monto_bob' => 3045, 'evidencia' => 'Bs. 3.045,00'],
+                    ['cargo' => 'AUXILIAR', 'monto_bob' => 2800, 'evidencia' => 'Bs. 2.800,00'],
                 ]],
                 1,
             ],

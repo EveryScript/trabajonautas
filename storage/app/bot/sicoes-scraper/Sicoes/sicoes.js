@@ -30,13 +30,33 @@ const FICHAS_FINALES_DIR = path.join(BASE_DIR, 'fichas-finales');
 const PERFIL_DIR = path.join(BASE_DIR, 'perfil-sicoes');
 const RUNTIME_DIR = path.join(BASE_DIR, 'runtime');
 const TEMP_DIR = path.join(RUNTIME_DIR, 'temp');
-const TOKEN_TIMEOUT_MS = 20000;
-const TABLE_TIMEOUT_MS = 30000;
+const TOKEN_TIMEOUT_MS = Math.max(10000, Number(process.env.SICOES_TOKEN_TIMEOUT_MS || 60000));
+const TABLE_TIMEOUT_MS = Math.max(10000, Number(process.env.SICOES_TABLE_TIMEOUT_MS || 60000));
 const WORD_DOWNLOAD_TIMEOUT_MS = 60000;
 const WORD_PROCESS_TIMEOUT_MS = 60000;
 const MANUAL_DOWNLOAD_TIMEOUT_MS = Number(process.env.SICOES_MANUAL_DOWNLOAD_TIMEOUT_MS || 600000);
+const DOWNLOAD_ATTEMPTS = Math.min(3, Math.max(1, Number(process.env.SICOES_DOWNLOAD_ATTEMPTS || 2)));
+const DOWNLOAD_ATTEMPT_TIMEOUT_MS = Math.min(
+  180000,
+  Math.max(30000, Number(process.env.SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS || 120000))
+);
+const REPLAY_TIMEOUT_MS = Math.min(
+  90000,
+  Math.max(10000, Number(process.env.SICOES_REPLAY_TIMEOUT_MS || 45000))
+);
 const CDP_PORT = Number(process.env.SICOES_CDP_PORT || 9222);
 const CDP_URL = process.env.SICOES_CDP_URL || `http://127.0.0.1:${CDP_PORT}`;
+const SOURCE_CONSULTING = 'consulting_services';
+const SOURCE_PERSONNEL = 'personnel_requirements';
+let ACTIVE_SICOES_SOURCE = SOURCE_CONSULTING;
+
+function activeTableSelector() {
+  return ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL ? '#tablaAvanzada' : '#tablaSimple';
+}
+
+function activeIdentifierLabel() {
+  return ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL ? 'Referencia' : 'CUCE';
+}
 
 fs.mkdirSync(TEMP_DIR, { recursive: true });
 
@@ -808,6 +828,10 @@ async function build_full_document_text(docPath, mammothText = '') {
 function detectarTipoWord(filePath) {
   const bytes = fs.readFileSync(filePath);
 
+  if (bytes.length >= 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46) {
+    return 'pdf';
+  }
+
   if (bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B) {
     return 'docx';
   }
@@ -828,11 +852,12 @@ function detectarTipoWord(filePath) {
 }
 
 function pareceWordPorNombre(fileName) {
-  return /\.(docx?|DOCX?)$/i.test(String(fileName || ''));
+  return /\.(docx?|pdf)$/i.test(String(fileName || ''));
 }
 
 function pareceWordPorBytes(filePath) {
   const bytes = fs.readFileSync(filePath);
+  if (bytes.length >= 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46) return true;
   if (bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B) return true;
   return bytes.length >= 8 &&
     bytes[0] === 0xD0 &&
@@ -859,6 +884,52 @@ function buscarLibreOffice() {
   }
 
   return null;
+}
+
+function buscarPdfToText() {
+  const candidates = [
+    process.env.SICOES_PDFTOTEXT_PATH,
+    'pdftotext',
+    'C:\\laragon\\bin\\git\\mingw64\\bin\\pdftotext.exe',
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    const check = spawnSync(candidate, ['-v'], { encoding: 'utf8', shell: false });
+    if (!check.error && check.status === 0) return candidate;
+  }
+
+  return null;
+}
+
+function extraerTextoPdf(filePath) {
+  const executable = buscarPdfToText();
+  if (!executable) {
+    throw new Error('pdftotext no esta disponible; configure SICOES_PDFTOTEXT_PATH');
+  }
+
+  const result = spawnSync(executable, ['-layout', '-enc', 'UTF-8', filePath, '-'], {
+    encoding: 'utf8',
+    timeout: WORD_PROCESS_TIMEOUT_MS,
+    maxBuffer: 64 * 1024 * 1024,
+    shell: false,
+  });
+
+  if (result.error || result.status !== 0) {
+    throw new Error(result.error?.message || result.stderr || 'No se pudo extraer el texto del PDF');
+  }
+
+  const texto = normalizarTexto(result.stdout || '');
+  if (!texto) {
+    throw new Error('El PDF no contiene texto extraible; puede requerir OCR');
+  }
+
+  return {
+    texto,
+    textoCompleto: texto,
+    metodo: 'pdftotext',
+    tipoReal: 'pdf',
+    advertencia: '',
+  };
 }
 
 function convertirDocAntiguoADocx(filePath) {
@@ -937,6 +1008,10 @@ function extraerTextoWordAntiguo(filePath) {
 
 async function extraerTextoWord(filePath) {
   const tipoReal = detectarTipoWord(filePath);
+
+  if (tipoReal === 'pdf') {
+    return extraerTextoPdf(filePath);
+  }
 
   if (tipoReal === 'doc-antiguo') {
     const conversion = convertirDocAntiguoADocx(filePath);
@@ -2478,6 +2553,17 @@ function detectarSenales(texto, frases) {
 }
 
 function clasificarTipoConvocatoria(convocatoria, textoWord = '') {
+  if (ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL || convocatoria?.source_type === SOURCE_PERSONNEL) {
+    return {
+      incluir: true,
+      tipo: 'requerimiento_personal',
+      motivo: 'La publicación pertenece al apartado oficial Requerimientos de Personal.',
+      senales_individuales_detectadas: ['requerimiento de personal'],
+      senales_empresa_detectadas: [],
+      personal_clave_detectado: [],
+    };
+  }
+
   const objeto = limpiarCampo(convocatoria?.objetoContratacion || '');
   const texto = limpiarCampo(`${objeto}\n${textoWord}`);
   const objetoKey = claveTexto(objeto);
@@ -4172,7 +4258,7 @@ function listarDocx(inputDir) {
       if (!stat.isFile()) return null;
 
       const ext = path.extname(file).toLowerCase();
-      const esWordPorNombre = ['.doc', '.docx'].includes(ext);
+      const esWordPorNombre = ['.doc', '.docx', '.pdf'].includes(ext);
       let esWordPorBytes = false;
 
       try {
@@ -4200,13 +4286,6 @@ function listarDocx(inputDir) {
 
 function compactarCuce(value) {
   return String(value || '').replace(/\D/g, '');
-}
-
-function existeWordParaCuce(inputDir, cuce) {
-  const cuceCompacto = compactarCuce(cuce);
-  if (!cuceCompacto) return false;
-
-  return listarDocx(inputDir).some(file => compactarCuce(file.name).includes(cuceCompacto));
 }
 
 function asignarWords(convocatorias, docxFiles) {
@@ -4282,46 +4361,56 @@ function escribirOrdenConvocatorias(convocatorias, ordenPath) {
 }
 
 async function obtenerCantidadPaginas(page) {
-  return await page.evaluate(() => {
-    const links = Array.from(document.querySelectorAll('#tablaSimple_paginate a'));
+  return await page.evaluate(tableSelector => {
+    const links = Array.from(document.querySelectorAll(`${tableSelector}_paginate a`));
     const numeros = links
       .map(a => parseInt((a.innerText || '').trim(), 10))
       .filter(n => !Number.isNaN(n));
 
     return numeros.length ? Math.max(...numeros) : 1;
-  });
+  }, activeTableSelector());
 }
 
 async function irAPagina(page, pagina) {
-  const primerCuceAntes = await page.$eval('#tablaSimple tbody tr td', element => element.innerText || '').catch(() => '');
+  const tableSelector = activeTableSelector();
+  const primerCuceAntes = await page.$eval(`${tableSelector} tbody tr td`, element => element.innerText || '').catch(() => '');
 
-  await page.evaluate(p => {
-    if (typeof window.busquedadraw === 'function') {
+  await page.evaluate(({ p, personnel }) => {
+    if (personnel && typeof window.buscarReqPersonal === 'function') {
+      window.buscarReqPersonal('Avanzada', 'tablaAvanzada', 'formAvanzada', String(p));
+    } else if (typeof window.busquedadraw === 'function') {
       window.busquedadraw(String(p));
     }
-  }, pagina);
+  }, { p: pagina, personnel: ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL });
 
   await page.waitForFunction(
-    oldCuce => {
-      const nuevo = document.querySelector('#tablaSimple tbody tr td')?.innerText || '';
+    ({ oldCuce, tableSelector }) => {
+      const nuevo = document.querySelector(`${tableSelector} tbody tr td`)?.innerText || '';
       return nuevo && nuevo !== oldCuce;
     },
     { timeout: 15000 },
-    primerCuceAntes
+    { oldCuce: primerCuceAntes, tableSelector }
   ).catch(async () => {
     await delay(2500);
   });
 }
 
 async function extraerConvocatoriasDePagina(page) {
-  return await page.$$eval('#tablaSimple tbody tr', rows => {
+  const tableSelector = activeTableSelector();
+  const personnel = ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL;
+
+  return await page.$$eval(`${tableSelector} tbody tr`, (rows, personnelMode) => {
     return rows.map((row, index) => {
       const cells = Array.from(row.querySelectorAll('td'));
-      const text = i => (cells[i]?.innerText || '').trim().replace(/\s+/g, ' ');
+      const text = i => (cells[i]?.innerText || '')
+        .replace(/Â(?=[ºª°])/g, '')
+        .trim()
+        .replace(/\s+/g, ' ');
 
-      const archivos = Array.from(cells[9]?.querySelectorAll('a') || []).map(a => {
+      const filesCell = personnelMode ? 6 : 9;
+      const archivos = Array.from(cells[filesCell]?.querySelectorAll('a') || []).map(a => {
         const onclick = a.getAttribute('onclick') || '';
-        const match = onclick.match(/descargarArchivo\('([^']+)'\)/);
+        const match = onclick.match(/descargarArchivo\(['"]([^'"]+)['"]\)/);
 
         return {
           nombre: (a.innerText || '').trim(),
@@ -4329,6 +4418,26 @@ async function extraerConvocatoriasDePagina(page) {
           onclick,
         };
       });
+
+      if (personnelMode) {
+        const reference = text(2);
+
+        return {
+          numero: index + 1,
+          cuce: reference,
+          referencia: reference,
+          entidad: text(0),
+          tipoContratacion: 'Requerimiento de personal',
+          modalidad: 'Requerimiento de personal',
+          objetoContratacion: text(1),
+          fechaPublicacion: text(4),
+          fechaPresentacion: text(5),
+          estado: text(3),
+          archivos,
+          ficha: 'https://www.sicoes.gob.bo/portal/contrataciones/otrasPublicaciones/requerimientoPersonal.php',
+          source_type: 'personnel_requirements',
+        };
+      }
 
       const fichaOnclick = cells[11]?.querySelector('a')?.getAttribute('onclick') || '';
       const fichaMatch = fichaOnclick.match(/irFicha\('([^']+)'\)/);
@@ -4348,7 +4457,83 @@ async function extraerConvocatoriasDePagina(page) {
         ficha: fichaMatch ? `https://www.sicoes.gob.bo${fichaMatch[1]}` : null,
       };
     });
+  }, personnel);
+}
+
+function personnelSearchRange(fecha) {
+  const [day, month, year] = String(fecha).split('/').map(Number);
+  const formatNearbyDate = offset => {
+    const value = new Date(Date.UTC(year, month - 1, day + offset));
+    return `${String(value.getUTCDate()).padStart(2, '0')}/${String(value.getUTCMonth() + 1).padStart(2, '0')}/${value.getUTCFullYear()}`;
+  };
+
+  // El portal aplica limites exclusivos cuando ambas fechas son iguales.
+  return { from: formatNearbyDate(-1), to: formatNearbyDate(1) };
+}
+
+async function personnelSearchIsReady(page, fecha, reference = '') {
+  if (ACTIVE_SICOES_SOURCE !== SOURCE_PERSONNEL || !fecha) return true;
+
+  const expectedRange = personnelSearchRange(fecha);
+  return await page.evaluate(({ range, referenceValue }) => {
+    const from = document.querySelector('#formAvanzada input[name="publicacionDesde"]')?.value || '';
+    const to = document.querySelector('#formAvanzada input[name="publicacionHasta"]')?.value || '';
+    const rows = Array.from(document.querySelectorAll('#tablaAvanzada tbody tr'));
+    const referenceFound = !referenceValue
+      || rows.some(row => (row.innerText || '').includes(referenceValue));
+
+    return from === range.from && to === range.to && rows.length > 0 && referenceFound;
+  }, { range: expectedRange, referenceValue: String(reference || '').trim() }).catch(() => false);
+}
+
+async function gotoSicoesPersonnel(page, fecha) {
+  await page.goto('https://www.sicoes.gob.bo/portal/index.php', {
+    waitUntil: 'domcontentloaded',
+    timeout: TOKEN_TIMEOUT_MS,
   });
+
+  const token = await page.$eval('#token', input => input.value || '').catch(() => '');
+  if (!token) throw phaseFail(1, 'no se encontro token de navegacion SICOES');
+
+  const target = `https://www.sicoes.gob.bo/portal/contrataciones/otrasPublicaciones/requerimientoPersonal.php?token=${encodeURIComponent(token)}`;
+  await page.goto(target, { waitUntil: 'domcontentloaded', timeout: TABLE_TIMEOUT_MS });
+  const personnelDateSelector = '#formAvanzada input[name="publicacionDesde"]';
+  // Playwright espera elementos visibles por defecto, pero el portal conserva
+  // este input oculto hasta que se abre la pestana avanzada. Para preparar la
+  // busqueda basta con que el control ya este adjunto al DOM.
+  const personnelDateLocator = typeof page.locator === 'function'
+    ? page.locator(personnelDateSelector)
+    : null;
+  if (typeof personnelDateLocator?.waitFor === 'function') {
+    await personnelDateLocator.waitFor({ state: 'attached', timeout: TABLE_TIMEOUT_MS });
+  } else {
+    await page.waitForSelector(personnelDateSelector, { timeout: TABLE_TIMEOUT_MS });
+  }
+
+  // Ampliamos un día a cada lado y luego filtramos localmente la fecha exacta.
+  const searchRange = personnelSearchRange(fecha);
+  const filteredResponse = page.waitForResponse(response => {
+    if (!/\/portal\/contrataciones\/operacion\.php/i.test(response.url())) return false;
+    const postData = response.request().postData() || '';
+    return postData.includes('requerimientoPersonal') && postData.includes('publicacionDesde=');
+  }, { timeout: TABLE_TIMEOUT_MS });
+
+  await page.evaluate(range => {
+    document.querySelector('#formAvanzada input[name="publicacionDesde"]').value = range.from;
+    document.querySelector('#formAvanzada input[name="publicacionHasta"]').value = range.to;
+    document.querySelectorAll('#formAvanzada input[name="r1"]')
+      .forEach(input => { input.checked = input.value === ''; });
+    document.querySelector('a[href="#f-avanzada"]')?.click();
+
+    if (typeof window.buscarReqPersonal === 'function') {
+      window.buscarReqPersonal('Avanzada', 'tablaAvanzada', 'formAvanzada', 1);
+    }
+  }, searchRange);
+
+  await filteredResponse;
+  await delay(500);
+
+  phaseOk(3, 'tabla avanzada de requerimientos de personal detectada');
 }
 
 async function extraerConvocatorias(fecha, convocatoriasPath, options = {}) {
@@ -4363,7 +4548,9 @@ async function extraerConvocatorias(fecha, convocatoriasPath, options = {}) {
 
   try {
     if (assisted) {
-      await asegurarPaginaDescargaSicoes(page, { interactive: true });
+      await asegurarPaginaDescargaSicoes(page, { interactive: true, fecha });
+    } else if (ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL) {
+      await gotoSicoesPersonnel(page, fecha);
     } else {
       await gotoSicoes(page);
     }
@@ -4377,9 +4564,9 @@ async function extraerConvocatorias(fecha, convocatoriasPath, options = {}) {
     }
 
     await withTimeout(
-      page.waitForSelector('#tablaSimple tbody tr', { timeout: TABLE_TIMEOUT_MS }),
+      page.waitForSelector(`${activeTableSelector()} tbody tr`, { timeout: TABLE_TIMEOUT_MS }),
       TABLE_TIMEOUT_MS,
-      'Fase 3 wait selector #tablaSimple'
+      `Fase 3 wait selector ${activeTableSelector()}`
     );
 
     const totalPaginas = await obtenerCantidadPaginas(page);
@@ -4394,7 +4581,7 @@ async function extraerConvocatorias(fecha, convocatoriasPath, options = {}) {
 
       const paginaConvocatorias = await extraerConvocatoriasDePagina(page);
       const convocatoriasFecha = paginaConvocatorias.filter(c =>
-        fechaDisplay(c.fechaPublicacion) === fecha
+        fechaDisplay(String(c.fechaPublicacion || '').split(/\s+/)[0]) === fecha
       );
 
       console.log(`Pagina ${pagina}: ${convocatoriasFecha.length} convocatorias para ${fecha}`);
@@ -4408,7 +4595,9 @@ async function extraerConvocatorias(fecha, convocatoriasPath, options = {}) {
     writeFileSafe(convocatoriasPath, JSON.stringify(convocatorias, null, 2), 'utf8');
     console.log(`\nConvocatorias guardadas en: ${safePathForLog(convocatoriasPath)}`);
     if (!convocatorias.length) {
-      throw phaseFail(4, `filas detectadas: 0 para la fecha ${fecha}`);
+      phaseOk(4, `filas detectadas: 0 para la fecha ${fecha}`);
+      emitProgress(2, `sin convocatorias para ${fecha}`, { total: 0, no_results: true });
+      return [];
     }
     phaseOk(4, `filas detectadas: ${convocatorias.length}`);
     emitProgress(2, `tabla encontrada: ${convocatorias.length} filas`, { total: convocatorias.length });
@@ -4440,6 +4629,7 @@ async function cargarPuppeteer() {
 
 async function abrirBrowserSicoes({ downloadDir = null, headless = true } = {}) {
   const puppeteer = await cargarPuppeteer();
+  const executablePath = resolverBrowserExecutable();
   let userDataDir = '';
 
   try {
@@ -4455,6 +4645,7 @@ async function abrirBrowserSicoes({ downloadDir = null, headless = true } = {}) 
 
   const browser = await puppeteer.launch({
     headless: headless ? 'new' : false,
+    ...(executablePath ? { executablePath } : {}),
     userDataDir,
     args: [
       '--no-sandbox',
@@ -4687,11 +4878,20 @@ async function guardarDiagnosticoPagina(page, label) {
 
 async function gotoSicoes(page) {
   try {
-    await withRetries('abrir pagina SICOES', 1, async () => {
-      await withTimeout(page.goto('https://www.sicoes.gob.bo/portal/index.php', {
-        waitUntil: 'domcontentloaded',
-        timeout: TOKEN_TIMEOUT_MS,
-      }), TOKEN_TIMEOUT_MS, 'Fase 1 token');
+    await withRetries('abrir pagina SICOES', 2, async () => {
+      try {
+        await page.goto('https://www.sicoes.gob.bo/portal/index.php', {
+          waitUntil: 'domcontentloaded',
+          timeout: TOKEN_TIMEOUT_MS,
+        });
+      } catch (error) {
+        const tokenVisible = await page.$('#token').catch(() => null);
+        if (!tokenVisible) {
+          throw error;
+        }
+
+        console.log('[SICOES] La navegacion inicial excedio el tiempo, pero el token ya esta disponible; continuando.');
+      }
 
       const token = await page.$eval('#token', input => input.value || '').catch(() => '');
       if (!token) {
@@ -4702,10 +4902,20 @@ async function gotoSicoes(page) {
 
       const target = `https://www.sicoes.gob.bo/portal/contrataciones/busqueda/convocatorias.php?tipo=convNacional&tipoContratacion=C&token=${encodeURIComponent(token)}`;
       try {
-        await withTimeout(page.goto(target, {
-          waitUntil: 'domcontentloaded',
-          timeout: TABLE_TIMEOUT_MS,
-        }), TABLE_TIMEOUT_MS, 'Fase 2 navegacion convocatorias');
+        try {
+          await page.goto(target, {
+            waitUntil: 'domcontentloaded',
+            timeout: TABLE_TIMEOUT_MS,
+          });
+        } catch (error) {
+          const tableVisible = await page.$('#tablaSimple').catch(() => null);
+          if (!tableVisible) {
+            throw error;
+          }
+
+          console.log('[SICOES] La navegacion de convocatorias excedio el tiempo, pero la tabla ya esta disponible; continuando.');
+        }
+
         phaseOk(2, `URL convocatorias cargada: ${redactUrl(page.url())}`);
       } catch (error) {
         throw phaseFail(2, `no se pudo cargar URL convocatorias: ${errorMessage(error)}`);
@@ -4771,15 +4981,34 @@ function nombreDescargaWord(convocatoria, archivo, index, archivoIndex, suggeste
   return `${String(index + 1).padStart(2, '0')}_${cuce}_${String(archivoIndex + 1).padStart(2, '0')}_${etiqueta}${ext}`;
 }
 
+function documentoDescargadoExistente(inputDir, convocatoria, archivo, index, archivoIndex) {
+  const expectedBase = nombreDescargaWord(convocatoria, archivo, index, archivoIndex)
+    .replace(/\.(docx?|pdf)$/i, '');
+
+  return listarDocx(inputDir).find(file =>
+    path.basename(file.name, path.extname(file.name)) === expectedBase
+  ) || null;
+}
+
 async function asegurarPaginaDescargaSicoes(page, options = {}) {
   const { interactive = true } = options;
   const urlActual = page.url();
-  if (!/sicoes\.gob\.bo/i.test(urlActual) || !/convocatorias\.php/i.test(urlActual) || !await tablaConvocatoriasDisponible(page)) {
+  const expectedPage = ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL
+    ? /requerimientoPersonal\.php/i
+    : /convocatorias\.php/i;
+  if (!/sicoes\.gob\.bo/i.test(urlActual) || !expectedPage.test(urlActual) || !await tablaConvocatoriasDisponible(page)) {
     if (interactive) {
       try {
-        await gotoSicoes(page);
+        if (ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL) {
+          await gotoSicoesPersonnel(page, options.fecha);
+        } else {
+          await gotoSicoes(page);
+        }
       } catch (error) {
         console.log(`[REAL_BROWSER] La navegacion automatica no dejo lista la tabla: ${errorMessage(error)}`);
+        if (ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL) {
+          throw phaseFail(3, `no se pudo cargar automaticamente la tabla de Requerimientos de Personal: ${errorMessage(error)}`);
+        }
         console.log('[REAL_BROWSER] Continua manualmente en el navegador real hasta la tabla de convocatorias.');
         await page.goto('https://www.sicoes.gob.bo/portal/index.php', {
           waitUntil: 'domcontentloaded',
@@ -4787,12 +5016,17 @@ async function asegurarPaginaDescargaSicoes(page, options = {}) {
         }).catch(() => {});
       }
     } else {
-      await gotoSicoes(page);
+      if (ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL) {
+        await gotoSicoesPersonnel(page, options.fecha);
+      } else {
+        await gotoSicoes(page);
+      }
     }
   }
 
-  if (interactive) {
-    const message = 'SICOES esta abierto en navegador real con CDP.\nSi aparece Cloudflare/captcha, resuelvelo en esa ventana.\nAsegurate de ver la tabla de convocatorias (Servicios por Consultorias).\nCuando la tabla este lista, presiona ENTER aqui.';
+  if (interactive && !await tablaConvocatoriasDisponible(page)) {
+    const section = ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL ? 'Requerimientos de Personal' : 'Servicios por Consultorias';
+    const message = `SICOES esta abierto en navegador real con CDP.\nSi aparece Cloudflare/captcha, resuelvelo en esa ventana.\nAsegurate de ver la tabla de convocatorias (${section}).\nCuando la tabla este lista, presiona ENTER aqui.`;
 
     if (process.stdin.isTTY) {
       await waitEnter(message);
@@ -4816,27 +5050,35 @@ async function asegurarPaginaDescargaSicoes(page, options = {}) {
         await delay(1000);
       }
     }
-  } else {
+  } else if (!interactive) {
     console.log('Modo automatico: usando la tabla de SICOES para descargar documentos.');
+  } else {
+    console.log('[SICOES] Tabla filtrada lista automaticamente; iniciando descargas.');
   }
 }
 
 async function esperarTablaConvocatorias(page) {
-  await page.waitForSelector('#tablaSimple tbody tr', { timeout: TABLE_TIMEOUT_MS });
+  await page.waitForSelector(`${activeTableSelector()} tbody tr`, { timeout: TABLE_TIMEOUT_MS });
 }
 
 async function tablaConvocatoriasDisponible(page) {
-  return Boolean(await page.$('#tablaSimple tbody tr').catch(() => null));
+  return Boolean(await page.$(`${activeTableSelector()} tbody tr`).catch(() => null));
 }
 
 async function irAPaginaSiHaceFalta(page, pagina) {
   if (!pagina || Number.isNaN(Number(pagina))) return;
   await esperarTablaConvocatorias(page);
-  const paginaActual = await page.evaluate(() => {
-    const current = document.querySelector('#tablaSimple_paginate a.paginate_active, #tablaSimple_paginate .current');
+  const tableSelector = activeTableSelector();
+  const paginaActual = await page.evaluate(table => {
+    const current = document.querySelector(`${table}_paginate a.paginate_active, ${table}_paginate .current`);
     const n = parseInt((current?.textContent || '').trim(), 10);
     return Number.isNaN(n) ? null : n;
-  }).catch(() => null);
+  }, tableSelector).catch(() => null);
+
+  // La búsqueda inicial siempre abre en la primera página. Algunos DataTables
+  // del portal no marcan visualmente el paginador activo y devolvían null,
+  // provocando una espera innecesaria de hasta 17 segundos por cada fila.
+  if (paginaActual === null && Number(pagina) === 1) return;
 
   if (paginaActual !== Number(pagina)) {
     await irAPagina(page, Number(pagina));
@@ -4863,8 +5105,8 @@ const SICOES_MAX_REPLAY_BODY_BYTES = 1024 * 1024;
 const SICOES_MAX_REPLAY_RESPONSE_BYTES = 100 * 1024 * 1024;
 const SICOES_MAX_BROWSER_RESPONSE_BYTES = 25 * 1024 * 1024;
 const SICOES_MAX_DIAGNOSTIC_RESPONSE_BYTES = 1024 * 1024;
-const SICOES_REPLAY_TIMEOUT_MS = 55000;
-const SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS = 150000;
+const SICOES_REPLAY_TIMEOUT_MS = REPLAY_TIMEOUT_MS;
+const SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS = DOWNLOAD_ATTEMPT_TIMEOUT_MS;
 
 function safeSicoesRequestUrl(value) {
   try {
@@ -4952,7 +5194,7 @@ async function localizarLinkArchivoEnTabla(page, convocatoria, archivo) {
       return m ? m[1] : '';
     };
 
-    const rows = Array.from(document.querySelectorAll('#tablaSimple tbody tr'));
+    const rows = Array.from(document.querySelectorAll('#tablaSimple tbody tr, #tablaAvanzada tbody tr'));
     const rowNode = rows.find(row =>
       !cuceValue || (row.innerText || '').includes(cuceValue)
     );
@@ -5321,12 +5563,13 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
   const cuce = convocatoria?.cuce || 'sin_cuce';
   console.log(`  [FETCH] Intentando fetch interno del browser para CUCE ${cuce}`);
 
-  const resultado = await page.evaluate(async (
-    tok,
-    maxRequestBytes,
-    maxResponseBytes,
-    requestTimeoutMs
-  ) => {
+  const resultado = await withTimeout(
+    page.evaluate(async (
+      tok,
+      maxRequestBytes,
+      maxResponseBytes,
+      requestTimeoutMs
+    ) => {
     const BASE = 'https://www.sicoes.gob.bo';
 
     // Intentar obtener la URL real del form si existe
@@ -5443,7 +5686,10 @@ async function descargarViaFetchBrowser(page, token, inputDir, convocatoria, arc
     } finally {
       clearTimeout(abortTimeout);
     }
-  }, token, SICOES_MAX_REPLAY_BODY_BYTES, SICOES_MAX_BROWSER_RESPONSE_BYTES, SICOES_REPLAY_TIMEOUT_MS);
+    }, token, SICOES_MAX_REPLAY_BODY_BYTES, SICOES_MAX_BROWSER_RESPONSE_BYTES, SICOES_REPLAY_TIMEOUT_MS),
+    SICOES_REPLAY_TIMEOUT_MS + 10000,
+    `fetch browser CUCE ${cuce}`
+  );
 
   if (!resultado.ok) {
     console.log(`  [FETCH] Fallo: ${resultado.motivo || '?'} status=${resultado.status || 'N/A'} bytes=${resultado.size || resultado.responseLength || 0}`);
@@ -5597,7 +5843,7 @@ async function resaltarDescargaManual(page, convocatoria, target) {
       node.style.background = '';
     });
 
-    const rows = Array.from(document.querySelectorAll('#tablaSimple tbody tr'));
+    const rows = Array.from(document.querySelectorAll('#tablaSimple tbody tr, #tablaAvanzada tbody tr'));
     const row = rows.find(item => (item.innerText || '').includes(cuceValue));
     if (!row) return false;
 
@@ -5697,7 +5943,7 @@ async function marcarLinkDescargaPlaywright(page, convocatoria, archivo) {
       link.style.background = '';
     });
 
-    const rows = Array.from(document.querySelectorAll('#tablaSimple tbody tr'));
+    const rows = Array.from(document.querySelectorAll('#tablaSimple tbody tr, #tablaAvanzada tbody tr'));
     const row = rows.find(item => !cuceValue || (item.innerText || '').includes(cuceValue));
     if (!row) return null;
 
@@ -5734,7 +5980,10 @@ async function marcarLinkDescargaPlaywright(page, convocatoria, archivo) {
 
 async function guardarPlaywrightDownload(download, inputDir, convocatoria, archivo, index, archivoIndex) {
   const suggestedName = download.suggestedFilename();
+  const identifierLabel = activeIdentifierLabel();
+  console.log(`[DOWNLOAD_EVENT] ${identifierLabel} ${convocatoria?.cuce || 'sin referencia'} evento=playwright_download`);
   const tempPath = await download.path();
+  console.log(`[DOWNLOAD_TEMP] ${identifierLabel} ${convocatoria?.cuce || 'sin referencia'} creado=${tempPath && fs.existsSync(tempPath) ? 1 : 0} archivo=${safePathForLog(tempPath)}`);
   const ext = tempPath && fs.existsSync(tempPath)
     ? (extensionArchivoDesdeBytes(tempPath) || extensionArchivoDesdeNombre(suggestedName, '.docx'))
     : extensionArchivoDesdeNombre(suggestedName, '.docx');
@@ -5744,6 +5993,7 @@ async function guardarPlaywrightDownload(download, inputDir, convocatoria, archi
   );
 
   await download.saveAs(destino);
+  console.log(`[DOWNLOAD_FILE_SAVED] ${identifierLabel} ${convocatoria?.cuce || 'sin referencia'} archivo=${safePathForLog(destino)}`);
 
   const realExt = extensionArchivoDesdeBytes(destino);
   if (!['.doc', '.docx', '.pdf'].includes(realExt)) {
@@ -5797,22 +6047,39 @@ async function esperarPopupArchivo(popup, inputDir, convocatoria, archivo, index
 
 async function descargarArchivoDesdeFilaPlaywright(page, convocatoria, archivo, index, archivoIndex, inputDir) {
   const cuce = convocatoria?.cuce || 'sin_cuce';
+  const identifierLabel = activeIdentifierLabel();
   const target = await marcarLinkDescargaPlaywright(page, convocatoria, archivo);
 
   if (!target?.token) {
-    console.log(`[PW_DOWNLOAD_FAIL] CUCE ${cuce} motivo: token_no_encontrado_en_fila`);
+    console.log(`[PW_DOWNLOAD_FAIL] ${identifierLabel} ${cuce} motivo: token_no_encontrado_en_fila`);
     return { ok: false, motivo: 'token_no_encontrado_en_fila', archivo: archivo?.nombre || '' };
   }
 
-  console.log(`[PW_DOWNLOAD_START] CUCE ${cuce}`);
+  console.log(`[PW_DOWNLOAD_START] ${identifierLabel} ${cuce}`);
   console.log(`[PW_DOWNLOAD_TOKEN] presente longitud=${String(target.token).length}`);
   console.log(`[PW_DOWNLOAD_NOMBRE] ${target.nombre || archivo?.nombre || '?'}`);
 
   const link = await page.$('a[data-sicoes-playwright-download="1"]');
   if (!link) {
-    console.log(`[PW_DOWNLOAD_FAIL] CUCE ${cuce} motivo: link_no_encontrado`);
+    console.log(`[PW_DOWNLOAD_FAIL] ${identifierLabel} ${cuce} motivo: link_no_encontrado`);
     return { ok: false, motivo: 'link_no_encontrado', archivo: target.nombre || archivo?.nombre || '' };
   }
+
+  let resolvePortalDialog;
+  const portalDialogPromise = new Promise(resolve => {
+    resolvePortalDialog = resolve;
+  });
+  const dialogHandler = async dialog => {
+    const message = String(dialog.message?.() || '');
+    const captchaRejected = /captcha|verificar/i.test(message);
+    await dialog.dismiss().catch(() => {});
+    resolvePortalDialog({
+      tipo: 'portal_dialog',
+      motivo: captchaRejected ? 'captcha_no_verificado' : 'mensaje_portal',
+      mensaje: message,
+    });
+  };
+  page.on('dialog', dialogHandler);
 
   const downloadPromise = page.waitForEvent('download', { timeout: WORD_DOWNLOAD_TIMEOUT_MS })
     .then(download => ({ tipo: 'download', download }));
@@ -5821,17 +6088,27 @@ async function descargarArchivoDesdeFilaPlaywright(page, convocatoria, archivo, 
   const popupPromise = page.waitForEvent('popup', { timeout: 15000 })
     .then(popup => ({ tipo: 'popup', popup }));
 
-  await link.click({ timeout: 15000, force: true });
-
   let result;
   try {
-    result = await Promise.any([downloadPromise, responsePromise, popupPromise]);
+    await link.click({ timeout: 15000, force: true });
+    result = await Promise.any([downloadPromise, responsePromise, popupPromise, portalDialogPromise]);
   } catch (error) {
-    console.log(`[PW_DOWNLOAD_FAIL] CUCE ${cuce} motivo: sin_download_response_popup`);
+    console.log(`[PW_DOWNLOAD_FAIL] ${identifierLabel} ${cuce} motivo: sin_download_response_popup`);
     return { ok: false, motivo: 'sin_download_response_popup', archivo: target.nombre || archivo?.nombre || '' };
+  } finally {
+    page.off('dialog', dialogHandler);
   }
 
   try {
+    if (result.tipo === 'portal_dialog') {
+      console.log(`[PW_DOWNLOAD_FAIL] ${identifierLabel} ${cuce} motivo: ${result.motivo}`);
+      return {
+        ok: false,
+        motivo: result.motivo,
+        archivo: target.nombre || archivo?.nombre || '',
+      };
+    }
+
     if (result.tipo === 'download') {
       const saved = await guardarPlaywrightDownload(result.download, inputDir, convocatoria, archivo, index, archivoIndex);
       if (saved.ok) console.log(`[PW_DOWNLOAD_OK] ${safePathForLog(saved.path)}`);
@@ -5850,7 +6127,7 @@ async function descargarArchivoDesdeFilaPlaywright(page, convocatoria, archivo, 
       return saved;
     }
   } catch (error) {
-    console.log(`[PW_DOWNLOAD_FAIL] CUCE ${cuce} motivo: ${errorMessage(error)}`);
+    console.log(`[PW_DOWNLOAD_FAIL] ${identifierLabel} ${cuce} motivo: ${errorMessage(error)}`);
     return { ok: false, motivo: errorMessage(error), archivo: target.nombre || archivo?.nombre || '' };
   }
 
@@ -5859,6 +6136,8 @@ async function descargarArchivoDesdeFilaPlaywright(page, convocatoria, archivo, 
 
 async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, archivoIndex, inputDir, options = {}) {
   const cuce = convocatoria?.cuce || 'sin_cuce';
+  const startedAt = Date.now();
+  const strategies = [];
 
   // 1. Localizar el token en la tabla
   const target = await localizarLinkArchivoEnTabla(page, convocatoria, archivo);
@@ -5872,33 +6151,47 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
   console.log(`[DOWNLOAD_NOMBRE] ${target.nombre || archivo?.nombre || '?'}`);
 
   // 2. Estrategia principal: interceptar la request real via CDP
+  const cdpStartedAt = Date.now();
+  console.log(`[DOWNLOAD_STRATEGY_START] CUCE ${cuce} estrategia=cdp_intercept`);
   try {
     const cdpResult = await descargarViaInterceptCDP(
       page, target.token, inputDir, convocatoria, archivo, index, archivoIndex
     );
     if (cdpResult?.ok) {
       console.log(`[DOWNLOAD_OK] Método CDP intercept: ${safePathForLog(cdpResult.path)}`);
-      return cdpResult;
+      console.log(`[DOWNLOAD_STRATEGY_END] CUCE ${cuce} estrategia=cdp_intercept ok=1 elapsed_ms=${Date.now() - cdpStartedAt}`);
+      return { ...cdpResult, elapsed_ms: Date.now() - startedAt, estrategias: ['cdp_intercept'] };
     }
+    strategies.push({ estrategia: 'cdp_intercept', ok: false, motivo: cdpResult?.motivo || 'sin_archivo' });
+    console.log(`[DOWNLOAD_STRATEGY_END] CUCE ${cuce} estrategia=cdp_intercept ok=0 elapsed_ms=${Date.now() - cdpStartedAt} motivo=${cdpResult?.motivo || 'sin_archivo'}`);
   } catch (e) {
+    strategies.push({ estrategia: 'cdp_intercept', ok: false, motivo: errorMessage(e) });
     console.log(`  [CDP] Error inesperado: ${errorMessage(e)}`);
   }
 
   // 3. Fallback: fetch desde dentro del browser con credentials include
+  const fetchStartedAt = Date.now();
+  console.log(`[DOWNLOAD_FALLBACK] CUCE ${cuce} estrategia=fetch_browser motivo=cdp_sin_archivo`);
   try {
     const fetchResult = await descargarViaFetchBrowser(
       page, target.token, inputDir, convocatoria, archivo, index, archivoIndex
     );
     if (fetchResult?.ok) {
       console.log(`[DOWNLOAD_OK] Método fetch browser: ${safePathForLog(fetchResult.path)}`);
-      return fetchResult;
+      console.log(`[DOWNLOAD_STRATEGY_END] CUCE ${cuce} estrategia=fetch_browser ok=1 elapsed_ms=${Date.now() - fetchStartedAt}`);
+      return { ...fetchResult, elapsed_ms: Date.now() - startedAt, estrategias: [...strategies, { estrategia: 'fetch_browser', ok: true }] };
     }
+    strategies.push({ estrategia: 'fetch_browser', ok: false, motivo: fetchResult?.motivo || 'sin_archivo' });
+    console.log(`[DOWNLOAD_STRATEGY_END] CUCE ${cuce} estrategia=fetch_browser ok=0 elapsed_ms=${Date.now() - fetchStartedAt} motivo=${fetchResult?.motivo || 'sin_archivo'}`);
   } catch (e) {
+    strategies.push({ estrategia: 'fetch_browser', ok: false, motivo: errorMessage(e) });
     console.log(`  [FETCH] Error inesperado: ${errorMessage(e)}`);
   }
 
   // 4. Modo asistido: humano resuelve Cloudflare y el scraper espera el Word.
   if (options.assistedDownload) {
+    const manualStartedAt = Date.now();
+    console.log(`[DOWNLOAD_FALLBACK] CUCE ${cuce} estrategia=manual_asistida motivo=fallback_automatico_agotado`);
     try {
       const manualResult = await descargarViaManualAsistida(
         page,
@@ -5912,17 +6205,26 @@ async function descargarArchivoDesdeFila(page, convocatoria, archivo, index, arc
       );
 
       if (manualResult?.ok) {
+        console.log(`[DOWNLOAD_STRATEGY_END] CUCE ${cuce} estrategia=manual_asistida ok=1 elapsed_ms=${Date.now() - manualStartedAt}`);
         console.log(`[DOWNLOAD_OK] Metodo manual asistido: ${safePathForLog(manualResult.path)}`);
-        return manualResult;
+        return { ...manualResult, elapsed_ms: Date.now() - startedAt, estrategias: [...strategies, { estrategia: 'manual_asistida', ok: true }] };
       }
+      strategies.push({ estrategia: 'manual_asistida', ok: false, motivo: manualResult?.motivo || 'sin_archivo' });
     } catch (e) {
+      strategies.push({ estrategia: 'manual_asistida', ok: false, motivo: errorMessage(e) });
       console.log(`  [MANUAL] Error inesperado: ${errorMessage(e)}`);
     }
   }
 
   // 5. Sin resultado
-  console.log(`[DOWNLOAD_FAIL] CUCE ${cuce} motivo: todos_los_metodos_fallaron`);
-  return { ok: false, motivo: 'todos_los_metodos_fallaron', archivo: target.nombre || archivo?.nombre || '' };
+  console.log(`[DOWNLOAD_FAIL] CUCE ${cuce} motivo=todos_los_metodos_fallaron elapsed_ms=${Date.now() - startedAt}`);
+  return {
+    ok: false,
+    motivo: 'todos_los_metodos_fallaron',
+    archivo: target.nombre || archivo?.nombre || '',
+    elapsed_ms: Date.now() - startedAt,
+    estrategias: strategies,
+  };
 }
 
 
@@ -5930,10 +6232,14 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
   ensureDirs(inputDir);
 
   const assistedDownload = Boolean(options.assistedDownload);
+  // Las descargas protegidas por Turnstile deben ejecutarse en el perfil real
+  // persistente. Una instancia Puppeteer nueva es reconocida como automatizada
+  // y el portal responde "Error al verificar el captcha".
+  const usePlaywrightAssisted = assistedDownload;
   const manualDownloadTimeoutMs = options.manualDownloadTimeoutMs || MANUAL_DOWNLOAD_TIMEOUT_MS;
-  const browserSession = assistedDownload
+  const browserSession = usePlaywrightAssisted
     ? await abrirBrowserRealCdp({ downloadDir: inputDir })
-    : await abrirBrowserSicoes({ downloadDir: inputDir, headless: true });
+    : await abrirBrowserSicoes({ downloadDir: inputDir, headless: !assistedDownload });
   const { browser, page } = browserSession;
   const resultados = [];
 
@@ -5957,10 +6263,10 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
     }, 0);
 
     if (!totalArchivosObjetivo) {
-      throw phaseFail(5, 'descarga Word iniciada: 0 archivos disponibles en la tabla');
+      throw phaseFail(5, 'descarga de documentos iniciada: 0 archivos disponibles en la tabla');
     }
 
-    phaseOk(5, `descarga Word iniciada: ${totalArchivosObjetivo} archivos`);
+    phaseOk(5, `descarga de documentos iniciada: ${totalArchivosObjetivo} archivos`);
 
     for (let i = 0; i < convocatorias.length; i++) {
       if (page.isClosed()) {
@@ -5971,30 +6277,13 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
       const archivos = Array.isArray(convocatoria.archivos) ? convocatoria.archivos : [];
       if (!archivos.length) continue;
 
-      emitProgress(3, `procesando fila ${i + 1}/${convocatorias.length} CUCE: ${convocatoria.cuce || 'sin_cuce'}`, {
+      const identifierLabel = ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL ? 'Referencia' : 'CUCE';
+      emitProgress(3, `procesando fila ${i + 1}/${convocatorias.length} ${identifierLabel}: ${convocatoria.cuce || 'sin referencia'}`, {
         index: i + 1,
         total: convocatorias.length,
         cuce: convocatoria.cuce || '',
       });
       console.log(`\n${String(i + 1).padStart(2, '0')}/${convocatorias.length} ${convocatoria.cuce || ''}`);
-
-      if (existeWordParaCuce(inputDir, convocatoria.cuce)) {
-        console.log('  Word existente para este CUCE. Se omite descarga.');
-        emitProgress(4, 'Word descargado OK', {
-          index: i + 1,
-          total: convocatorias.length,
-          cuce: convocatoria.cuce || '',
-          cached: true,
-        });
-        resultados.push({
-          cuce: convocatoria.cuce || '',
-          ok: true,
-          archivo: 'existente',
-          path: inputDir,
-          metodo: 'cache_word',
-        });
-        continue;
-      }
 
       if (!await tablaConvocatoriasDisponible(page)) {
         await asegurarPaginaDescargaSicoes(page, { ...options, interactive: false });
@@ -6009,35 +6298,85 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
 
       for (let j = 0; j < archivosADescargar.length; j++) {
         const archivo = archivosADescargar[j];
+        const existingDocument = documentoDescargadoExistente(
+          inputDir,
+          convocatoria,
+          archivo,
+          i,
+          j
+        );
+        if (existingDocument) {
+          console.log(`  Documento existente para esta ${identifierLabel.toLowerCase()}: ${archivo.nombre || `archivo ${j + 1}`}. Se omite descarga.`);
+          emitProgress(4, 'Documento descargado correctamente', {
+            index: i + 1,
+            total: convocatorias.length,
+            cuce: convocatoria.cuce || '',
+            archivo: archivo.nombre || '',
+            cached: true,
+          });
+          resultados.push({
+            cuce: convocatoria.cuce || '',
+            ok: true,
+            archivo: archivo.nombre || 'existente',
+            path: existingDocument.path,
+            metodo: 'cache_documento',
+          });
+          continue;
+        }
+
         console.log(`  Descargando: ${archivo.nombre || `archivo ${j + 1}`}`);
 
-        const MAX_REINTENTOS = 3;
+        const MAX_REINTENTOS = DOWNLOAD_ATTEMPTS;
         let resultado = null;
+        let previousFailure = null;
 
         for (let intento = 1; intento <= MAX_REINTENTOS; intento++) {
+          const attemptStartedAt = Date.now();
+          console.log(`[DOWNLOAD_ATTEMPT_START] ${identifierLabel} ${convocatoria.cuce || 'sin referencia'} intento=${intento}/${MAX_REINTENTOS}`);
           try {
-            if (!await tablaConvocatoriasDisponible(page)) {
+            const personnelReady = await personnelSearchIsReady(
+              page,
+              options.fecha,
+              convocatoria.cuce
+            );
+            if (!personnelReady) {
+              console.log(`[DOWNLOAD_FILTER] Restaurando el rango de publicación para ${options.fecha}.`);
+              await gotoSicoesPersonnel(page, options.fecha);
+              await irAPaginaSiHaceFalta(page, convocatoria.pagina);
+            } else if (!await tablaConvocatoriasDisponible(page)) {
               await asegurarPaginaDescargaSicoes(page, { ...options, interactive: false });
               await irAPaginaSiHaceFalta(page, convocatoria.pagina);
             }
 
-            if (assistedDownload) {
+            if (usePlaywrightAssisted) {
               resultado = await withTimeout(
                 descargarArchivoDesdeFilaPlaywright(page, convocatoria, archivo, i, j, inputDir),
                 manualDownloadTimeoutMs + WORD_DOWNLOAD_TIMEOUT_MS,
-                `descarga Word CUCE ${convocatoria.cuce || 'sin_cuce'}`
+                `descarga de documento ${identifierLabel} ${convocatoria.cuce || 'sin referencia'}`
               );
             } else {
               resultado = await withTimeout(
                 descargarArchivoDesdeFila(page, convocatoria, archivo, i, j, inputDir, {
-                  assistedDownload: false,
+                  assistedDownload,
                   manualDownloadTimeoutMs,
                 }),
-                SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS,
-                `descarga Word CUCE ${convocatoria.cuce || 'sin_cuce'}`
+                assistedDownload
+                  ? manualDownloadTimeoutMs + SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS
+                  : SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS,
+                `descarga de documento ${identifierLabel} ${convocatoria.cuce || 'sin referencia'}`
               );
             }
+            console.log(`[DOWNLOAD_ATTEMPT_END] ${identifierLabel} ${convocatoria.cuce || 'sin referencia'} intento=${intento} ok=${resultado.ok ? 1 : 0} elapsed_ms=${Date.now() - attemptStartedAt} motivo=${resultado.motivo || 'ok'}`);
             if (resultado.ok) break;
+            if (['token_no_encontrado_en_fila', 'download_tipo_no_soportado'].includes(resultado.motivo)) {
+              console.log(`[DOWNLOAD_RETRY_STOP] ${identifierLabel} ${convocatoria.cuce || 'sin referencia'} motivo_no_reintentable=${resultado.motivo}`);
+              break;
+            }
+            if (previousFailure === resultado.motivo) {
+              console.log(`[DOWNLOAD_RETRY_STOP] ${identifierLabel} ${convocatoria.cuce || 'sin referencia'} motivo_repetido=${resultado.motivo}`);
+              break;
+            }
+            previousFailure = resultado.motivo;
             // Si fallo pero no por error de código, reintentar con pausas y asi le damos otra oportunidad jajaja
             if (intento < MAX_REINTENTOS) {
               console.log(`  Reintentando (${intento}/${MAX_REINTENTOS - 1})...`);
@@ -6048,7 +6387,14 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
               ok: false,
               archivo: archivo.nombre || '',
               motivo: errorMessage(error),
+              elapsed_ms: Date.now() - attemptStartedAt,
             };
+            console.log(`[DOWNLOAD_ATTEMPT_END] ${identifierLabel} ${convocatoria.cuce || 'sin referencia'} intento=${intento} ok=0 elapsed_ms=${resultado.elapsed_ms} motivo=${resultado.motivo}`);
+            if (previousFailure === resultado.motivo) {
+              console.log(`[DOWNLOAD_RETRY_STOP] ${identifierLabel} ${convocatoria.cuce || 'sin referencia'} motivo_repetido=${resultado.motivo}`);
+              break;
+            }
+            previousFailure = resultado.motivo;
             if (intento < MAX_REINTENTOS) {
               console.log(`  Error en intento ${intento}: ${errorMessage(error)}. Reintentando...`);
               await delay(2000 * intento);
@@ -6058,7 +6404,7 @@ async function descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir,
 
         resultados.push({ cuce: convocatoria.cuce || '', ...resultado });
         if (resultado.ok) {
-          emitProgress(4, 'Word descargado OK', {
+          emitProgress(4, 'Documento descargado correctamente', {
             index: i + 1,
             total: convocatorias.length,
             cuce: convocatoria.cuce || '',
@@ -6487,22 +6833,31 @@ async function ejecutarPipelineFull(fecha, slug, inputDir, convocatoriasPath, op
   const assistedDownload = Boolean(options.assistedDownload);
   console.log(`\nModo FULL ${assistedDownload ? 'asistido' : 'automatico'}: extraccion -> descarga Word -> procesamiento -> ficha final.`);
 
-  const convocatorias = await extraerConvocatorias(fecha, convocatoriasPath, { interactive: false, assistedDownload });
+  // La lectura de la tabla no requiere captcha. Mantenerla headless evita que
+  // una sesión CDP inestable bloquee el lote antes de conocer los resultados.
+  const convocatorias = await extraerConvocatorias(fecha, convocatoriasPath, {
+    interactive: false,
+    assistedDownload: false,
+  });
 
   if (!convocatorias.length) {
-    throw phaseFail(4, `SICOES no devolvio convocatorias para ${fecha}. No se genera JSON final.`);
+    console.log(`[SICOES_EMPTY] ${JSON.stringify({ date: fecha, total: 0 })}`);
+
+    return { empty: true };
   }
 
   const descargas = await descargarWordsConvocatorias(fecha, slug, convocatorias, inputDir, {
     interactive: false,
     assistedDownload,
     manualDownloadTimeoutMs: options.manualDownloadTimeoutMs || MANUAL_DOWNLOAD_TIMEOUT_MS,
+    fecha,
   });
   const descargados = descargas.filter(resultado => resultado.ok).length;
+  const descargasFallidas = descargas.filter(resultado => !resultado.ok).length;
   const wordFiles = listarDocx(inputDir);
 
   if (!descargados && !wordFiles.length) {
-    throw phaseFail(5, `No se descargaron documentos Word para ${fecha}. No se puede procesar fichas finales.`);
+    throw phaseFail(5, `No se descargaron documentos para ${fecha}. No se pueden procesar fichas finales.`);
   }
 
   const resultado = await procesarWords(fecha, slug, convocatorias, inputDir, { interactive: false });
@@ -6513,6 +6868,14 @@ async function ejecutarPipelineFull(fecha, slug, inputDir, convocatoriasPath, op
 
   validarFichasFinales(resultado.fichasFinales, `SICOES ${fecha}`);
 
+  if (descargasFallidas > 0) {
+    console.log(`[SICOES_PARTIAL] ${JSON.stringify({
+      date: fecha,
+      downloaded: descargados,
+      failed_downloads: descargasFallidas,
+    })}`);
+  }
+
   return resultado;
 }
 
@@ -6522,7 +6885,9 @@ async function main() {
   const fechaOption = optionValue(options, 'fecha', 'date');
   const fechaArg = fechaOption || positionals[0] || await ask('Que fecha quieres procesar? Usa dd/mm/aaaa: ');
   const fecha = fechaDisplay(fechaArg);
-  const slug = fechaSlug(fecha);
+  const sourceOption = String(optionValue(options, 'source', 'fuente') || SOURCE_CONSULTING).toLowerCase();
+  ACTIVE_SICOES_SOURCE = sourceOption === SOURCE_PERSONNEL ? SOURCE_PERSONNEL : SOURCE_CONSULTING;
+  const slug = fechaSlug(fecha) + (ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL ? '-personal' : '');
   const inputDir = path.join(INPUT_BASE, slug);
   const convocatoriasPath = path.join(CONVOCATORIAS_DIR, `${slug}.json`);
 
@@ -6532,6 +6897,7 @@ async function main() {
   console.log('SICOES - FLUJO UNIFICADO');
   console.log('====================================================');
   console.log(`Fecha: ${fecha}`);
+  console.log(`Seccion: ${ACTIVE_SICOES_SOURCE === SOURCE_PERSONNEL ? 'Requerimientos de personal' : 'Servicios de consultoria'}`);
   console.log(`Carpeta Word: ${safePathForLog(inputDir)}`);
 
   let convocatorias = [];
@@ -6560,6 +6926,10 @@ async function main() {
     console.log('\n====================================================');
     console.log('LISTO');
     console.log('====================================================');
+    if (resultado.empty) {
+      console.log(`Sin convocatorias publicadas en SICOES para ${fecha}.`);
+      return;
+    }
     console.log(`Ficha final limpia: ${safePathForLog(resultado.fichaFinalVisiblePath)}`);
     console.log(`Datos unificados JSON: ${safePathForLog(resultado.unificadoPath)}`);
     console.log(`Resumen TXT: ${safePathForLog(resultado.resumenTxtPath)}`);
@@ -6597,6 +6967,7 @@ async function main() {
       interactive: !modoBatch,
       assistedDownload: descargaAsistida,
       manualDownloadTimeoutMs: MANUAL_DOWNLOAD_TIMEOUT_MS,
+      fecha,
     });
     return;
   }

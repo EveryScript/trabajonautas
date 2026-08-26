@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SicoesScrapeBatch extends Model
 {
+    public const SOURCE_CONSULTING = 'consulting_services';
+
+    public const SOURCE_PERSONNEL = 'personnel_requirements';
+
+    public const SOURCE_TYPES = [
+        self::SOURCE_CONSULTING,
+        self::SOURCE_PERSONNEL,
+    ];
+
     public const STATUS_QUEUED = 'queued';
 
     public const STATUS_RUNNING = 'running';

@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
             LocationSeeder::class,
             ProfesionSeeder::class,
             CompanySeeder::class,
-            AreaSeeder::class,
             AnnouncementSeeder::class,
             GradeProfileSeeder::class,
             AccountTypeSeeder::class,

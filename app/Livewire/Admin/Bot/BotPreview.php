@@ -15,14 +15,16 @@ use App\Models\Profesion;
 use App\Models\SicoesScrapeBatch;
 use App\Models\SicoesScrapeBatchItem;
 use App\Services\Bot\BotVacancyNormalizer;
+use App\Services\Bot\ETalentScraperService;
 use App\Services\Bot\EvaluarScraperService;
-use App\Services\Bot\GeminiVacancyAnalyzer;
 use App\Services\ProfessionAssignmentService;
+use App\Support\BotUiLabels;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -147,12 +149,12 @@ class BotPreview extends Component
         }
     }
 
-    public function scrape(EvaluarScraperService $scraper): void
+    public function scrape(): void
     {
         $this->reset(['message', 'errorMessage']);
 
-        if (! in_array($this->source->scraper_type, ['evaluar'], true)) {
-            $this->errorMessage = 'Scraper no implementado para esta fuente.';
+        if (! $this->isGeminiJobBoardSource()) {
+            $this->errorMessage = 'Extractor no implementado para esta fuente.';
 
             return;
         }
@@ -165,6 +167,7 @@ class BotPreview extends Component
         $this->currentBatchId = (string) Str::uuid();
         $this->resetPage('previewsPage');
 
+        $scraper = $this->jobBoardScraper();
         $result = $scraper->scrapeCompany(
             company: $this->company,
             startDate: $this->startDate,
@@ -178,7 +181,7 @@ class BotPreview extends Component
         $this->message = $this->scrapeMessage($result, $shown);
 
         if (($result['status'] ?? null) === 'ERROR') {
-            $this->errorMessage = 'El scraper encontro errores. Revisa el resumen tecnico de la busqueda.';
+            $this->errorMessage = 'El extractor encontro errores. Revisa el resumen tecnico de la busqueda.';
         }
     }
 
@@ -200,23 +203,11 @@ class BotPreview extends Component
             ->values()
             ->all();
 
-        $assignment = $this->areaAssignmentFromPreview($preview);
-
-        if ($this->professionAssignments()->professionsEditedManually($preview)) {
-            $professionIds = $storedProfessionIds;
-            $this->professionSuggestionNotice = null;
-        } else {
-            $result = $this->professionAssignments()->applyToPreview($preview, $assignment, [
-                'source' => 'bot_preview_edit',
-                'raw_ai_areas' => $this->rawAiAreas($preview),
-                'raw_ai_professions' => $this->rawAiProfessions($preview),
-            ]);
-            $professionIds = $result['professions_after'];
-            $preview->refresh();
-            $this->professionSuggestionNotice = $assignment['valid']
-                ? null
-                : 'El area no coincide con el catalogo. Selecciona un area para habilitar profesiones.';
-        }
+        $professionIds = $storedProfessionIds;
+        $reviewReasons = BotUiLabels::previewIssues($preview->raw_data);
+        $this->professionSuggestionNotice = $reviewReasons !== []
+            ? collect($reviewReasons)->filter()->unique()->implode(' ')
+            : null;
 
         $this->editingId = $preview->id;
         $this->form = [
@@ -250,22 +241,29 @@ class BotPreview extends Component
         }
 
         $preview = $this->batchPreviewsQuery()->findOrFail($this->editingId);
-        $assignment = $this->areaAssignmentFromPreview($preview);
-        $result = $this->professionAssignments()->applyToPreview($preview, $assignment, [
+        $detected = data_get($preview->raw_data, 'ai_analysis.profesiones_encontradas', []);
+        $assignment = $this->professionAssignments()->resolveDetectedProfessions(
+            is_array($detected) ? $detected : [],
+            (bool) data_get($preview->raw_data, 'ai_analysis.acepta_carreras_afines', false),
+            data_get($preview->raw_data, 'ai_analysis.evidencia_carreras_afines'),
+            data_get($preview->raw_data, 'ai_analysis.area_principal_catalogo'),
+            (float) data_get($preview->raw_data, 'ai_analysis.confianza_area_principal', 0),
+            data_get($preview->raw_data, 'ai_analysis.evidencia_area_principal'),
+        );
+        $result = $this->professionAssignments()->applyDetectedResolutionToPreview($preview, $assignment, [
             'source' => 'bot_preview_recalculate',
-            'raw_ai_areas' => $this->rawAiAreas($preview),
             'raw_ai_professions' => $this->rawAiProfessions($preview),
         ]);
         $ids = $result['professions_after'];
 
         $this->form['selected_profession_ids'] = $ids;
-        $this->form['selected_area_id'] = $assignment['area_ids'][0] ?? null;
-        $this->professionSuggestionNotice = $assignment['valid']
+        $this->form['selected_area_id'] = $assignment['selected_area_id'] ?? null;
+        $this->professionSuggestionNotice = ! $assignment['requiere_revision']
             ? null
-            : 'El area no coincide con el catalogo. Selecciona un area valida.';
-        $this->message = $assignment['valid']
-            ? 'Profesiones recalculadas desde las areas del catalogo.'
-            : 'No se asignaron profesiones porque el area no es valida.';
+            : implode(' ', $assignment['motivos_revision']);
+        $this->message = ! $assignment['requiere_revision']
+            ? 'Profesiones recalculadas desde las menciones explícitas detectadas.'
+            : 'La clasificación conserva sus sugerencias, pero requiere revisión manual.';
 
         $this->dispatch(
             'bot-professions-recalculated',
@@ -287,8 +285,6 @@ class BotPreview extends Component
             'form.title' => 'required|min:5|max:255',
             'form.area' => 'nullable|max:255',
             'form.professions' => 'nullable',
-            'form.department' => 'nullable|max:255',
-            'form.location' => 'nullable|max:255',
             'form.expiration_date' => 'nullable|max:255',
             'form.salary' => $this->source->scraper_type === 'sicoes'
                 ? 'required|integer|min:0'
@@ -303,22 +299,30 @@ class BotPreview extends Component
             'form.is_pro' => 'boolean',
             'botFiles.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
         ]);
+        $this->validateSelectedProfessionsBelongToArea();
 
         $preview = $this->batchPreviewsQuery()->findOrFail($this->editingId);
-        $attachments = $this->storePreviewAttachments($preview);
         $normalizedFields = $this->normalizedFormFields($preview);
-        $selectedLocationIds = array_values($this->form['selected_location_ids']);
-        if (
-            $this->normalize((string) $normalizedFields['department']) !== 'no especificado'
-            && $this->locationIdsAreOnlyUnspecified($selectedLocationIds)
-        ) {
-            $selectedLocationIds = $this->locationIdsForDepartment($normalizedFields['department']);
-        }
+        $locationSelection = $this->locationSelectionData($this->form['selected_location_ids']);
+        $selectedLocationIds = $locationSelection['ids'];
+        $normalizedFields['department'] = $locationSelection['department'];
+        $normalizedFields['location'] = $locationSelection['location'];
+        $normalizedFields['location_source'] = 'manual_selection';
+        $normalizedFields['location_detected_text'] = $locationSelection['location'];
+        $attachments = $this->storePreviewAttachments($preview);
+        $selectedAreaName = Area::query()
+            ->whereKey($this->form['selected_area_id'])
+            ->value('area_name');
+        $selectedProfessionNames = Profesion::query()
+            ->whereIn('id', $this->form['selected_profession_ids'])
+            ->orderBy('profesion_name')
+            ->pluck('profesion_name')
+            ->all();
 
         $preview->update([
             'title' => $this->form['title'],
-            'area' => $this->form['area'] ?: null,
-            'professions' => $this->form['professions'] ?: null,
+            'area' => $selectedAreaName,
+            'professions' => implode(', ', $selectedProfessionNames),
             'department' => $normalizedFields['department'],
             'location' => $normalizedFields['location'],
             'expiration_date' => $normalizedFields['expiration_date'],
@@ -434,18 +438,18 @@ class BotPreview extends Component
         $this->resetPage('previewsPage');
     }
 
-    public function retryGeminiErrors(GeminiVacancyAnalyzer $analyzer): void
+    public function reanalyzeErrors(): void
     {
         $this->reset(['message', 'errorMessage']);
 
-        if ($this->source->scraper_type === 'sicoes') {
-            $this->errorMessage = 'SICOES usa Claude durante el procesamiento por documento. Ejecuta SICOES nuevamente para reintentar errores IA.';
+        if (! $this->isGeminiJobBoardSource()) {
+            $this->errorMessage = 'Esta acción de reanálisis corresponde únicamente a Evaluar y E-Talent.';
 
             return;
         }
 
         if (! $this->currentBatchId) {
-            $this->errorMessage = 'No hay un lote actual para reintentar Gemini.';
+            $this->errorMessage = 'No hay un lote actual para reanalizar.';
 
             return;
         }
@@ -456,76 +460,63 @@ class BotPreview extends Component
             return;
         }
 
-        $quotaExceeded = false;
         $retried = 0;
         $recovered = 0;
+        $failed = 0;
 
+        $scraper = $this->jobBoardScraper();
         $previews = $this->geminiErrorPreviewsQuery()->get();
 
         foreach ($previews as $preview) {
-            $gemini = $analyzer->analyzeWithMeta(
-                title: $preview->title,
-                company: $this->company,
-                description: $preview->original_description ?: $preview->description,
-                options: ['skip_due_to_quota' => $quotaExceeded],
-            );
+            $result = $scraper->reanalyzePreview($preview, 'explicit_admin_reanalyze_errors');
             $retried++;
-
-            if (($gemini['error_type'] ?? null) === 'quota_exceeded') {
-                $quotaExceeded = true;
-            }
-
-            $rawData = array_merge($preview->raw_data ?? [], $this->geminiRawData($gemini));
-
-            if (! empty($gemini['success'])) {
-                $analysis = $gemini['data'];
-                $areaAssignment = $this->professionAssignments()->resolve($analysis['area_ids'] ?? []);
-                $normalizedFields = $this->normalizer()->normalize(
-                    title: $preview->title,
-                    description: $preview->original_description ?: $preview->description,
-                    analysis: $analysis,
-                    rawData: $rawData,
-                );
-                $preview->update([
-                    'area' => $areaAssignment['area_names'] ? implode(', ', $areaAssignment['area_names']) : 'No especificado',
-                    'professions' => $areaAssignment['profession_names'] ? implode(', ', $areaAssignment['profession_names']) : 'No especificado',
-                    'department' => $normalizedFields['department'],
-                    'location' => $normalizedFields['location'],
-                    'salary' => $normalizedFields['salary'],
-                    'expiration_date' => $normalizedFields['expiration_date'],
-                    'selected_area_id' => $areaAssignment['area_ids'][0] ?? null,
-                    'status' => $areaAssignment['valid'] ? 'preview' : 'error',
-                    'raw_data' => array_merge($rawData, [
-                        'expiration_source' => $normalizedFields['expiration_source'],
-                        'expiration_detected_text' => $normalizedFields['expiration_detected_text'],
-                        'location_source' => $normalizedFields['location_source'],
-                        'location_detected_text' => $normalizedFields['location_detected_text'],
-                        'salary_source' => $normalizedFields['salary_source'],
-                        'salary_detected_text' => $normalizedFields['salary_detected_text'],
-                        'resolved_area_ids' => $areaAssignment['area_ids'],
-                        'profession_assignment_source' => 'area_profession_pivot',
-                        'profession_assignment_error' => $areaAssignment['error'],
-                    ]),
-                ]);
-
-                $preview->refresh();
-                $this->professionAssignments()->applyToPreview($preview, $areaAssignment, [
-                    'source' => 'bot_preview_gemini_retry',
-                    'raw_ai_areas' => $analysis['area_ids'] ?? [],
-                    'raw_ai_professions' => [],
-                ]);
-                $preview->update(['selected_location_ids' => $this->locationIdsForDepartment($preview->department)]);
-                $recovered += $areaAssignment['valid'] ? 1 : 0;
-            } else {
-                $preview->update(['raw_data' => $rawData]);
-            }
+            $preview->refresh();
+            $recovered += $preview->status === 'preview' ? 1 : 0;
+            $failed += empty($result['gemini_success']) ? 1 : 0;
         }
 
-        $this->message = "Reintento Gemini terminado. Procesadas: {$retried}. Recuperadas: {$recovered}.";
-
-        if ($quotaExceeded) {
-            $this->errorMessage = 'Gemini devolvio quota_exceeded. El resto del lote uso fallback sin seguir gastando cuota.';
+        $this->message = "Reanálisis terminado. Procesadas: {$retried}. Sin revisión pendiente: {$recovered}.";
+        if ($failed > 0) {
+            $this->errorMessage = "Gemini no pudo completar {$failed} análisis. Los detalles sanitizados quedaron en cada previsualización.";
         }
+    }
+
+    public function retryGeminiErrors(): void
+    {
+        $this->reanalyzeErrors();
+    }
+
+    public function reanalyzeSelected(int $previewId): void
+    {
+        $this->reset(['message', 'errorMessage']);
+
+        if (! $this->isGeminiJobBoardSource()) {
+            $this->errorMessage = 'Esta acción de reanálisis corresponde únicamente a Evaluar y E-Talent.';
+
+            return;
+        }
+
+        if (! config('services.gemini.key')) {
+            $this->errorMessage = 'Gemini esta desactivado porque falta GEMINI_API_KEY.';
+
+            return;
+        }
+
+        $preview = $this->batchPreviewsQuery()->findOrFail($previewId);
+        $scraper = $this->jobBoardScraper();
+        $result = $scraper->reanalyzePreview($preview, 'explicit_admin_selected_preview');
+
+        if (($result['reason'] ?? null) === 'published_preview') {
+            $this->errorMessage = 'Una previsualización publicada no se reanaliza automáticamente.';
+
+            return;
+        }
+
+        $this->message = ! empty($result['gemini_success'])
+            ? (! empty($result['manual_changes_preserved'])
+                ? 'Reanálisis completado; se conservaron todos los cambios manuales.'
+                : 'Previsualización reanalizada. Revisa la clasificación antes de publicar.')
+            : 'El reanálisis no se completó; el error sanitizado quedó registrado.';
     }
 
     public function render()
@@ -545,6 +536,9 @@ class BotPreview extends Component
             'locations' => $this->locations,
             'areas' => $this->areas,
             'companies' => $this->companies,
+            'editingPreview' => $this->editingId
+                ? $this->batchPreviewsQuery()->find($this->editingId)
+                : null,
             'currentGeminiErrors' => $this->currentBatchId ? $this->geminiErrorPreviewsQuery()->count() : 0,
             'publishablePreviewCount' => $this->currentBatchId
                 ? $this->batchPreviewsQuery()->whereIn('status', ['preview', 'edited'])->count()
@@ -560,11 +554,13 @@ class BotPreview extends Component
         $professionIds = $preview->selected_profession_ids ?: $this->resolveProfessions($preview);
 
         if ($professionIds === []) {
-            throw new \RuntimeException('La previsualizacion no tiene profesiones derivadas de un area valida.');
+            throw new \RuntimeException('La previsualización no tiene profesiones explícitas validadas.');
         }
+        $this->assertPreviewProfessionAreaIntegrity($preview, $professionIds);
 
         $normalizedFields = $this->normalizedPreviewFields($preview);
-        $locationIds = $this->locationIdsForPublication($preview, $normalizedFields);
+        $locationIds = $preview->selected_location_ids ?: $this->locationIdsForPublication($preview, $normalizedFields);
+        $locationIds = $this->locationSelectionData($locationIds)['ids'];
         $sourceHash = hash('sha256', $preview->source_url);
 
         $preview->update([
@@ -650,7 +646,8 @@ class BotPreview extends Component
 
         return Company::create([
             'company_name' => $this->company->name,
-            'description' => 'Empresa creada automaticamente desde el modulo BOT para convocatorias desde Evaluar.',
+            'description' => 'Empresa creada automáticamente desde el módulo BOT para convocatorias desde '
+                .$this->source->name.'.',
             'company_image' => $this->company->logo ?: 'empresas/tbn-new-default.webp',
             'user_id' => auth()->id(),
             'company_type_id' => $companyType->id,
@@ -683,10 +680,117 @@ class BotPreview extends Component
         ]);
     }
 
+    private function validateSelectedProfessionsBelongToArea(): void
+    {
+        $areaId = (int) ($this->form['selected_area_id'] ?? 0);
+        $professionIds = collect($this->form['selected_profession_ids'] ?? [])
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($areaId <= 0) {
+            throw ValidationException::withMessages([
+                'form.selected_area_id' => 'Selecciona el área que se utilizará para validar las profesiones.',
+            ]);
+        }
+
+        $compatibleIds = Profesion::query()
+            ->whereIn('id', $professionIds)
+            ->whereHas('areas', fn ($query) => $query->where('areas.id', $areaId))
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id);
+        $incompatibleIds = $professionIds->diff($compatibleIds)->values();
+
+        if ($incompatibleIds->isNotEmpty()) {
+            $preview = $this->editingId
+                ? $this->batchPreviewsQuery()->find($this->editingId)
+                : null;
+            if ($preview && $this->isValidatedAiMultiAreaSelection($preview, $professionIds->all(), $areaId)) {
+                return;
+            }
+
+            $names = Profesion::query()
+                ->whereIn('id', $incompatibleIds)
+                ->pluck('profesion_name')
+                ->implode(', ');
+
+            throw ValidationException::withMessages([
+                'form.selected_profession_ids' => "Estas profesiones no pertenecen al área seleccionada: {$names}.",
+            ]);
+        }
+    }
+
+    private function assertPreviewProfessionAreaIntegrity(
+        BotVacancyPreview $preview,
+        array $professionIds,
+    ): void {
+        $areaId = (int) $preview->selected_area_id;
+        if ($areaId <= 0) {
+            throw new \RuntimeException(
+                'La previsualización requiere seleccionar un área antes de publicarse.',
+            );
+        }
+
+        $professionIds = collect($professionIds)
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+        $compatibleCount = Profesion::query()
+            ->whereIn('id', $professionIds)
+            ->whereHas('areas', fn ($query) => $query->where('areas.id', $areaId))
+            ->count();
+
+        if ($compatibleCount !== $professionIds->count()) {
+            if ($this->isValidatedAiMultiAreaSelection($preview, $professionIds->all(), $areaId)) {
+                return;
+            }
+
+            throw new \RuntimeException(
+                'La previsualización contiene profesiones incompatibles con el área seleccionada.',
+            );
+        }
+    }
+
+    private function isValidatedAiMultiAreaSelection(
+        BotVacancyPreview $preview,
+        array $professionIds,
+        int $areaId,
+    ): bool {
+        $resolution = data_get($preview->raw_data, 'profession_resolution', []);
+        $aiAreaId = (int) data_get($resolution, 'area_principal_ia.area_id', 0);
+        $resolvedIds = collect(data_get($resolution, 'profession_ids', []))
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->unique();
+        $requestedIds = collect($professionIds)
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->unique();
+
+        return $aiAreaId > 0
+            && $aiAreaId === $areaId
+            && ! (bool) data_get($resolution, 'requiere_revision', true)
+            && $requestedIds->isNotEmpty()
+            && $requestedIds->diff($resolvedIds)->isEmpty();
+    }
+
     private function resolveProfessions(BotVacancyPreview $preview, bool $force = false): array
     {
-        if (! $force && $this->professionAssignments()->professionsEditedManually($preview)) {
-            return collect($preview->selected_profession_ids)
+        $selected = collect($preview->selected_profession_ids ?: [])
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($selected !== [] || $this->isGeminiJobBoardSource()) {
+            if ($selected !== []) {
+                return $selected;
+            }
+
+            return collect(data_get($preview->raw_data, 'profession_resolution.profession_ids', []))
                 ->map(fn ($id) => (int) $id)
                 ->filter()
                 ->unique()
@@ -738,7 +842,9 @@ class BotPreview extends Component
     private function rawAiProfessions(BotVacancyPreview $preview): array
     {
         $rawData = $preview->raw_data ?? [];
-        $value = data_get($rawData, 'ai_analysis.profesiones_sugeridas')
+        $value = data_get($rawData, 'ai_analysis.profesiones_encontradas')
+            ?: data_get($rawData, 'profesiones_originales')
+            ?: data_get($rawData, 'ai_analysis.profesiones_sugeridas')
             ?: data_get($rawData, 'ai_profession_suggestions')
             ?: data_get($rawData, 'gemini_profesiones_sugeridas', []);
 
@@ -752,7 +858,25 @@ class BotPreview extends Component
 
     private function resolveLocations(BotVacancyPreview $preview): array
     {
-        return $this->locationIdsForDepartment($preview->department);
+        $departments = data_get($preview->raw_data, 'location_departments', []);
+
+        return $this->locationIdsForDepartments(
+            is_array($departments) && $departments !== []
+                ? $departments
+                : [$preview->department],
+        );
+    }
+
+    private function locationIdsForDepartments(array $departments): array
+    {
+        return collect($departments)
+            ->map(fn (mixed $department): string => trim((string) $department))
+            ->filter()
+            ->unique(fn (string $department): string => $this->normalize($department))
+            ->flatMap(fn (string $department): array => $this->locationIdsForDepartment($department))
+            ->unique()
+            ->values()
+            ->all();
     }
 
     private function locationIdsForDepartment(?string $department): array
@@ -787,10 +911,51 @@ class BotPreview extends Component
         }
 
         if (! $storedIds || $this->locationIdsAreOnlyUnspecified($storedIds)) {
-            return $this->locationIdsForDepartment($normalizedDepartment);
+            return $this->locationIdsForDepartments(
+                $normalizedFields['departments'] ?? [$normalizedDepartment],
+            );
         }
 
         return $storedIds;
+    }
+
+    private function locationSelectionData(array $locationIds): array
+    {
+        $ids = collect($locationIds)
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+        $locationsById = Location::query()
+            ->whereIn('id', $ids)
+            ->get()
+            ->keyBy('id');
+        $locations = $ids
+            ->map(fn (int $id): ?Location => $locationsById->get($id))
+            ->filter()
+            ->reject(fn (Location $location): bool => $this->normalize($location->location_name) === 'no especificado')
+            ->values();
+
+        if ($locations->isEmpty()) {
+            throw ValidationException::withMessages([
+                'form.selected_location_ids' => 'Selecciona al menos una ubicación válida.',
+            ]);
+        }
+
+        $names = $locations->pluck('location_name')->all();
+        $selectableLocationCount = Location::all()
+            ->reject(fn (Location $location): bool => $this->normalize($location->location_name) === 'no especificado')
+            ->count();
+        $locationSummary = $locations->count() > 1
+            && $locations->count() === $selectableLocationCount
+            ? 'Toda Bolivia'
+            : implode(', ', $names);
+
+        return [
+            'ids' => $locations->pluck('id')->map(fn ($id): int => (int) $id)->all(),
+            'department' => count($names) === 1 ? $names[0] : $locationSummary,
+            'location' => $locationSummary,
+        ];
     }
 
     private function locationIdsAreOnlyUnspecified(array $locationIds): bool
@@ -1014,48 +1179,12 @@ class BotPreview extends Component
     private function geminiErrorPreviewsQuery()
     {
         return $this->batchPreviewsQuery()
+            ->where('status', 'error')
             ->where(function ($query) {
                 $query
-                    ->where('raw_data->gemini_success', false)
-                    ->orWhereNotNull('raw_data->gemini_error');
+                    ->whereNull('raw_data->manual_professions_locked')
+                    ->orWhere('raw_data->manual_professions_locked', false);
             });
-    }
-
-    private function geminiRawData(array $gemini): array
-    {
-        $analysis = $gemini['data'] ?? [];
-        $rawData = [
-            'gemini_used' => (bool) ($gemini['used'] ?? false),
-            'gemini_success' => (bool) ($gemini['success'] ?? false),
-            'gemini_model' => $gemini['model'] ?? config('services.gemini.model', 'gemini-2.5-flash-lite'),
-            'gemini_error' => $gemini['error'] ?? null,
-            'gemini_error_type' => $gemini['error_type'] ?? null,
-            'gemini_http_status' => $gemini['http_status'] ?? null,
-            'gemini_attempts' => $gemini['gemini_attempts'] ?? null,
-            'gemini_analyzed_at' => $gemini['analyzed_at'] ?? null,
-            'gemini_usage_metadata' => $gemini['usage_metadata'] ?? null,
-            'gemini_prompt_tokens' => $gemini['prompt_tokens'] ?? null,
-            'gemini_candidates_tokens' => $gemini['candidates_tokens'] ?? null,
-            'gemini_total_tokens' => $gemini['total_tokens'] ?? null,
-            'gemini_thoughts_tokens' => $gemini['thoughts_tokens'] ?? null,
-            'gemini_skipped_due_to_quota' => (bool) ($gemini['gemini_skipped_due_to_quota'] ?? false),
-            'description_truncated_for_gemini' => (bool) ($gemini['description_truncated_for_gemini'] ?? false),
-            'description_original_length' => $gemini['description_original_length'] ?? null,
-            'description_sent_length' => $gemini['description_sent_length'] ?? null,
-            'area_ids' => $analysis['area_ids'] ?? [],
-            'gemini_areas' => $analysis['areas'] ?? [],
-            'gemini_area_ids' => $analysis['area_ids'] ?? [],
-            'gemini_area_principal' => $analysis['area_principal'] ?? null,
-            'gemini_profesiones_sugeridas' => [],
-            'municipality' => $analysis['municipality'] ?? null,
-            'gemini_retried_at' => now()->toIso8601String(),
-        ];
-
-        if (config('app.debug') && ! empty($gemini['raw_response'])) {
-            $rawData['gemini_raw_response'] = $gemini['raw_response'];
-        }
-
-        return $rawData;
     }
 
     private function scrapeMessage(array $result, int $shown): string
@@ -1065,7 +1194,7 @@ class BotPreview extends Component
         $alreadyPublished = (int) ($result['already_published'] ?? 0);
 
         if ($totalItems === 0) {
-            return 'No se encontraron publicaciones en el feed.';
+            return 'No se encontraron publicaciones en la fuente.';
         }
 
         if ($shown > 0) {
@@ -1240,6 +1369,20 @@ class BotPreview extends Component
     public function companies()
     {
         return Cache::remember('companies', 86400, fn () => Company::all(['id', 'company_name']));
+    }
+
+    private function isGeminiJobBoardSource(): bool
+    {
+        return in_array($this->source->scraper_type, ['evaluar', 'etalent'], true);
+    }
+
+    private function jobBoardScraper(): EvaluarScraperService
+    {
+        return match ($this->source->scraper_type) {
+            'evaluar' => app(EvaluarScraperService::class),
+            'etalent' => app(ETalentScraperService::class),
+            default => throw new \LogicException('La fuente no utiliza el flujo de scraping con Gemini.'),
+        };
     }
 
     private function normalizer(): BotVacancyNormalizer

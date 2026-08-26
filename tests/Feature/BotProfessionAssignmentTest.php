@@ -163,7 +163,7 @@ class BotProfessionAssignmentTest extends TestCase
         $this->assertSame('2026-07-26 23:59:00', $normalized['expiration_date']);
     }
 
-    public function test_gemini_keeps_unknown_area_ids_visible_for_strict_rejection(): void
+    public function test_gemini_returns_explicit_professions_and_database_resolves_the_ids(): void
     {
         config()->set('services.gemini.key', 'test-key');
         Http::fake([
@@ -171,11 +171,21 @@ class BotProfessionAssignmentTest extends TestCase
                 'candidates' => [[
                     'content' => ['parts' => [[
                         'text' => json_encode([
-                            'area_ids' => [$this->economicArea->id, 999999],
-                            'profesiones_sugeridas' => ['Ingenieria Electrica'],
+                            'profesiones_encontradas' => [[
+                                'nombre_original' => 'Ingenieria Electrica',
+                                'nombre_catalogo' => 'Ingenieria Electrica',
+                                'evidencia' => 'Se requiere Ingeniería Eléctrica.',
+                                'tipo_requisito' => 'obligatoria',
+                                'confianza' => 0.98,
+                            ]],
+                            'acepta_carreras_afines' => false,
+                            'evidencia_carreras_afines' => '',
+                            'area_principal_catalogo' => 'Area ELECTRICA',
+                            'evidencia_area_principal' => 'Se requiere Ingeniería Eléctrica.',
+                            'confianza_area_principal' => 0.98,
                             'ubicacion_departamento' => 'La Paz',
                             'ubicacion' => 'La Paz / El Alto',
-                            'sueldo' => 0,
+                            'sueldo' => '0',
                             'fecha_expiracion' => '2026-07-26',
                         ]),
                     ]]],
@@ -188,18 +198,89 @@ class BotProfessionAssignmentTest extends TestCase
             $this->company,
             'Carreras financieras y empresariales.',
         );
-        $assignment = $this->assignments->resolve($result['data']['area_ids']);
+        $assignment = $this->assignments->resolveDetectedProfessions(
+            $result['data']['profesiones_encontradas'],
+        );
 
         $this->assertTrue($result['success']);
-        $this->assertSame([$this->economicArea->id, 999999], $result['data']['area_ids']);
-        $this->assertSame([], $result['data']['profesiones_sugeridas']);
-        $this->assertSame('No especificado', $result['data']['professions']);
-        $this->assertFalse($assignment['valid']);
-        $this->assertSame([], $assignment['profession_ids']);
-        Http::assertSent(fn (Request $request): bool => str_contains((string) data_get($request->data(), 'contents.0.parts.0.text'), '"id":'.$this->economicArea->id));
+        $this->assertSame('Ingenieria Electrica', $result['data']['profesiones_encontradas'][0]['nombre_original']);
+        $this->assertSame([$this->unrelatedProfessionIds[0]], $assignment['profession_ids']);
+        $this->assertSame([$this->electricalArea->id], $assignment['area_ids']);
+        $this->assertTrue($assignment['valid']);
+        Http::assertSent(function (Request $request): bool {
+            $prompt = (string) data_get($request->data(), 'contents.0.parts.0.text');
+            $allowedNames = (array) data_get(
+                $request->data(),
+                'generationConfig.responseSchema.properties.profesiones_encontradas.items.properties.nombre_catalogo.enum',
+                [],
+            );
+
+            return str_contains($prompt, 'Ingenieria Electrica')
+                && ! str_contains($prompt, '"id":')
+                && in_array('Ingenieria Electrica', $allowedNames, true);
+        });
     }
 
-    public function test_anthropic_returns_only_catalog_area_ids_for_professional_assignment(): void
+    public function test_gemini_duplicate_catalog_profession_is_deduplicated_without_failing_the_contract(): void
+    {
+        config()->set('services.gemini.key', 'test-key');
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [[
+                    'content' => ['parts' => [[
+                        'text' => json_encode([
+                            'profesiones_encontradas' => [
+                                [
+                                    'nombre_original' => 'Ingenieria Electrica',
+                                    'nombre_catalogo' => 'Ingenieria Electrica',
+                                    'evidencia' => 'Se requiere Ingeniería Eléctrica.',
+                                    'tipo_requisito' => 'obligatoria',
+                                    'confianza' => 0.98,
+                                ],
+                                [
+                                    'nombre_original' => 'carrera eléctrica',
+                                    'nombre_catalogo' => 'Ingenieria Electrica',
+                                    'evidencia' => 'También se admite carrera eléctrica.',
+                                    'tipo_requisito' => 'alternativa',
+                                    'confianza' => 0.95,
+                                ],
+                            ],
+                            'acepta_carreras_afines' => false,
+                            'evidencia_carreras_afines' => '',
+                            'area_principal_catalogo' => 'Area ELECTRICA',
+                            'evidencia_area_principal' => 'Se requiere Ingeniería Eléctrica.',
+                            'confianza_area_principal' => 0.98,
+                            'ubicacion_departamento' => '',
+                            'ubicacion' => '',
+                            'sueldo' => '0',
+                            'fecha_expiracion' => 'No especificado',
+                        ]),
+                    ]]],
+                ]],
+            ]),
+        ]);
+
+        $analysis = app(GeminiVacancyAnalyzer::class)->analyzeWithMeta(
+            'Ingeniero eléctrico',
+            $this->company,
+            'Se requiere Ingeniería Eléctrica; también se admite carrera eléctrica.',
+        );
+        $resolution = $this->assignments->resolveDetectedProfessions(
+            $analysis['data']['profesiones_encontradas'],
+            false,
+            null,
+            $analysis['data']['area_principal_catalogo'],
+            $analysis['data']['confianza_area_principal'],
+            $analysis['data']['evidencia_area_principal'],
+        );
+
+        $this->assertTrue($analysis['success']);
+        $this->assertSame([$this->unrelatedProfessionIds[0]], $resolution['profession_ids']);
+        $this->assertCount(2, $resolution['profesiones_resueltas'][0]['evidencias']);
+        $this->assertSame([], $resolution['profesiones_no_identificadas']);
+    }
+
+    public function test_anthropic_returns_explicit_professions_and_mysql_resolves_ids(): void
     {
         config()->set('sicoes.ai.provider', 'anthropic');
         config()->set('services.anthropic.api_key', 'test-key');
@@ -215,34 +296,51 @@ class BotProfessionAssignmentTest extends TestCase
                         'debe_descartarse' => false,
                         'motivo_descarte' => null,
                         'evidencia_clasificacion' => 'Consultor individual de linea.',
-                        'cuce' => 'TEST-CUCE',
                         'titulo_objeto' => 'Consultor financiero',
-                        'area_ids' => [$this->economicArea->id],
-                        'profesiones_sugeridas' => ['Ingenieria Electrica'],
-                        'ubicacion_detectada' => [
-                            'texto' => 'La Paz',
+                        'cargos' => [
+                            ['nombre' => 'Consultor financiero', 'evidencia' => 'Cargo: Consultor financiero'],
+                        ],
+                        'profesiones_encontradas' => [[
+                            'nombre_original' => 'Ingeniería Financiera',
+                            'nombre_catalogo' => 'Ingenieria Financiera',
+                            'evidencia' => 'Formación académica: Ingeniería Financiera.',
+                            'tipo_requisito' => 'obligatoria',
+                            'confianza' => 0.99,
+                        ]],
+                        'acepta_carreras_afines' => false,
+                        'evidencia_carreras_afines' => '',
+                        'area_principal_catalogo' => 'Area ECONOMICA, ADMINISTRATIVA Y FINANCIERA',
+                        'evidencia_area_principal' => 'Consultor financiero.',
+                        'confianza_area_principal' => 0.98,
+                        'lugar_trabajo' => [
+                            'direccion_exacta' => '',
                             'municipio' => '',
                             'departamento' => 'La Paz',
-                            'confianza' => 'alta',
+                            'evidencia' => 'Lugar de trabajo: La Paz.',
+                            'documento_fuente' => 'TDR',
+                            'confianza' => 0.99,
+                            'requiere_revision' => false,
+                            'direcciones_candidatas_descartadas' => [],
                         ],
-                        'lugar_trabajo' => 'La Paz',
-                        'duracion_contrato' => 'No especificado',
-                        'modalidad_postulacion' => 'Digital',
-                        'sueldo' => [
-                            'valor' => 0,
-                            'detalle' => 'No especificado',
-                            'sueldos' => [],
-                            'revision_manual' => true,
+                        'duracion_contrato' => [
+                            'texto_exacto' => '',
+                            'evidencia' => '',
+                            'confianza' => 0,
                         ],
-                        'detalle_sueldos' => 'No especificado',
-                        'descripcion' => 'No especificado',
-                        'evidencias' => [
-                            'cuce' => 'TEST-CUCE',
-                            'area_profesional' => 'Carreras financieras.',
-                            'lugar_trabajo' => 'La Paz',
-                            'duracion_contrato' => '',
-                            'modalidad_postulacion' => 'Digital',
-                            'sueldo' => '',
+                        'modalidad_postulacion' => [
+                            'texto_exacto' => 'Presentación digital.',
+                            'tipo' => 'digital_otro',
+                            'evidencia' => 'La propuesta será enviada digitalmente.',
+                            'confianza' => 0.95,
+                        ],
+                        'cuce' => [
+                            'valor' => 'TEST-CUCE',
+                            'evidencia' => 'CUCE: TEST-CUCE',
+                        ],
+                        'salarios' => [
+                            'tipo' => 'no_declarado',
+                            'cantidad' => 0,
+                            'detalle' => [],
                         ],
                         'advertencias' => [],
                     ]),
@@ -260,10 +358,116 @@ class BotProfessionAssignmentTest extends TestCase
             'published_at' => '2026-07-10',
         ], 'Terminos de referencia para consultor individual de linea.');
 
+        $resolution = $this->assignments->resolveDetectedProfessions(
+            $result['data']['profesiones_encontradas'] ?? [],
+        );
+
         $this->assertTrue($result['success']);
-        $this->assertSame([$this->economicArea->id], $result['data']['area_ids']);
-        $this->assertArrayNotHasKey('profesiones_sugeridas', $result['data']);
-        Http::assertSent(fn (Request $request): bool => str_contains((string) data_get($request->data(), 'messages.0.content.0.text'), '"id":'.$this->economicArea->id));
+        $this->assertArrayNotHasKey('area_ids', $result['data']);
+        $this->assertSame([$this->economicProfessionIds[5]], $resolution['profession_ids']);
+        Http::assertSent(function (Request $request): bool {
+            $prompt = (string) data_get($request->data(), 'messages.0.content.0.text');
+
+            return str_contains($prompt, '"nombre":"Ingenieria Financiera"')
+                && ! str_contains($prompt, '"id":'.$this->economicArea->id);
+        });
+    }
+
+    public function test_gemini_contract_expands_the_validated_area_when_affine_careers_are_accepted(): void
+    {
+        config()->set('services.gemini.key', 'test-key');
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [[
+                    'content' => ['parts' => [[
+                        'text' => json_encode([
+                            'profesiones_encontradas' => [[
+                                'nombre_original' => 'Administracion de Empresas',
+                                'nombre_catalogo' => 'Administracion de Empresas',
+                                'evidencia' => 'Administración de Empresas o carreras afines.',
+                                'tipo_requisito' => 'alternativa',
+                                'confianza' => 0.95,
+                            ]],
+                            'acepta_carreras_afines' => true,
+                            'evidencia_carreras_afines' => 'Administración de Empresas o carreras afines.',
+                            'area_principal_catalogo' => 'Area ECONOMICA, ADMINISTRATIVA Y FINANCIERA',
+                            'evidencia_area_principal' => 'Administración de Empresas',
+                            'confianza_area_principal' => 0.98,
+                            'ubicacion_departamento' => '',
+                            'ubicacion' => '',
+                            'sueldo' => '0',
+                            'fecha_expiracion' => 'No especificado',
+                        ]),
+                    ]]],
+                ]],
+            ]),
+        ]);
+
+        $result = app(GeminiVacancyAnalyzer::class)->analyzeWithMeta(
+            'Analista',
+            $this->company,
+            'Administración de Empresas o carreras afines.',
+        );
+
+        $this->assertTrue($result['success']);
+        $this->assertTrue($result['data']['acepta_carreras_afines']);
+        $this->assertCount(1, $result['data']['profesiones_encontradas']);
+        $assignment = $this->assignments->resolveDetectedProfessions(
+            $result['data']['profesiones_encontradas'],
+            $result['data']['acepta_carreras_afines'],
+            $result['data']['evidencia_carreras_afines'],
+            $result['data']['area_principal_catalogo'],
+            $result['data']['confianza_area_principal'],
+            $result['data']['evidencia_area_principal'],
+        );
+        $this->assertEqualsCanonicalizing($this->economicProfessionIds, $assignment['profession_ids']);
+        $this->assertTrue($assignment['expansion_afinidad_aplicada']);
+        $this->assertSame($this->economicArea->id, $assignment['selected_area_id']);
+    }
+
+    public function test_invalid_gemini_profession_contract_returns_a_safe_error_instead_of_breaking(): void
+    {
+        config()->set('services.gemini.key', 'test-key');
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [[
+                    'content' => ['parts' => [[
+                        'text' => json_encode([
+                            'profesiones_encontradas' => [[
+                                'nombre_original' => 'Administracion de Empresas',
+                                'nombre_catalogo' => 'Profesión inventada',
+                                'evidencia' => '',
+                                'tipo_requisito' => 'inventada',
+                                'confianza' => 2,
+                            ]],
+                            'acepta_carreras_afines' => false,
+                            'evidencia_carreras_afines' => '',
+                            'area_principal_catalogo' => 'SIN_AREA',
+                            'evidencia_area_principal' => '',
+                            'confianza_area_principal' => 0,
+                            'ubicacion_departamento' => '',
+                            'ubicacion' => '',
+                            'sueldo' => '0',
+                            'fecha_expiracion' => 'No especificado',
+                        ]),
+                    ]]],
+                ]],
+            ]),
+        ]);
+
+        $result = app(GeminiVacancyAnalyzer::class)->analyzeWithMeta(
+            'Analista',
+            $this->company,
+            'Administración de Empresas.',
+        );
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('invalid_schema', $result['error_type']);
+        $this->assertNotEmpty($result['gemini_validation_errors']);
+        $this->assertTrue(collect($result['gemini_validation_errors'])->contains(
+            fn (string $error): bool => str_contains($error, 'nombre_catalogo no pertenece'),
+        ));
+        $this->assertSame([], $result['data']['profesiones_encontradas']);
     }
 
     private function area(string $name): Area

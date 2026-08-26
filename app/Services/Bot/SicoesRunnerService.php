@@ -5,14 +5,21 @@ namespace App\Services\Bot;
 use App\Support\SensitiveDataSanitizer;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
 class SicoesRunnerService
 {
-    public function run(string $date, ?callable $onItem = null, ?callable $onProgress = null): array
+    public function run(
+        string $date,
+        ?callable $onItem = null,
+        ?callable $onProgress = null,
+        string $sourceType = 'consulting_services',
+    ): array
     {
         $displayDate = $this->displayDate($date);
-        $slug = str_replace('/', '-', $displayDate);
+        $dateSlug = str_replace('/', '-', $displayDate);
+        $slug = $sourceType === 'personnel_requirements' ? $dateSlug.'-personal' : $dateSlug;
         $basePath = storage_path('app/bot/sicoes-scraper/Sicoes');
         $jsonPath = $basePath.DIRECTORY_SEPARATOR.'fichas-finales'.DIRECTORY_SEPARATOR.$slug.'.json';
 
@@ -23,18 +30,25 @@ class SicoesRunnerService
         $this->makeOutputWritable($basePath);
         @unlink($jsonPath);
 
-        if ((bool) config('sicoes.refresh_downloads', true)) {
+        if ((bool) config('sicoes.refresh_downloads', false)) {
             $this->clearDownloadCacheForDate($basePath, $slug);
         }
 
-        $mode = (bool) config('sicoes.assisted_download', true)
+        $assistedDownload = (bool) config('sicoes.assisted_download', false);
+        $mode = $assistedDownload
             ? 'full-assisted'
             : 'full';
 
-        $process = new Process([$this->nodeBinary(), 'sicoes.js', "--mode={$mode}", "--fecha={$displayDate}"], $basePath);
+        $process = new Process([
+            $this->nodeBinary(),
+            'sicoes.js',
+            "--mode={$mode}",
+            "--fecha={$displayDate}",
+            "--source={$sourceType}",
+        ], $basePath);
         $process->setEnv($this->nodeEnvironment($basePath));
         $process->setTimeout((int) config('sicoes.process.timeout', 7200));
-        $process->setIdleTimeout((int) config('sicoes.process.idle_timeout', 240));
+        $process->setIdleTimeout($this->processIdleTimeout($assistedDownload));
 
         $output = '';
         $lineBuffers = [
@@ -101,15 +115,28 @@ class SicoesRunnerService
                 return $this->streamedResult($displayDate, $slug, $jsonPath, $streamedItems, $output, 'STREAMED');
             }
 
+            if ($this->isEmptyRun($basePath, $slug, $output)) {
+                return [
+                    'status' => 'OK',
+                    'date' => $displayDate,
+                    'slug' => $slug,
+                    'json_path' => null,
+                    'sicoes_items' => 0,
+                    'no_results' => true,
+                    'runner_output' => SensitiveDataSanitizer::text($output, 3000),
+                ];
+            }
+
             throw new \RuntimeException("SICOES no genero JSON final valido: {$jsonPath}");
         }
 
         $items = $this->validatedFinalItems($jsonPath);
 
         return [
-            'status' => 'OK',
+            'status' => str_contains($output, '[SICOES_PARTIAL] ') ? 'PARTIAL' : 'OK',
             'date' => $displayDate,
             'slug' => $slug,
+            'source_type' => $sourceType,
             'json_path' => $jsonPath,
             'sicoes_items' => count($items),
             'runner_output' => SensitiveDataSanitizer::text($output, 3000),
@@ -160,9 +187,15 @@ class SicoesRunnerService
             return false;
         }
 
-        if (preg_match('/^\[(STEP|OK|FAIL|MANUAL_[A-Z_]+|DOWNLOAD_[A-Z_]+|PW_[A-Z_]+|REAL_BROWSER[A-Z_]*|CDP|CDP_TRACE|FETCH)\]/', $line)) {
+        if (preg_match('/^\[(STEP \d+|OK|FAIL|MANUAL_[A-Z_]+|DOWNLOAD_[A-Z_]+|PW_[A-Z_]+|REAL_BROWSER[A-Z_]*|CDP|CDP_TRACE|FETCH)\]/', $line)) {
             if ($onProgress) {
-                $onProgress(['message' => SensitiveDataSanitizer::text($line, 500)]);
+                $displayLine = preg_replace('/^\[STEP (\d+)\]/', '[PASO $1]', $line) ?: $line;
+                $displayLine = preg_replace(
+                    '/^\[(OK|FAIL|MANUAL_[A-Z_]+|DOWNLOAD_[A-Z_]+|PW_[A-Z_]+|REAL_BROWSER[A-Z_]*|CDP|CDP_TRACE|FETCH)\]\s*/',
+                    '',
+                    $displayLine,
+                ) ?: $displayLine;
+                $onProgress(['message' => SensitiveDataSanitizer::text($displayLine, 500)]);
             }
         }
 
@@ -280,9 +313,15 @@ class SicoesRunnerService
             'TEMP' => $tempPath,
             'TMP' => $tempPath,
             'TMPDIR' => $tempPath,
-            'SICOES_ASSISTED_DOWNLOAD' => (bool) config('sicoes.assisted_download', true) ? '1' : '0',
+            'SICOES_ASSISTED_DOWNLOAD' => (bool) config('sicoes.assisted_download', false) ? '1' : '0',
+            'SICOES_DOWNLOAD_ATTEMPTS' => (string) config('sicoes.downloads.attempts', 2),
+            'SICOES_DOWNLOAD_ATTEMPT_TIMEOUT_MS' => (string) config('sicoes.downloads.attempt_timeout_ms', 120000),
+            'SICOES_REPLAY_TIMEOUT_MS' => (string) config('sicoes.downloads.replay_timeout_ms', 45000),
             'SICOES_MANUAL_DOWNLOAD_TIMEOUT_MS' => (string) config('sicoes.manual_download.timeout_ms', 600000),
+            'SICOES_TOKEN_TIMEOUT_MS' => (string) config('sicoes.navigation.token_timeout_ms', 60000),
+            'SICOES_TABLE_TIMEOUT_MS' => (string) config('sicoes.navigation.table_timeout_ms', 60000),
             'SICOES_MANUAL_DOWNLOAD_DIR' => config('sicoes.manual_download.directory'),
+            'SICOES_PDFTOTEXT_PATH' => $this->pdfToTextBinary(),
             'SICOES_BROWSER_PATH' => config('sicoes.browser.path'),
             'SICOES_CDP_PORT' => (string) config('sicoes.browser.cdp_port', 9222),
             'SICOES_CDP_URL' => config('sicoes.browser.cdp_url', 'http://127.0.0.1:9222'),
@@ -290,6 +329,27 @@ class SicoesRunnerService
             'SystemRoot' => getenv('SystemRoot') ?: 'C:\\Windows',
             'COMSPEC' => getenv('COMSPEC') ?: 'C:\\Windows\\System32\\cmd.exe',
         ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    private function pdfToTextBinary(): ?string
+    {
+        $configured = trim((string) config('sicoes.pdf_to_text.path'));
+        if ($configured !== '' && is_file($configured)) {
+            return $configured;
+        }
+
+        $found = (new ExecutableFinder)->find('pdftotext');
+        if ($found) {
+            return $found;
+        }
+
+        $laragonCandidate = dirname(PHP_BINARY, 3)
+            .DIRECTORY_SEPARATOR.'git'
+            .DIRECTORY_SEPARATOR.'mingw64'
+            .DIRECTORY_SEPARATOR.'bin'
+            .DIRECTORY_SEPARATOR.'pdftotext.exe';
+
+        return is_file($laragonCandidate) ? $laragonCandidate : null;
     }
 
     private function failureLine(string $output): ?string
@@ -337,6 +397,24 @@ class SicoesRunnerService
             && $this->hasValue($item['empresa'] ?? $item['entidad'] ?? null);
     }
 
+    private function isEmptyRun(string $basePath, string $slug, string $output): bool
+    {
+        if (! str_contains($output, '[SICOES_EMPTY] ')) {
+            return false;
+        }
+
+        $path = $basePath.DIRECTORY_SEPARATOR.'salida'.DIRECTORY_SEPARATOR
+            .'convocatorias'.DIRECTORY_SEPARATOR.$slug.'.json';
+
+        if (! is_file($path)) {
+            return false;
+        }
+
+        $decoded = json_decode(file_get_contents($path) ?: '', true);
+
+        return is_array($decoded) && $decoded === [];
+    }
+
     private function hasValue(mixed $value): bool
     {
         if (is_array($value)) {
@@ -372,5 +450,20 @@ class SicoesRunnerService
         }
 
         return 'node';
+    }
+
+    private function processIdleTimeout(bool $assistedDownload): int
+    {
+        $configuredTimeout = (int) config('sicoes.process.idle_timeout', 240);
+
+        if (! $assistedDownload) {
+            return $configuredTimeout;
+        }
+
+        $manualDownloadSeconds = (int) ceil(
+            ((int) config('sicoes.manual_download.timeout_ms', 600000)) / 1000,
+        );
+
+        return max($configuredTimeout, $manualDownloadSeconds + 60);
     }
 }

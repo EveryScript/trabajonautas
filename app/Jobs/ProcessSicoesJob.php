@@ -32,6 +32,7 @@ class ProcessSicoesJob implements ShouldQueue
         'run_id',
         'status',
         'date',
+        'source_type',
         'total',
         'processed',
         'saved',
@@ -72,6 +73,7 @@ class ProcessSicoesJob implements ShouldQueue
         public int $botCompanyId,
         public string $userId,
         public ?string $runId = null,
+        public string $sourceType = SicoesScrapeBatch::SOURCE_CONSULTING,
     ) {
         $this->retryUntilAt = new \DateTimeImmutable('+'.self::RETRY_WINDOW_HOURS.' hours');
     }
@@ -143,7 +145,7 @@ class ProcessSicoesJob implements ShouldQueue
                         'status' => SicoesScrapeBatch::STATUS_FAILED,
                         'date' => $this->date,
                         'failed' => 1,
-                        'last_step' => 'Se recupero como fallido un lote running sin bloqueo activo.',
+                        'last_step' => 'Se recupero como fallido un lote en ejecucion sin bloqueo activo.',
                         'failed_at' => now()->toDateTimeString(),
                     ]);
                 } catch (\Throwable $progressException) {
@@ -178,12 +180,13 @@ class ProcessSicoesJob implements ShouldQueue
             'run_id' => $this->runId,
             'status' => SicoesScrapeBatch::STATUS_RUNNING,
             'date' => $this->date,
+            'source_type' => $this->sourceType,
             'total' => 0,
             'processed' => 0,
             'saved' => 0,
             'updated' => 0,
             'failed' => 0,
-            'last_step' => 'Job iniciado',
+            'last_step' => 'Proceso iniciado',
             'started_at' => now()->toDateTimeString(),
         ]);
 
@@ -205,6 +208,7 @@ class ProcessSicoesJob implements ShouldQueue
                     'updated_at' => now()->toDateTimeString(),
                 ]);
             },
+            sourceType: $this->sourceType,
         );
         $runnerStatus = strtoupper((string) ($run['status'] ?? 'UNKNOWN'));
 
@@ -313,9 +317,12 @@ class ProcessSicoesJob implements ShouldQueue
                 'ai_cache_hits' => $result['ai_cache_hits'] ?? 0,
                 'ai_errors' => $result['ai_errors'] ?? 0,
                 'shown_in_batch' => $result['shown_in_batch'] ?? 0,
-                'last_step' => $batchStatus === SicoesScrapeBatch::STATUS_COMPLETED
-                    ? 'SICOES completado. Revisa los previews por documento antes de publicar.'
-                    : 'SICOES finalizo parcialmente. Revisa los errores y previews antes de publicar.',
+                'last_step' => ! empty($result['no_results'])
+                    ? 'SICOES completado sin convocatorias para la fecha solicitada.'
+                    : ($batchStatus === SicoesScrapeBatch::STATUS_COMPLETED
+                        ? 'SICOES completado. Revisa las previsualizaciones por documento antes de publicar.'
+                        : 'SICOES finalizo parcialmente. Revisa los errores y las previsualizaciones antes de publicar.'
+                    ),
                 'finished_at' => now()->toDateTimeString(),
             ]);
         } catch (\Throwable $progressException) {
@@ -362,7 +369,7 @@ class ProcessSicoesJob implements ShouldQueue
         }
 
         try {
-            $progressMarkedAsFailed = $this->markProgressFailed($exceptionType);
+            $progressMarkedAsFailed = $this->markProgressFailed();
         } catch (\Throwable $cacheException) {
             $this->safeLog('warning', 'SICOES marco el lote fallido, pero no pudo guardar la cache de progreso.', [
                 'date' => $this->date,
@@ -392,9 +399,9 @@ class ProcessSicoesJob implements ShouldQueue
         ]);
     }
 
-    private function markProgressFailed(string $exceptionType): bool
+    private function markProgressFailed(): bool
     {
-        return SicoesProgressCache::update($this->date, function (array $current) use ($exceptionType): ?array {
+        return SicoesProgressCache::update($this->date, function (array $current): ?array {
             if (! $this->canWriteProgress($current)) {
                 return null;
             }
@@ -404,12 +411,12 @@ class ProcessSicoesJob implements ShouldQueue
                 'run_id' => $this->runId,
                 'status' => SicoesScrapeBatch::STATUS_FAILED,
                 'failed' => max(1, (int) ($current['failed'] ?? 0) + 1),
-                'last_step' => "Job SICOES fallo ({$exceptionType}).",
+                'last_step' => 'El proceso SICOES finalizó con error.',
                 'failed_at' => now()->toDateTimeString(),
             ], array_flip(self::PROGRESS_FIELDS));
 
             return $this->sanitizeProgress($progress);
-        });
+        }, $this->sourceType);
     }
 
     private function emptyImportSummary(): array
@@ -462,7 +469,7 @@ class ProcessSicoesJob implements ShouldQueue
             ], array_flip(self::PROGRESS_FIELDS));
 
             return $this->sanitizeProgress($progress);
-        });
+        }, $this->sourceType);
     }
 
     private function canWriteProgress(array $current): bool
@@ -496,7 +503,7 @@ class ProcessSicoesJob implements ShouldQueue
 
     private function progressKeyForDate(string $date): string
     {
-        return SicoesProgressCache::key($date);
+        return SicoesProgressCache::key($date, $this->sourceType);
     }
 
     /**
@@ -607,6 +614,7 @@ class ProcessSicoesJob implements ShouldQueue
                 $recoveredOthers[] = [
                     'run_id' => (string) $runningBatch->getKey(),
                     'date' => $runningBatch->requested_date->format('Y-m-d'),
+                    'source_type' => (string) ($runningBatch->source_type ?: SicoesScrapeBatch::SOURCE_CONSULTING),
                 ];
             }
 
@@ -627,7 +635,7 @@ class ProcessSicoesJob implements ShouldQueue
     }
 
     /**
-     * @param  array{run_id: string, date: string}  $recoveredBatch
+     * @param  array{run_id: string, date: string, source_type: string}  $recoveredBatch
      */
     private function syncRecoveredBatchProgress(array $recoveredBatch): void
     {
@@ -649,12 +657,12 @@ class ProcessSicoesJob implements ShouldQueue
                     'status' => SicoesScrapeBatch::STATUS_FAILED,
                     'date' => $date,
                     'failed' => max(1, (int) ($current['failed'] ?? 0) + 1),
-                    'last_step' => 'Se recupero como fallido un lote running sin bloqueo activo.',
+                    'last_step' => 'Se recupero como fallido un lote en ejecucion sin bloqueo activo.',
                     'failed_at' => now()->toDateTimeString(),
                 ], array_flip(self::PROGRESS_FIELDS));
 
                 return $this->sanitizeProgress($progress);
-            });
+            }, $recoveredBatch['source_type'] ?? SicoesScrapeBatch::SOURCE_CONSULTING);
         } catch (\Throwable $exception) {
             $this->safeLog('warning', 'SICOES recupero un lote abandonado, pero no pudo sincronizar su cache.', [
                 'date' => $date,
@@ -770,9 +778,12 @@ class ProcessSicoesJob implements ShouldQueue
     {
         $total = max(0, (int) ($result['total_items_feed'] ?? 0));
         $processed = max(0, (int) ($result['document_processed'] ?? 0));
+        $hasValidEmptyResult = (bool) ($result['no_results'] ?? false);
+        $hasImportedDocuments = $total > 0;
 
         return $runnerStatus === 'OK'
             && $errorCount === 0
+            && ($hasValidEmptyResult || $hasImportedDocuments)
             && $processed >= $total
                 ? SicoesScrapeBatch::STATUS_COMPLETED
                 : SicoesScrapeBatch::STATUS_PARTIAL;
@@ -783,6 +794,8 @@ class ProcessSicoesJob implements ShouldQueue
         return [
             'runner_status' => Str::limit((string) ($result['runner_status'] ?? 'UNKNOWN'), 32, ''),
             'batch_status' => Str::limit((string) ($result['batch_status'] ?? SicoesScrapeBatch::STATUS_PARTIAL), 32, ''),
+            'source_type' => $this->sourceType,
+            'no_results' => (bool) ($result['no_results'] ?? false),
             'total_items_feed' => (int) ($result['total_items_feed'] ?? 0),
             'saved' => (int) ($result['saved'] ?? 0),
             'updated' => (int) ($result['updated'] ?? 0),
@@ -798,6 +811,7 @@ class ProcessSicoesJob implements ShouldQueue
             'discarded_not_individual_consultant' => (int) ($result['discarded_not_individual_consultant'] ?? 0),
             'discarded_company_or_goods' => (int) ($result['discarded_company_or_goods'] ?? 0),
             'ai_provider' => Str::limit((string) ($result['ai_provider'] ?? ''), 64, ''),
+            'ai_enabled' => (bool) ($result['ai_enabled'] ?? $result['anthropic_enabled'] ?? false),
             'ai_model' => Str::limit((string) ($result['ai_model'] ?? ''), 120, ''),
             'ai_calls' => (int) ($result['ai_calls'] ?? 0),
             'ai_cache_hits' => (int) ($result['ai_cache_hits'] ?? 0),
@@ -869,7 +883,12 @@ class ProcessSicoesJob implements ShouldQueue
 
     private function documentsFound(array $run, array $result): int
     {
-        return (int) ($result['total_items_feed'] ?? $run['sicoes_items'] ?? 0);
+        $importedDocuments = max(0, (int) ($result['total_items_feed'] ?? 0));
+        if ($importedDocuments > 0 || (bool) ($result['no_results'] ?? false)) {
+            return $importedDocuments;
+        }
+
+        return max(0, (int) ($run['sicoes_items'] ?? 0));
     }
 
     private function progressLogContext(array $payload): array

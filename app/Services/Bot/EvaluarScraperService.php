@@ -5,11 +5,14 @@ namespace App\Services\Bot;
 use App\Models\Announcement;
 use App\Models\BotCompany;
 use App\Models\BotVacancyPreview;
+use App\Models\Location;
 use App\Services\ProfessionAssignmentService;
 use App\Support\SensitiveDataSanitizer;
 use App\Support\TlsVerification;
 use Carbon\Carbon;
 use Illuminate\Http\Client\Response as HttpResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -71,7 +74,7 @@ class EvaluarScraperService
             $summary['status'] = 'ERROR';
             $safeException = SensitiveDataSanitizer::exception($exception, 300);
             $this->appendSummaryError($summary, $safeException['message']);
-            Log::warning('BOT Evaluar no pudo descubrir feeds.', [
+            Log::warning('BOT de empleos no pudo descubrir feeds.', [
                 'company_id' => $company->id,
                 ...$safeException,
             ]);
@@ -89,15 +92,16 @@ class EvaluarScraperService
             ];
 
             try {
-                $response = $this->evaluarGet($feedUrl, [
+                $response = $this->jobBoardGet($feedUrl, [
                     'User-Agent' => 'Mozilla/5.0',
                     'Accept' => 'application/rss+xml, application/xml, text/xml, */*',
                 ]);
 
                 $feedReport['status_code'] = $response->status();
 
-                if (!$response->successful()) {
+                if (! $response->successful()) {
                     $summary['feeds_tested'][] = $feedReport;
+
                     continue;
                 }
 
@@ -106,8 +110,9 @@ class EvaluarScraperService
                 $feedReport['items_count'] = count($items);
                 $summary['feeds_tested'][] = $feedReport;
 
-                if (!$items) {
+                if (! $items) {
                     $summary['status'] = 'NO_ITEMS';
+
                     continue;
                 }
 
@@ -139,11 +144,11 @@ class EvaluarScraperService
                             }
                         }
 
-                        if (is_array($result) && !empty($result['gemini_skipped_existing_preview'])) {
+                        if (is_array($result) && ! empty($result['gemini_skipped_existing_preview'])) {
                             $summary['gemini_skipped_existing_preview']++;
                         }
 
-                        if (is_array($result) && !empty($result['gemini_used'])) {
+                        if (is_array($result) && ! empty($result['gemini_used'])) {
                             $summary['gemini_calls']++;
                             $summary['gemini_prompt_tokens'] += (int) ($result['gemini_prompt_tokens'] ?? 0);
                             $summary['gemini_candidates_tokens'] += (int) ($result['gemini_candidates_tokens'] ?? 0);
@@ -168,7 +173,7 @@ class EvaluarScraperService
                     } catch (\Throwable $exception) {
                         $safeException = SensitiveDataSanitizer::exception($exception, 300);
                         $this->appendSummaryError($summary, $safeException['message']);
-                        Log::warning('BOT Evaluar no pudo procesar un item.', [
+                        Log::warning('BOT de empleos no pudo procesar un item.', [
                             'company_id' => $company->id,
                             'feed_url' => SensitiveDataSanitizer::url($feedUrl, 1000),
                             ...$safeException,
@@ -186,7 +191,7 @@ class EvaluarScraperService
                     (SensitiveDataSanitizer::url($feedUrl, 1000) ?: 'feed').': '.$safeException['message'],
                 );
                 $summary['status'] = 'ERROR';
-                Log::warning('BOT Evaluar no pudo leer un feed.', [
+                Log::warning('BOT de empleos no pudo leer un feed.', [
                     'company_id' => $company->id,
                     'feed_url' => SensitiveDataSanitizer::url($feedUrl, 1000),
                     ...$safeException,
@@ -207,7 +212,7 @@ class EvaluarScraperService
 
     public function getFeeds(string $url): array
     {
-        $url = $this->assertSafeEvaluarUrl($url, resolveDns: false);
+        $url = $this->assertSafeJobBoardUrl($url, resolveDns: false);
         $parts = parse_url($url);
         $scheme = strtolower((string) $parts['scheme']);
         $host = strtolower(rtrim((string) $parts['host'], '.'));
@@ -232,10 +237,12 @@ class EvaluarScraperService
         return $this->getFeeds($url);
     }
 
-    private function evaluarGet(string $url, array $headers): HttpResponse
+    protected function jobBoardGet(string $url, array $headers): HttpResponse
     {
-        $url = $this->assertSafeEvaluarUrl($url);
-        $maxRedirects = (int) config('services.evaluar.max_redirects', 3);
+        $url = $this->assertSafeJobBoardUrl($url);
+        $settings = $this->portalSettingsForUrl($url);
+        $configKey = $settings['config_key'];
+        $maxRedirects = (int) config("services.{$configKey}.max_redirects", 3);
         $redirectOptions = $maxRedirects > 0
             ? [
                 'max' => $maxRedirects,
@@ -248,27 +255,38 @@ class EvaluarScraperService
                     ResponseInterface $response,
                     UriInterface $uri,
                 ): void {
-                    $this->assertSafeEvaluarUrl((string) $uri);
+                    $this->assertSafeJobBoardUrl((string) $uri);
                 },
             ]
             : false;
         $verify = TlsVerification::option(
-            'Evaluar',
-            (bool) config('services.evaluar.verify_ssl', true),
-            config('services.evaluar.ca_bundle'),
+            $settings['label'],
+            (bool) config("services.{$configKey}.verify_ssl", true),
+            config("services.{$configKey}.ca_bundle"),
         );
+        $requestOptions = [
+            'verify' => $verify,
+            'allow_redirects' => $redirectOptions,
+        ];
 
-        return Http::connectTimeout((int) config('services.evaluar.connect_timeout', 10))
-            ->timeout((int) config('services.evaluar.timeout', 30))
+        if (
+            (bool) config("services.{$configKey}.use_native_ca", false)
+            && defined('CURLOPT_SSL_OPTIONS')
+            && defined('CURLSSLOPT_NATIVE_CA')
+        ) {
+            $requestOptions['curl'] = [
+                constant('CURLOPT_SSL_OPTIONS') => constant('CURLSSLOPT_NATIVE_CA'),
+            ];
+        }
+
+        return Http::connectTimeout((int) config("services.{$configKey}.connect_timeout", 10))
+            ->timeout((int) config("services.{$configKey}.timeout", 30))
             ->withHeaders($headers)
-            ->withOptions([
-                'verify' => $verify,
-                'allow_redirects' => $redirectOptions,
-            ])
+            ->withOptions($requestOptions)
             ->get($url);
     }
 
-    private function assertSafeEvaluarUrl(string $url, bool $resolveDns = true): string
+    protected function assertSafeJobBoardUrl(string $url, bool $resolveDns = true): string
     {
         $url = trim($url);
 
@@ -278,7 +296,7 @@ class EvaluarScraperService
             || preg_match('/[\x00-\x1F\x7F]/', $url)
             || filter_var($url, FILTER_VALIDATE_URL) === false
         ) {
-            throw new \InvalidArgumentException('La URL de Evaluar no tiene un formato seguro.');
+            throw new \InvalidArgumentException('La URL del portal de empleos no tiene un formato seguro.');
         }
 
         $parts = parse_url($url);
@@ -287,7 +305,7 @@ class EvaluarScraperService
         $port = isset($parts['port']) ? (int) $parts['port'] : null;
 
         if ($scheme !== 'https') {
-            throw new \InvalidArgumentException('Las URLs de Evaluar deben usar HTTPS.');
+            throw new \InvalidArgumentException('Las URLs del portal de empleos deben usar HTTPS.');
         }
 
         if (
@@ -299,23 +317,54 @@ class EvaluarScraperService
             || filter_var($host, FILTER_VALIDATE_IP) !== false
             || ! preg_match('/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/', $host)
         ) {
-            throw new \InvalidArgumentException('El host de Evaluar no tiene un formato permitido.');
+            throw new \InvalidArgumentException('El host del portal de empleos no tiene un formato permitido.');
         }
 
-        $allowed = collect(config('services.evaluar.allowed_host_suffixes', []))
-            ->filter(fn (mixed $suffix): bool => is_string($suffix) && trim($suffix) !== '')
-            ->map(fn (string $suffix): string => strtolower(trim($suffix, " .\t\n\r\0\x0B")))
-            ->contains(fn (string $suffix): bool => $host === $suffix || str_ends_with($host, '.'.$suffix));
-
-        if (! $allowed) {
-            throw new \InvalidArgumentException('El host no pertenece a un portal Evaluar permitido.');
-        }
+        $this->portalSettingsForHost($host);
 
         if ($resolveDns && ! app()->environment('testing')) {
             $this->assertPublicDns($host);
         }
 
         return $url;
+    }
+
+    private function portalSettingsForUrl(string $url): array
+    {
+        $host = strtolower(rtrim((string) parse_url($url, PHP_URL_HOST), '.'));
+
+        return $this->portalSettingsForHost($host);
+    }
+
+    private function portalSettingsForHost(string $host): array
+    {
+        $portals = [
+            [
+                'config_key' => 'evaluar',
+                'label' => 'Evaluar',
+            ],
+            [
+                'config_key' => 'etalent',
+                'label' => 'E-Talent',
+            ],
+        ];
+
+        foreach ($portals as $portal) {
+            $allowed = collect(config("services.{$portal['config_key']}.allowed_host_suffixes", []))
+                ->filter(fn (mixed $suffix): bool => is_string($suffix) && trim($suffix) !== '')
+                ->map(fn (string $suffix): string => strtolower(trim($suffix, " .\t\n\r\0\x0B")))
+                ->contains(
+                    fn (string $suffix): bool => $host === $suffix || str_ends_with($host, '.'.$suffix),
+                );
+
+            if ($allowed) {
+                return $portal;
+            }
+        }
+
+        throw new \InvalidArgumentException(
+            'El host no pertenece a un portal de empleos permitido.',
+        );
     }
 
     private function assertPublicDns(string $host): void
@@ -344,14 +393,14 @@ class EvaluarScraperService
         $addresses = array_values(array_unique(array_filter($addresses, 'is_string')));
 
         if ($addresses === []) {
-            throw new \RuntimeException('No se pudo resolver el host del portal Evaluar.');
+            throw new \RuntimeException('No se pudo resolver el host del portal de empleos.');
         }
 
         $publicFlags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
 
         foreach ($addresses as $address) {
             if (filter_var($address, FILTER_VALIDATE_IP, $publicFlags) === false) {
-                throw new \RuntimeException('El host Evaluar resolvio a una red no permitida.');
+                throw new \RuntimeException('El host del portal de empleos resolvió a una red no permitida.');
             }
         }
     }
@@ -359,19 +408,19 @@ class EvaluarScraperService
     private function parseItemsFromXml(string $xml): array
     {
         $previous = libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
+        $dom = new \DOMDocument;
         $loaded = $dom->loadXML($xml, LIBXML_NOCDATA | LIBXML_NONET);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
-        if (!$loaded) {
+        if (! $loaded) {
             return [];
         }
 
         $xpath = new \DOMXPath($dom);
         $nodes = $xpath->query('//*[local-name()="item"]');
 
-        if (!$nodes) {
+        if (! $nodes) {
             return [];
         }
 
@@ -398,10 +447,10 @@ class EvaluarScraperService
         $sourceUrl = $this->cleanText($this->childText($item, 'link'));
         $pubDateOriginal = $this->cleanText($this->childText($item, 'pubDate'));
 
-        if (!$title || !$sourceUrl) {
+        if (! $title || ! $sourceUrl) {
             throw new \RuntimeException('RSS item sin titulo o link.');
         }
-        $sourceUrl = $this->assertSafeEvaluarUrl($sourceUrl, resolveDns: false);
+        $sourceUrl = $this->assertSafeJobBoardUrl($sourceUrl, resolveDns: false);
 
         $originalDescription = $this->cleanDescription($this->extractDescriptionFromItem($item));
 
@@ -412,7 +461,7 @@ class EvaluarScraperService
         }
 
         $publishedAt = $this->parsePublishedAt($pubDateOriginal);
-        if ($publishedAt && !$publishedAt->betweenIncluded($from, $to)) {
+        if ($publishedAt && ! $publishedAt->betweenIncluded($from, $to)) {
             return [
                 'status' => 'out_of_range',
                 'detail' => [
@@ -428,24 +477,27 @@ class EvaluarScraperService
             ->where('status', 'published')
             ->first();
 
-        if (
-            $publishedPreview
-            && $this->existingPublishedAnnouncementExists($sourceUrl, $sourceHash, $publishedPreview->convocatoria_id)
-        ) {
+        if ($publishedPreview) {
+            $locationRefresh = $this->refreshPreviewLocationFromPage(
+                $publishedPreview,
+                'published_preview_location_backfill',
+            );
             $this->markPublishedPreviewAsSeen($sourceUrl, [
                 'feed_url' => $feedUrl,
                 'pubDate_original' => $pubDateOriginal,
                 'published_at' => $publishedAt?->toIso8601String(),
-                'date_parse_error' => $pubDateOriginal !== '' && !$publishedAt,
+                'date_parse_error' => $pubDateOriginal !== '' && ! $publishedAt,
                 'scraped_at' => now()->toIso8601String(),
                 'company_url' => $company->evaluar_url,
                 'already_published_detected' => true,
+                'published_preview_preserved_without_reanalysis' => true,
+                'published_location_refresh' => $locationRefresh,
             ]);
 
             return ['status' => 'already_published'];
         }
 
-        if (!$publishedPreview && $this->existingPublishedAnnouncementExists($sourceUrl, $sourceHash)) {
+        if (! $publishedPreview && $this->existingPublishedAnnouncementExists($sourceUrl, $sourceHash)) {
             return ['status' => 'already_published'];
         }
 
@@ -463,153 +515,72 @@ class EvaluarScraperService
                 to: $to,
                 batchId: $batchId,
                 contentHash: $contentHash,
+                originalDescription: $originalDescription,
+                batchState: $batchState,
             );
         }
 
         $xmlExpiration = $this->expirationFromXml($item);
         $descriptionExpiration = $this->expirationFromDescription($originalDescription);
-        $pageExpiration = (!$xmlExpiration && !$descriptionExpiration)
-            ? $this->expirationFromPage($sourceUrl)
-            : null;
+        $pageMetadata = $this->pageMetadata($sourceUrl);
+        $pageExpiration = $pageMetadata['valid_through'];
 
-        $gemini = $this->analyzer->analyzeWithMeta($title, $company, $originalDescription, [
-            'skip_due_to_quota' => !empty($batchState['gemini_quota_exceeded']),
-        ]);
-
-        if (($gemini['error_type'] ?? null) === 'quota_exceeded') {
-            $batchState['gemini_quota_exceeded'] = true;
-        }
-
-        $this->logGeminiDecision($company, $title, 'called', [
-            'success' => (bool) ($gemini['success'] ?? false),
-            'error_type' => $gemini['error_type'] ?? null,
-            'attempts' => $gemini['gemini_attempts'] ?? null,
-            'total_tokens' => $gemini['total_tokens'] ?? null,
-        ]);
-
-        $analysis = $gemini['data'];
         $expirationCandidate = $xmlExpiration ?: $descriptionExpiration ?: $pageExpiration;
         $expirationSource = $xmlExpiration
             ? 'xml'
             : ($descriptionExpiration ? 'description' : ($pageExpiration ? 'page' : null));
-        $analysisForNormalization = $analysis;
-
-        if ($expirationCandidate) {
-            $analysisForNormalization['expiration_date'] = $expirationCandidate;
-        }
-
-        $normalizedFields = $this->normalizer->normalize(
+        $analysisResult = $this->analyzeVacancy(
             title: $title,
-            description: $originalDescription,
-            analysis: $analysisForNormalization,
-            rawData: [],
-        );
-
-        if ($expirationCandidate) {
-            $normalizedFields['expiration_source'] = $expirationSource;
-            $normalizedFields['expiration_detected_text'] = $expirationCandidate;
-        }
-
-        $areaAssignment = $this->professionAssignments->resolve($analysis['area_ids'] ?? []);
-        $areaNames = $areaAssignment['area_names'];
-        $professionNames = $areaAssignment['profession_names'];
-        $previewStatus = !empty($gemini['success']) && $areaAssignment['valid'] ? 'preview' : 'error';
-
-        $description = $this->trabajonautasDescription(
-            $normalizedFields['location'],
-            $sourceUrl,
-            $company->evaluar_url,
-            $normalizedFields['municipality'],
-        );
-
-        $rawData = [
-            'feed_url' => $feedUrl,
-            'pubDate_original' => $pubDateOriginal,
-            'published_at' => $publishedAt?->toIso8601String(),
-            'date_parse_error' => $pubDateOriginal !== '' && !$publishedAt,
-            'scraped_at' => now()->toIso8601String(),
-            'company_url' => $company->evaluar_url,
-            'content_hash' => $contentHash,
-            'scrape_range' => [
-                'from' => $from->toDateString(),
-                'to' => $to->toDateString(),
+            company: $company,
+            originalDescription: $originalDescription,
+            sourceUrl: $sourceUrl,
+            rawData: [
+                'source' => $this->sourceTypeForCompany($company),
+                'feed_url' => $feedUrl,
+                'pubDate_original' => $pubDateOriginal,
+                'published_at' => $publishedAt?->toIso8601String(),
+                'date_parse_error' => $pubDateOriginal !== '' && ! $publishedAt,
+                'scraped_at' => now()->toIso8601String(),
+                'company_url' => $company->evaluar_url,
+                'content_hash' => $contentHash,
+                'scrape_range' => [
+                    'from' => $from->toDateString(),
+                    'to' => $to->toDateString(),
+                ],
+                'expiration_sources' => [
+                    'title' => null,
+                    'xml' => $xmlExpiration,
+                    'description' => $descriptionExpiration,
+                    'page' => $pageExpiration,
+                ],
+                'page_location' => $pageMetadata['location'],
+                'page_department' => $pageMetadata['department'],
+                'page_location_country' => $pageMetadata['country'],
+                'page_locations' => $pageMetadata['locations'],
+                'page_metadata_fetched' => $pageMetadata['fetched'],
             ],
-            'expiration_sources' => [
-                'title' => $normalizedFields['expiration_source'] === 'title' ? $normalizedFields['expiration_detected_text'] : null,
-                'xml' => $xmlExpiration,
-                'description' => $descriptionExpiration,
-                'page' => $pageExpiration,
-                'gemini' => $analysis['expiration_date'] ?? null,
-            ],
-            'expiration_source' => $normalizedFields['expiration_source'],
-            'expiration_detected_text' => $normalizedFields['expiration_detected_text'],
-            'location_source' => $normalizedFields['location_source'],
-            'location_detected_text' => $normalizedFields['location_detected_text'],
-            'salary_source' => $normalizedFields['salary_source'],
-            'salary_detected_text' => $normalizedFields['salary_detected_text'],
-            'gemini_used' => (bool) ($gemini['used'] ?? false),
-            'gemini_success' => (bool) ($gemini['success'] ?? false),
-            'gemini_model' => $gemini['model'] ?? config('services.gemini.model', 'gemini-2.5-flash-lite'),
-            'gemini_error' => $gemini['error'] ?? null,
-            'gemini_error_type' => $gemini['error_type'] ?? null,
-            'gemini_http_status' => $gemini['http_status'] ?? null,
-            'gemini_attempts' => $gemini['gemini_attempts'] ?? null,
-            'gemini_analyzed_at' => $gemini['analyzed_at'] ?? null,
-            'gemini_usage_metadata' => $gemini['usage_metadata'] ?? null,
-            'gemini_prompt_tokens' => $gemini['prompt_tokens'] ?? null,
-            'gemini_candidates_tokens' => $gemini['candidates_tokens'] ?? null,
-            'gemini_total_tokens' => $gemini['total_tokens'] ?? null,
-            'gemini_thoughts_tokens' => $gemini['thoughts_tokens'] ?? null,
-            'gemini_response_metadata' => $gemini['gemini_response_metadata'] ?? null,
-            'gemini_skipped_due_to_quota' => (bool) ($gemini['gemini_skipped_due_to_quota'] ?? false),
-            'description_truncated_for_gemini' => (bool) ($gemini['description_truncated_for_gemini'] ?? false),
-            'description_original_length' => $gemini['description_original_length'] ?? null,
-            'description_sent_length' => $gemini['description_sent_length'] ?? null,
-            'areas' => $analysis['areas'] ?? [],
-            'area_ids' => $analysis['area_ids'] ?? [],
-            'gemini_areas' => $analysis['areas'] ?? [],
-            'gemini_area_ids' => $analysis['area_ids'] ?? [],
-            'gemini_area_principal' => $analysis['area_principal'] ?? null,
-            'gemini_profesiones_sugeridas' => [],
-            'raw_ai_areas' => $analysis['area_ids'] ?? [],
-            'raw_ai_professions' => [],
-            'resolved_area_ids' => $areaAssignment['area_ids'],
-            'profession_assignment_source' => 'area_profession_pivot',
-            'profession_assignment_error' => $areaAssignment['error'],
-            'manual_review_required' => $previewStatus === 'error',
-            'manual_review_reasons' => $previewStatus === 'error'
-                ? array_values(array_filter([$gemini['error'] ?? null, $areaAssignment['error']]))
-                : [],
-            'municipality' => $normalizedFields['municipality'],
-        ];
+            expirationCandidate: $expirationCandidate,
+            expirationSource: $expirationSource,
+            batchState: $batchState,
+            reanalysisReason: 'initial_analysis',
+        );
+        $gemini = $analysisResult['gemini'];
+        $attributes = $analysisResult['attributes'];
 
-        $status = $this->savePreview($company, $sourceUrl, [
+        $status = $this->savePreview($company, $sourceUrl, array_merge($attributes, [
             'bot_company_id' => $company->id,
-            'title' => Str::limit($title, 255, ''),
-            'original_description' => $originalDescription,
-            'description' => $description,
-            'area' => $areaNames ? implode(', ', $areaNames) : 'No especificado',
-            'professions' => $professionNames ? implode(', ', $professionNames) : 'No especificado',
-            'department' => $normalizedFields['department'],
-            'location' => $normalizedFields['location'],
-            'expiration_date' => $normalizedFields['expiration_date'],
-            'salary' => $normalizedFields['salary'],
-            'raw_data' => $rawData,
-            'status' => $previewStatus,
             'scrape_batch_id' => $batchId,
             'removed_from_batch_at' => null,
-            'selected_area_id' => $areaAssignment['area_ids'][0] ?? null,
-            'selected_profession_ids' => $areaAssignment['profession_ids'],
-        ]);
+        ]));
         $preview = BotVacancyPreview::where('source_url', $sourceUrl)->first();
 
         $this->professionAssignments->logDecision([
-            'source' => 'evaluar',
-            'raw_ai_areas' => $analysis['area_ids'] ?? [],
-            'raw_ai_professions' => [],
-            'resolved_area_ids' => $areaAssignment['area_ids'],
+            'source' => $this->sourceTypeForCompany($company),
+            'raw_ai_areas' => [],
+            'raw_ai_professions' => data_get($attributes, 'raw_data.profesiones_originales', []),
+            'resolved_area_ids' => data_get($attributes, 'raw_data.resolved_area_ids', []),
             'professions_before' => [],
-            'professions_from_areas' => $areaAssignment['profession_ids'],
+            'professions_from_ai' => $attributes['selected_profession_ids'] ?? [],
             'professions_after' => $preview?->selected_profession_ids ?? [],
             'preview_id' => $preview?->id,
             'scrape_batch_id' => $batchId,
@@ -630,29 +601,484 @@ class EvaluarScraperService
         ];
     }
 
+    public function reanalyzePreview(
+        BotVacancyPreview $preview,
+        string $reason = 'explicit_admin_request',
+        ?array &$batchState = null,
+    ): array {
+        if ($preview->status === 'published') {
+            return [
+                'status' => 'skipped',
+                'reason' => 'published_preview',
+                'gemini_used' => false,
+            ];
+        }
+
+        $preview->loadMissing('botCompany');
+        $company = $preview->botCompany;
+
+        if (! $company) {
+            return [
+                'status' => 'error',
+                'reason' => 'missing_company',
+                'gemini_used' => false,
+                'error' => 'El preview no tiene una empresa BOT asociada.',
+            ];
+        }
+
+        $rawData = $preview->raw_data ?? [];
+        $pageMetadata = $this->pageMetadata($preview->source_url);
+        $rawData = array_merge($rawData, [
+            'page_location' => $pageMetadata['location'],
+            'page_department' => $pageMetadata['department'],
+            'page_location_country' => $pageMetadata['country'],
+            'page_locations' => $pageMetadata['locations'],
+            'page_metadata_fetched' => $pageMetadata['fetched'],
+        ]);
+        if ($pageMetadata['valid_through']) {
+            data_set($rawData, 'expiration_sources.page', $pageMetadata['valid_through']);
+        }
+        $expirationCandidate = data_get($rawData, 'expiration_sources.xml')
+            ?: data_get($rawData, 'expiration_sources.description')
+            ?: data_get($rawData, 'expiration_sources.page');
+        $expirationSource = data_get($rawData, 'expiration_sources.xml')
+            ? 'xml'
+            : (data_get($rawData, 'expiration_sources.description')
+                ? 'description'
+                : (data_get($rawData, 'expiration_sources.page') ? 'page' : null));
+        $batchState ??= ['gemini_quota_exceeded' => false];
+        $result = $this->analyzeVacancy(
+            title: $preview->title,
+            company: $company,
+            originalDescription: (string) ($preview->original_description ?: $preview->description),
+            sourceUrl: $preview->source_url,
+            rawData: array_merge($rawData, [
+                'reanalyzed_from_status' => $preview->status,
+                'reanalyzed_requested_at' => now()->toIso8601String(),
+            ]),
+            expirationCandidate: is_string($expirationCandidate) ? $expirationCandidate : null,
+            expirationSource: $expirationSource,
+            batchState: $batchState,
+            reanalysisReason: $reason,
+        );
+
+        $manualSelection = $this->professionAssignments->professionsEditedManually($preview);
+        $attributes = $result['attributes'];
+
+        if ($manualSelection) {
+            $attributes = [
+                'raw_data' => array_merge($attributes['raw_data'], [
+                    'manual_changes_preserved' => true,
+                    'manual_changes_preserved_at' => now()->toIso8601String(),
+                ]),
+            ];
+        }
+
+        $preview->update($attributes);
+
+        return [
+            'status' => ! empty($result['gemini']['success'])
+                ? ($manualSelection ? 'analyzed_manual_preserved' : 'reanalyzed')
+                : 'error',
+            'reason' => $reason,
+            'gemini_used' => (bool) ($result['gemini']['used'] ?? false),
+            'gemini_success' => (bool) ($result['gemini']['success'] ?? false),
+            'gemini_error' => $result['gemini']['error'] ?? null,
+            'gemini_error_type' => $result['gemini']['error_type'] ?? null,
+            'gemini_attempts' => $result['gemini']['gemini_attempts'] ?? null,
+            'gemini_prompt_tokens' => $result['gemini']['prompt_tokens'] ?? null,
+            'gemini_candidates_tokens' => $result['gemini']['candidates_tokens'] ?? null,
+            'gemini_total_tokens' => $result['gemini']['total_tokens'] ?? null,
+            'gemini_thoughts_tokens' => $result['gemini']['thoughts_tokens'] ?? null,
+            'manual_changes_preserved' => $manualSelection,
+        ];
+    }
+
+    public function refreshPreviewLocationFromPage(
+        BotVacancyPreview $preview,
+        string $reason = 'explicit_location_refresh',
+        bool $onlyWhenMissing = true,
+    ): array {
+        if ($onlyWhenMissing && ! $this->locationIsMissing($preview->department, $preview->location)) {
+            return [
+                'status' => 'skipped',
+                'reason' => 'location_already_present',
+                'updated' => false,
+                'department' => $preview->department,
+                'location' => $preview->location,
+            ];
+        }
+
+        $metadata = $this->pageMetadata($preview->source_url);
+        $rawData = array_merge($preview->raw_data ?? [], [
+            'page_location' => $metadata['location'],
+            'page_department' => $metadata['department'],
+            'page_location_country' => $metadata['country'],
+            'page_locations' => $metadata['locations'],
+            'page_metadata_fetched' => $metadata['fetched'],
+            'location_refresh_reason' => $reason,
+            'location_refresh_attempted_at' => now()->toIso8601String(),
+        ]);
+
+        $normalized = $this->normalizer->normalize(
+            title: $preview->title,
+            description: (string) ($preview->original_description ?: $preview->description),
+            analysis: [
+                'department' => $preview->department,
+                'location' => $preview->location,
+                'salary' => $preview->salary,
+                'expiration_date' => $preview->expiration_date,
+            ],
+            rawData: $rawData,
+        );
+        $missingLocationReason = $this->missingLocationReason(
+            sourceUrl: $preview->source_url,
+        );
+
+        if ($this->locationIsMissing($normalized['department'], $normalized['location'])) {
+            $reviewReasons = $this->withLocationReviewReason(
+                (array) data_get($rawData, 'motivos_revision', []),
+                $missingLocationReason,
+            );
+            $manualReviewReasons = $this->withLocationReviewReason(
+                (array) data_get($rawData, 'manual_review_reasons', []),
+                $missingLocationReason,
+            );
+            $rawData = array_merge($rawData, [
+                'motivos_revision' => $reviewReasons,
+                'manual_review_required' => true,
+                'manual_review_reasons' => $manualReviewReasons,
+                'location_source' => $normalized['location_source'],
+                'location_detected_text' => $normalized['location_detected_text'],
+                'location_refresh_error' => $missingLocationReason,
+            ]);
+
+            if (! in_array($preview->status, ['edited', 'published'], true)) {
+                $preview->update([
+                    'raw_data' => $rawData,
+                    'status' => 'error',
+                ]);
+            } else {
+                $preview->update(['raw_data' => $rawData]);
+            }
+
+            return [
+                'status' => 'error',
+                'reason' => 'location_not_found',
+                'updated' => false,
+                'department' => $preview->department,
+                'location' => $preview->location,
+            ];
+        }
+
+        $locationIds = $this->locationIdsForDepartments(
+            $normalized['departments'] ?? [$normalized['department']],
+        );
+        $reviewReasons = $this->withoutLocationReviewReason(
+            (array) data_get($rawData, 'motivos_revision', []),
+            $missingLocationReason,
+        );
+        $manualReviewReasons = $this->withoutLocationReviewReason(
+            (array) data_get($rawData, 'manual_review_reasons', []),
+            $missingLocationReason,
+        );
+        $requiresProfessionReview = (bool) data_get(
+            $rawData,
+            'profession_resolution.requiere_revision',
+            false,
+        );
+        $geminiSucceeded = (bool) data_get($rawData, 'gemini_success', false);
+        $status = $preview->status;
+
+        if (
+            $status === 'error'
+            && $geminiSucceeded
+            && ! $requiresProfessionReview
+            && $reviewReasons === []
+            && $manualReviewReasons === []
+        ) {
+            $status = 'preview';
+        }
+
+        $rawData = array_merge($rawData, [
+            'motivos_revision' => $reviewReasons,
+            'manual_review_required' => $requiresProfessionReview
+                || $reviewReasons !== []
+                || $manualReviewReasons !== [],
+            'manual_review_reasons' => $manualReviewReasons,
+            'location_source' => $normalized['location_source'],
+            'location_detected_text' => $normalized['location_detected_text'],
+            'municipality' => $normalized['municipality'],
+            'municipalities' => $normalized['municipalities'] ?? [],
+            'location_departments' => $normalized['departments'] ?? [$normalized['department']],
+            'location_refresh_error' => null,
+            'location_refreshed_at' => now()->toIso8601String(),
+        ]);
+
+        DB::transaction(function () use (
+            $preview,
+            $normalized,
+            $locationIds,
+            $rawData,
+            $status,
+        ): void {
+            $updates = [
+                'department' => $normalized['department'],
+                'location' => $normalized['location'],
+                'selected_location_ids' => $locationIds,
+                'raw_data' => $rawData,
+                'status' => $status,
+            ];
+
+            if (! in_array($preview->status, ['edited', 'published'], true)) {
+                $preview->loadMissing('botCompany');
+                $companyUrl = $preview->botCompany?->evaluar_url;
+
+                if ($companyUrl) {
+                    $updates['description'] = $this->trabajonautasDescription(
+                        $normalized['location'],
+                        $preview->source_url,
+                        $companyUrl,
+                        $normalized['municipalities'] ?? [],
+                    );
+                }
+            }
+
+            $preview->update($updates);
+
+            $preview->announcement?->locations()->sync($locationIds);
+        });
+
+        return [
+            'status' => 'updated',
+            'reason' => $reason,
+            'updated' => true,
+            'department' => $normalized['department'],
+            'location' => $normalized['location'],
+            'location_ids' => $locationIds,
+            'source' => $normalized['location_source'],
+        ];
+    }
+
+    public function determineAutomaticReanalysisReason(
+        BotVacancyPreview $preview,
+        string $currentContentHash,
+    ): ?string {
+        if (
+            $preview->status === 'published'
+            || $preview->status === 'edited'
+            || $this->professionAssignments->professionsEditedManually($preview)
+        ) {
+            return null;
+        }
+
+        $previousHash = data_get($preview->raw_data, 'content_hash');
+        if (
+            is_string($previousHash)
+            && $previousHash !== ''
+            && ! hash_equals($previousHash, $currentContentHash)
+        ) {
+            return 'source_content_changed';
+        }
+
+        if (
+            data_get($preview->raw_data, 'classifier_version')
+            !== (string) config('profession_matching.classifier_version')
+        ) {
+            return 'classifier_version_changed';
+        }
+
+        if (
+            data_get($preview->raw_data, 'prompt_version')
+            !== (string) config('profession_matching.prompt_version')
+        ) {
+            return 'prompt_version_changed';
+        }
+
+        if (
+            $preview->status === 'error'
+            && data_get($preview->raw_data, 'catalog_fingerprint')
+                !== $this->professionAssignments->catalogFingerprint()
+        ) {
+            return 'profession_catalog_changed';
+        }
+
+        return null;
+    }
+
+    private function analyzeVacancy(
+        string $title,
+        BotCompany $company,
+        string $originalDescription,
+        string $sourceUrl,
+        array $rawData,
+        ?string $expirationCandidate,
+        ?string $expirationSource,
+        array &$batchState,
+        string $reanalysisReason,
+    ): array {
+        $gemini = $this->analyzer->analyzeWithMeta($title, $company, $originalDescription, [
+            'skip_due_to_quota' => ! empty($batchState['gemini_quota_exceeded']),
+        ]);
+
+        if (($gemini['error_type'] ?? null) === 'quota_exceeded') {
+            $batchState['gemini_quota_exceeded'] = true;
+        }
+
+        $this->logGeminiDecision($company, $title, 'called', [
+            'success' => (bool) ($gemini['success'] ?? false),
+            'error_type' => $gemini['error_type'] ?? null,
+            'attempts' => $gemini['gemini_attempts'] ?? null,
+            'total_tokens' => $gemini['total_tokens'] ?? null,
+            'reason' => $reanalysisReason,
+        ]);
+
+        $analysis = $gemini['data'];
+        $analysisForNormalization = $analysis;
+        if ($expirationCandidate) {
+            $analysisForNormalization['expiration_date'] = $expirationCandidate;
+        }
+
+        $normalizedFields = $this->normalizer->normalize(
+            title: $title,
+            description: $originalDescription,
+            analysis: $analysisForNormalization,
+            rawData: $rawData,
+        );
+
+        if ($expirationCandidate) {
+            $normalizedFields['expiration_source'] = $expirationSource;
+            $normalizedFields['expiration_detected_text'] = $expirationCandidate;
+        }
+
+        $detectedProfessions = is_array($analysis['profesiones_encontradas'] ?? null)
+            ? $analysis['profesiones_encontradas']
+            : [];
+        $resolution = $this->professionAssignments->resolveDetectedProfessions(
+            $detectedProfessions,
+            (bool) ($analysis['acepta_carreras_afines'] ?? false),
+            $analysis['evidencia_carreras_afines'] ?? null,
+            $analysis['area_principal_catalogo'] ?? null,
+            (float) ($analysis['confianza_area_principal'] ?? 0),
+            $analysis['evidencia_area_principal'] ?? null,
+        );
+        $locationMissing = $this->locationIsMissing(
+            $normalizedFields['department'],
+            $normalizedFields['location'],
+        );
+        $missingLocationReason = $this->missingLocationReason($company, $sourceUrl);
+        $reviewReasons = array_values(array_unique(array_filter([
+            ($gemini['success'] ?? false)
+                ? null
+                : ($gemini['error'] ?? 'Gemini no pudo analizar la convocatoria.'),
+            ...($resolution['motivos_revision'] ?? []),
+            $locationMissing ? $missingLocationReason : null,
+        ])));
+        $requiresReview = ! ($gemini['success'] ?? false)
+            || (bool) ($resolution['requiere_revision'] ?? true)
+            || $locationMissing;
+        $locationIds = $locationMissing
+            ? []
+            : $this->locationIdsForDepartments(
+                $normalizedFields['departments'] ?? [$normalizedFields['department']],
+            );
+        $expirationSources = array_merge(
+            is_array($rawData['expiration_sources'] ?? null) ? $rawData['expiration_sources'] : [],
+            ['gemini' => $analysis['expiration_date'] ?? null],
+        );
+        $analysisTimestamp = $gemini['analyzed_at'] ?? now()->toIso8601String();
+        $rawData = array_merge($rawData, [
+            'expiration_sources' => $expirationSources,
+            'expiration_source' => $normalizedFields['expiration_source'],
+            'expiration_detected_text' => $normalizedFields['expiration_detected_text'],
+            'location_source' => $normalizedFields['location_source'],
+            'location_detected_text' => $normalizedFields['location_detected_text'],
+            'salary_source' => $normalizedFields['salary_source'],
+            'salary_detected_text' => $normalizedFields['salary_detected_text'],
+            'gemini_used' => (bool) ($gemini['used'] ?? false),
+            'gemini_success' => (bool) ($gemini['success'] ?? false),
+            'gemini_model' => $gemini['model'] ?? config('services.gemini.model', 'gemini-2.5-flash-lite'),
+            'gemini_error' => $gemini['error'] ?? null,
+            'gemini_error_type' => $gemini['error_type'] ?? null,
+            'gemini_http_status' => $gemini['http_status'] ?? null,
+            'gemini_attempts' => $gemini['gemini_attempts'] ?? null,
+            'gemini_analyzed_at' => $analysisTimestamp,
+            'gemini_usage_metadata' => $gemini['usage_metadata'] ?? null,
+            'gemini_prompt_tokens' => $gemini['prompt_tokens'] ?? null,
+            'gemini_candidates_tokens' => $gemini['candidates_tokens'] ?? null,
+            'gemini_total_tokens' => $gemini['total_tokens'] ?? null,
+            'gemini_thoughts_tokens' => $gemini['thoughts_tokens'] ?? null,
+            'gemini_response_metadata' => $gemini['gemini_response_metadata'] ?? null,
+            'gemini_finish_reason' => $gemini['gemini_finish_reason'] ?? null,
+            'gemini_json_error' => $gemini['gemini_json_error'] ?? null,
+            'gemini_validation_errors' => $gemini['gemini_validation_errors'] ?? [],
+            'gemini_skipped_due_to_quota' => (bool) ($gemini['gemini_skipped_due_to_quota'] ?? false),
+            'description_truncated_for_gemini' => (bool) ($gemini['description_truncated_for_gemini'] ?? false),
+            'description_original_length' => $gemini['description_original_length'] ?? null,
+            'description_sent_length' => $gemini['description_sent_length'] ?? null,
+            'ai_analysis' => $analysis,
+            'profession_resolution' => $resolution,
+            'profesiones_originales' => $detectedProfessions,
+            'profesiones_no_identificadas' => $resolution['profesiones_no_identificadas'] ?? [],
+            'profesiones_ambiguas' => $resolution['profesiones_ambiguas'] ?? [],
+            'areas_detectadas' => $resolution['areas_detectadas'] ?? [],
+            'motivos_revision' => $reviewReasons,
+            'resolved_area_ids' => $resolution['area_ids'] ?? [],
+            'profession_assignment_source' => 'detected_professions_catalog',
+            'profession_assignment_error' => $resolution['error'] ?? null,
+            'manual_review_required' => $requiresReview,
+            'manual_review_reasons' => $reviewReasons,
+            'classifier_version' => $resolution['classifier_version']
+                ?? (string) config('profession_matching.classifier_version'),
+            'prompt_version' => $gemini['prompt_version']
+                ?? (string) config('profession_matching.prompt_version'),
+            'catalog_fingerprint' => $resolution['catalog_fingerprint']
+                ?? $this->professionAssignments->catalogFingerprint(),
+            'analysis_reason' => $reanalysisReason,
+            'analysis_at' => $analysisTimestamp,
+            'municipality' => $normalizedFields['municipality'],
+            'municipalities' => $normalizedFields['municipalities'] ?? [],
+            'location_departments' => $normalizedFields['departments']
+                ?? [$normalizedFields['department']],
+        ]);
+
+        return [
+            'gemini' => $gemini,
+            'resolution' => $resolution,
+            'attributes' => [
+                'title' => Str::limit($title, 255, ''),
+                'original_description' => $originalDescription,
+                'description' => $this->trabajonautasDescription(
+                    $normalizedFields['location'],
+                    $sourceUrl,
+                    $company->evaluar_url,
+                    $normalizedFields['municipalities'] ?? [],
+                ),
+                'area' => ($resolution['area_names'] ?? []) !== []
+                    ? implode(', ', $resolution['area_names'])
+                    : 'No especificado',
+                'professions' => ($resolution['profession_names'] ?? []) !== []
+                    ? implode(', ', $resolution['profession_names'])
+                    : 'No especificado',
+                'department' => $normalizedFields['department'],
+                'location' => $normalizedFields['location'],
+                'expiration_date' => $normalizedFields['expiration_date'],
+                'salary' => $normalizedFields['salary'],
+                'raw_data' => $rawData,
+                'status' => $requiresReview ? 'error' : 'preview',
+                'selected_area_id' => $resolution['selected_area_id'] ?? null,
+                'selected_profession_ids' => $resolution['profession_ids'] ?? [],
+                'selected_location_ids' => $locationIds,
+            ],
+        ];
+    }
+
     private function savePreview(BotCompany $company, string $sourceUrl, array $data): string
     {
         $existing = BotVacancyPreview::where('source_url', $sourceUrl)->first();
 
         if ($existing && $existing->status === 'published') {
-            $sourceHash = hash('sha256', $sourceUrl);
-
-            if ($this->existingPublishedAnnouncementExists($sourceUrl, $sourceHash, $existing->convocatoria_id)) {
-                return 'already_published';
-            }
-
-            $existing->update(array_merge($data, [
-                'status' => 'preview',
-                'convocatoria_id' => null,
-                'scrape_batch_id' => $data['scrape_batch_id'],
-                'removed_from_batch_at' => null,
-                'raw_data' => array_merge($existing->raw_data ?? [], $data['raw_data'], [
-                    'reactivated_deleted_announcement' => true,
-                    'reactivated_at' => now()->toIso8601String(),
-                ]),
-            ]));
-
-            return 'reactivated_deleted';
+            return 'already_published';
         }
 
         if ($existing && $existing->status === 'edited') {
@@ -697,13 +1123,32 @@ class EvaluarScraperService
         Carbon $to,
         ?string $batchId,
         string $contentHash,
+        string $originalDescription,
+        array &$batchState,
     ): array {
         $previousHash = data_get($preview->raw_data, 'content_hash');
+        $contentChanged = is_string($previousHash)
+            && $previousHash !== ''
+            && ! hash_equals($previousHash, $contentHash);
+        $manualSelection = $this->professionAssignments->professionsEditedManually($preview);
+        $locationRefresh = null;
+
+        if ($preview->status !== 'edited') {
+            $locationRefresh = $this->refreshPreviewLocationFromPage(
+                $preview,
+                'reused_preview_location_backfill',
+            );
+            $preview->refresh();
+        }
+
+        $reanalyzeReason = $this->determineAutomaticReanalysisReason($preview, $contentHash);
+
         $rawData = array_merge($preview->raw_data ?? [], [
+            'source' => $this->sourceTypeForCompany($company),
             'feed_url' => $feedUrl,
             'pubDate_original' => $pubDateOriginal,
             'published_at' => $publishedAt?->toIso8601String(),
-            'date_parse_error' => $pubDateOriginal !== '' && !$publishedAt,
+            'date_parse_error' => $pubDateOriginal !== '' && ! $publishedAt,
             'scraped_at' => now()->toIso8601String(),
             'company_url' => $company->evaluar_url,
             'scrape_range' => [
@@ -712,10 +1157,12 @@ class EvaluarScraperService
             ],
             'previous_content_hash' => $previousHash,
             'content_hash' => $contentHash,
-            'content_hash_changed' => $previousHash && $previousHash !== $contentHash,
-            'gemini_skipped_existing_preview' => true,
-            'gemini_skip_reason' => 'existing_preview_before_analysis',
-            'gemini_skipped_at' => now()->toIso8601String(),
+            'content_hash_changed' => $contentChanged,
+            'latest_source_description' => $manualSelection && $contentChanged ? $originalDescription : null,
+            'gemini_skipped_existing_preview' => $reanalyzeReason === null,
+            'gemini_skip_reason' => $reanalyzeReason === null ? 'unchanged_existing_preview' : null,
+            'gemini_skipped_at' => $reanalyzeReason === null ? now()->toIso8601String() : null,
+            'reused_preview_location_refresh' => $locationRefresh,
         ]);
         $expirationCandidate = data_get($rawData, 'expiration_sources.xml')
             ?: data_get($rawData, 'expiration_sources.description')
@@ -735,21 +1182,36 @@ class EvaluarScraperService
             'bot_company_id' => $company->id,
             'scrape_batch_id' => $batchId,
             'removed_from_batch_at' => null,
+            'original_description' => ! $manualSelection && $contentChanged
+                ? $originalDescription
+                : $preview->original_description,
             'expiration_date' => $expirationCandidate && $preview->status !== 'edited'
                 ? $this->normalizer->expirationForStorage((string) $expirationCandidate)
                 : $preview->expiration_date,
             'raw_data' => $rawData,
         ]);
         $preview->refresh();
-        $assignment = $this->areaAssignmentFromPreview($preview);
-        $this->professionAssignments->applyToPreview($preview, $assignment, [
-            'source' => 'evaluar_existing_preview',
-            'raw_ai_areas' => data_get($preview->raw_data, 'gemini_area_ids', data_get($preview->raw_data, 'gemini_areas', [])),
-            'raw_ai_professions' => data_get($preview->raw_data, 'gemini_profesiones_sugeridas', []),
-        ]);
+
+        if ($reanalyzeReason !== null) {
+            $result = $this->reanalyzePreview($preview, $reanalyzeReason, $batchState);
+
+            return [
+                'status' => 'updated',
+                'gemini_used' => (bool) ($result['gemini_used'] ?? false),
+                'gemini_success' => (bool) ($result['gemini_success'] ?? false),
+                'gemini_error' => $result['gemini_error'] ?? null,
+                'gemini_error_type' => $result['gemini_error_type'] ?? null,
+                'gemini_attempts' => $result['gemini_attempts'] ?? null,
+                'gemini_prompt_tokens' => $result['gemini_prompt_tokens'] ?? null,
+                'gemini_candidates_tokens' => $result['gemini_candidates_tokens'] ?? null,
+                'gemini_total_tokens' => $result['gemini_total_tokens'] ?? null,
+                'gemini_thoughts_tokens' => $result['gemini_thoughts_tokens'] ?? null,
+                'reanalysis_reason' => $reanalyzeReason,
+            ];
+        }
 
         $this->logGeminiDecision($company, $preview->title, 'skipped', [
-            'skip_reason' => 'existing_preview_before_analysis',
+            'skip_reason' => 'unchanged_existing_preview',
             'preview_id' => $preview->id,
             'status' => $preview->status,
         ]);
@@ -758,31 +1220,8 @@ class EvaluarScraperService
             'status' => 'already_previewed',
             'gemini_used' => false,
             'gemini_skipped_existing_preview' => true,
-            'gemini_skip_reason' => 'existing_preview_before_analysis',
+            'gemini_skip_reason' => 'unchanged_existing_preview',
         ];
-    }
-
-    private function areaAssignmentFromPreview(BotVacancyPreview $preview): array
-    {
-        $rawData = $preview->raw_data ?? [];
-        $areaIds = data_get($rawData, 'resolved_area_ids')
-            ?: data_get($rawData, 'gemini_area_ids')
-            ?: data_get($rawData, 'area_ids')
-            ?: data_get($rawData, 'ai_analysis.area_ids');
-
-        if (is_array($areaIds) && $areaIds !== []) {
-            return $this->professionAssignments->resolve($areaIds);
-        }
-
-        $areaNames = collect([
-            ...((array) data_get($rawData, 'gemini_areas', [])),
-            ...((array) data_get($rawData, 'areas', [])),
-            data_get($rawData, 'gemini_area_principal'),
-            data_get($rawData, 'ai_analysis.area_profesional_principal'),
-            $preview->area,
-        ])->filter(fn(mixed $name): bool => is_string($name) && trim($name) !== '')->values()->all();
-
-        return $this->professionAssignments->resolveExactAreaNames($areaNames);
     }
 
     private function contentHash(string $title, string $company, string $description): string
@@ -827,7 +1266,7 @@ class EvaluarScraperService
             ->where('status', 'published')
             ->first();
 
-        if (!$preview) {
+        if (! $preview) {
             return;
         }
 
@@ -899,7 +1338,7 @@ class EvaluarScraperService
         $normalizedDescription = Str::of($description)->ascii()->toString();
 
         foreach ($keywords as $keyword) {
-            if (preg_match('/' . preg_quote($keyword, '/') . '\s*:?\s*(?:el\s*)?([^\n\.]{3,100})/iu', $normalizedDescription, $matches)) {
+            if (preg_match('/'.preg_quote($keyword, '/').'\s*:?\s*(?:el\s*)?([^\n\.]{3,100})/iu', $normalizedDescription, $matches)) {
                 $candidate = trim($matches[1]);
 
                 return $this->normalizeDateText($candidate) ?: $candidate;
@@ -909,85 +1348,208 @@ class EvaluarScraperService
         return null;
     }
 
-    private function expirationFromPage(string $url): ?string
+    private function pageMetadata(string $url): array
     {
+        $empty = [
+            'valid_through' => null,
+            'location' => null,
+            'department' => null,
+            'country' => null,
+            'locations' => [],
+            'fetched' => false,
+        ];
+
         try {
-            $response = $this->evaluarGet($url, [
+            $response = $this->jobBoardGet($url, [
                 'User-Agent' => 'Mozilla/5.0',
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             ]);
 
-            if (!$response->successful()) {
-                return null;
+            if (! $response->successful()) {
+                return $empty;
             }
 
-            $html = $response->body();
-            $jsonLd = $this->validThroughFromJsonLd($html);
-
-            if ($jsonLd) {
-                return $this->normalizeDateText($jsonLd) ?: $jsonLd;
-            }
-
-            return $this->expirationFromDescription($this->cleanDescription($html));
+            return [
+                ...$this->pageMetadataFromHtml($response->body()),
+                'fetched' => true,
+            ];
         } catch (\Throwable $exception) {
-            Log::warning('BOT Evaluar no pudo obtener la fecha de expiracion.', [
+            Log::warning('BOT de empleos no pudo obtener los metadatos del detalle.', [
                 'url' => SensitiveDataSanitizer::url($url, 1000),
                 ...SensitiveDataSanitizer::exception($exception, 300),
             ]);
 
-            return null;
+            return $empty;
         }
     }
 
-    private function validThroughFromJsonLd(string $html): ?string
+    private function pageMetadataFromHtml(string $html): array
     {
+        $metadata = [
+            'valid_through' => null,
+            'location' => null,
+            'department' => null,
+            'country' => null,
+            'locations' => [],
+        ];
         $previous = libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
+        $dom = new \DOMDocument;
         $loaded = $dom->loadHTML($html, LIBXML_NONET);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
-        if (!$loaded) {
-            return null;
+        if (! $loaded) {
+            return $metadata;
         }
 
         foreach ($dom->getElementsByTagName('script') as $script) {
-            if (!Str::contains(strtolower($script->getAttribute('type')), 'ld+json')) {
+            if (! Str::contains(strtolower($script->getAttribute('type')), 'ld+json')) {
                 continue;
             }
 
             $decoded = json_decode(trim($script->textContent), true);
-            $validThrough = $this->findValidThrough($decoded);
+            $found = $this->findJobPostingMetadata($decoded);
 
-            if ($validThrough) {
-                return $validThrough;
+            if ($found) {
+                $metadata = array_merge($metadata, $found);
+
+                break;
             }
         }
 
-        return null;
+        if (! $metadata['location']) {
+            $xpath = new \DOMXPath($dom);
+            $locationNodes = $xpath->query(
+                '//a[contains(concat(" ", normalize-space(@class), " "), " google_map_link ")]',
+            );
+            $locationNode = $locationNodes ? $locationNodes->item(0) : null;
+            $location = $locationNode ? $this->cleanText($locationNode->textContent) : '';
+            $metadata['location'] = $location !== '' ? $location : null;
+            if ($metadata['location']) {
+                $metadata['locations'] = [[
+                    'location' => $metadata['location'],
+                    'department' => null,
+                    'country' => null,
+                ]];
+            }
+        }
+
+        if (! $metadata['valid_through']) {
+            $metadata['valid_through'] = $this->expirationFromDescription(
+                $this->cleanDescription($html),
+            );
+        }
+
+        if ($metadata['valid_through']) {
+            $metadata['valid_through'] = $this->normalizeDateText($metadata['valid_through'])
+                ?: $metadata['valid_through'];
+        }
+
+        return $metadata;
     }
 
-    private function findValidThrough(mixed $value): ?string
+    private function findJobPostingMetadata(mixed $value): ?array
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return null;
         }
 
         $type = $value['@type'] ?? null;
         $typeText = is_array($type) ? implode(' ', $type) : (string) $type;
 
-        if (isset($value['validThrough']) && (!$typeText || Str::contains(strtolower($typeText), 'jobposting'))) {
-            return (string) $value['validThrough'];
+        if (Str::contains(strtolower($typeText), 'jobposting')) {
+            $location = $this->locationFromJobPosting($value['jobLocation'] ?? null);
+
+            return [
+                'valid_through' => isset($value['validThrough'])
+                    ? $this->cleanText((string) $value['validThrough'])
+                    : null,
+                'location' => $location['location'],
+                'department' => $location['department'],
+                'country' => $location['country'],
+                'locations' => $location['locations'],
+            ];
         }
 
         foreach ($value as $child) {
-            $found = $this->findValidThrough($child);
+            $found = $this->findJobPostingMetadata($child);
             if ($found) {
                 return $found;
             }
         }
 
         return null;
+    }
+
+    private function locationFromJobPosting(mixed $jobLocation): array
+    {
+        $result = [
+            'location' => null,
+            'department' => null,
+            'country' => null,
+            'locations' => [],
+        ];
+
+        if (! is_array($jobLocation)) {
+            return $result;
+        }
+
+        $locations = array_is_list($jobLocation) ? $jobLocation : [$jobLocation];
+
+        foreach ($locations as $place) {
+            if (! is_array($place)) {
+                continue;
+            }
+
+            $address = $place['address'] ?? null;
+            if (is_string($address)) {
+                $location = $this->cleanText($address) ?: null;
+                if ($location) {
+                    $result['locations'][] = [
+                        'location' => $location,
+                        'department' => null,
+                        'country' => null,
+                    ];
+                }
+
+                continue;
+            }
+            if (! is_array($address)) {
+                continue;
+            }
+
+            $country = $address['addressCountry'] ?? null;
+            if (is_array($country)) {
+                $country = $country['name'] ?? $country['@id'] ?? null;
+            }
+
+            $entry = [
+                'location' => $this->cleanText((string) ($address['addressLocality'] ?? '')) ?: null,
+                'department' => $this->cleanText((string) ($address['addressRegion'] ?? '')) ?: null,
+                'country' => $this->cleanText((string) $country) ?: null,
+            ];
+
+            if ($entry['location'] || $entry['department']) {
+                $result['locations'][] = $entry;
+            }
+        }
+
+        $result['locations'] = collect($result['locations'])
+            ->unique(fn (array $entry): string => implode('|', [
+                $this->normalize((string) ($entry['location'] ?? '')),
+                $this->normalize((string) ($entry['department'] ?? '')),
+            ]))
+            ->values()
+            ->all();
+        $primary = $result['locations'][0] ?? null;
+
+        if ($primary) {
+            $result['location'] = $primary['location'];
+            $result['department'] = $primary['department'];
+            $result['country'] = $primary['country'];
+        }
+
+        return $result;
     }
 
     private function parsePublishedAt(?string $pubDate): ?Carbon
@@ -999,9 +1561,9 @@ class EvaluarScraperService
         }
 
         $parsers = [
-            fn() => Carbon::parse($pubDate),
-            fn() => Carbon::createFromFormat('D, d M Y H:i:s O', $pubDate),
-            fn() => Carbon::createFromFormat('D, d M Y H:i:s T', $pubDate),
+            fn () => Carbon::parse($pubDate),
+            fn () => Carbon::createFromFormat('D, d M Y H:i:s O', $pubDate),
+            fn () => Carbon::createFromFormat('D, d M Y H:i:s T', $pubDate),
         ];
 
         foreach ($parsers as $parser) {
@@ -1067,13 +1629,28 @@ class EvaluarScraperService
 
     private function isInternshipOrPractice(string ...$texts): bool
     {
+        $title = $this->normalizeInternshipText((string) ($texts[0] ?? ''));
         $text = $this->normalizeInternshipText(implode(' ', $texts));
 
-        if (preg_match('/\b(pasantia|pasantias|pasante|pasantes|practica|practicas|practicante|practicantes|internship|intern|interns|trainee)\b/i', $text)) {
+        // "Practica(s)" por sí sola también aparece en requisitos como
+        // "Buenas Prácticas de Almacenamiento"; no prueba que sea una pasantía.
+        if (preg_match('/\b(pasantia|pasantias|pasante|pasantes|practicante|practicantes|internship|internships|intern|interns|trainee|trainees)\b/i', $text)) {
             return true;
         }
 
-        return preg_match('/\bpracticas?\s+(?:pre\s*)?profesionales?\b|\bpracticas?\s+preprofesionales?\b/i', $text) === 1;
+        if (preg_match(
+            '/\bpracticas?\s+(?:(?:pre\s*)?profesionales?|preprofesionales?|laborales?|formativas?|universitarias?|remuneradas?)\b'
+            .'|\b(?:programa|vacante|cargo|puesto|oportunidad|convocatoria)\s+(?:de|para)\s+practicas?\b'
+            .'|\brealizar(?:a|an)?\s+(?:sus\s+)?practicas?\b/i',
+            $text,
+        )) {
+            return true;
+        }
+
+        return preg_match(
+            '/^(?:(?:programa|vacante|oportunidad|convocatoria)\s+(?:de|para)\s+)?practicas?\b/i',
+            $title,
+        ) === 1;
     }
 
     private function normalizeInternshipText(string $text): string
@@ -1096,7 +1673,7 @@ class EvaluarScraperService
     {
         $preview = BotVacancyPreview::where('source_url', $sourceUrl)->first();
 
-        if (!$preview) {
+        if (! $preview) {
             return;
         }
 
@@ -1112,6 +1689,74 @@ class EvaluarScraperService
         }
 
         $preview->delete();
+    }
+
+    private function locationIsMissing(mixed $department, mixed $location): bool
+    {
+        $normalizedDepartment = $this->normalize((string) $department);
+        $normalizedLocation = $this->normalize((string) $location);
+        $departments = [
+            'la paz',
+            'cochabamba',
+            'santa cruz',
+            'tarija',
+            'beni',
+            'pando',
+            'oruro',
+            'potosi',
+            'chuquisaca',
+        ];
+
+        return $normalizedLocation === ''
+            || $normalizedLocation === 'no especificado'
+            || ! in_array($normalizedDepartment, $departments, true);
+    }
+
+    private function locationIdsForDepartments(array $departments): array
+    {
+        $locations = Location::query()->get();
+        $ids = collect($departments)
+            ->map(fn (mixed $department): string => trim((string) $department))
+            ->filter()
+            ->unique(fn (string $department): string => $this->normalize($department))
+            ->map(function (string $department) use ($locations): int {
+                $normalizedDepartment = $this->normalize($department);
+                $location = $locations->first(
+                    fn (Location $candidate): bool => $this->normalize($candidate->location_name)
+                        === $normalizedDepartment,
+                );
+
+                if (! $location) {
+                    $location = Location::query()->firstOrCreate([
+                        'location_name' => Str::limit($department, 255, ''),
+                    ]);
+                    $locations->push($location);
+                }
+
+                return (int) $location->id;
+            })
+            ->values()
+            ->all();
+
+        Cache::forget('locations');
+
+        return $ids;
+    }
+
+    private function withLocationReviewReason(array $reasons, string $missingLocationReason): array
+    {
+        return array_values(array_unique([
+            ...array_filter(array_map('strval', $reasons)),
+            $missingLocationReason,
+        ]));
+    }
+
+    private function withoutLocationReviewReason(array $reasons, string $missingLocationReason): array
+    {
+        return array_values(array_filter(
+            array_map('strval', $reasons),
+            fn (string $reason): bool => $reason !== $missingLocationReason,
+        ));
     }
 
     private function cleanDescription(string $html): string
@@ -1139,7 +1784,12 @@ class EvaluarScraperService
         return trim($text);
     }
 
-    private function trabajonautasDescription(string $location, string $link, string $companyUrl, ?array $municipality = null): string
+    private function trabajonautasDescription(
+        string $location,
+        string $link,
+        string $companyUrl,
+        array $municipalities = [],
+    ): string
     {
         $linkEscaped = e($link);
         $companyUrlEscaped = e($companyUrl);
@@ -1148,23 +1798,46 @@ class EvaluarScraperService
             '<p><strong>MODALIDAD DE POSTULACIÓN:</strong></p>',
             '<p>De manera digital utilizando el siguiente enlace de color rojo:</p>',
             '<p><br></p>',
-            '<p><a class="text-tbn-primary" href="' . $linkEscaped . '" target="_blank" rel="noopener">' . $linkEscaped . '</a></p>',
+            '<p><a class="text-tbn-primary" href="'.$linkEscaped.'" target="_blank" rel="noopener">'.$linkEscaped.'</a></p>',
             '<p><br></p>',
             '<p>¡Impulsa tu futuro profesional!</p>',
             '<p><br></p>',
             '<p>Esta convocatoria fue verificada por el equipo de <strong style="font-weight: 500;"><b>TRABAJONAUTAS.COM</b></strong> y representa una excelente oportunidad de crecimiento para ti. ¡No la dejes pasar!</p>',
             '<p><br></p>',
-            '<p><strong style="font-weight:700;">Fuente:</strong> <a class="text-tbn-primary" href="' . $companyUrlEscaped . '" target="_blank" rel="noopener">' . $companyUrlEscaped . '</a></p>',
+            '<p><strong style="font-weight:700;">Fuente:</strong> <a class="text-tbn-primary" href="'.$companyUrlEscaped.'" target="_blank" rel="noopener">'.$companyUrlEscaped.'</a></p>',
             '<p><br></p>',
             '<p>Descarga todos los detalles en el/los archivo(s) adjunto(s):</p>',
         ]);
 
-        return $this->prependWorkplaceToDescription($description, $municipality);
+        return $this->prependWorkplaceToDescription($description, $municipalities);
     }
 
-    private function prependWorkplaceToDescription(string $description, ?array $municipality): string
+    private function prependWorkplaceToDescription(string $description, array $municipalities): string
     {
-        if (!$municipality || !empty($municipality['is_main_city'])) {
+        if (isset($municipalities['municipality'])) {
+            $municipalities = [$municipalities];
+        }
+
+        $municipalities = collect($municipalities)
+            ->filter(fn (mixed $entry): bool => is_array($entry))
+            ->filter(
+                fn (array $entry): bool => trim((string) ($entry['municipality'] ?? '')) !== ''
+                    && trim((string) ($entry['department'] ?? '')) !== '',
+            )
+            ->unique(
+                fn (array $entry): string => $this->normalize((string) $entry['municipality'])
+                    .'|'.$this->normalize((string) $entry['department']),
+            )
+            ->values();
+
+        if (
+            $municipalities->isEmpty()
+            || (
+                $municipalities->count() === 1
+                && ! empty($municipalities->first()['is_main_city'])
+                && ($municipalities->first()['source'] ?? null) !== 'title'
+            )
+        ) {
             return $description;
         }
 
@@ -1172,17 +1845,53 @@ class EvaluarScraperService
             return $description;
         }
 
-        $municipalityName = trim((string) ($municipality['municipality'] ?? ''));
-        $department = trim((string) ($municipality['department'] ?? ''));
+        $workplace = '<p><strong>LUGAR DE TRABAJO:</strong><br> </p>';
+        $workplace = $workplace.'<p>'
+            .$municipalities
+                ->map(
+                    fn (array $entry): string => e(trim((string) $entry['municipality']))
+                        .', '.e(trim((string) $entry['department'])),
+                )
+                ->implode('<br>')
+            .'<br></p><br>';
 
-        if ($municipalityName === '' || $department === '') {
-            return $description;
+        return $workplace.$description;
+    }
+
+    private function sourceTypeForCompany(BotCompany $company): string
+    {
+        $company->loadMissing('source');
+        $sourceType = (string) ($company->source?->scraper_type ?? '');
+
+        if (in_array($sourceType, ['evaluar', 'etalent'], true)) {
+            return $sourceType;
         }
 
-        $workplace = '<p><strong>LUGAR DE TRABAJO:</strong><br> </p>';
-        $workplace = $workplace . '<p>' . e($municipalityName) . ', ' . e($department) . '<br></p><br>';
+        return $this->isETalentUrl($company->evaluar_url) ? 'etalent' : 'evaluar';
+    }
 
-        return $workplace . $description;
+    private function missingLocationReason(
+        ?BotCompany $company = null,
+        ?string $sourceUrl = null,
+    ): string {
+        $isETalent = $company
+            ? $this->sourceTypeForCompany($company) === 'etalent'
+            : $this->isETalentUrl((string) $sourceUrl);
+        $portal = $isETalent ? 'E-Talent' : 'Evaluar';
+
+        return "La ubicación es obligatoria y no pudo obtenerse de la publicación de {$portal}.";
+    }
+
+    private function isETalentUrl(string $url): bool
+    {
+        $host = strtolower(rtrim((string) parse_url($url, PHP_URL_HOST), '.'));
+        $suffixes = collect(config('services.etalent.allowed_host_suffixes', ['e-talent.jobs']))
+            ->filter(fn (mixed $suffix): bool => is_string($suffix) && trim($suffix) !== '')
+            ->map(fn (string $suffix): string => strtolower(trim($suffix, " .\t\n\r\0\x0B")));
+
+        return $suffixes->contains(
+            fn (string $suffix): bool => $host === $suffix || str_ends_with($host, '.'.$suffix),
+        );
     }
 
     private function appendSummaryError(array &$summary, mixed $error): void

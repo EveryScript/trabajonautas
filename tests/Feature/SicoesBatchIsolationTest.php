@@ -9,6 +9,7 @@ use App\Models\BotCompany;
 use App\Models\BotSource;
 use App\Models\BotVacancyPreview;
 use App\Models\CompanyType;
+use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\SicoesScrapeBatch;
 use App\Models\SicoesScrapeBatchItem;
@@ -68,6 +69,8 @@ class SicoesBatchIsolationTest extends TestCase
         ]);
         $this->profession = Profesion::create(['profesion_name' => 'Trabajo Social']);
         $this->area->profesions()->sync([$this->profession->id]);
+        Location::create(['location_name' => 'Santa Cruz']);
+        Location::create(['location_name' => 'No especificado']);
         CompanyType::create(['company_type_name' => 'Publica']);
 
         config()->set('sicoes.ai.provider', 'anthropic');
@@ -171,6 +174,63 @@ class SicoesBatchIsolationTest extends TestCase
         $this->assertSame([], $this->visiblePreviewIds($component));
     }
 
+    public function test_multiple_roles_from_different_areas_create_separate_publishable_previews(): void
+    {
+        $civilArea = Area::create([
+            'area_name' => 'Area CIVIL Y CONSTRUCCION',
+            'description' => 'Area CIVIL Y CONSTRUCCION',
+        ]);
+        $civilProfession = Profesion::create(['profesion_name' => 'Ingenieria Civil']);
+        $civilArea->profesions()->sync([$civilProfession->id]);
+        $run = $this->writeRun(
+            cuce: '26-0291-07-1669139-1-2',
+            title: 'Equipo multidisciplinario',
+            text: 'Consultoria Individual de Linea. ITEM 1 Especialista Social. ITEM 2 Ingeniero Civil.',
+        );
+        $response = $this->acceptedClaudeResponse();
+        $payload = json_decode($response['content'][0]['text'], true);
+        $payload['titulo_objeto'] = 'Equipo multidisciplinario';
+        $payload['profesiones_encontradas'][] = [
+            'nombre_original' => 'Ingeniero Civil',
+            'nombre_catalogo' => 'Ingenieria Civil',
+            'evidencia' => 'ITEM 2 Ingeniero Civil',
+            'tipo_requisito' => 'obligatoria',
+            'confianza' => 0.98,
+        ];
+        $payload['area_principal_catalogo'] = '';
+        $payload['evidencia_area_principal'] = '';
+        $payload['confianza_area_principal'] = 0;
+        $response['content'][0]['text'] = json_encode($payload);
+        Http::fake([
+            'api.anthropic.com/v1/messages' => Http::response($response),
+        ]);
+        $batch = $this->batch('00000000-0000-4000-8000-000000000071');
+
+        $summary = app(SicoesDocumentImporterService::class)->importRun(
+            run: $run,
+            botCompanyId: $this->botCompany->id,
+            userId: 'test-user',
+            batchId: $batch->id,
+        );
+
+        $this->assertSame(1, $summary['total_items_feed']);
+        $this->assertSame(1, $summary['document_processed']);
+        $this->assertSame(2, $summary['saved']);
+        $this->assertSame(2, $summary['shown_in_batch']);
+        $this->assertSame(1, $summary['ai_calls']);
+        $this->assertCount(2, $summary['preview_ids']);
+        $this->assertSame(2, SicoesScrapeBatchItem::where('batch_id', $batch->id)->count());
+        $this->assertEqualsCanonicalizing(
+            [$this->area->id, $civilArea->id],
+            BotVacancyPreview::pluck('selected_area_id')->all(),
+        );
+        $this->assertEqualsCanonicalizing(
+            [[$this->profession->id], [$civilProfession->id]],
+            BotVacancyPreview::get()->pluck('selected_profession_ids')->all(),
+        );
+        $this->assertTrue(BotVacancyPreview::get()->every(fn (BotVacancyPreview $preview): bool => $preview->status === 'preview'));
+    }
+
     public function test_strong_company_document_is_recorded_as_discarded_without_preview_or_ai_call(): void
     {
         $run = $this->writeRun(
@@ -232,6 +292,227 @@ class SicoesBatchIsolationTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    public function test_changed_profession_catalog_does_not_reuse_cached_analysis(): void
+    {
+        $run = $this->writeRun(
+            cuce: '26-0291-07-1669139-1-2',
+            title: 'Consultoria Individual de Linea',
+            text: 'Consultoria Individual de Linea. Formación requerida: Trabajo Social.',
+        );
+        Http::fake([
+            'api.anthropic.com/v1/messages' => Http::response($this->acceptedClaudeResponse()),
+        ]);
+        $importer = app(SicoesDocumentImporterService::class);
+
+        $first = $importer->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000013')->id,
+        );
+
+        $newProfession = Profesion::create(['profesion_name' => 'Sociología']);
+        $this->area->profesions()->attach($newProfession->id);
+
+        $second = $importer->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000014')->id,
+        );
+
+        $this->assertSame(1, $first['ai_calls']);
+        $this->assertSame(1, $second['ai_calls']);
+        $this->assertSame(0, $second['ai_cache_hits']);
+        Http::assertSentCount(2);
+    }
+
+    public function test_portal_cuce_has_priority_and_conflict_requires_review(): void
+    {
+        $portalCuce = '26-0291-07-1669139-1-2';
+        $documentCuce = '26-9999-99-9999999-9-9';
+        $run = $this->writeRun(
+            cuce: $portalCuce,
+            title: 'Consultoria Individual de Linea',
+            text: "Consultoria Individual de Linea. CUCE {$documentCuce}.",
+        );
+        Http::fake([
+            'api.anthropic.com/v1/messages' => Http::response($this->claudeResponseWith([
+                'cuce' => [
+                    'valor' => $documentCuce,
+                    'evidencia' => "CUCE {$documentCuce}",
+                ],
+            ])),
+        ]);
+
+        app(SicoesDocumentImporterService::class)->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000015')->id,
+        );
+
+        $preview = BotVacancyPreview::sole();
+        $this->assertSame($portalCuce, data_get($preview->raw_data, 'cuce'));
+        $this->assertSame($portalCuce, data_get($preview->raw_data, 'cuce_portal'));
+        $this->assertSame($documentCuce, data_get($preview->raw_data, 'cuce_documento'));
+        $this->assertTrue(data_get($preview->raw_data, 'cuce_contradictorio'));
+        $this->assertSame('error', $preview->status);
+        $this->assertStringContainsString($portalCuce, $preview->description);
+    }
+
+    public function test_informational_ai_warnings_do_not_turn_valid_preview_into_error(): void
+    {
+        $run = $this->writeRun(
+            cuce: '26-0291-07-1669139-1-2',
+            title: 'Consultoria Individual de Linea',
+            text: 'Consultoria Individual de Linea. Formación requerida: Trabajo Social.',
+        );
+        Http::fake([
+            'api.anthropic.com/v1/messages' => Http::response($this->claudeResponseWith([
+                'advertencias' => [
+                    'El documento contiene el DBC completo.',
+                    'La duración llega hasta el cierre de la gestión.',
+                ],
+            ])),
+        ]);
+
+        app(SicoesDocumentImporterService::class)->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000023')->id,
+        );
+
+        $preview = BotVacancyPreview::sole();
+        $this->assertSame('preview', $preview->status);
+        $this->assertFalse(data_get($preview->raw_data, 'manual_review_required'));
+        $this->assertCount(2, data_get($preview->raw_data, 'warnings', []));
+    }
+
+    public function test_edited_preview_preserves_manual_fields_and_professions(): void
+    {
+        $run = $this->writeRun(
+            cuce: '26-0291-07-1669139-1-2',
+            title: 'Consultoria Individual de Linea',
+            text: 'Consultoria Individual de Linea. Formación requerida: Trabajo Social.',
+        );
+        Http::fake([
+            'api.anthropic.com/v1/messages' => Http::response($this->acceptedClaudeResponse()),
+        ]);
+        $importer = app(SicoesDocumentImporterService::class);
+        $firstBatch = $this->batch('00000000-0000-4000-8000-000000000016');
+        $importer->importRun($run, $this->botCompany->id, 'test-user', $firstBatch->id);
+        $preview = BotVacancyPreview::sole();
+        $preview->update([
+            'title' => 'Título corregido manualmente',
+            'description' => '<p>Descripción manual protegida.</p>',
+            'selected_profession_ids' => [$this->profession->id],
+            'status' => 'edited',
+            'raw_data' => array_merge($preview->raw_data ?? [], ['manual_professions_locked' => true]),
+        ]);
+
+        $second = $importer->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000017')->id,
+        );
+
+        $preview->refresh();
+        $this->assertSame(0, $second['ai_calls']);
+        $this->assertSame(1, $second['ai_cache_hits']);
+        $this->assertSame('Título corregido manualmente', $preview->title);
+        $this->assertSame('<p>Descripción manual protegida.</p>', $preview->description);
+        $this->assertSame([$this->profession->id], $preview->selected_profession_ids);
+        $this->assertSame('edited', $preview->status);
+    }
+
+    public function test_published_preview_is_immutable_and_is_not_reanalyzed(): void
+    {
+        $run = $this->writeRun(
+            cuce: '26-0291-07-1669139-1-2',
+            title: 'Consultoria Individual de Linea',
+            text: 'Consultoria Individual de Linea. Formación requerida: Trabajo Social.',
+        );
+        Http::fake([
+            'api.anthropic.com/v1/messages' => Http::response($this->acceptedClaudeResponse()),
+        ]);
+        $importer = app(SicoesDocumentImporterService::class);
+        $importer->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000018')->id,
+        );
+        $preview = BotVacancyPreview::sole();
+        $preview->update([
+            'title' => 'Publicación protegida',
+            'status' => 'published',
+        ]);
+
+        $second = $importer->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000019')->id,
+        );
+
+        $preview->refresh();
+        $this->assertSame(1, $second['already_published']);
+        $this->assertSame(0, $second['ai_calls']);
+        $this->assertSame('Publicación protegida', $preview->title);
+        $this->assertSame('published', $preview->status);
+        Http::assertSentCount(1);
+    }
+
+    public function test_document_without_text_creates_reviewable_error_without_ai_call(): void
+    {
+        $runWithoutText = $this->writeRun(
+            cuce: '26-0291-07-1669139-1-2',
+            title: 'Consultoria Individual de Linea',
+            text: 'Texto que será eliminado.',
+        );
+        File::delete($this->basePath.'/salida/resultados/07-07-2099/textos-extraidos/01_26-0291-07-1669139-1-2.txt');
+        Http::fake();
+        $withoutText = app(SicoesDocumentImporterService::class)->importRun(
+            $runWithoutText,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000021')->id,
+        );
+
+        $this->assertSame(1, $withoutText['document_errors']);
+        $this->assertSame(0, $withoutText['ai_errors']);
+        $this->assertSame('error', BotVacancyPreview::sole()->status);
+        Http::assertNothingSent();
+    }
+
+    public function test_unavailable_claude_creates_reviewable_error_without_stray_request(): void
+    {
+        $run = $this->writeRun(
+            cuce: '26-0291-07-1669139-1-2',
+            title: 'Consultoria Individual de Linea',
+            text: 'Consultoria Individual de Linea. Formación requerida: Trabajo Social.',
+        );
+        config()->set('services.anthropic.api_key', null);
+        Http::fake();
+
+        $result = app(SicoesDocumentImporterService::class)->importRun(
+            $run,
+            $this->botCompany->id,
+            'test-user',
+            $this->batch('00000000-0000-4000-8000-000000000022')->id,
+        );
+
+        $preview = BotVacancyPreview::sole();
+        $this->assertSame(1, $result['document_errors']);
+        $this->assertSame(1, $result['ai_errors']);
+        $this->assertSame('missing_api_key', data_get($preview->raw_data, 'ai_error_type'));
+        $this->assertSame('error', $preview->status);
+        Http::assertNothingSent();
+    }
+
     public function test_missing_batch_does_not_fall_back_to_latest_batch(): void
     {
         $latestBatch = $this->batch('00000000-0000-4000-8000-000000000020');
@@ -262,6 +543,82 @@ class SicoesBatchIsolationTest extends TestCase
         $this->livewirePreview($finished->id)
             ->assertSee('Se procesaron 5 documentos. 5 fueron descartados. No existen convocatorias publicables en este lote.');
         $this->livewirePreview($failed->id)->assertSee('La ejecucion finalizo con error.');
+    }
+
+    public function test_preview_status_badges_are_displayed_in_spanish(): void
+    {
+        $batch = $this->batch('00000000-0000-4000-8000-000000000072');
+        $pending = $this->preview('Pendiente', 'https://example.test/pending');
+        $edited = $this->preview('Editada', 'https://example.test/edited');
+        $edited->update(['status' => 'edited']);
+        $failed = $this->preview('Con error', 'https://example.test/error');
+        $failed->update(['status' => 'error']);
+        $this->batchItem($batch, $pending, 'pending-document');
+        $editedItem = $this->batchItem($batch, $edited, 'edited-document');
+        $editedItem->update(['status' => 'edited']);
+        $failedItem = $this->batchItem($batch, $failed, 'error-document');
+        $failedItem->update(['status' => 'error']);
+
+        $this->livewirePreview($batch->id)
+            ->assertSee('Pendiente de revisión')
+            ->assertSee('Editada')
+            ->assertSee('Con error');
+    }
+
+    public function test_error_preview_with_missing_location_can_be_opened_and_explains_the_failure(): void
+    {
+        $batch = $this->batch('00000000-0000-4000-8000-000000000073');
+        $unspecifiedLocation = Location::query()
+            ->where('location_name', 'No especificado')
+            ->firstOrFail();
+        $failed = $this->preview(
+            'Consultoría individual por producto',
+            'https://example.test/consultoria-producto',
+        );
+        $failed->update([
+            'status' => 'error',
+            'department' => 'No especificado',
+            'location' => 'No especificado',
+            'selected_location_ids' => [$unspecifiedLocation->id],
+            'raw_data' => [
+                'ai_error_type' => 'http_error',
+                'manual_review_required' => true,
+                'manual_review_reasons' => ['http_error'],
+                'ai_error' => 'json_encode error: Malformed UTF-8 characters, possibly incorrectly encoded',
+            ],
+        ]);
+        $this->batchItem($batch, $failed, 'encoding-error-document');
+
+        $component = $this->livewirePreview($batch->id)
+            ->assertSee('Motivo del error')
+            ->assertSee('La IA no pudo analizar el documento porque el texto extraído contenía caracteres inválidos.');
+
+        $component
+            ->call('edit', $failed->id)
+            ->assertSet('showModal', true)
+            ->assertSet('editingId', $failed->id)
+            ->assertSee('Por qué requiere revisión')
+            ->assertSee('Ubicaciones')
+            ->assertDontSee('Ciudad o localidad')
+            ->assertHasNoErrors();
+
+        $companyId = $component->get('form.selected_company_id');
+        $component
+            ->set('form.title', 'Consultoría individual por producto corregida')
+            ->set('form.description', '<p>Descripción revisada.</p>')
+            ->set('form.salary', 0)
+            ->set('form.selected_company_id', $companyId)
+            ->set('form.selected_area_id', $this->area->id)
+            ->set('form.selected_profession_ids', [$this->profession->id])
+            ->set('form.selected_location_ids', [Location::where('location_name', 'Santa Cruz')->value('id')])
+            ->call('saveEdit')
+            ->assertHasNoErrors()
+            ->assertSet('showModal', false);
+
+        $failed->refresh();
+        $this->assertSame('Santa Cruz', $failed->department);
+        $this->assertSame('Santa Cruz', $failed->location);
+        $this->assertSame('edited', $failed->status);
     }
 
     public function test_visible_batch_query_excludes_previews_from_other_batches(): void
@@ -314,6 +671,135 @@ class SicoesBatchIsolationTest extends TestCase
         $this->assertSame(5, $batch->documents_processed);
     }
 
+    public function test_date_without_convocations_completes_as_empty_instead_of_failed(): void
+    {
+        $batch = $this->batch('00000000-0000-4000-8000-000000000053', ['status' => 'queued']);
+        $runner = \Mockery::mock(SicoesRunnerService::class);
+        $runner->shouldReceive('run')->once()->andReturn([
+            'status' => 'OK',
+            'date' => '08/07/2099',
+            'slug' => '08-07-2099',
+            'json_path' => null,
+            'sicoes_items' => 0,
+            'no_results' => true,
+        ]);
+        $importer = \Mockery::mock(SicoesDocumentImporterService::class);
+        $importer->shouldReceive('importRun')->once()->andReturn([
+            'total_items_feed' => 0,
+            'document_processed' => 0,
+            'document_errors' => 0,
+            'document_discarded' => 0,
+            'shown_in_batch' => 0,
+            'saved' => 0,
+            'updated' => 0,
+            'ai_calls' => 0,
+            'ai_cache_hits' => 0,
+            'ai_errors' => 0,
+            'errors' => [],
+        ]);
+
+        (new ProcessSicoesJob('2099-07-08', $this->botCompany->id, 'test-user', $batch->id))
+            ->handle($runner, $importer);
+
+        $batch->refresh();
+        $this->assertSame('completed', $batch->status);
+        $this->assertSame(0, $batch->documents_found);
+        $this->assertTrue((bool) data_get($batch->summary, 'no_results'));
+    }
+
+    public function test_unexpected_zero_import_is_partial_instead_of_completed(): void
+    {
+        $batch = $this->batch('00000000-0000-4000-8000-000000000054', ['status' => 'queued']);
+        $runner = \Mockery::mock(SicoesRunnerService::class);
+        $runner->shouldReceive('run')->once()->andReturn([
+            'status' => 'OK',
+            'date' => '24/08/2099',
+            'slug' => '24-08-2099-personal',
+            'json_path' => $this->basePath.'/fichas-finales/24-08-2099-personal.json',
+            'sicoes_items' => 1,
+            'no_results' => false,
+        ]);
+        $importer = \Mockery::mock(SicoesDocumentImporterService::class);
+        $importer->shouldReceive('importRun')->once()->andReturn([
+            'total_items_feed' => 0,
+            'document_processed' => 0,
+            'document_errors' => 0,
+            'document_discarded' => 0,
+            'shown_in_batch' => 0,
+            'saved' => 0,
+            'updated' => 0,
+            'ai_calls' => 0,
+            'ai_cache_hits' => 0,
+            'ai_errors' => 0,
+            'errors' => [],
+        ]);
+
+        (new ProcessSicoesJob('2099-08-24', $this->botCompany->id, 'test-user', $batch->id, 'personnel_requirements'))
+            ->handle($runner, $importer);
+
+        $batch->refresh();
+        $this->assertSame('partial', $batch->status);
+        $this->assertSame(1, $batch->documents_found);
+    }
+
+    public function test_partially_processed_batch_is_persisted_as_partial(): void
+    {
+        $batch = $this->batch('00000000-0000-4000-8000-000000000051', ['status' => 'queued']);
+        $runner = \Mockery::mock(SicoesRunnerService::class);
+        $runner->shouldReceive('run')->once()->andReturn([
+            'status' => 'OK',
+            'date' => '07/07/2099',
+            'slug' => '07-07-2099',
+            'json_path' => $this->basePath.'/fichas-finales/07-07-2099.json',
+            'sicoes_items' => 2,
+        ]);
+        $importer = \Mockery::mock(SicoesDocumentImporterService::class);
+        $importer->shouldReceive('importRun')->once()->andReturn([
+            'total_items_feed' => 2,
+            'document_processed' => 2,
+            'shown_in_batch' => 1,
+            'document_discarded' => 0,
+            'document_errors' => 1,
+            'saved' => 1,
+            'updated' => 0,
+            'ai_calls' => 1,
+            'ai_cache_hits' => 0,
+            'ai_errors' => 1,
+            'errors' => ['Un documento no pudo procesarse.'],
+        ]);
+
+        (new ProcessSicoesJob('2099-07-07', $this->botCompany->id, 'test-user', $batch->id))
+            ->handle($runner, $importer);
+
+        $batch->refresh();
+        $this->assertSame('partial', $batch->status);
+        $this->assertSame(2, $batch->documents_processed);
+        $this->assertSame(1, $batch->errors_count);
+    }
+
+    public function test_failed_document_download_marks_batch_failed_without_importing(): void
+    {
+        $batch = $this->batch('00000000-0000-4000-8000-000000000052', ['status' => 'queued']);
+        $runner = \Mockery::mock(SicoesRunnerService::class);
+        $runner->shouldReceive('run')
+            ->once()
+            ->andThrow(new \RuntimeException('descarga Word completada con 0 archivos validos'));
+        $importer = \Mockery::mock(SicoesDocumentImporterService::class);
+        $importer->shouldNotReceive('importRun');
+        $job = new ProcessSicoesJob('2099-07-07', $this->botCompany->id, 'test-user', $batch->id);
+
+        try {
+            $job->handle($runner, $importer);
+            $this->fail('El job debía fallar cuando no se descargó ningún documento.');
+        } catch (\RuntimeException $exception) {
+            $job->failed($exception);
+        }
+
+        $batch->refresh();
+        $this->assertSame('failed', $batch->status);
+        $this->assertSame(0, BotVacancyPreview::count());
+    }
+
     private function acceptedClaudeResponse(): array
     {
         return [
@@ -327,36 +813,55 @@ class SicoesBatchIsolationTest extends TestCase
                     'debe_descartarse' => false,
                     'motivo_descarte' => null,
                     'evidencia_clasificacion' => 'Consultoria Individual de Linea por items.',
-                    'cuce' => '26-0291-07-1669139-1-2',
                     'titulo_objeto' => 'Equipo PRP Construccion Carretera Okinawa',
-                    'area_ids' => [$this->area->id],
-                    'ubicacion_detectada' => [
-                        'texto' => 'Warnes, Santa Cruz',
+                    'cargos' => [
+                        ['nombre' => 'Coordinador', 'evidencia' => 'ITEM 1 Coordinador'],
+                        ['nombre' => 'Especialista Social', 'evidencia' => 'ITEM 2 Especialista Social'],
+                    ],
+                    'profesiones_encontradas' => [[
+                        'nombre_original' => 'Especialista Social',
+                        'nombre_catalogo' => 'Trabajo Social',
+                        'evidencia' => 'ITEM 2 Especialista Social',
+                        'tipo_requisito' => 'obligatoria',
+                        'confianza' => 0.95,
+                    ]],
+                    'acepta_carreras_afines' => false,
+                    'evidencia_carreras_afines' => '',
+                    'area_principal_catalogo' => 'Area SOCIAL',
+                    'evidencia_area_principal' => 'Especialista Social',
+                    'confianza_area_principal' => 0.98,
+                    'lugar_trabajo' => [
+                        'direccion_exacta' => 'Área del proyecto en Warnes, Santa Cruz',
                         'municipio' => 'Warnes',
                         'departamento' => 'Santa Cruz',
-                        'confianza' => 'alta',
+                        'evidencia' => 'El consultor prestará servicios en Warnes, Santa Cruz.',
+                        'documento_fuente' => 'Términos de Referencia',
+                        'confianza' => 0.98,
+                        'requiere_revision' => false,
+                        'direcciones_candidatas_descartadas' => [],
                     ],
-                    'lugar_trabajo' => 'Area del proyecto en Warnes, Santa Cruz.',
-                    'duracion_contrato' => 'Hasta el 31 de diciembre de 2099.',
-                    'modalidad_postulacion' => 'Presentacion electronica mediante RUPE.',
-                    'sueldo' => [
-                        'valor' => 1,
-                        'detalle' => 'Varios cargos con montos diferentes.',
-                        'sueldos' => [
-                            ['cargo' => 'Coordinador', 'monto' => 'Bs. 14.402,00', 'periodicidad' => 'mensual', 'evidencia' => 'Bs. 14.402 mensual'],
-                            ['cargo' => 'Especialista Social', 'monto' => 'Bs. 12.788,00', 'periodicidad' => 'mensual', 'evidencia' => 'Bs. 12.788 mensual'],
+                    'duracion_contrato' => [
+                        'texto_exacto' => 'Hasta el 31 de diciembre de 2099.',
+                        'evidencia' => 'Duración: hasta el 31 de diciembre de 2099.',
+                        'confianza' => 0.98,
+                    ],
+                    'modalidad_postulacion' => [
+                        'texto_exacto' => 'Presentación electrónica mediante RUPE.',
+                        'tipo' => 'digital_rupe',
+                        'evidencia' => 'La propuesta será presentada mediante RUPE.',
+                        'confianza' => 0.99,
+                    ],
+                    'cuce' => [
+                        'valor' => '26-0291-07-1669139-1-2',
+                        'evidencia' => 'CUCE: 26-0291-07-1669139-1-2',
+                    ],
+                    'salarios' => [
+                        'tipo' => 'multiple',
+                        'cantidad' => 2,
+                        'detalle' => [
+                            ['cargo' => 'Coordinador', 'monto_bob' => 14402, 'evidencia' => 'Bs. 14.402 mensual'],
+                            ['cargo' => 'Especialista Social', 'monto_bob' => 12788, 'evidencia' => 'Bs. 12.788 mensual'],
                         ],
-                        'revision_manual' => false,
-                    ],
-                    'detalle_sueldos' => "COORDINADOR: Bs. 14.402 mensual\nESPECIALISTA SOCIAL: Bs. 12.788 mensual",
-                    'descripcion' => 'Convocatoria para consultores individuales.',
-                    'evidencias' => [
-                        'cuce' => '26-0291-07-1669139-1-2',
-                        'area_profesional' => 'Especialista Social.',
-                        'lugar_trabajo' => 'Warnes, Santa Cruz.',
-                        'duracion_contrato' => 'Hasta el 31 de diciembre de 2099.',
-                        'modalidad_postulacion' => 'RUPE.',
-                        'sueldo' => 'Montos mensuales por item.',
                     ],
                     'advertencias' => [],
                 ]),
@@ -364,6 +869,18 @@ class SicoesBatchIsolationTest extends TestCase
             'stop_reason' => 'end_turn',
             'usage' => ['input_tokens' => 100, 'output_tokens' => 200],
         ];
+    }
+
+    private function claudeResponseWith(array $overrides): array
+    {
+        $response = $this->acceptedClaudeResponse();
+        $payload = json_decode($response['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR);
+        $response['content'][0]['text'] = json_encode(
+            array_replace_recursive($payload, $overrides),
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
+        );
+
+        return $response;
     }
 
     private function writeRun(string $cuce, string $title, string $text): array

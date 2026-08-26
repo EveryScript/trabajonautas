@@ -121,33 +121,44 @@ class SicoesDocumentEligibilityClassifier
             'debe_descartarse' => true,
             'motivo_descarte' => $classification['reason'],
             'evidencia_clasificacion' => $classification['evidence'],
-            'cuce' => (string) ($document['cuce'] ?? ''),
             'titulo_objeto' => (string) ($document['title'] ?? ''),
-            'area_ids' => [],
-            'ubicacion_detectada' => [
-                'texto' => '',
+            'cargos' => [],
+            'profesiones_encontradas' => [],
+            'acepta_carreras_afines' => false,
+            'evidencia_carreras_afines' => '',
+            'area_principal_catalogo' => '',
+            'evidencia_area_principal' => '',
+            'confianza_area_principal' => 0.0,
+            'lugar_trabajo' => [
+                'direccion_exacta' => '',
                 'municipio' => '',
                 'departamento' => '',
-                'confianza' => 'no_especificado',
+                'evidencia' => '',
+                'documento_fuente' => '',
+                'confianza' => 0.0,
+                'requiere_revision' => false,
+                'direcciones_candidatas_descartadas' => [],
             ],
-            'lugar_trabajo' => '',
-            'duracion_contrato' => '',
-            'modalidad_postulacion' => '',
-            'sueldo' => [
+            'duracion_contrato' => [
+                'texto_exacto' => '',
+                'evidencia' => '',
+                'confianza' => 0.0,
+            ],
+            'modalidad_postulacion' => [
+                'texto_exacto' => '',
+                'tipo' => 'no_especificada',
+                'evidencia' => '',
+                'confianza' => 0.0,
+            ],
+            'cuce' => [
+                'valor' => '',
+                'evidencia' => '',
+            ],
+            'salarios' => [
+                'tipo' => 'no_declarado',
+                'cantidad' => 0,
+                'detalle' => [],
                 'valor' => 0,
-                'detalle' => '',
-                'sueldos' => [],
-                'revision_manual' => false,
-            ],
-            'detalle_sueldos' => '',
-            'descripcion' => '',
-            'evidencias' => [
-                'cuce' => '',
-                'area_profesional' => '',
-                'lugar_trabajo' => '',
-                'duracion_contrato' => '',
-                'modalidad_postulacion' => '',
-                'sueldo' => '',
             ],
             'advertencias' => [],
             'preclassification' => $classification,
@@ -174,10 +185,6 @@ class SicoesDocumentEligibilityClassifier
         $analysis['es_oportunidad_consultor_persona'] = true;
         $analysis['debe_descartarse'] = false;
         $analysis['motivo_descarte'] = null;
-        $analysis['advertencias'] = array_values(array_unique([
-            ...(array) ($analysis['advertencias'] ?? []),
-            'La elegibilidad se confirmo con senales explicitas de consultoria individual del documento.',
-        ]));
 
         return $analysis;
     }
@@ -195,7 +202,7 @@ class SicoesDocumentEligibilityClassifier
 
         return match ((string) ($analysis['tipo_oportunidad'] ?? 'no_determinado')) {
             'consultor_producto' => 'individual_product',
-            'consultor_linea', 'consultoria_individual' => 'individual',
+            'consultor_linea', 'consultoria_individual', 'requerimiento_personal' => 'individual',
             default => 'other_rejected',
         };
     }

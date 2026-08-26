@@ -136,7 +136,7 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="rounded-2xl bg-slate-50 p-4 dark:bg-neutral-800/80">
-                                    <p class="text-xs font-bold uppercase tracking-wide text-slate-400 dark:text-neutral-400">Scraper</p>
+                                    <p class="text-xs font-bold uppercase tracking-wide text-slate-400 dark:text-neutral-400">Extractor</p>
                                     <p class="mt-1 text-sm font-black text-slate-700 dark:text-neutral-100">No implementado</p>
                                 </div>
                                 <div class="rounded-2xl bg-slate-50 p-4 dark:bg-neutral-800/80">

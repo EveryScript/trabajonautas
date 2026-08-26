@@ -36,6 +36,10 @@ class BotVacancyNormalizer
             'department' => $location['department'],
             'location' => $location['location'],
             'municipality' => $location['municipality'],
+            'municipalities' => $location['municipalities']
+                ?? array_values(array_filter([$location['municipality']])),
+            'departments' => $location['departments']
+                ?? array_values(array_filter([$location['department']])),
             'location_source' => $location['source'],
             'location_detected_text' => $location['detected_text'],
             'salary' => $salary['value'],
@@ -94,6 +98,84 @@ class BotVacancyNormalizer
         mixed $geminiLocation,
         array $rawData,
     ): array {
+        $page = $this->locationFromValues(
+            $rawData['page_department'] ?? null,
+            $rawData['page_location'] ?? null,
+            'page_json_ld',
+        );
+        $pageLocations = collect($rawData['page_locations'] ?? [])
+            ->filter(fn (mixed $entry): bool => is_array($entry))
+            ->map(fn (array $entry): ?array => $this->locationFromValues(
+                $entry['department'] ?? null,
+                $entry['location'] ?? null,
+                'page_json_ld',
+            ))
+            ->filter()
+            ->values()
+            ->all();
+        $preferredDepartment = $page['department'] ?? null;
+        $titleMunicipalities = $this->detectNamedMunicipalities($title, $preferredDepartment);
+
+        if ($titleMunicipalities !== []) {
+            $municipalities = $titleMunicipalities;
+
+            if (count($pageLocations) > 1) {
+                $municipalities = $this->mergeMunicipalities(
+                    $municipalities,
+                    collect($pageLocations)->pluck('municipality')->filter()->all(),
+                );
+            }
+
+            $primary = $municipalities[0];
+
+            return [
+                'department' => $primary['department'],
+                'location' => $primary['municipality'],
+                'municipality' => $primary,
+                'municipalities' => $municipalities,
+                'departments' => collect($municipalities)
+                    ->pluck('department')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all(),
+                'source' => $page ? 'title_municipality_with_page_department' : 'title_municipality',
+                'detected_text' => collect($municipalities)->pluck('municipality')->implode(', '),
+            ];
+        }
+
+        if (count($pageLocations) > 1) {
+            $municipalities = collect($pageLocations)
+                ->pluck('municipality')
+                ->filter()
+                ->values()
+                ->all();
+            $primary = $pageLocations[0];
+
+            return [
+                ...$primary,
+                'municipalities' => $municipalities,
+                'departments' => collect($pageLocations)
+                    ->pluck('department')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all(),
+                'source' => 'page_json_ld_multiple',
+                'detected_text' => collect($pageLocations)->pluck('location')->implode(', '),
+            ];
+        }
+
+        if ($page) {
+            return $page;
+        }
+
+        $prefix = $this->detectTitlePrefixLocation($title);
+
+        if ($prefix) {
+            return $prefix;
+        }
+
         foreach ([
             'title' => $title,
             'description' => $description,
@@ -122,15 +204,12 @@ class BotVacancyNormalizer
             return $rss;
         }
 
-        $prefix = $this->detectTitlePrefixLocation($title);
-        if ($prefix) {
-            return $prefix;
-        }
-
         return [
             'department' => 'No especificado',
             'location' => 'No especificado',
             'municipality' => null,
+            'municipalities' => [],
+            'departments' => [],
             'source' => 'default',
             'detected_text' => null,
         ];
@@ -236,23 +315,15 @@ class BotVacancyNormalizer
             return null;
         }
 
-        foreach (config('bolivia_municipalities', []) as $municipality => $department) {
-            $needle = $this->normalizeText((string) $municipality);
+        $municipality = $this->detectNamedMunicipalities($text)[0] ?? null;
 
-            if ($needle !== '' && preg_match('/\b' . preg_quote($needle, '/') . '\b/', $normalized)) {
-                $municipalityName = Str::headline($needle);
-
-                return [
-                    'department' => (string) $department,
-                    'location' => $municipalityName,
-                    'municipality' => [
-                        'municipality' => $municipalityName,
-                        'department' => (string) $department,
-                        'is_main_city' => $this->isMainCity($municipalityName),
-                    ],
-                    'detected_text' => $municipality,
-                ];
-            }
+        if ($municipality) {
+            return [
+                'department' => $municipality['department'],
+                'location' => $municipality['municipality'],
+                'municipality' => $municipality,
+                'detected_text' => $municipality['municipality'],
+            ];
         }
 
         foreach ($this->departments() as $needle => $label) {
@@ -267,6 +338,134 @@ class BotVacancyNormalizer
         }
 
         return null;
+    }
+
+    private function detectNamedMunicipalities(?string $text, ?string $preferredDepartment = null): array
+    {
+        $normalized = $this->normalizeText((string) $text);
+
+        if ($normalized === '') {
+            return [];
+        }
+
+        $preferred = $this->normalizeText((string) $preferredDepartment);
+        $matches = [];
+
+        foreach (config('bolivia_municipalities', []) as $catalogName => $department) {
+            $catalogNeedle = $this->normalizeText((string) $catalogName);
+            $departmentNeedle = $this->normalizeText((string) $department);
+            $needle = preg_replace(
+                '/\s+'.preg_quote($departmentNeedle, '/').'$/',
+                '',
+                $catalogNeedle,
+            ) ?: $catalogNeedle;
+            $searchNames = [$needle];
+
+            if (preg_match('/^((?:\S+\s+)+\S+)\s+de\s+.+$/', $needle, $shortened)) {
+                $searchNames[] = trim($shortened[1]);
+            }
+            if (str_contains($needle, ' ')) {
+                $compact = str_replace(' ', '', $needle);
+                if (strlen($compact) >= 6) {
+                    $searchNames[] = $compact;
+                }
+            }
+
+            foreach (array_unique($searchNames) as $searchName) {
+                if (
+                    $searchName === ''
+                    || ! preg_match(
+                        '/\b'.preg_quote($searchName, '/').'\b/',
+                        $normalized,
+                        $found,
+                        PREG_OFFSET_CAPTURE,
+                    )
+                ) {
+                    continue;
+                }
+
+                $matches[] = [
+                    'municipality' => Str::headline($needle),
+                    'department' => (string) $department,
+                    'is_main_city' => $this->isMainCity($needle),
+                    'source' => 'title',
+                    'position' => (int) $found[0][1],
+                    'length' => strlen($searchName),
+                    'needle' => $searchName,
+                    'preferred' => $preferred !== '' && $departmentNeedle === $preferred,
+                ];
+            }
+        }
+
+        $matches = collect($matches)
+            ->groupBy('needle')
+            ->flatMap(function ($group) use ($preferred) {
+                if ($group->count() === 1) {
+                    return $group;
+                }
+
+                $preferredMatches = $preferred !== ''
+                    ? $group->where('preferred', true)
+                    : collect();
+
+                return $preferredMatches->count() === 1 ? $preferredMatches : collect();
+            })
+            ->sortBy([
+                ['position', 'asc'],
+                ['length', 'desc'],
+            ])
+            ->unique(fn (array $entry): string => $entry['municipality'].'|'.$entry['department'])
+            ->map(function (array $entry): array {
+                unset(
+                    $entry['position'],
+                    $entry['length'],
+                    $entry['needle'],
+                    $entry['preferred'],
+                );
+
+                return $entry;
+            })
+            ->values()
+            ->all();
+
+        return $this->removeContainedMunicipalityMatches($matches);
+    }
+
+    private function removeContainedMunicipalityMatches(array $municipalities): array
+    {
+        return collect($municipalities)
+            ->reject(function (array $candidate) use ($municipalities): bool {
+                $candidateName = $this->normalizeText($candidate['municipality']);
+
+                return collect($municipalities)->contains(function (array $other) use (
+                    $candidate,
+                    $candidateName,
+                ): bool {
+                    if ($other === $candidate || $other['department'] !== $candidate['department']) {
+                        return false;
+                    }
+
+                    $otherName = $this->normalizeText($other['municipality']);
+
+                    return strlen($otherName) > strlen($candidateName)
+                        && preg_match('/\b'.preg_quote($candidateName, '/').'\b/', $otherName) === 1;
+                });
+            })
+            ->values()
+            ->all();
+    }
+
+    private function mergeMunicipalities(array ...$groups): array
+    {
+        return collect($groups)
+            ->flatten(1)
+            ->filter(fn (mixed $entry): bool => is_array($entry))
+            ->unique(
+                fn (array $entry): string => $this->normalizeText((string) ($entry['municipality'] ?? ''))
+                    .'|'.$this->normalizeText((string) ($entry['department'] ?? '')),
+            )
+            ->values()
+            ->all();
     }
 
     private function detectTitlePrefixLocation(string $title): ?array

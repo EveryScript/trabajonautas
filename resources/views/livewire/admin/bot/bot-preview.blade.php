@@ -1,5 +1,13 @@
 <section class="min-h-[calc(100vh-8rem)] bg-gradient-to-br from-slate-50 via-white to-orange-50/50 py-6 text-slate-950 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-white sm:py-8">
     <div x-data="botPreview" class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-10 xl:px-12">
+        @php
+            $previewStatusLabels = [
+                'preview' => \App\Support\BotUiLabels::previewStatus('preview'),
+                'edited' => \App\Support\BotUiLabels::previewStatus('edited'),
+                'published' => \App\Support\BotUiLabels::previewStatus('published'),
+                'error' => \App\Support\BotUiLabels::previewStatus('error'),
+            ];
+        @endphp
         <header class="mb-6 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/90 p-5 shadow-xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/20 md:p-6 lg:p-7">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div class="min-w-0">
@@ -31,45 +39,47 @@
             </div>
         </header>
 
-        @if (!in_array($source->scraper_type, ['evaluar', 'sicoes'], true))
+        @if (!in_array($source->scraper_type, ['evaluar', 'etalent', 'sicoes'], true))
             <div class="mb-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm font-semibold text-amber-800 shadow-lg shadow-amber-100/60 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100 dark:shadow-black/10">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-400/20 dark:text-amber-100">
                     <i class="fas fa-exclamation-triangle text-xs"></i>
                 </span>
-                <span>Scraper no implementado para esta fuente.</span>
+                <span>Extractor no implementado para esta fuente.</span>
             </div>
         @else
-        @if ($source->scraper_type === 'evaluar')
-            <div class="mb-5 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/20">
-                <div class="grid items-end gap-4 md:grid-cols-[1fr_1fr_auto]">
-                    <div>
-                        <x-label for="bot-start-date">Fecha inicio</x-label>
-                        <x-input id="bot-start-date" type="date" wire:model="startDate"
-                            class="mt-1 block w-full rounded-2xl border-slate-200 bg-white shadow-sm focus:border-orange-400 focus:ring-orange-400 dark:border-white/10 dark:bg-slate-950/70 dark:text-white" />
-                        <x-input-error for="startDate" class="mt-2" />
+        @if (in_array($source->scraper_type, ['evaluar', 'etalent'], true))
+            <div x-data="{ startDate: $wire.entangle('startDate').live, endDate: $wire.entangle('endDate').live }">
+                <div class="mb-5 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/20">
+                    <div class="grid items-end gap-4 md:grid-cols-[1fr_1fr_auto]">
+                        <div>
+                            <x-label for="bot-start-date">Fecha inicio</x-label>
+                            <x-input id="bot-start-date" type="date" x-model="startDate"
+                                class="mt-1 block w-full rounded-2xl border-slate-200 bg-white shadow-sm focus:border-orange-400 focus:ring-orange-400 dark:border-white/10 dark:bg-slate-950/70 dark:text-white" />
+                            <x-input-error for="startDate" class="mt-2" />
+                        </div>
+                        <div>
+                            <x-label for="bot-end-date">Fecha fin</x-label>
+                            <x-input id="bot-end-date" type="date" x-model="endDate"
+                                class="mt-1 block w-full rounded-2xl border-slate-200 bg-white shadow-sm focus:border-orange-400 focus:ring-orange-400 dark:border-white/10 dark:bg-slate-950/70 dark:text-white" />
+                            <x-input-error for="endDate" class="mt-2" />
+                        </div>
+                        <button type="button" wire:click="scrape" wire:loading.attr="disabled" wire:target="scrape"
+                            class="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:from-orange-400 hover:to-red-400 hover:shadow-orange-300 disabled:cursor-wait disabled:opacity-70 dark:shadow-orange-950/30 md:w-auto">
+                            <span wire:loading.remove wire:target="scrape">
+                                <i class="mr-1 text-xs fas fa-robot"></i> Empezar rango
+                            </span>
+                            <span wire:loading wire:target="scrape">Empezando...</span>
+                        </button>
                     </div>
-                    <div>
-                        <x-label for="bot-end-date">Fecha fin</x-label>
-                        <x-input id="bot-end-date" type="date" wire:model="endDate"
-                            class="mt-1 block w-full rounded-2xl border-slate-200 bg-white shadow-sm focus:border-orange-400 focus:ring-orange-400 dark:border-white/10 dark:bg-slate-950/70 dark:text-white" />
-                        <x-input-error for="endDate" class="mt-2" />
-                    </div>
-                    <button type="button" wire:click="scrape" wire:loading.attr="disabled" wire:target="scrape"
-                        class="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:from-orange-400 hover:to-red-400 hover:shadow-orange-300 disabled:cursor-wait disabled:opacity-70 dark:shadow-orange-950/30 md:w-auto">
-                        <span wire:loading.remove wire:target="scrape">
-                            <i class="mr-1 text-xs fas fa-robot"></i> Empezar rango
-                        </span>
-                        <span wire:loading wire:target="scrape">Empezando...</span>
-                    </button>
                 </div>
-            </div>
 
-            <div wire:loading wire:target="scrape"
-                class="mb-5 flex items-start gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-semibold text-blue-800 shadow-lg shadow-blue-100/60 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100 dark:shadow-black/10">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-100">
-                    <i class="fas fa-spinner fa-spin text-xs"></i>
-                </span>
-                <span>Buscando convocatorias entre {{ $startDate }} y {{ $endDate }}...</span>
+                <div wire:loading wire:target="scrape"
+                    class="mb-5 flex items-start gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-semibold text-blue-800 shadow-lg shadow-blue-100/60 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100 dark:shadow-black/10">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-100">
+                        <i class="fas fa-spinner fa-spin text-xs"></i>
+                    </span>
+                    <span>Buscando convocatorias entre <span x-text="startDate"></span> y <span x-text="endDate"></span>...</span>
+                </div>
             </div>
         @else
             <div class="mb-5 flex items-start justify-between gap-4 rounded-[2rem] border border-sky-200 bg-sky-50 p-5 text-sm font-semibold text-sky-800 shadow-lg shadow-sky-100/60 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-100 dark:shadow-black/10">
@@ -96,10 +106,11 @@
                                     @break
                                 @case('finished')
                                 @case('completed')
-                                    Lote {{ $currentSicoesBatch->requested_date->format('d/m/Y') }}: {{ $currentSicoesBatch->documents_processed }} procesados, {{ $currentSicoesBatch->previews_count }} previews y {{ $currentSicoesBatch->discarded_count }} descartados.
+                                    {{ $currentSicoesBatch->source_type === \App\Models\SicoesScrapeBatch::SOURCE_PERSONNEL ? 'Requerimientos de personal' : 'Servicios de consultoría' }}
+                                    del {{ $currentSicoesBatch->requested_date->format('d/m/Y') }}: {{ $currentSicoesBatch->documents_processed }} procesados, {{ $currentSicoesBatch->previews_count }} previsualizaciones y {{ $currentSicoesBatch->discarded_count }} descartados.
                                     @break
                                 @default
-                                    Estado del lote: {{ $currentSicoesBatch->status }}.
+                                    Estado del lote: {{ \App\Support\BotUiLabels::processStatus($currentSicoesBatch->status) }}.
                             @endswitch
                         @else
                             Resultados SICOES encontrados. Revisa cada convocatoria en el modal antes de publicarla.
@@ -135,19 +146,26 @@
             <div class="mb-6 rounded-[2rem] border border-slate-200 bg-white p-5 text-sm text-slate-700 shadow-xl shadow-slate-200/70 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300 dark:shadow-2xl dark:shadow-black/20 lg:p-6">
                 <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-[0.2em] text-orange-600 dark:text-orange-300">Scraping</p>
-                        <h2 class="mt-1 text-2xl font-black text-slate-950 dark:text-white">Resumen del scraping</h2>
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-orange-600 dark:text-orange-300">Extracción</p>
+                        <h2 class="mt-1 text-2xl font-black text-slate-950 dark:text-white">Resumen de la extracción</h2>
                     </div>
                     <span class="inline-flex w-fit items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-black text-sky-800 ring-1 ring-sky-200 dark:bg-sky-400/10 dark:text-sky-100 dark:ring-sky-400/30">
                         <span class="h-2 w-2 rounded-full bg-sky-500"></span>
-                        Estado: {{ $lastScrapeSummary['status'] ?? 'N/D' }}
+                        Estado: {{ \App\Support\BotUiLabels::processStatus($lastScrapeSummary['status'] ?? null) }}
                     </span>
                 </div>
 
                 <div class="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                     <div class="rounded-2xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-400/20 dark:bg-orange-400/10">
-                        <p class="text-xs font-bold uppercase tracking-wide text-orange-700 dark:text-orange-200">Feed usado</p>
-                        <p class="mt-2 truncate text-sm font-black text-slate-950 dark:text-white" title="{{ $lastScrapeSummary['feed_url'] ?? 'Ninguno' }}">{{ $lastScrapeSummary['feed_url'] ?? 'Ninguno' }}</p>
+                        <p class="text-xs font-bold uppercase tracking-wide text-orange-700 dark:text-orange-200">Fuente utilizada</p>
+                        @php
+                            $summarySource = $source->scraper_type === 'sicoes'
+                                ? (($lastScrapeSummary['source_type'] ?? null) === \App\Models\SicoesScrapeBatch::SOURCE_PERSONNEL
+                                    ? 'Requerimientos de personal'
+                                    : 'Servicios de consultoría')
+                                : ($lastScrapeSummary['feed_url'] ?? 'Ninguno');
+                        @endphp
+                        <p class="mt-2 truncate text-sm font-black text-slate-950 dark:text-white" title="{{ $summarySource }}">{{ $summarySource }}</p>
                     </div>
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                         <p class="text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -228,7 +246,7 @@
                         </p>
                         <p class="mt-1 text-sm font-black text-slate-950 dark:text-white">
                             @if ($source->scraper_type === 'sicoes')
-                                {{ !empty($lastScrapeSummary['ai_enabled']) ? 'Activado' : 'Desactivado' }}
+                                {{ (!empty($lastScrapeSummary['ai_enabled']) || (!array_key_exists('ai_enabled', $lastScrapeSummary) && !empty($lastScrapeSummary['ai_calls']))) ? 'Activado' : 'Desactivado' }}
                             @else
                                 {{ !empty($lastScrapeSummary['gemini_enabled']) ? 'Activado' : 'Desactivado' }}
                             @endif
@@ -253,7 +271,7 @@
                         <div class="flex flex-wrap gap-2">
                             @foreach ($lastScrapeSummary['discarded_by_type'] as $type => $total)
                                 <span class="rounded-full border border-amber-200 bg-white px-3 py-1 font-bold dark:border-amber-500/30 dark:bg-slate-950/40">
-                                    {{ $type }}: {{ $total }}
+                                    {{ \App\Support\BotUiLabels::discardType($type) }}: {{ $total }}
                                 </span>
                             @endforeach
                         </div>
@@ -266,7 +284,7 @@
                         <div class="flex flex-wrap gap-2">
                             @foreach ($lastScrapeSummary['gemini_errors_by_type'] as $type => $total)
                                 <span class="rounded-full border border-sky-200 bg-white px-3 py-1 font-bold dark:border-sky-500/30 dark:bg-slate-950/40">
-                                    {{ $type }}: {{ $total }}
+                                    {{ \App\Support\BotUiLabels::errorType($type) }}: {{ $total }}
                                 </span>
                             @endforeach
                         </div>
@@ -277,13 +295,14 @@
                     <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs dark:border-amber-500/30 dark:bg-amber-500/10">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <span class="font-semibold text-amber-800 dark:text-amber-100">
-                                Hay {{ $currentGeminiErrors }} previsualizacion(es) con error Gemini en este lote.
+                                Hay {{ $currentGeminiErrors }} previsualizacion(es) con clasificación pendiente en este lote.
                             </span>
-                            <button type="button" wire:click="retryGeminiErrors"
-                                wire:loading.attr="disabled" wire:target="retryGeminiErrors"
+                            <button type="button" wire:click="reanalyzeErrors"
+                                wire:confirm="Se enviarán a Gemini {{ $currentGeminiErrors }} previsualizaciones con error y sin cambios manuales. ¿Continuar?"
+                                wire:loading.attr="disabled" wire:target="reanalyzeErrors"
                                 class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-xs font-black text-white shadow-lg shadow-orange-100 transition hover:from-orange-400 hover:to-red-400 dark:shadow-orange-950/30">
-                                <span wire:loading.remove wire:target="retryGeminiErrors">Reintentar errores Gemini</span>
-                                <span wire:loading wire:target="retryGeminiErrors">Reintentando...</span>
+                                <span wire:loading.remove wire:target="reanalyzeErrors">Reanalizar errores</span>
+                                <span wire:loading wire:target="reanalyzeErrors">Reanalizando...</span>
                             </button>
                         </div>
                     </div>
@@ -291,7 +310,7 @@
 
                 @if ($source->scraper_type === 'sicoes')
                     <p class="mb-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-                        En SICOES se genera un preview separado por cada documento aceptado por Claude. Los documentos descartados por empresa, bienes, obra o falta de evidencia no quedan listos para publicar.
+                        En SICOES se generan una o mas previsualizaciones por documento aceptado por Claude. Si un documento contiene cargos de distintas areas, se separa por area para conservar profesiones publicables. Los documentos descartados por empresa, bienes, obra o falta de evidencia no quedan listos para publicar.
                     </p>
                 @else
                     <p class="mb-4 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -313,14 +332,14 @@
 
                 @if ($source->scraper_type === 'sicoes' && !empty($lastScrapeSummary['document_discarded']))
                     <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs font-semibold text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
-                        Claude descarto {{ $lastScrapeSummary['document_discarded'] }} documento(s). No se crearon previews publicables para esos documentos.
+                        Claude descarto {{ $lastScrapeSummary['document_discarded'] }} documento(s). No se crearon previsualizaciones publicables para esos documentos.
                     </div>
                 @endif
 
                 @if (($source->scraper_type === 'sicoes' && !empty($lastScrapeSummary['ai_errors'])) || ($source->scraper_type !== 'sicoes' && !empty($lastScrapeSummary['gemini_errors'])))
                     <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100">
                         @if ($source->scraper_type === 'sicoes')
-                            Claude fallo en {{ $lastScrapeSummary['ai_errors'] }} documento(s). Esos previews quedaron como error para revision manual y el lote continuo.
+                            Claude fallo en {{ $lastScrapeSummary['ai_errors'] }} documento(s). Esas previsualizaciones quedaron con error para revision manual y el lote continuo.
                         @else
                             Gemini fallo en {{ $lastScrapeSummary['gemini_errors'] }} convocatoria(s), se usaron valores por defecto.
                         @endif
@@ -337,7 +356,7 @@
                                 <thead class="bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300">
                                     <tr>
                                         <th class="px-3 py-2 text-left">Titulo</th>
-                                        <th class="px-3 py-2 text-left">pubDate original</th>
+                                        <th class="px-3 py-2 text-left">Fecha original</th>
                                         <th class="px-3 py-2 text-left">Motivo</th>
                                     </tr>
                                 </thead>
@@ -360,10 +379,10 @@
                         <table class="min-w-full text-xs">
                             <thead class="bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300">
                                 <tr>
-                                    <th class="px-3 py-3 text-left">Feed probado</th>
+                                    <th class="px-3 py-3 text-left">Fuente probada</th>
                                     <th class="px-3 py-3 text-left">HTTP</th>
                                     <th class="px-3 py-3 text-left">XML</th>
-                                    <th class="px-3 py-3 text-left">Items</th>
+                                    <th class="px-3 py-3 text-left">Elementos</th>
                                     <th class="px-3 py-3 text-left">Error</th>
                                 </tr>
                             </thead>
@@ -397,6 +416,9 @@
 
         <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             @forelse ($previews as $preview)
+                @php
+                    $previewIssues = \App\Support\BotUiLabels::previewIssues($preview->raw_data);
+                @endphp
                 <article
                     class="group flex min-h-[390px] flex-col justify-between rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70 transition duration-200 hover:-translate-y-1 hover:border-orange-300 hover:shadow-orange-100 dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/20 dark:hover:border-orange-400/40 dark:hover:shadow-orange-950/30">
                     <div>
@@ -432,6 +454,19 @@
                             {{ \Illuminate\Support\Str::limit(strip_tags($preview->original_description ?: 'Sin descripcion original.'), 240) }}
                         </p>
 
+                        @if ($preview->status === 'error')
+                            <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-xs text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100">
+                                <p class="font-black uppercase tracking-wide">Motivo del error</p>
+                                <ul class="mt-2 list-inside list-disc space-y-1">
+                                    @forelse ($previewIssues as $issue)
+                                        <li>{{ $issue }}</li>
+                                    @empty
+                                        <li>No se registró un motivo detallado. Abre "Ver datos" para revisar los campos faltantes.</li>
+                                    @endforelse
+                                </ul>
+                            </div>
+                        @endif
+
                         <div class="grid gap-3 sm:grid-cols-2">
                             <div class="rounded-2xl border border-orange-200 bg-orange-50 p-3 dark:border-orange-400/20 dark:bg-orange-400/10">
                                 <p class="text-[11px] font-bold uppercase tracking-wide text-orange-700 dark:text-orange-200">
@@ -466,19 +501,29 @@
                         <div class="mb-3 flex items-center justify-between gap-3">
                         <span
                             class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide ring-1 {{ $statusClasses }}">
-                            {{ $preview->status }}
+                            {{ $previewStatusLabels[$preview->status] ?? \App\Support\BotUiLabels::previewStatus($preview->status) }}
                         </span>
                         </div>
-                        <div class="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                        <div class="grid gap-2 sm:grid-cols-2">
                             <a href="{{ $preview->source_url }}" target="_blank" rel="noopener"
                                 class="inline-flex items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-black text-amber-700 transition hover:border-amber-300 hover:bg-amber-100 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100 dark:hover:bg-amber-400/20">
-                                <i class="mr-2 fas fa-eye"></i>
-                                Preview
+                                <i class="mr-2 fas fa-external-link-alt"></i>
+                                {{ $source->scraper_type === 'sicoes' ? 'Fuente SICOES' : 'Ver fuente original' }}
                             </a>
                             <button type="button" wire:click="edit({{ $preview->id }})"
                                 class="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 px-3 py-2.5 text-xs font-black text-white shadow-lg shadow-orange-200 transition hover:from-orange-400 hover:to-red-400 hover:shadow-orange-300 dark:shadow-orange-950/30">
                                 Ver datos
                             </button>
+                            @if (in_array($source->scraper_type, ['evaluar', 'etalent'], true) && $preview->status !== 'published')
+                                <button type="button"
+                                    wire:click="reanalyzeSelected({{ $preview->id }})"
+                                    wire:confirm="Esta previsualización se enviará nuevamente a Gemini. Los cambios manuales, si existen, se conservarán. ¿Continuar?"
+                                    wire:loading.attr="disabled"
+                                    wire:target="reanalyzeSelected"
+                                    class="inline-flex items-center justify-center rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-xs font-black text-sky-700 transition hover:bg-sky-100 dark:border-sky-400/30 dark:bg-sky-500/10 dark:text-sky-100">
+                                    Reanalizar
+                                </button>
+                            @endif
                             <button type="button"
                                 wire:click="removeFromBatch({{ $preview->id }})"
                                 wire:confirm="¿Quitar esta convocatoria del lote actual?"
@@ -514,7 +559,7 @@
                                         Se procesaron {{ $currentSicoesBatch->documents_processed }} documentos. {{ $currentSicoesBatch->discarded_count }} fueron descartados. No existen convocatorias publicables en este lote.
                                         @break
                                     @default
-                                        Estado del lote: {{ $currentSicoesBatch->status }}.
+                                        Estado del lote: {{ \App\Support\BotUiLabels::processStatus($currentSicoesBatch->status) }}.
                                 @endswitch
                             @else
                                 No hay un lote SICOES persistido para mostrar.
@@ -558,7 +603,7 @@
                             <div>
                                 <h3 class="text-xl font-bold text-tbn-primary">Editar previsualizacion BOT</h3>
                                 <p class="text-sm text-tbn-secondary dark:text-tbn-light">
-                                    Este formulario usa el flujo visual de nueva convocatoria, pero solo guarda el preview.
+                                    Este formulario usa el flujo visual de nueva convocatoria, pero solo guarda la previsualización.
                                 </p>
                             </div>
                             <button type="button" wire:click="closeModal"
@@ -566,6 +611,24 @@
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
+
+                        @php
+                            $editingIssues = $editingPreview
+                                ? \App\Support\BotUiLabels::previewIssues($editingPreview->raw_data)
+                                : [];
+                        @endphp
+                        @if ($editingPreview?->status === 'error')
+                            <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100">
+                                <p class="font-black">Por qué requiere revisión</p>
+                                <ul class="mt-2 list-inside list-disc space-y-1">
+                                    @forelse ($editingIssues as $issue)
+                                        <li>{{ $issue }}</li>
+                                    @empty
+                                        <li>Faltan datos obligatorios para dejar esta previsualización lista para publicar.</li>
+                                    @endforelse
+                                </ul>
+                            </div>
+                        @endif
 
                         <div class="mb-4">
                             <x-label for="bot_announce_title">Titulo de la convocatoria</x-label>
@@ -587,7 +650,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <x-label for="bot_area_select"><span class="font-bold">Area profesional</span> (anadir profesiones)</x-label>
+                            <x-label for="bot_area_select"><span class="font-bold">Área profesional</span> (filtra el catálogo)</x-label>
                             <div class="mt-1 tbn-tom-select" wire:ignore>
                                 <x-select id="bot_area_select">
                                     <option></option>
@@ -596,7 +659,108 @@
                                     @endforeach
                                 </x-select>
                             </div>
+                            <x-input-error for="form.selected_area_id" class="mt-2" />
                         </div>
+
+                        @if ($editingPreview && in_array($source->scraper_type, ['evaluar', 'etalent', 'sicoes'], true))
+                            @php
+                                $resolution = data_get($editingPreview->raw_data, 'profession_resolution', []);
+                                $resolvedProfessions = data_get($resolution, 'profesiones_resueltas', []);
+                                $unidentifiedProfessions = data_get($resolution, 'profesiones_no_identificadas', []);
+                                $ambiguousProfessions = data_get($resolution, 'profesiones_ambiguas', []);
+                                $expandedArea = data_get($resolution, 'area_expandida_por_afinidad');
+                                $expandedAreas = data_get($resolution, 'areas_expandidas_por_afinidad', []);
+                                if ($expandedAreas === [] && $expandedArea) {
+                                    $expandedAreas = [$expandedArea];
+                                }
+                                $excludedAffinityAreas = data_get($resolution, 'areas_omitidas_por_afinidad', []);
+                                $aiPrimaryArea = data_get($resolution, 'area_principal_ia');
+                                $reviewReasons = \App\Support\BotUiLabels::previewIssues($editingPreview->raw_data);
+                            @endphp
+                            <div class="mb-4 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs dark:border-white/10 dark:bg-white/[0.03]">
+                                <p class="font-black uppercase tracking-wide text-slate-700 dark:text-slate-200">
+                                    Clasificación automática trazable
+                                </p>
+                                @if ($aiPrimaryArea)
+                                    <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-800">
+                                        <strong>Área principal elegida por IA:</strong>
+                                        {{ $aiPrimaryArea['area_name'] ?? '-' }}
+                                        ({{ number_format((float) ($aiPrimaryArea['confianza'] ?? 0) * 100, 0) }}%)
+                                        <p class="mt-1"><strong>Evidencia:</strong> {{ $aiPrimaryArea['evidencia'] ?? '-' }}</p>
+                                    </div>
+                                @endif
+                                @forelse ($resolvedProfessions as $resolved)
+                                    @php
+                                        $matchType = $resolved['tipo_coincidencia'] ?? 'automática';
+                                        $matchClass = str_contains($matchType, 'expansion_area_afin')
+                                            ? 'bg-sky-100 text-sky-800'
+                                            : (str_contains($matchType, 'alias')
+                                            ? 'bg-violet-100 text-violet-800'
+                                            : (str_contains($matchType, 'aproximada')
+                                                ? 'bg-amber-100 text-amber-800'
+                                                : 'bg-emerald-100 text-emerald-800'));
+                                    @endphp
+                                    <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <strong>{{ $resolved['nombre_original'] ?? '-' }}</strong>
+                                            <span>→ {{ $resolved['profesion_name'] ?? '-' }}</span>
+                                            <span class="rounded-full px-2 py-0.5 font-bold {{ $matchClass }}">{{ \App\Support\BotUiLabels::professionMatchType($matchType) }}</span>
+                                            <span>IA {{ number_format((float) ($resolved['confianza_ia'] ?? 0) * 100, 0) }}%</span>
+                                            <span>catálogo {{ number_format((float) ($resolved['confianza_coincidencia'] ?? 0) * 100, 0) }}%</span>
+                                        </div>
+                                        <p class="mt-2 text-slate-600 dark:text-slate-300">
+                                            <strong>Evidencia:</strong> {{ $resolved['evidencia'] ?? '-' }}
+                                        </p>
+                                        <p class="mt-1 text-slate-500">
+                                            <strong>Área(s):</strong>
+                                            {{ collect($resolved['areas'] ?? [])->pluck('area_name')->implode(', ') ?: 'Sin relación' }}
+                                        </p>
+                                    </div>
+                                @empty
+                                    <p class="text-slate-500">No hay profesiones resueltas automáticamente.</p>
+                                @endforelse
+
+                                @if ($expandedAreas)
+                                    <div class="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sky-800">
+                                        <strong>Ramas afines:</strong>
+                                        se agregó el catálogo completo de
+                                        {{ collect($expandedAreas)->pluck('area_name')->filter()->implode(', ') }}.
+                                        <p class="mt-1">
+                                            <strong>Evidencia:</strong>
+                                            {{ collect($expandedAreas)->pluck('evidencia')->filter()->unique()->implode(' ') ?: '-' }}
+                                        </p>
+                                    </div>
+                                @endif
+
+                                @if ($excludedAffinityAreas)
+                                    <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800">
+                                        <strong>Ramas afines sin expansión automática:</strong>
+                                        {{ collect($excludedAffinityAreas)->pluck('area_name')->filter()->implode(', ') }}.
+                                        Se conservaron las profesiones mencionadas explícitamente, sin agregar todo el catálogo de estas áreas.
+                                    </div>
+                                @endif
+
+                                @foreach ($unidentifiedProfessions as $item)
+                                    <div class="rounded-xl border border-red-200 bg-red-50 p-3 text-red-800">
+                                        <strong>No identificada:</strong> {{ $item['nombre_original'] ?? '-' }}
+                                        <p class="mt-1"><strong>Evidencia:</strong> {{ $item['evidencia'] ?? '-' }}</p>
+                                    </div>
+                                @endforeach
+                                @foreach ($ambiguousProfessions as $item)
+                                    <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-800">
+                                        <strong>Ambigua:</strong> {{ $item['nombre_original'] ?? '-' }}
+                                        <p class="mt-1">{{ $item['motivo'] ?? 'Requiere revisión manual.' }}</p>
+                                    </div>
+                                @endforeach
+                                @if ($reviewReasons)
+                                    <ul class="list-inside list-disc text-amber-800 dark:text-amber-200">
+                                        @foreach ($reviewReasons as $reason)
+                                            <li>{{ $reason }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </div>
+                        @endif
 
                         <div class="mb-4">
                             <div class="flex flex-wrap items-center justify-between gap-2">
@@ -610,7 +774,7 @@
                                     wire:loading.attr="disabled" wire:target="recalculateSuggestedProfessions"
                                     class="text-sm underline text-tbn-primary">
                                     <span wire:loading.remove wire:target="recalculateSuggestedProfessions">
-                                        Recalcular profesiones por areas
+                                        Recalcular desde detecciones
                                     </span>
                                     <span wire:loading wire:target="recalculateSuggestedProfessions">
                                         Recalculando...
@@ -622,6 +786,9 @@
                                     {{ $professionSuggestionNotice }}
                                 </div>
                             @endif
+                            <div x-show="areaWarning" x-text="areaWarning"
+                                class="mt-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800"
+                                x-cloak></div>
                             <div class="mt-1 tbn-tom-select" wire:ignore>
                                 <x-select id="bot_profesions_select" multiple>
                                     @foreach ($profesions as $profesion)
@@ -705,11 +872,11 @@
                                     x-mask:dynamic="$money($input.replace(/[^\d]/g), ',', '.')" class="block w-full mt-1" />
                                 @if ($source->scraper_type === 'sicoes')
                                     <span class="block mt-2 text-xs text-tbn-dark dark:text-tbn-light">
-                                        "0" = Sin sueldo mensual seguro o requiere revision manual.</span>
+                                        "0" = Sueldo no declarado por la institución.</span>
                                     <span class="block text-xs text-tbn-dark dark:text-tbn-light">
-                                        "1" = Un sueldo mensual claro detallado en la descripcion.</span>
+                                        "1" = Existen varios sueldos detallados en la descripción.</span>
                                     <span class="block text-xs text-tbn-dark dark:text-tbn-light">
-                                        "2" = Varios sueldos/cargos detallados en la descripcion.</span>
+                                        Cualquier otro entero = Existe un único sueldo.</span>
                                 @else
                                     <span class="block mt-2 text-xs text-tbn-dark dark:text-tbn-light">
                                         "0" = Sueldo no declarado por la institucion.</span>
@@ -739,7 +906,7 @@
                                     <div class="w-full mb-2">
                                         <p class="font-medium text-tbn-dark text-md dark:text-tbn-primary">Convocatoria PRO</p>
                                         <p class="text-xs text-tbn-secondary dark:text-tbn-light">
-                                            Esta marca se guardara en el preview y se aplicara recien al publicar el lote.
+                                            Esta marca se guardará en la previsualización y se aplicará recién al publicar el lote.
                                         </p>
                                     </div>
                                 </div>
@@ -789,6 +956,8 @@
                 quill: null,
                 initializing: true,
                 isProAnnounce: $wire.form.is_pro,
+                currentAreaId: null,
+                areaWarning: '',
                 profesions,
                 locations,
                 init() {
@@ -832,12 +1001,22 @@
                             }
                         });
 
+                        const selectedProfessionIds = Array.from(
+                            $wire.form.selected_profession_ids || []
+                        ).map(Number);
+
                         this.tsCompany.setValue($wire.form.selected_company_id, true);
-                        this.tsProfesions.setValue($wire.form.selected_profession_ids || [], true);
+                        this.tsProfesions.setValue(selectedProfessionIds.map(String), true);
                         this.tsLocations.setValue($wire.form.selected_location_ids || [], true);
 
                         if ($wire.form.selected_area_id) {
                             this.tsArea.setValue($wire.form.selected_area_id, true);
+                            this.currentAreaId = Number($wire.form.selected_area_id);
+                            this.filterProfessionOptions(
+                                this.currentAreaId,
+                                true,
+                                selectedProfessionIds
+                            );
                         }
 
                         this.initializing = false;
@@ -858,20 +1037,79 @@
                     });
                 },
                 async onAreaChange(areaId) {
-                    $wire.form.selected_area_id = areaId ? Number(areaId) : null;
                     const areaSelected = Number(areaId);
 
                     if (!areaSelected) {
+                        this.currentAreaId = null;
+                        this.areaWarning = '';
+                        $wire.form.selected_area_id = null;
+                        this.replaceProfessionOptions(this.profesions, this.tsProfesions.getValue().map(Number));
                         return;
                     }
 
-                    const selectedIds = (await $wire.professionsForArea(areaSelected)).map(Number);
+                    const compatibleIds = (await $wire.professionsForArea(areaSelected)).map(Number);
                     const currentIds = this.tsProfesions ? this.tsProfesions.getValue().map(Number) : [];
-                    const merged = [...new Set([...currentIds, ...selectedIds])];
-                    if (this.tsProfesions) {
-                        this.tsProfesions.setValue(merged);
+                    const incompatibleIds = currentIds.filter(id => !compatibleIds.includes(id));
+
+                    if (incompatibleIds.length > 0) {
+                        const incompatibleNames = this.profesions
+                            .filter(item => incompatibleIds.includes(Number(item.id)))
+                            .map(item => item.profesion_name)
+                            .join(', ');
+                        this.areaWarning =
+                            `Estas profesiones se conservaron, pero no pertenecen al área elegida: ${incompatibleNames}. Quítalas manualmente antes de guardar.`;
+                    } else {
+                        this.areaWarning = '';
                     }
-                    $wire.form.selected_profession_ids = merged;
+
+                    this.currentAreaId = areaSelected;
+                    $wire.form.selected_area_id = areaSelected;
+                    this.filterProfessionOptions(areaSelected, true);
+                    $wire.form.selected_profession_ids = currentIds;
+                },
+                filterProfessionOptions(
+                    areaId,
+                    preserveIncompatibleSelections = false,
+                    selectedIds = null
+                ) {
+                    const currentIds = selectedIds === null
+                        ? (this.tsProfesions ? this.tsProfesions.getValue().map(Number) : [])
+                        : Array.from(selectedIds).map(Number);
+                    const compatible = this.profesions.filter(item =>
+                        (item.area_ids || []).map(Number).includes(Number(areaId))
+                    );
+                    const visible = [...compatible];
+
+                    if (preserveIncompatibleSelections) {
+                        this.profesions
+                            .filter(item =>
+                                currentIds.includes(Number(item.id))
+                                && !compatible.some(compatibleItem => Number(compatibleItem.id) === Number(item.id))
+                            )
+                            .forEach(item => visible.push({
+                                ...item,
+                                profesion_name: `${item.profesion_name} (no pertenece al área seleccionada)`
+                            }));
+                    }
+
+                    this.replaceProfessionOptions(visible, currentIds);
+                    if (preserveIncompatibleSelections && visible.length !== compatible.length) {
+                        this.areaWarning = 'Hay profesiones seleccionadas que no pertenecen al área. Corrígelas antes de guardar.';
+                    }
+                },
+                replaceProfessionOptions(items, selectedIds) {
+                    if (!this.tsProfesions) {
+                        return;
+                    }
+
+                    this.tsProfesions.clear(true);
+                    this.tsProfesions.clearOptions();
+                    items.forEach(item => this.tsProfesions.addOption({
+                        value: String(item.id),
+                        text: item.profesion_name,
+                    }));
+                    this.tsProfesions.refreshOptions(false);
+                    this.tsProfesions.setValue((selectedIds || []).map(String), true);
                 },
                 syncRecalculatedProfessions(ids, areaId) {
                     const selectedIds = (ids || []).map(Number);
@@ -884,9 +1122,12 @@
                     }
 
                     if (this.tsProfesions) {
-                        this.tsProfesions.setValue(selectedIds, true);
+                        selectedAreaId
+                            ? this.filterProfessionOptions(selectedAreaId, true, selectedIds)
+                            : this.replaceProfessionOptions(this.profesions, selectedIds);
                     }
 
+                    this.currentAreaId = selectedAreaId;
                     $wire.form.selected_area_id = selectedAreaId;
                     $wire.form.selected_profession_ids = selectedIds;
                 },

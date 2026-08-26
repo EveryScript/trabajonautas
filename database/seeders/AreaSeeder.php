@@ -2,22 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\Area;
-use App\Models\Profesion;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Services\ProfessionCatalogSynchronizer;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class AreaSeeder extends Seeder
 {
-    public $admin_id;
-
-    public function run(): void
+    public function run(ProfessionCatalogSynchronizer $synchronizer): void
     {
+        $synchronizer->synchronize(
+            areas: self::catalog(),
+            professions: [],
+            aliases: [],
+        );
+    }
 
-        $area_data = [
+    public static function catalog(): array
+    {
+        return array_map(static fn (array $area): array => [
+            'id' => (int) $area[0],
+            'area_name' => trim((string) $area[1]),
+            'description' => trim((string) $area[2]),
+        ], [
             [1, 'Área ECONÓMICA, ADMINISTRATIVA Y FINANCIERA', 'Gestión de recursos, análisis de mercados y optimización de procesos para alcanzar objetivos empresariales y maximizar la rentabilidad.', 'e0de2b68-777e-4e67-8443-464a0b3a4a60'],
             [2, 'Área RELACIONES INTERNACIONALES, POLÍTICA Y GESTION PÚBLICA ', 'Profesiones relacionadas con Relaciones Internacionales, Política y Gestión Pública', 'a19acc2e-2ea9-4a7c-ac4e-b1646b3a9ea6'],
             [3, 'Área SOCIAL', 'Profesiones relacionadas al área SOCIAL', 'a19acc2e-2ea9-4a7c-ac4e-b1646b3a9ea6'],
@@ -68,22 +73,6 @@ class AreaSeeder extends Seeder
             [49, 'Área JARDINERÍA', 'Jardinería', 'a19acc2e-2ea9-4a7c-ac4e-b1646b3a9ea6'],
             [50, 'Área SEGURIDAD', 'Seguridad Física ', 'a19acc2e-2ea9-4a7c-ac4e-b1646b3a9ea6'],
             [51, 'Área MANTENIMIENTO', 'Profesionales de Mantenimiento', 'a19acc2e-2ea9-4a7c-ac4e-b1646b3a9ea6'],
-        ];
-
-        $this->admin_id = User::where('email', 'ricardooropeza15@gmail.com')->first()->id;
-        if (!$this->admin_id) return;
-
-        $areas = array_map(function ($area) {
-            return [
-                'id' => $area[0],
-                'area_name' => $area[1],
-                'description' => $area[2],
-                'user_id' => $this->admin_id,
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
-        }, $area_data);
-
-        Area::insert($areas);
+        ]);
     }
 }

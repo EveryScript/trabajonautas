@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class BotCompanies extends Component
@@ -36,7 +37,11 @@ class BotCompanies extends Component
 
     public string $categoryFilter = 'all';
 
+    #[Url(as: 'fecha')]
     public string $sicoesDate = '';
+
+    #[Url(as: 'modalidad')]
+    public string $sicoesSourceType = '';
 
     public int $perPage = 12;
 
@@ -82,9 +87,14 @@ class BotCompanies extends Component
 
         $this->source = $source;
         $this->categories = $this->categoryOptions();
-        $this->sicoesDate = now()->format('Y-m-d');
+        if ($this->sicoesDate === '') {
+            $this->sicoesDate = now()->format('Y-m-d');
+        }
 
         if ($this->source->scraper_type === 'sicoes') {
+            if (! in_array($this->sicoesSourceType, SicoesScrapeBatch::SOURCE_TYPES, true)) {
+                $this->sicoesSourceType = '';
+            }
             $this->ensureSicoesCompany();
         }
 
@@ -116,7 +126,7 @@ class BotCompanies extends Component
 
     public function createCompany(): void
     {
-        $this->guardEvaluarSource();
+        $this->guardCompanySource();
         $this->resetValidation();
         $this->reset(['message', 'errorMessage']);
         $this->editingCompanyId = null;
@@ -130,7 +140,7 @@ class BotCompanies extends Component
 
     public function editCompany(int $companyId): void
     {
-        $this->guardEvaluarSource();
+        $this->guardCompanySource();
         $this->resetValidation();
         $this->reset(['message', 'errorMessage']);
 
@@ -146,9 +156,11 @@ class BotCompanies extends Component
 
     public function saveCompany(): void
     {
-        $this->guardEvaluarSource();
+        $this->guardCompanySource();
         $this->reset(['message', 'errorMessage']);
-        $this->form['evaluar_url'] = $this->normalizeEvaluarUrl((string) $this->form['evaluar_url']);
+        $this->form['evaluar_url'] = $this->normalizeJobBoardUrl(
+            (string) $this->form['evaluar_url'],
+        );
 
         $this->validate([
             'form.name' => 'required|string|max:255',
@@ -157,13 +169,13 @@ class BotCompanies extends Component
                 'string',
                 'max:255',
                 function (string $attribute, mixed $value, \Closure $fail): void {
-                    if (! $this->isEvaluarUrl((string) $value)) {
-                        $fail('La URL debe ser un subdominio valido de evaluar.com o evaluarjobs.com.');
+                    if (! $this->isAllowedJobBoardUrl((string) $value)) {
+                        $fail($this->jobBoardUrlValidationMessage());
 
                         return;
                     }
 
-                    $existingCompany = $this->findCompanyByNormalizedEvaluarUrl((string) $value);
+                    $existingCompany = $this->findCompanyByNormalizedJobBoardUrl((string) $value);
 
                     if (! $existingCompany || $existingCompany->id === $this->editingCompanyId) {
                         return;
@@ -174,13 +186,13 @@ class BotCompanies extends Component
                     }
 
                     if (! $this->editingCompanyId) {
-                        $fail('Ya existe una empresa activa con esa URL Evaluar.');
+                        $fail('Ya existe una empresa activa con esa URL.');
 
                         return;
                     }
 
                     if ($existingCompany->active) {
-                        $fail('Ya existe otra empresa activa con esa URL Evaluar.');
+                        $fail('Ya existe otra empresa activa con esa URL.');
 
                         return;
                     }
@@ -192,7 +204,9 @@ class BotCompanies extends Component
         ]);
 
         if (! $this->editingCompanyId) {
-            $inactiveCompany = $this->findCompanyByNormalizedEvaluarUrl((string) $this->form['evaluar_url']);
+            $inactiveCompany = $this->findCompanyByNormalizedJobBoardUrl(
+                (string) $this->form['evaluar_url'],
+            );
 
             if ($inactiveCompany && ! $inactiveCompany->active) {
                 $inactiveCompany->update([
@@ -236,7 +250,7 @@ class BotCompanies extends Component
 
     public function removeCompany(int $companyId): void
     {
-        $this->guardEvaluarSource();
+        $this->guardCompanySource();
         $this->reset(['message', 'errorMessage']);
 
         $company = $this->source->companies()->findOrFail($companyId);
@@ -253,6 +267,7 @@ class BotCompanies extends Component
 
         $this->validate([
             'sicoesDate' => 'required|date_format:Y-m-d',
+            'sicoesSourceType' => 'required|in:'.implode(',', SicoesScrapeBatch::SOURCE_TYPES),
         ]);
 
         $batch = null;
@@ -273,7 +288,8 @@ class BotCompanies extends Component
             }
 
             $requestedDate = $this->sicoesDate;
-            $batch = DB::transaction(function () use ($company, $requestedDate): ?SicoesScrapeBatch {
+            $sourceType = $this->sicoesSourceType;
+            $batch = DB::transaction(function () use ($company, $requestedDate, $sourceType): ?SicoesScrapeBatch {
                 $lockedCompany = BotCompany::query()
                     ->whereKey($company->getKey())
                     ->lockForUpdate()
@@ -294,6 +310,7 @@ class BotCompanies extends Component
                 $activeBatch = SicoesScrapeBatch::query()
                     ->where('bot_company_id', $lockedCompany->getKey())
                     ->where('requested_date', $requestedDate)
+                    ->where('source_type', $sourceType)
                     ->whereIn('status', SicoesScrapeBatch::ACTIVE_STATUSES)
                     ->lockForUpdate()
                     ->first();
@@ -306,6 +323,7 @@ class BotCompanies extends Component
                     'id' => (string) Str::uuid(),
                     'bot_company_id' => $lockedCompany->getKey(),
                     'requested_date' => $requestedDate,
+                    'source_type' => $sourceType,
                     'status' => SicoesScrapeBatch::STATUS_QUEUED,
                 ]);
             }, 3);
@@ -322,6 +340,7 @@ class BotCompanies extends Component
                 'run_id' => $runId,
                 'status' => SicoesScrapeBatch::STATUS_QUEUED,
                 'date' => $requestedDate,
+                'source_type' => $sourceType,
                 'total' => 0,
                 'processed' => 0,
                 'saved' => 0,
@@ -330,7 +349,7 @@ class BotCompanies extends Component
                 'last_step' => 'Job en cola',
                 'queued_at' => now()->toDateTimeString(),
             ];
-            if (! SicoesProgressCache::replace($requestedDate, $this->sicoesProgress)) {
+            if (! SicoesProgressCache::replace($requestedDate, $this->sicoesProgress, $sourceType)) {
                 throw new \RuntimeException('No se pudo inicializar el progreso SICOES.');
             }
 
@@ -339,6 +358,7 @@ class BotCompanies extends Component
                 (int) $company->getKey(),
                 (string) auth()->id(),
                 $runId,
+                $sourceType,
             )->afterCommit();
 
             $this->message = 'SICOES fue enviado a la cola. El scraper correra en background y mostrara resultados para revisar antes de publicar.';
@@ -398,6 +418,7 @@ class BotCompanies extends Component
 
                             return $this->sicoesProgress;
                         },
+                        $this->sicoesSourceType,
                     );
                 } catch (\Throwable $cacheException) {
                     Log::warning('SICOES no pudo actualizar la cache de un despacho fallido.', [
@@ -431,7 +452,31 @@ class BotCompanies extends Component
             return;
         }
 
+        if (! in_array($this->sicoesSourceType, SicoesScrapeBatch::SOURCE_TYPES, true)) {
+            $this->sicoesProgress = [];
+
+            return;
+        }
+
         $this->sicoesProgress = Cache::get($this->sicoesProgressKey($this->sicoesDate), []);
+    }
+
+    public function selectSicoesSource(string $sourceType): void
+    {
+        $this->guardSicoesSource();
+        abort_unless(in_array($sourceType, SicoesScrapeBatch::SOURCE_TYPES, true), 404);
+
+        $this->sicoesSourceType = $sourceType;
+        $this->reset(['message', 'errorMessage']);
+        $this->refreshSicoesProgress();
+    }
+
+    public function chooseAnotherSicoesSource(): void
+    {
+        $this->guardSicoesSource();
+        $this->sicoesSourceType = '';
+        $this->sicoesProgress = [];
+        $this->reset(['message', 'errorMessage']);
     }
 
     public function closeForm(): void
@@ -442,7 +487,7 @@ class BotCompanies extends Component
 
     public function render()
     {
-        $companies = $this->source->scraper_type === 'evaluar'
+        $companies = $this->isCompanyScraperSource()
             ? $this->paginateCompanyQuery()
             : new LengthAwarePaginator(collect(), 0, $this->perPage, $this->companiesPage);
 
@@ -527,7 +572,7 @@ class BotCompanies extends Component
             return;
         }
 
-        if ($this->source->scraper_type !== 'evaluar') {
+        if (! $this->isCompanyScraperSource()) {
             return;
         }
 
@@ -602,9 +647,14 @@ class BotCompanies extends Component
         return 'other';
     }
 
-    private function guardEvaluarSource(): void
+    private function guardCompanySource(): void
     {
-        abort_unless($this->source->scraper_type === 'evaluar', 404);
+        abort_unless($this->isCompanyScraperSource(), 404);
+    }
+
+    private function isCompanyScraperSource(): bool
+    {
+        return in_array($this->source->scraper_type, ['evaluar', 'etalent'], true);
     }
 
     private function guardSicoesSource(): void
@@ -614,7 +664,7 @@ class BotCompanies extends Component
 
     private function sicoesProgressKey(string $date): string
     {
-        return SicoesProgressCache::key($date);
+        return SicoesProgressCache::key($date, $this->sicoesSourceType ?: SicoesScrapeBatch::SOURCE_CONSULTING);
     }
 
     private function ensureSicoesCompany(): BotCompany
@@ -650,9 +700,9 @@ class BotCompanies extends Component
         return $company;
     }
 
-    private function normalizeEvaluarUrl(string $url): string
+    private function normalizeJobBoardUrl(string $url): string
     {
-        $url = trim(preg_replace('/\s+/', '', $url) ?: '');
+        $url = trim($url);
 
         if ($url !== '' && ! preg_match('#^https?://#i', $url)) {
             $url = 'https://'.$url;
@@ -668,31 +718,61 @@ class BotCompanies extends Component
         $host = strtolower($parts['host']);
         $path = preg_replace('#/+#', '/', $parts['path'] ?? '') ?: '';
         $path = $path !== '/' ? rtrim($path, '/') : '';
-        $query = isset($parts['query']) ? '?'.$parts['query'] : '';
+        $query = [];
+        parse_str((string) ($parts['query'] ?? ''), $query);
+        $queryString = $query === []
+            ? ''
+            : '?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986);
 
-        return "{$scheme}://{$host}{$path}{$query}";
+        return "{$scheme}://{$host}{$path}{$queryString}";
     }
 
-    private function isEvaluarUrl(string $url): bool
+    private function isAllowedJobBoardUrl(string $url): bool
     {
         $parts = parse_url($url);
         $scheme = strtolower($parts['scheme'] ?? '');
         $host = strtolower($parts['host'] ?? '');
 
-        if (! in_array($scheme, ['http', 'https'], true) || $host === '') {
+        if ($scheme !== 'https' || $host === '') {
             return false;
         }
 
-        return Str::endsWith($host, '.evaluar.com') || Str::endsWith($host, '.evaluarjobs.com');
+        if ($this->source->scraper_type === 'evaluar') {
+            return Str::endsWith($host, '.evaluar.com')
+                || Str::endsWith($host, '.evaluarjobs.com');
+        }
+
+        if ($this->source->scraper_type !== 'etalent' || $host !== 'e-talent.jobs') {
+            return false;
+        }
+
+        if (rtrim((string) ($parts['path'] ?? ''), '/') !== '/bolsa-de-trabajo') {
+            return false;
+        }
+
+        $query = [];
+        parse_str((string) ($parts['query'] ?? ''), $query);
+
+        return trim((string) ($query['search_keywords'] ?? '')) !== '';
     }
 
-    private function findCompanyByNormalizedEvaluarUrl(string $url): ?BotCompany
+    private function findCompanyByNormalizedJobBoardUrl(string $url): ?BotCompany
     {
-        $normalizedUrl = $this->normalizeEvaluarUrl($url);
+        $normalizedUrl = $this->normalizeJobBoardUrl($url);
 
         return BotCompany::query()
             ->get(['id', 'evaluar_url', 'active', 'bot_source_id'])
-            ->first(fn (BotCompany $company) => $this->normalizeEvaluarUrl($company->evaluar_url) === $normalizedUrl);
+            ->first(
+                fn (BotCompany $company) => $this->normalizeJobBoardUrl($company->evaluar_url)
+                    === $normalizedUrl,
+            );
+    }
+
+    private function jobBoardUrlValidationMessage(): string
+    {
+        return $this->source->scraper_type === 'etalent'
+            ? 'La URL debe usar https://e-talent.jobs/bolsa-de-trabajo/ e incluir search_keywords.'
+            : 'La URL debe ser un subdominio válido de evaluar.com o evaluarjobs.com.';
     }
 
     private function uniqueSlug(string $name, ?int $ignoreId = null): string

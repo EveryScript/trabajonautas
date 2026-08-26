@@ -9,7 +9,6 @@ use App\Models\Area;
 use App\Models\Company;
 use App\Models\Location;
 use App\Models\Profesion;
-use App\Services\ProfessionAssignmentService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -44,7 +43,7 @@ class FormAnnouncement extends Component
     {
         $this->announcement->user_id = auth()->user()->id;
         $announce_saved = $this->announcement->save();
-        if ($this->announcement->pro && !$this->announcement->notification_sent) {
+        if ($this->announcement->pro && ! $this->announcement->notification_sent) {
             if ($this->announcement->scheduled_at) {
                 // Scheduled notification
                 $delay = Carbon::parse($this->announcement->scheduled_at);
@@ -61,7 +60,7 @@ class FormAnnouncement extends Component
     {
         $this->announcement->update($this->id);
         $announce_updated = Announcement::find($this->id);
-        if ($this->announcement->pro && !$this->announcement->notification_sent) {
+        if ($this->announcement->pro && ! $this->announcement->notification_sent) {
             if ($this->announcement->scheduled_at) {
                 // Scheduled notification
                 $delay = Carbon::parse($this->announcement->scheduled_at);
@@ -91,11 +90,16 @@ class FormAnnouncement extends Component
             ->values();
     }
 
-    public function professionsForArea(int $areaId, ProfessionAssignmentService $service): array
+    public function professionsForArea(int $areaId): array
     {
         abort_unless(Area::query()->whereKey($areaId)->exists(), 404);
 
-        return $service->resolve([$areaId])['profession_ids'];
+        return Profesion::query()
+            ->whereHas('areas', fn ($query) => $query->where('areas.id', $areaId))
+            ->orderBy('profesion_name')
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
     }
 
     #[Computed]
@@ -115,19 +119,19 @@ class FormAnnouncement extends Component
     #[Computed]
     public function locations()
     {
-        return Cache::remember('locations', 86400, fn() => Location::all(['id', 'location_name']));
+        return Cache::remember('locations', 86400, fn () => Location::all(['id', 'location_name']));
     }
 
     #[Computed]
     public function areas()
     {
-        return Cache::remember('areas', 86400, fn() => Area::all(['id', 'area_name']));
+        return Cache::remember('areas', 86400, fn () => Area::all(['id', 'area_name']));
     }
 
     #[Computed]
     public function companies()
     {
-        return Cache::remember('companies', 86400, fn() => Company::all(['id', 'company_name']));
+        return Cache::remember('companies', 86400, fn () => Company::all(['id', 'company_name']));
     }
 
     public function render()

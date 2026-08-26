@@ -74,6 +74,8 @@ class BotCompanySeeder extends Seeder
                 ],
             );
         }
+
+        $this->call(ETalentCompanySeeder::class);
     }
 
     private function findLogoFor(string $name): ?string

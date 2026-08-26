@@ -4,6 +4,7 @@ namespace App\Services\Bot;
 
 use App\Models\Area;
 use App\Models\BotCompany;
+use App\Models\Profesion;
 use App\Support\SensitiveDataSanitizer;
 use App\Support\TlsVerification;
 use Illuminate\Support\Facades\Http;
@@ -33,7 +34,7 @@ class GeminiVacancyAnalyzer
             );
         }
 
-        if (!empty($options['skip_due_to_quota'])) {
+        if (! empty($options['skip_due_to_quota'])) {
             return $this->metaError(
                 errorType: 'quota_exceeded_skipped',
                 error: 'Gemini quota excedida en este batch; se usó fallback.',
@@ -46,7 +47,7 @@ class GeminiVacancyAnalyzer
             );
         }
 
-        if (!$key) {
+        if (! $key) {
             return $this->metaError(
                 errorType: 'missing_api_key',
                 error: 'GEMINI_API_KEY no configurada',
@@ -70,11 +71,13 @@ class GeminiVacancyAnalyzer
 
                     if (in_array($status, [500, 502, 503, 504], true) && $attempts < 3) {
                         usleep(1_000_000);
+
                         continue;
                     }
 
                     if ($status === 429 && $attempts < 2) {
                         usleep(2_000_000);
+
                         continue;
                     }
 
@@ -85,6 +88,7 @@ class GeminiVacancyAnalyzer
 
                     if ($type === 'timeout' && $attempts < 3) {
                         usleep(1_000_000);
+
                         continue;
                     }
 
@@ -92,14 +96,14 @@ class GeminiVacancyAnalyzer
                 }
             }
 
-            if (!$response && $lastThrowable) {
+            if (! $response && $lastThrowable) {
                 throw $lastThrowable;
             }
 
             $responseJson = $response->json();
             $usageMetadata = $this->usageMetadata($responseJson);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 $status = $response->status();
 
                 return $this->metaError(
@@ -118,7 +122,7 @@ class GeminiVacancyAnalyzer
             }
 
             $text = data_get($responseJson, 'candidates.0.content.parts.0.text');
-            if (!$text) {
+            if (! $text) {
                 return $this->metaError(
                     errorType: 'invalid_json',
                     error: 'Gemini devolvió una respuesta vacía.',
@@ -127,6 +131,7 @@ class GeminiVacancyAnalyzer
                     httpStatus: $response->status(),
                     extra: [
                         'gemini_attempts' => $attempts,
+                        'gemini_finish_reason' => data_get($responseJson, 'candidates.0.finishReason'),
                         ...$usageMetadata,
                         ...$preparedDescription['meta'],
                     ],
@@ -134,7 +139,7 @@ class GeminiVacancyAnalyzer
             }
 
             $decoded = $this->extractJson($text);
-            if (!is_array($decoded)) {
+            if (! is_array($decoded)) {
                 return $this->metaError(
                     errorType: 'invalid_json',
                     error: 'Gemini respondió, pero el JSON no se pudo interpretar.',
@@ -143,6 +148,28 @@ class GeminiVacancyAnalyzer
                     httpStatus: $response->status(),
                     extra: [
                         'gemini_attempts' => $attempts,
+                        'gemini_finish_reason' => data_get($responseJson, 'candidates.0.finishReason'),
+                        'gemini_json_error' => SensitiveDataSanitizer::text(json_last_error_msg(), 120),
+                        'gemini_response_metadata' => SensitiveDataSanitizer::payloadMetadata($text),
+                        ...$usageMetadata,
+                        ...$preparedDescription['meta'],
+                    ],
+                );
+            }
+
+            $validationErrors = $this->validateAnalysisContract($decoded);
+
+            if ($validationErrors !== []) {
+                return $this->metaError(
+                    errorType: 'invalid_schema',
+                    error: 'Gemini devolvió un JSON que no cumple el contrato de clasificación.',
+                    used: true,
+                    model: $model,
+                    httpStatus: $response->status(),
+                    extra: [
+                        'gemini_attempts' => $attempts,
+                        'gemini_finish_reason' => data_get($responseJson, 'candidates.0.finishReason'),
+                        'gemini_validation_errors' => $validationErrors,
                         'gemini_response_metadata' => SensitiveDataSanitizer::payloadMetadata($text),
                         ...$usageMetadata,
                         ...$preparedDescription['meta'],
@@ -160,7 +187,9 @@ class GeminiVacancyAnalyzer
                 'http_status' => $response->status(),
                 'gemini_response_metadata' => SensitiveDataSanitizer::payloadMetadata($text),
                 'gemini_attempts' => $attempts,
+                'gemini_finish_reason' => data_get($responseJson, 'candidates.0.finishReason'),
                 'analyzed_at' => now()->toIso8601String(),
+                'prompt_version' => (string) config('profession_matching.prompt_version'),
                 ...$usageMetadata,
                 ...$preparedDescription['meta'],
             ];
@@ -188,6 +217,18 @@ class GeminiVacancyAnalyzer
             (bool) config('services.gemini.verify_ssl', true),
             config('services.gemini.ca_bundle'),
         );
+        $generationConfig = [
+            'temperature' => 0,
+            'responseMimeType' => 'application/json',
+            'responseSchema' => $this->responseSchema(),
+            'maxOutputTokens' => (int) config('services.gemini.max_output_tokens', 1024),
+        ];
+
+        if (Str::startsWith($model, 'gemini-2.5-flash')) {
+            $generationConfig['thinkingConfig'] = [
+                'thinkingBudget' => 0,
+            ];
+        }
 
         return Http::connectTimeout((int) config('services.gemini.connect_timeout', 10))
             ->timeout((int) config('services.gemini.timeout', 60))
@@ -207,11 +248,99 @@ class GeminiVacancyAnalyzer
                         ],
                     ],
                 ],
-                'generationConfig' => [
-                    'temperature' => 0.2,
-                    'responseMimeType' => 'application/json',
-                ],
+                'generationConfig' => $generationConfig,
             ]);
+    }
+
+    private function responseSchema(): array
+    {
+        $catalogNames = Profesion::query()
+            ->whereHas('areas')
+            ->orderBy('profesion_name')
+            ->pluck('profesion_name')
+            ->values()
+            ->all();
+        $areaNames = Area::query()
+            ->whereHas('profesions')
+            ->orderBy('area_name')
+            ->pluck('area_name')
+            ->values()
+            ->all();
+
+        return [
+            'type' => 'object',
+            'properties' => [
+                'profesiones_encontradas' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'nombre_original' => ['type' => 'string'],
+                            'nombre_catalogo' => [
+                                'type' => 'string',
+                                'enum' => $catalogNames,
+                            ],
+                            'evidencia' => ['type' => 'string'],
+                            'tipo_requisito' => [
+                                'type' => 'string',
+                                'enum' => ['obligatoria', 'alternativa', 'deseable'],
+                            ],
+                            'confianza' => ['type' => 'number'],
+                        ],
+                        'required' => [
+                            'nombre_original',
+                            'nombre_catalogo',
+                            'evidencia',
+                            'tipo_requisito',
+                            'confianza',
+                        ],
+                        'propertyOrdering' => [
+                            'nombre_original',
+                            'nombre_catalogo',
+                            'evidencia',
+                            'tipo_requisito',
+                            'confianza',
+                        ],
+                    ],
+                ],
+                'acepta_carreras_afines' => ['type' => 'boolean'],
+                'evidencia_carreras_afines' => ['type' => 'string'],
+                'area_principal_catalogo' => [
+                    'type' => 'string',
+                    'enum' => ['SIN_AREA', ...$areaNames],
+                ],
+                'evidencia_area_principal' => ['type' => 'string'],
+                'confianza_area_principal' => ['type' => 'number'],
+                'ubicacion_departamento' => ['type' => 'string'],
+                'ubicacion' => ['type' => 'string'],
+                'sueldo' => ['type' => 'string'],
+                'fecha_expiracion' => ['type' => 'string'],
+            ],
+            'required' => [
+                'profesiones_encontradas',
+                'acepta_carreras_afines',
+                'evidencia_carreras_afines',
+                'area_principal_catalogo',
+                'evidencia_area_principal',
+                'confianza_area_principal',
+                'ubicacion_departamento',
+                'ubicacion',
+                'sueldo',
+                'fecha_expiracion',
+            ],
+            'propertyOrdering' => [
+                'profesiones_encontradas',
+                'acepta_carreras_afines',
+                'evidencia_carreras_afines',
+                'area_principal_catalogo',
+                'evidencia_area_principal',
+                'confianza_area_principal',
+                'ubicacion_departamento',
+                'ubicacion',
+                'sueldo',
+                'fecha_expiracion',
+            ],
+        ];
     }
 
     private function sslDiagnostics(\Throwable $exception, string $type): array
@@ -243,6 +372,12 @@ class GeminiVacancyAnalyzer
             'area_ids' => [],
             'areas' => [],
             'area_principal' => 'No especificado',
+            'profesiones_encontradas' => [],
+            'acepta_carreras_afines' => false,
+            'evidencia_carreras_afines' => '',
+            'area_principal_catalogo' => '',
+            'evidencia_area_principal' => '',
+            'confianza_area_principal' => 0.0,
             'profesiones_sugeridas' => [],
             'area' => 'No especificado',
             'professions' => 'No especificado',
@@ -273,6 +408,7 @@ class GeminiVacancyAnalyzer
             'error' => SensitiveDataSanitizer::text($error, 300),
             'error_type' => $errorType,
             'http_status' => $httpStatus,
+            'prompt_version' => (string) config('profession_matching.prompt_version'),
             ...$extra,
         ];
     }
@@ -299,7 +435,7 @@ class GeminiVacancyAnalyzer
     {
         $usage = data_get($response, 'usageMetadata');
 
-        if (!is_array($usage)) {
+        if (! is_array($usage)) {
             return [
                 'usage_metadata' => null,
                 'prompt_tokens' => null,
@@ -360,22 +496,39 @@ class GeminiVacancyAnalyzer
 
     private function prompt(string $title, string $company, string $description): string
     {
-        $allowedAreas = Area::query()
-            ->orderBy('id')
-            ->get(['id', 'area_name'])
-            ->map(fn(Area $area): string => json_encode([
-                'id' => (int) $area->id,
-                'nombre' => $area->area_name,
-            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))
+        $professionCatalog = Profesion::query()
+            ->with('areas:id,area_name')
+            ->orderBy('profesion_name')
+            ->get(['id', 'profesion_name'])
+            ->map(fn (Profesion $profession): string => sprintf(
+                '- %s%s',
+                $profession->profesion_name,
+                $profession->areas->isEmpty()
+                    ? ''
+                    : ' (áreas de referencia: '.$profession->areas->pluck('area_name')->implode(', ').')',
+            ))
             ->implode("\n");
 
         return <<<PROMPT
-Analiza esta convocatoria laboral.
+Analiza la convocatoria laboral proporcionada.
 
 Devuelve exclusivamente JSON valido con esta estructura:
 
 {
-  "area_ids": [],
+  "profesiones_encontradas": [
+    {
+      "nombre_original": "Trabajo Social",
+      "nombre_catalogo": "Trabajo Social",
+      "evidencia": "Se requiere Licenciatura en Trabajo Social",
+      "tipo_requisito": "obligatoria",
+      "confianza": 0.98
+    }
+  ],
+  "acepta_carreras_afines": false,
+  "evidencia_carreras_afines": "",
+  "area_principal_catalogo": "Área ECONÓMICA, ADMINISTRATIVA Y FINANCIERA",
+  "evidencia_area_principal": "Funciones de análisis financiero y económico",
+  "confianza_area_principal": 0.95,
   "ubicacion_departamento": "",
   "ubicacion": "",
   "sueldo": "",
@@ -386,20 +539,42 @@ Reglas:
 - No uses markdown.
 - No expliques.
 - No devuelvas texto adicional.
-- area_ids debe ser un array con uno o mas IDs exactos del catalogo de areas.
-- No devuelvas nombres de areas ni profesiones.
-- No inventes IDs.
-- Si no identificas ninguna area valida con seguridad, devuelve area_ids vacio.
-- No inventes areas.
-- ubicacion_departamento debe ser el departamento si se puede detectar.
-- Ubicacion debe ser ciudad, municipio, sucursal o lugar de trabajo.
+- Extrae únicamente profesiones o carreras exigidas como formación académica base.
+- nombre_catalogo debe ser exactamente uno de los nombres del catálogo interno incluido abajo. Nunca escribas un nombre fuera del catálogo.
+- nombre_original conserva la expresión encontrada en la convocatoria, aunque sea plural, abreviada o genérica.
+- Puedes asociar una expresión a un nombre oficial sólo cuando el significado sea inequívoco dentro del catálogo.
+- Si una expresión genérica no permite elegir una profesión concreta, por ejemplo "ingeniería" sin especialidad, no la incluyas.
+- No incluyas cursos, conocimientos, experiencia ni temas de postgrado como profesiones. Ejemplos que deben omitirse cuando aparecen sólo como especialización o conocimiento: "postgrado en riesgos", "data science", "econometría" y "análisis económico-financiero".
+- No inventes profesiones ni agregues profesiones relacionadas que no estén sustentadas por el texto.
+- Conserva en nombre_original el nombre tal como aparece en la convocatoria.
+- Incluye en evidencia el fragmento textual mínimo que demuestra la mención.
+- tipo_requisito debe ser obligatoria, alternativa o deseable.
+- confianza debe ser un número entre 0 y 1.
+- Si aparece "carreras afines" o una expresión equivalente, marca acepta_carreras_afines como true.
+- Si acepta_carreras_afines es true, copia en evidencia_carreras_afines el fragmento que contiene "afines", "ramas afines" o su equivalente. En caso contrario devuelve una cadena vacía.
+- No incluyas expresiones como "ramas afines" dentro de profesiones_encontradas. Laravel expandirá posteriormente las áreas asociadas a cada profesión explícita, aplicando las excepciones configuradas en el catálogo.
+- Si el texto enumera grupos explícitos de formación, por ejemplo "carreras administrativas, económicas, financieras o contables", asocia cada grupo inequívoco con su nombre oficial del catálogo.
+- area_principal_catalogo debe ser exactamente un área del catálogo. Elígela considerando primero el cargo y sus funciones, y después las carreras admitidas.
+- Cuando haya carreras o ramas afines, area_principal_catalogo sigue representando el área que mejor describe el cargo, pero no limita qué áreas asociadas a las profesiones explícitas serán expandidas por Laravel.
+- Si la convocatoria menciona carreras de varias áreas, selecciona el área que mejor representa el trabajo; no elijas simplemente la que tenga más nombres.
+- evidencia_area_principal debe ser un fragmento breve del cargo o de sus funciones que justifique el área. confianza_area_principal debe estar entre 0 y 1.
+- Sólo si realmente no existe información suficiente para elegir un área, devuelve area_principal_catalogo como "SIN_AREA", evidencia_area_principal como cadena vacía y confianza_area_principal como 0.
+- No asignes IDs de profesión.
+- No asignes IDs de área.
+- Si no se menciona ninguna formación, devuelve profesiones_encontradas como [].
+- No repitas una misma profesión. Si aparece varias veces, conserva una sola entrada y usa la evidencia más explícita.
+- Extrae ubicacion_departamento y ubicacion solo si aparecen explicitamente en el titulo o descripcion. No las infieras por la empresa, el dominio o conocimiento externo.
+- ubicacion_departamento debe ser el departamento si se puede detectar explicitamente.
+- Ubicacion debe ser ciudad, municipio, sucursal o lugar de trabajo si aparece explicitamente.
 - Si no hay sueldo, devolver exactamente: 0.
 - Si hay sueldo, devuelve el monto detectado.
 - Si no hay fecha de expiracion, devolver exactamente: No especificado.
 - Para fecha de expiracion busca especialmente: postular hasta, fecha limite, fecha límite, recepción de postulaciones, recepcion de postulaciones, fecha de cierre, cierre, hasta el, fecha de vencimiento, vencimiento.
 
-Catalogo de areas permitido (un objeto JSON por linea):
-{$allowedAreas}
+Catálogo interno permitido. nombre_catalogo debe copiar literalmente uno de estos nombres. No devuelvas IDs:
+{$professionCatalog}
+
+Los nombres de área permitidos son los textos que aparecen entre paréntesis como "áreas de referencia". area_principal_catalogo debe copiar literalmente uno de ellos.
 
 Datos:
 Titulo: {$title}
@@ -434,28 +609,41 @@ PROMPT;
 
     private function normalizeAnalysis(array $decoded, string $title, string $description): array
     {
-        $areaIds = $this->normalizeAreaIds($decoded['area_ids'] ?? []);
-        $areas = Area::query()
-            ->whereIn('id', $areaIds)
-            ->orderBy('id')
-            ->get(['id', 'area_name']);
-        $validAreas = $areas->pluck('area_name')->values()->all();
+        $professions = collect($decoded['profesiones_encontradas'])
+            ->map(fn (array $profession): array => [
+                'nombre_original' => $this->cleanText($profession['nombre_original']),
+                'nombre_catalogo' => $this->cleanText($profession['nombre_catalogo']),
+                'evidencia' => $this->cleanText($profession['evidencia']),
+                'tipo_requisito' => $profession['tipo_requisito'],
+                'confianza' => round((float) $profession['confianza'], 4),
+            ])
+            ->unique(fn (array $profession): string => $this->normalize($profession['nombre_original']))
+            ->values()
+            ->all();
         $location = $this->cleanText((string) ($decoded['ubicacion'] ?? $decoded['location'] ?? ''));
         $municipality = $this->detectMunicipality($location, $title, $description);
         $department = $this->cleanText((string) ($decoded['ubicacion_departamento'] ?? $decoded['department'] ?? ''));
         $department = $department ?: ($municipality['department'] ?? $this->detectDepartment($location, $title, $description));
 
-        if (!$location && $municipality) {
+        if (! $location && $municipality) {
             $location = $municipality['municipality'];
         }
 
         return [
-            'area_ids' => $areaIds,
-            'areas' => $validAreas,
-            'area_principal' => $validAreas[0] ?? 'No especificado',
-            'profesiones_sugeridas' => [],
-            'area' => $validAreas ? implode(', ', $validAreas) : 'No especificado',
-            'professions' => 'No especificado',
+            'area_ids' => [],
+            'areas' => [],
+            'area_principal' => 'No especificado',
+            'profesiones_encontradas' => $professions,
+            'acepta_carreras_afines' => (bool) $decoded['acepta_carreras_afines'],
+            'evidencia_carreras_afines' => $this->cleanText($decoded['evidencia_carreras_afines']),
+            'area_principal_catalogo' => $decoded['area_principal_catalogo'] === 'SIN_AREA'
+                ? ''
+                : $this->cleanText($decoded['area_principal_catalogo']),
+            'evidencia_area_principal' => $this->cleanText($decoded['evidencia_area_principal']),
+            'confianza_area_principal' => round((float) $decoded['confianza_area_principal'], 4),
+            'profesiones_sugeridas' => collect($professions)->pluck('nombre_original')->all(),
+            'area' => 'No especificado',
+            'professions' => collect($professions)->pluck('nombre_original')->implode(', ') ?: 'No especificado',
             'department' => $department,
             'location' => $location ?: 'No especificado',
             'salary' => $this->normalizeSalaryValue($decoded['sueldo'] ?? $decoded['salary'] ?? null),
@@ -464,22 +652,105 @@ PROMPT;
         ];
     }
 
-    private function normalizeAreaIds(mixed $areaIds): array
+    private function validateAnalysisContract(array $decoded): array
     {
-        if (!is_array($areaIds)) {
-            return [];
+        $errors = [];
+
+        if (! array_key_exists('profesiones_encontradas', $decoded) || ! is_array($decoded['profesiones_encontradas'])) {
+            $errors[] = 'profesiones_encontradas debe ser un arreglo.';
+        } else {
+            $catalogNames = Profesion::query()
+                ->whereHas('areas')
+                ->pluck('profesion_name')
+                ->all();
+
+            foreach ($decoded['profesiones_encontradas'] as $index => $profession) {
+                $prefix = "profesiones_encontradas.{$index}";
+
+                if (! is_array($profession)) {
+                    $errors[] = "{$prefix} debe ser un objeto.";
+
+                    continue;
+                }
+
+                foreach (['nombre_original', 'nombre_catalogo', 'evidencia'] as $field) {
+                    if (! is_string($profession[$field] ?? null) || trim($profession[$field]) === '') {
+                        $errors[] = "{$prefix}.{$field} es obligatorio.";
+                    }
+                }
+
+                if (
+                    is_string($profession['nombre_catalogo'] ?? null)
+                    && ! in_array($profession['nombre_catalogo'], $catalogNames, true)
+                ) {
+                    $errors[] = "{$prefix}.nombre_catalogo no pertenece al catálogo autorizado.";
+                }
+
+                if (! in_array($profession['tipo_requisito'] ?? null, ['obligatoria', 'alternativa', 'deseable'], true)) {
+                    $errors[] = "{$prefix}.tipo_requisito no es válido.";
+                }
+
+                if (
+                    ! is_numeric($profession['confianza'] ?? null)
+                    || (float) $profession['confianza'] < 0
+                    || (float) $profession['confianza'] > 1
+                ) {
+                    $errors[] = "{$prefix}.confianza debe estar entre 0 y 1.";
+                }
+
+            }
         }
 
-        $ids = collect($areaIds)
-            ->filter(fn(mixed $id): bool => is_int($id) || (is_string($id) && ctype_digit(trim($id))))
-            ->map(fn(mixed $id): int => (int) $id)
-            ->filter(fn(int $id): bool => $id > 0)
-            ->unique()
-            ->sort()
-            ->values()
-            ->all();
+        if (! array_key_exists('acepta_carreras_afines', $decoded) || ! is_bool($decoded['acepta_carreras_afines'])) {
+            $errors[] = 'acepta_carreras_afines debe ser booleano.';
+        }
 
-        return $ids;
+        if (! array_key_exists('evidencia_carreras_afines', $decoded) || ! is_string($decoded['evidencia_carreras_afines'])) {
+            $errors[] = 'evidencia_carreras_afines debe ser texto.';
+        } elseif (
+            ($decoded['acepta_carreras_afines'] ?? false) === true
+            && trim($decoded['evidencia_carreras_afines']) === ''
+        ) {
+            $errors[] = 'evidencia_carreras_afines es obligatoria cuando acepta_carreras_afines es true.';
+        }
+
+        $areaNames = Area::query()
+            ->whereHas('profesions')
+            ->pluck('area_name')
+            ->all();
+        if (! array_key_exists('area_principal_catalogo', $decoded) || ! is_string($decoded['area_principal_catalogo'])) {
+            $errors[] = 'area_principal_catalogo debe ser texto.';
+        } elseif (
+            ! in_array($decoded['area_principal_catalogo'], ['', 'SIN_AREA'], true)
+            && ! in_array($decoded['area_principal_catalogo'], $areaNames, true)
+        ) {
+            $errors[] = 'area_principal_catalogo no pertenece al catálogo autorizado.';
+        }
+
+        if (! array_key_exists('evidencia_area_principal', $decoded) || ! is_string($decoded['evidencia_area_principal'])) {
+            $errors[] = 'evidencia_area_principal debe ser texto.';
+        } elseif (
+            ! in_array(($decoded['area_principal_catalogo'] ?? ''), ['', 'SIN_AREA'], true)
+            && trim($decoded['evidencia_area_principal']) === ''
+        ) {
+            $errors[] = 'evidencia_area_principal es obligatoria cuando se selecciona un área.';
+        }
+
+        if (
+            ! is_numeric($decoded['confianza_area_principal'] ?? null)
+            || (float) $decoded['confianza_area_principal'] < 0
+            || (float) $decoded['confianza_area_principal'] > 1
+        ) {
+            $errors[] = 'confianza_area_principal debe estar entre 0 y 1.';
+        }
+
+        foreach (['ubicacion_departamento', 'ubicacion', 'sueldo', 'fecha_expiracion'] as $field) {
+            if (! array_key_exists($field, $decoded) || ! is_string($decoded[$field])) {
+                $errors[] = "{$field} debe ser texto.";
+            }
+        }
+
+        return array_values(array_unique($errors));
     }
 
     private function detectMunicipality(string ...$texts): ?array
@@ -493,7 +764,7 @@ PROMPT;
         foreach (config('bolivia_municipalities', []) as $municipality => $department) {
             $needle = $this->normalize((string) $municipality);
 
-            if ($needle !== '' && preg_match('/\b' . preg_quote($needle, '/') . '\b/', $haystack)) {
+            if ($needle !== '' && preg_match('/\b'.preg_quote($needle, '/').'\b/', $haystack)) {
                 return [
                     'municipality' => Str::headline($needle),
                     'department' => (string) $department,
@@ -522,7 +793,7 @@ PROMPT;
         ];
 
         foreach ($departments as $needle => $label) {
-            if (preg_match('/\b' . preg_quote($needle, '/') . '\b/', $combined)) {
+            if (preg_match('/\b'.preg_quote($needle, '/').'\b/', $combined)) {
                 return $label;
             }
         }
@@ -554,7 +825,7 @@ PROMPT;
 
         $salary = $this->cleanText((string) $salary);
 
-        if (!$salary || in_array($this->normalize($salary), ['0', 'no especificado', 'sueldo no declarado por la institucion'], true)) {
+        if (! $salary || in_array($this->normalize($salary), ['0', 'no especificado', 'sueldo no declarado por la institucion'], true)) {
             return 0;
         }
 
@@ -589,6 +860,6 @@ PROMPT;
         $message = data_get(json_decode($body, true), 'error.message');
         $message = $message ? SensitiveDataSanitizer::text(strip_tags((string) $message), 220) : null;
 
-        return trim("HTTP {$status}" . ($message ? ": {$message}" : ''));
+        return trim("HTTP {$status}".($message ? ": {$message}" : ''));
     }
 }
