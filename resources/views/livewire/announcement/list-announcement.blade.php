@@ -27,7 +27,7 @@
                         </optgroup>
                     </select>
                 </div>
-                <x-button type="button" class="h-[3.2rem]" href="{{ route('new-announcement') }}"
+                <x-button type="button" class="h-[3.1rem]" href="{{ route('new-announcement') }}"
                     wire:navigate>Nuevo</x-button>
             </div>
         </x-slot>
