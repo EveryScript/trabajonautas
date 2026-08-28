@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\GradeProfile;
+use App\Models\Location;
+use App\Models\Profesion;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,9 +27,9 @@ class UserFactory extends Factory
             'gender' => $this->faker->randomElement(['M', 'F']),
             'age' => $this->faker->numberBetween(1, 3),
             'register_completed' => true,
-            'location_id' => $this->faker->numberBetween(1, 9),
-            'profesion_id' => $this->faker->numberBetween(1, 149),
-            'grade_profile_id' => $this->faker->numberBetween(1, 5),
+            'location_id' => Location::inRandomOrder()->first()?->id ?? Location::factory(),
+            'profesion_id' => Profesion::inRandomOrder()->first()?->id ?? Profesion::factory(),
+            'grade_profile_id' => GradeProfile::inRandomOrder()->first()?->id ?? GradeProfile::factory(),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'remember_token' => Str::random(10),

@@ -77,6 +77,19 @@
                     habilitarán tu cuenta.
                 </p>
             @endif
+            <!-- Cancel payment-->
+            <div class="mt-6">
+                <button wire:click="repent" wire:loading.attr="disabled"
+                    wire:confirm="¿Estás seguro? Tu QR será eliminado permanentemente."
+                    class="w-full px-4 py-3 text-sm font-medium text-red-600 transition-colors duration-200 bg-red-600 border border-red-600 rounded-xl dark:text-white dark:border-tbn-primary hover:border-tbn-primary hover:text-tbn-primary dark:hover:border-tbn-light dark:hover:text-tbn-light">
+                    <span wire:loading.remove wire:target="repent" class="uppercase">
+                        Cancelar compra
+                    </span>
+                    <span wire:loading wire:target="repent" class="flex items-center justify-center gap-2 uppercase">
+                        <i class="mr-1 text-sm fas fa-spinner animate-spin"></i> Cancelando QR...
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 </section>

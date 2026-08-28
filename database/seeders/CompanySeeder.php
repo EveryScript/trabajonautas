@@ -425,7 +425,7 @@ class CompanySeeder extends Seeder
                 'id' => $company[0],
                 'company_name' => $company[1],
                 'description' => $company[2],
-                'company_image' => $company[3],
+                'company_image' => 'empresas/tbn-new-default.webp',
                 'user_id' => $this->admin_id,
                 'company_type_id' => $company[5],
                 'created_at' => now(),
