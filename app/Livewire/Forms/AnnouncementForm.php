@@ -21,6 +21,34 @@ class AnnouncementForm extends Form
     public $profesions;
     public $current_files;
 
+    protected function rules()
+    {
+        return [
+            'announce_title' => 'required|min:10|max:1200',
+            'description' => 'required',
+            'expiration_time' => 'required|date|after:now',
+            'salary' => 'required|numeric|min:0',
+            'pro' => 'boolean',
+            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
+            'announce_files.*' => [
+                'file',
+                'mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv',
+                'max:30000',
+                function ($attribute, $value, $fail) {
+                    $originalName = $value->getClientOriginalName();
+                    $length = mb_strlen($originalName);
+                    if ($length > 200) {
+                        $fail("El nombre del archivo \"{$originalName}\" es demasiado largo ({$length} caracteres). Por favor, renómbralo para que no supere los 200 caracteres y vuelve a intentarlo.");
+                    }
+                }
+            ],
+            'company_id' => 'required',
+            'user_id' => 'required',
+            'locations' => 'required',
+            'profesions' => 'required'
+        ];
+    }
+
     public function edit($id)
     {
         $announcement_edit = Announcement::find($id);
@@ -39,19 +67,8 @@ class AnnouncementForm extends Form
 
     public function update($update_id)
     {
-        $this->validate([
-            'announce_title' => 'required|min:10|max:1200',
-            'description' => 'required',
-            'expiration_time' => 'required|date|after:now',
-            'salary' => 'required|numeric|min:0',
-            'pro' => 'boolean',
-            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
-            'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
-            'company_id' => 'required',
-            'user_id' => 'required',
-            'locations' => 'required',
-            'profesions' => 'required'
-        ]);
+        $this->validate($this->rules());
+
         $announcement = Announcement::find($update_id);
         $announcement->update([
             'announce_title' => $this->announce_title,
@@ -65,6 +82,7 @@ class AnnouncementForm extends Form
         ]);
         $announcement->locations()->sync($this->locations);
         $announcement->profesions()->sync($this->profesions);
+
         // Delete current files and update
         if ($this->announce_files) {
             $announce_files_data = [];
@@ -84,19 +102,8 @@ class AnnouncementForm extends Form
     public function save()
     {
         $this->salary = str_replace('.', '', $this->salary);
-        $this->validate([
-            'announce_title' => 'required|min:10|max:1200',
-            'description' => 'required',
-            'expiration_time' => 'required|date|after:now',
-            'salary' => 'required|numeric|min:0',
-            'pro' => 'boolean',
-            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
-            'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
-            'company_id' => 'required',
-            'user_id' => 'required',
-            'locations' => 'required',
-            'profesions' => 'required'
-        ]);
+        $this->validate($this->rules());
+
         $announcement = Announcement::create($this->only(
             'announce_title',
             'description',
@@ -114,7 +121,11 @@ class AnnouncementForm extends Form
         if ($this->announce_files) {
             foreach ($this->announce_files as $index => $file) {
                 $original_name = $file->getClientOriginalName();
-                $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index . '-' . $file->hashName());
+                $file_url = $file->storeAs(
+                    path: 'convocatorias',
+                    options: 'public',
+                    name: $index . '-' . $file->hashName()
+                );
                 $announce_files_data[] = [
                     'announcement_id' => $announcement->id,
                     'url' => $file_url,

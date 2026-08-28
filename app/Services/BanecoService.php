@@ -129,4 +129,27 @@ class BanecoService
 
         return $client;
     }
+
+    // Cancel QR to not pay (only use for singleUse = true (unique))
+    public function cancelQR(string $qrId): void
+    {
+        $token = $this->authenticate();
+
+        $response = $this->httpClient()
+            ->withToken($token)
+            ->asJson()
+            ->delete("{$this->baseUrl}/api/qrsimple/cancelQR", [
+                'qrId' => $qrId,
+            ]);
+
+        $data = $response->json();
+
+        if ($response->failed() || ($data['responseCode'] ?? 1) !== 0) {
+            Log::error('Baneco cancelQR failed', [
+                'qrId'     => $qrId,
+                'response' => $data,
+            ]);
+            throw new \Exception('Error al cancelar QR: ' . ($data['message'] ?? 'desconocido'));
+        }
+    }
 }
