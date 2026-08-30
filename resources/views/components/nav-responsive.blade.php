@@ -16,9 +16,8 @@
             <div class="relative flex items-center space-x-3 md:order-2 md:space-x-0 rtl:space-x-reverse">
                 @auth
                     <!-- Dropdown button -->
-                    <x-button x-on:click="open = !open" type="button"
-                        id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
-                        data-dropdown-placement="bottom">
+                    <x-button x-on:click="open = !open" type="button" id="user-menu-button" aria-expanded="false"
+                        data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                         Mi Panel
                     </x-button>
 
@@ -43,6 +42,13 @@
                                     <a href="{{ route('profile.show') }}" wire:navigate
                                         class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
                                         Configuración</a>
+                                </li>
+                            @endrole
+                            @role(config('app.admin_role'))
+                                <li>
+                                    <a href="{{ route('export-announces') }}" wire:navigate
+                                        class="block px-4 py-2 text-sm text-tbn-secondary dark:text-tbn-light hover:bg-tbn-light dark:hover:bg-neutral-900">
+                                        Exportar</a>
                                 </li>
                             @endrole
                             <li>

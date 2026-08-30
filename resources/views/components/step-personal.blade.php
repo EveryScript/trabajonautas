@@ -16,7 +16,7 @@
             </label>
         </li>
     </ul>
-    <h5 class="mb-2 font-bold dark:text-white text-md">¿Cuál es tu edad?</h5>
+    <h5 class="mb-2 font-bold dark:text-white text-md">Rango de edad</h5>
     <ul class="grid grid-cols-2 gap-1 mx-auto mb-8 md:grid-cols-3">
         <li class="text-center">
             <input type="radio" x-model='age' value="1" id="age-1" name="age" class="hidden peer">

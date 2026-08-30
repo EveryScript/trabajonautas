@@ -10,6 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         DB::table('tbn_settings')->insert([
+            'id' => 5,
             'key' => 'tbn_coins',
             'value' => '7',
             'created_at' => now(),

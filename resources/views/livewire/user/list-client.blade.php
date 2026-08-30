@@ -1,35 +1,45 @@
 <section>
     <div x-data="content">
-        <x-title-app>
+        <x-title-app class="mb-2">
             <x-slot name="title_page">Clientes</x-slot>
             <x-slot name="description_page">
                 Administra la información de todos los clientes de Trabajonautas
             </x-slot>
-            <x-slot name="search_field" class="relative">
-                <div class="flex flex-col justify-end flex-1 h-full gap-1 sm:flex-row sm:h-10">
-                    <x-input id="search" type="search" wire:keydown.enter="$set('search', $event.target.value)"
-                        class="w-full" placeholder="Nombre, email, celular" />
-                    <x-select wire:model.live='filter_client' class="pr-10 w-full sm:max-w-[12rem]">
-                        <option value="">Todos los clientes</option>
-                        <option value="pending">Clientes pendientes</option>
-                        <optgroup label="Por tipo de cuenta">
-                            <option value="1">Clientes FREE</option>
-                            <option value="2">Clientes PRO</option>
-                            <option value="3">Clientes PRO-MAX</option>
-                        </optgroup>
-                        <optgroup label="Por estado">
-                            <option value="active">Solo Activos</option>
-                            <option value="inactive">Solo Inactivos</option>
-                        </optgroup>
-                        <optgroup label="Otros">
-                            <option value="unaccount">Sin cuenta</option>
-                            <option value="deleted">Eliminados</option>
-                        </optgroup>
-                    </x-select>
-                </div>
-            </x-slot>
         </x-title-app>
-        <div class="flex flex-col gap-4 lg:flex-row">
+        <div class="flex flex-col gap-1 mb-2 -mt-6 sm:flex-row sm:h-10">
+            <x-input id="search" type="search" wire:keydown.enter="$set('search', $event.target.value)"
+                class="w-full md:w-3/12" placeholder="Nombre, email, celular" />
+            <x-select wire:model.live="profesion_id" class="w-full md:w-5/12">
+                @foreach ($profesions as $profesion)
+                    <option value="{{ $profesion->id }}">{{ $profesion->profesion_name }}</option>
+                @endforeach
+            </x-select>
+            <x-select wire:model.live="location_id" class="w-full md:w-2/12">
+                @foreach ($locations as $location)
+                    <option value="{{ $location->id }}">{{ $location->location_name }}</option>
+                @endforeach
+            </x-select>
+            <x-select wire:model.live="filter_client" class="w-full md:w-2/12">
+                <option value="">Todos los clientes</option>
+                <option value="pending">
+                    Clientes pendientes
+                </option>
+                <optgroup label="Por tipo de cuenta">
+                    <option value="1">Clientes FREE</option>
+                    <option value="2">Clientes PRO</option>
+                    <option value="3">Clientes PRO-MAX</option>
+                </optgroup>
+                <optgroup label="Por estado">
+                    <option value="active">Solo Activos</option>
+                    <option value="inactive">Solo Inactivos</option>
+                </optgroup>
+                <optgroup label="Otros">
+                    <option value="unaccount">Sin cuenta</option>
+                    <option value="deleted">Eliminados</option>
+                </optgroup>
+            </x-select>
+        </div>
+        <div class="flex flex-col gap-4 mt-4 lg:flex-row">
             <!--- Clients List -->
             <div class="w-full overflow-x-auto lg:w-3/5">
                 <table
@@ -51,17 +61,65 @@
                         </tr>
                     </thead>
                     <tbody wire:loading.class='opacity-20' class="divide-y divide-tbn-light dark:divide-tbn-secondary">
-                        @if ($search)
-                            <tr class="text-sm text-center bg-gray-200 text-tbn-dark">
-                                <td class="px-6 py-2" colspan="4">
-                                    <div class="flex flex-row items-center justify-between">
-                                        <div>
-                                            <span class="font-bold">"{{ $search }}"</span>
-                                            <i class="px-2 text-xs fas fa-arrow-right"></i>
-                                            {{ $clients->count() }} Resultados encontrados
-                                        </div>
-                                        <button type="button" wire:click="$set('search', null)">
-                                            <i class="text-lg fas fa-times text-tbn-primary"></i></button>
+                        <!-- Review Filters -->
+                        @if ($search || $profesion_id || $location_id || $filter_client)
+                            <tr class="text-sm bg-gray-100 dark:bg-neutral-800 text-tbn-dark dark:text-white">
+                                <td class="px-6 py-3" colspan="4">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-xs font-semibold text-gray-500 uppercase dark:text-gray-400">
+                                            Filtros:
+                                        </span>
+
+                                        @if ($search)
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-tbn-primary/10 text-tbn-primary">
+                                                Texto: "{{ $search }}"
+                                                <button type="button" wire:click="$set('search', null)"
+                                                    class="hover:text-red-600">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </span>
+                                        @endif
+
+                                        @if ($profesion_id)
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                                                Profesión:
+                                                {{ $profesions->firstWhere('id', $profesion_id)?->profesion_name ?? 'Seleccionada' }}
+                                                <button type="button" wire:click="$set('profesion_id', null)"
+                                                    class="hover:text-red-600">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </span>
+                                        @endif
+
+                                        @if ($location_id)
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                                Ubicación:
+                                                {{ $locations->firstWhere('id', $location_id)?->location_name ?? 'Seleccionada' }}
+                                                <button type="button" wire:click="$set('location_id', null)"
+                                                    class="hover:text-red-600">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </span>
+                                        @endif
+
+                                        @if ($filter_client)
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
+                                                Estado/Tipo: {{ $this->getFilterClientLabel() }}
+                                                <button type="button" wire:click="$set('filter_client', '')"
+                                                    class="hover:text-red-600">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </span>
+                                        @endif
+
+                                        <button type="button" wire:click="resetAllFilters"
+                                            class="ml-auto text-xs text-red-500 underline hover:text-red-700">
+                                            Limpiar todos
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -79,8 +137,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     @if ($client->trashed())
-                                        <span
-                                            class="px-2 py-1 text-xs rounded-full text-tbn-primary bg-neutral-900">
+                                        <span class="px-2 py-1 text-xs rounded-full text-tbn-primary bg-neutral-900">
                                             <i class="mr-1 fa-solid fa-ban"></i> Eliminado
                                         </span>
                                     @elseif (!$client->actived)

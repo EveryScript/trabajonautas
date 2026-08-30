@@ -5,7 +5,6 @@ namespace App\Livewire\Forms;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Livewire\Attributes\Validate;
 use Livewire\Form;
 
 class ClientForm extends Form
@@ -58,6 +57,7 @@ class ClientForm extends Form
                 'last_announce_check' => now(),
             ]);
             if ((int) $this->account_type_id === 1) {
+                // --- FREE CLIENT ---
                 // Create account FREE
                 $user->account()->updateOrCreate(['user_id' => $user->id], [
                     'account_type_id' => (int) $this->account_type_id,
@@ -71,10 +71,11 @@ class ClientForm extends Form
                     'verified_by_user_id' => null
                 ]);
             } else {
-                // Create subscription pending
-                $user->subscriptions()->create([
-                    'account_type_id' => (int) $this->account_type_id,
-                    'price' => $this->account_price
+                // --- PRO or PRO-MAX CLIENT ---
+                $subscription = $user->subscriptions()->create([
+                    'account_type_id'  => (int) $this->account_type_id,
+                    'price'            => $this->account_price,
+                    'verified_payment' => false,
                 ]);
             }
         });

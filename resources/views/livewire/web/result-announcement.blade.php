@@ -1,9 +1,13 @@
 <div class="flex flex-col gap-6 px-4 md:flex-row">
+    @php
+        $unlock_flag =
+            isset($client->account) &&
+            $this->announcement->pro &&
+            !$this->announcement->profesions->contains($client->profesion_id) &&
+            !$client->unlockedAnnounces()->where('announcement_id', $this->announcement->id)->exists();
+    @endphp
     <section class="w-full select-none md:w-3/5">
-        @if (
-            $client->account &&
-                !$this->announcement->profesions->contains($client->profesion_id) &&
-                !$client->unlockedAnnounces()->where('announcement_id', $this->announcement->id)->exists())
+        @if ($unlock_flag)
             @if ($client->account->account_type_id == 3)
                 <x-unlock :coins="$coins" />
             @else

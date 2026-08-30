@@ -10,32 +10,47 @@ use Livewire\Form;
 class AnnouncementForm extends Form
 {
     public $announce_title;
-
     public $description;
-
     public $expiration_time;
-
     public $salary;
-
     public $announce_files = [];
-
     public $pro = false;
-
     public $scheduled_at;
-
     public $notification_sent = false;
-
     public $company_id;
-
     public $user_id;
-
     public $locations;
-
     public $profesions;
-
     public $selected_area_id;
-
     public $current_files;
+
+    protected function rules()
+    {
+        return [
+            'announce_title' => 'required|min:10|max:1200',
+            'description' => 'required',
+            'expiration_time' => 'required|date|after:now',
+            'salary' => 'required|numeric|min:0',
+            'pro' => 'boolean',
+            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
+            'announce_files.*' => [
+                'file',
+                'mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv',
+                'max:30000',
+                function ($attribute, $value, $fail) {
+                    $originalName = $value->getClientOriginalName();
+                    $length = mb_strlen($originalName);
+                    if ($length > 200) {
+                        $fail("El nombre del archivo \"{$originalName}\" es demasiado largo ({$length} caracteres). Por favor, renómbralo para que no supere los 200 caracteres y vuelve a intentarlo.");
+                    }
+                }
+            ],
+            'company_id' => 'required',
+            'user_id' => 'required',
+            'locations' => 'required',
+            'profesions' => 'required'
+        ];
+    }
 
     public function edit($id)
     {
@@ -57,24 +72,11 @@ class AnnouncementForm extends Form
     public function update($update_id)
     {
         $this->normalizeRelationSelections();
-
-        $this->validate([
-            'announce_title' => 'required|min:10|max:1200',
-            'description' => 'required',
-            'expiration_time' => 'required|date|after:now',
-            'salary' => 'required|numeric|min:0',
-            'pro' => 'boolean',
-            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
-            'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
-            'company_id' => 'required|integer|exists:companies,id',
-            'locations' => 'required|array|min:1',
-            'locations.*' => 'integer|distinct|exists:locations,id',
-            'profesions' => 'required|array|min:1',
-            'profesions.*' => 'integer|distinct|exists:profesions,id',
-            'selected_area_id' => 'required|integer|exists:areas,id',
-        ]);
         $this->validateProfessionAreaRelation();
         $announcement = Announcement::findOrFail($update_id);
+        $this->validate($this->rules());
+
+        $announcement = Announcement::find($update_id);
         $announcement->update([
             'announce_title' => $this->announce_title,
             'description' => $this->description,
@@ -86,6 +88,7 @@ class AnnouncementForm extends Form
         ]);
         $announcement->locations()->sync($this->locations);
         $announcement->profesions()->sync($this->profesions);
+
         // Delete current files and update
         if ($this->announce_files) {
             $announce_files_data = [];
@@ -106,24 +109,9 @@ class AnnouncementForm extends Form
     {
         $this->salary = str_replace('.', '', $this->salary);
         $this->normalizeRelationSelections();
-
-        $this->validate([
-            'announce_title' => 'required|min:10|max:1200',
-            'description' => 'required',
-            'expiration_time' => 'required|date|after:now',
-            'salary' => 'required|numeric|min:0',
-            'pro' => 'boolean',
-            'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
-            'announce_files.*' => 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv|max:30000',
-            'company_id' => 'required|integer|exists:companies,id',
-            'user_id' => 'required|integer|exists:users,id',
-            'locations' => 'required|array|min:1',
-            'locations.*' => 'integer|distinct|exists:locations,id',
-            'profesions' => 'required|array|min:1',
-            'profesions.*' => 'integer|distinct|exists:profesions,id',
-            'selected_area_id' => 'required|integer|exists:areas,id',
-        ]);
         $this->validateProfessionAreaRelation();
+        $this->validate($this->rules());
+
         $announcement = Announcement::create($this->only(
             'announce_title',
             'description',
@@ -141,7 +129,11 @@ class AnnouncementForm extends Form
         if ($this->announce_files) {
             foreach ($this->announce_files as $index => $file) {
                 $original_name = $file->getClientOriginalName();
-                $file_url = $file->storeAs(path: 'convocatorias', options: 'public', name: $index.'-'.$file->hashName());
+                $file_url = $file->storeAs(
+                    path: 'convocatorias',
+                    options: 'public',
+                    name: $index . '-' . $file->hashName()
+                );
                 $announce_files_data[] = [
                     'announcement_id' => $announcement->id,
                     'url' => $file_url,

@@ -18,7 +18,7 @@
                     get hasUppercase() { return /[A-Z]/.test(this.password) },
                     get hasNumber() { return /[0-9]/.test(this.password) },
                     get hasMinLength() { return this.password.length >= 8 }
-                }" class="max-w-xs mx-auto">
+                }" class="max-w-sm mx-auto">
                     <div class="relative mt-6">
                         <x-label for="name" value="{{ __('Nombre completo') }}" />
                         <x-input x-model="name" id="name" class="block w-full mt-1" type="text" name="name"
@@ -95,7 +95,7 @@
                                 o también</span>
                         </div>
                     </div>
-                    <div class="max-w-xs mx-auto">
+                    <div class="max-w-sm mx-auto mb-4">
                         <a href="{{ route('auth.google') }}"
                             class="flex justify-center gap-2 px-4 py-3 text-sm transition duration-150 border rounded-lg border-tbn-secondary text-tbn-dark dark:text-tbn-light dark:hover:text-white hover:shadow">
                             <img class="w-5 h-5" src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -103,28 +103,25 @@
                             <span>Iniciar sesión con Google</span>
                         </a>
                     </div>
+                    <!-- CloudFare Turnstile -->
+                    <div wire:ignore class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}"
+                        data-callback="javascriptCallbackTurnstile">
+                    </div>
+                    <input type="hidden" id="turnstile-input" name="turnstileToken" class="tns-rec">
                     @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                         <div class="mt-4">
                             <x-label for="terms">
                                 <div class="flex items-center">
                                     <x-checkbox name="terms" id="terms" required />
-
-                                    <div class="text-xs ms-2">
-                                        {!! __('I agree to the :terms_of_service and :privacy_policy', [
-                                            'terms_of_service' =>
-                                                '<a target="_blank" href="' .
-                                                route('terms.show') .
-                                                '" class="underline transition-colors duration-150 rounded-md hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2">' .
-                                                __('Terms of Service') .
-                                                '</a>',
-                                            'privacy_policy' =>
-                                                '<a target="_blank" href="' .
-                                                route('policy.show') .
-                                                '" class="underline transition-colors duration-150 rounded-md hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2">' .
-                                                __('Privacy Policy') .
-                                                '</a>',
-                                        ]) !!}
-                                    </div>
+                                    <p class="ml-2 text-xs text-tbn-dark dark:text-tbn-light">
+                                        Al iniciar sesión con Google, aceptas nuestros
+                                        <a href="{{ route('terms.show') }}" target="_blank"
+                                            class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Términos
+                                            de servicio</a> y
+                                        <a href="{{ route('policy.show') }}" target="_blank"
+                                            class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Política
+                                            de privacidad</a>.
+                                    </p>
                                 </div>
                             </x-label>
                         </div>
@@ -142,3 +139,13 @@
         </div>
     </x-authentication-card>
 </x-guest-layout>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.javascriptCallbackTurnstile = function(token) {
+            const input = document.getElementById('turnstile-input');
+            if (input) {
+                input.value = token;
+            }
+        };
+    });
+</script>

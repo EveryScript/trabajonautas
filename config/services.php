@@ -40,7 +40,7 @@ return [
     'google_analytics' => [
         'id' => env('GOOGLE_ANALYTICS_ID')
     ],
-    // VAPID Clave Pública de Firebase para notificaciones
+    // VAPID Public Notification Firebace Key
     'firebase' => [
         'vapid_key' => env('FIREBASE_VAPID_KEY'),
         'web' => [
@@ -118,5 +118,13 @@ return [
             FILTER_VALIDATE_BOOLEAN,
         ),
         'ca_bundle' => env('ANTHROPIC_CA_BUNDLE') ?: null,
+    ],
+    // Baneco Service
+    'baneco' => [
+        'url'      => env('BANECO_URL'),
+        'username' => env('BANECO_USERNAME'),
+        'password' => env('BANECO_PASSWORD'),
+        'aes_key'  => env('BANECO_AES_KEY'),
+        'account'  => env('BANECO_ACCOUNT'),
     ],
 ];

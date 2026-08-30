@@ -75,7 +75,7 @@ class ResultAnnouncement extends Component
             'total_locations' => Location::count(),
             'client' => $this->getAuthClientWithAccount(),
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent(),
-            'coins' => $this->getAuthClientWithAccount()->coins
+            'coins' => $this->getAuthClientWithAccount()->coins ?? 0
         ]);
     }
 }
