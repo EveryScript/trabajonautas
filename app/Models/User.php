@@ -71,6 +71,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_url',
     ];
 
+    protected $keyType = 'string';
+
     // Remove permissions and roles if user is forceDeleted
     protected static function booted()
     {
@@ -185,5 +187,10 @@ class User extends Authenticatable implements MustVerifyEmail
             'id',
             'device_token'
         );
+    }
+    // Casting UUID always string (for testing)
+    public function getKey()
+    {
+        return (string) parent::getKey();
     }
 }

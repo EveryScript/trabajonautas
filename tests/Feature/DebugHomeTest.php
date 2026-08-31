@@ -8,6 +8,8 @@ use Tests\TestCase;
 
 class DebugHomeTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_debug_home_route(): void
     {
         $this->withoutExceptionHandling();
