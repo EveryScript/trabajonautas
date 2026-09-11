@@ -25,7 +25,10 @@ class Company extends Model
 
     public function hasCompanyImageFile(): bool
     {
-        return StoragePath::exists($this->company_image);
+        if (!$this->company_image)
+            return false;
+
+        return Cache::remember('company-image-exists:' . $this->company_image, 3600, fn() => StoragePath::exists($this->company_image));
     }
 
     public function companyImageUrl(): ?string

@@ -3,6 +3,7 @@
 namespace App\Livewire\Notices;
 
 use App\Models\Notice;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -20,6 +21,7 @@ class ListNotices extends Component
             $notice->delete();
             if (Storage::disk('public')->exists($notice->image) && $notice->image != 'noticias/default.webp')
                 Storage::disk('public')->delete($notice->image);
+            Cache::forget('web-recent-notices');
         }
     }
 

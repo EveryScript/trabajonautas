@@ -4,6 +4,7 @@ namespace App\Livewire\Web;
 
 use App\Models\TbnSetting;
 use App\Support\StoragePath;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class WelcomeSection extends Component
@@ -14,8 +15,10 @@ class WelcomeSection extends Component
 
     public function mount(): void
     {
-        $images = TbnSetting::whereIn('key', ['bg_web_image', 'thumb_web_image'])
-            ->pluck('value', 'key');
+        $images = Cache::remember('tbn-settings-web-images', 86400, function () {
+            return TbnSetting::whereIn('key', ['bg_web_image', 'thumb_web_image'])
+                ->pluck('value', 'key');
+        });
 
         $this->bgWebImageUrl = StoragePath::existingUrl($images->get('bg_web_image'));
         $this->thumbWebImageUrl = StoragePath::existingUrl($images->get('thumb_web_image'));

@@ -4,6 +4,7 @@ namespace App\Livewire\Web;
 
 use App\Models\TbnSetting;
 use App\Support\StoragePath;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class FooterData extends Component
@@ -14,9 +15,11 @@ class FooterData extends Component
 
     public function mount(): void
     {
-        $this->bgWebImageUrl = StoragePath::existingUrl(
-            TbnSetting::where('key', 'bg_web_image')->value('value'),
-        );
+        $bgWebImage = Cache::remember('tbn-setting-bg_web_image', 86400, function () {
+            return TbnSetting::where('key', 'bg_web_image')->value('value');
+        });
+
+        $this->bgWebImageUrl = StoragePath::existingUrl($bgWebImage);
         $this->greetingImageUrl = StoragePath::existingUrl('ajustes/astro-greeting.webp');
     }
 
