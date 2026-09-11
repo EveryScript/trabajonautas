@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Traits\AuthorizeClients;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -16,8 +15,7 @@ class ResultAnnouncement extends Component
 {
     use AuthorizeClients;
 
-    public $id; // Announce id component
-    public $announce_saved;
+    public int $id; // Announce id component
 
     public function mount()
     {
@@ -41,10 +39,14 @@ class ResultAnnouncement extends Component
     #[Computed]
     public function announcement()
     {
-        return Announcement::with(['company.companyType', 'profesions:id,profesion_name'])->find($this->id);
+        return Announcement::with([
+            'company.companyType',
+            'profesions:id,profesion_name',
+            'locations:id,location_name'
+        ])->find($this->id);
     }
 
-    public function saveAnnounce($id)
+    public function saveAnnounce(int $id)
     {
         if (!auth()->check())
             return $this->redirectRoute('register', navigate: true);
@@ -54,7 +56,7 @@ class ResultAnnouncement extends Component
             $user->myAnnounces()->attach($id);
     }
 
-    public function removeAnnounce($id)
+    public function removeAnnounce(int $id)
     {
         if (!auth()->check())
             return $this->redirectRoute('register', navigate: true);
@@ -63,7 +65,7 @@ class ResultAnnouncement extends Component
         $user->myAnnounces()->detach($id);
     }
 
-    public function formatDate($datetime)
+    public function formatDate(string $datetime)
     {
         return Carbon::parse($datetime)->translatedFormat('l d \d\e F \d\e Y \a \l\a\s H:i');
     }
