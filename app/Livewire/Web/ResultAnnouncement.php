@@ -7,6 +7,7 @@ use App\Models\Location;
 use App\Models\User;
 use App\Traits\AuthorizeClients;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -74,7 +75,7 @@ class ResultAnnouncement extends Component
     {
         return view('livewire.web.result-announcement', [
             'announcement' => $this->announcement,
-            'total_locations' => Location::count(),
+            'total_locations' => Cache::remember('total_locations_count', 86400, fn() => Location::count()),
             'client' => $this->getAuthClientWithAccount(),
             'client_pro_authorized' => $this->isAuthClientProVerifiedAndCurrent(),
             'coins' => $this->getAuthClientWithAccount()->coins ?? 0

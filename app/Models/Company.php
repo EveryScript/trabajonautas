@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class Company extends Model
 {
@@ -16,6 +17,24 @@ class Company extends Model
 
     // Permissions
     public $guarded = [];
+
+    public function getCompanyImageAttribute(?string $value): ?string
+    {
+        return $value ? ltrim($value, '/') : null;
+    }
+
+    public function hasCompanyImageFile(): bool
+    {
+        if (!$this->company_image)
+            return false;
+
+        return Cache::remember('company-image-exists:' . $this->company_image, 3600, fn() => Storage::disk('public')->exists($this->company_image));
+    }
+
+    public function companyImageUrl(): ?string
+    {
+        return $this->company_image ? asset('storage/' . $this->company_image) : null;
+    }
 
     // Relationships
     public function announcements(): HasMany

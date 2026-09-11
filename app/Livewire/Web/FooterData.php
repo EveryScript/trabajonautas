@@ -3,22 +3,28 @@
 namespace App\Livewire\Web;
 
 use App\Models\TbnSetting;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class FooterData extends Component
 {
-    public $bg_web_image;
+    public ?string $bgWebImageUrl = null;
 
     public function mount()
     {
-        $this->bg_web_image = TbnSetting::where('key', 'bg_web_image')->first();
+        $images = Cache::remember('tbn-settings-web-images', 86400, function () {
+            return TbnSetting::whereIn('key', ['bg_web_image', 'thumb_web_image'])
+                ->pluck('value', 'key');
+        });
+
+        $this->bgWebImageUrl = $images->get('bg_web_image');
     }
 
     public function render()
     {
         return <<<'HTML'
             <footer class="relative overflow-hidden bg-no-repeat bg-cover block px-5 pt-16 h-[45rem] sm:h-[24rem] body-font"
-            style="background-image: url({{ asset('storage/'.$bg_web_image->value) }})">
+            style="background-image: url({{ asset('storage/'.$bgWebImageUrl) }})">
                 <picture class="block max-w-6xl mx-auto mb-6">
                     <img class="max-w-[16rem]" src="{{ asset('storage/img/tbn-white.webp') }}" alt="tbn-logo">
                 </picture>

@@ -3,20 +3,31 @@
 namespace App\Livewire\Web;
 
 use App\Models\TbnSetting;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class WelcomeSection extends Component
 {
-    public $bg_web_image, $thumb_web_image;
+    public ?string $bgWebImageUrl = null;
+    public ?string $thumbWebImageUrl = null;
+
+    public function mount(): void
+    {
+        $images = Cache::remember('tbn-settings-web-images', 86400, function () {
+            return TbnSetting::whereIn('key', ['bg_web_image', 'thumb_web_image'])
+                ->pluck('value', 'key');
+        });
+
+        $this->bgWebImageUrl = $images->get('bg_web_image');
+        $this->thumbWebImageUrl = $images->get('thumb_web_image');
+    }
 
     public function render()
     {
-        $this->bg_web_image = TbnSetting::where('key', 'bg_web_image')->first();
-        $this->thumb_web_image = TbnSetting::where('key', 'thumb_web_image')->first();
-
         return <<<'HTML'
         <section class="bg-bottom bg-cover"
-            style="background-image: url({{ asset('storage/'.$bg_web_image->value) }})">
+            style="background-image: url({{ asset('storage/'.$bgWebImageUrl) }})">
             <div class="z-10 max-w-6xl md:h-[40rem] h-[45rem] flex flex-col-reverse md:flex-row justify-center items-center gap-2 lg:gap-4 mx-auto">
                 <div class="px-6 mx-auto lg:w-7/12">
                     <h4 class="mb-2 text-3xl font-bold text-center text-white sm:text-left sm:text-4xl lg:text-5xl title-font"
@@ -45,7 +56,7 @@ class WelcomeSection extends Component
                 <picture class="z-1 lg:w-5/12" data-aos="zoom-in" data-aos-delay="800"
                     data-aos-duration="1000" data-aos-once="true">
                     <img class="z-0 animate-astronaut mx-auto max-w-[9rem] md:max-w-[15rem] lg:max-w-[20rem]"
-                        src="{{ asset('storage/'.$thumb_web_image->value) }}" alt="astronaut-image">
+                        src="{{ asset('storage/'.$thumbWebImageUrl) }}" alt="astronaut-image">
                 </picture>
             </div>
         </section>

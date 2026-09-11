@@ -3,6 +3,8 @@
 namespace App\Livewire\Notices;
 
 use App\Models\TbnSetting;
+use App\Support\StoragePath;
+use App\Traits\ClearsFormCache;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -10,6 +12,7 @@ use Livewire\WithFileUploads;
 class FormSkin extends Component
 {
     use WithFileUploads;
+    use ClearsFormCache;
 
     public $bg_new_image, $thumb_new_image;
 
@@ -46,6 +49,12 @@ class FormSkin extends Component
             ['key' => $key],
             ['value' => $path]
         );
+
+        if ($oldPath && $oldPath !== $path && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $this->clearFormCache();
     }
 
     public function render()

@@ -11,5 +11,7 @@ trait ClearsFormCache
         Cache::forget('areas');
         Cache::forget('profesions');
         Cache::forget('companies');
+        Cache::forget('tbn-setting-bg_web_image');
+        Cache::forget('tbn-settings-web-images');
     }
 }
