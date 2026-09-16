@@ -137,7 +137,9 @@
             </x-button>
         @endif
         <!-- Return -->
-        <x-secondary-button type="button" onclick="history.back()" class="w-full my-1 sm:w-auto">
+        <x-secondary-button type="button"
+            x-on:click="Livewire.navigate(sessionStorage.getItem('lastSearchUrl') || '{{ route('search') }}')"
+            class="w-full my-1 sm:w-auto">
             <i class="pr-2 text-sm fas fa-arrow-left"></i> Volver
         </x-secondary-button>
     </div>

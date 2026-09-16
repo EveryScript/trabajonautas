@@ -4,38 +4,39 @@
         <div class="grid items-end w-full grid-cols-1 gap-4 mb-4 md:grid-cols-2 tbn-form">
             <div wire:ignore class="tbn-tom-select">
                 <x-label class="mb-1" for="profesion" value="{{ __('¿Cuál es tu profesión?') }}" />
-                <select id="profesion" x-model="profesion_id" @keyup.enter="searchAnnouncements"
-                    placeholder="Arquitecto, minero..." class="w-full mt-1">
+                <select id="profesion" @keyup.enter="searchAnnouncements" placeholder="Arquitecto, minero..."
+                    class="w-full mt-1">
                     <option></option>
                     @foreach ($profesions as $p)
-                        <option value="{{ $p->id }}">{{ $p->profesion_name }}</option>
+                        <option value="{{ $p->id }}" @selected($profesion_id == $p->id)>{{ $p->profesion_name }}
+                        </option>
                     @endforeach
                 </select>
             </div>
             <div wire:ignore class="tbn-tom-select">
                 <x-label class="mb-1" for="location" value="{{ __('Departamento o región') }}" />
-                <select id="location" x-model="location_id" @keyup.enter="searchAnnouncements"
-                    placeholder="La Paz, Oruro..." class="w-full mt-1">
+                <select id="location" @keyup.enter="searchAnnouncements" placeholder="La Paz, Oruro..."
+                    class="w-full mt-1">
                     <option value="">Toda Bolivia</option>
                     @foreach ($locations as $l)
-                        <option value="{{ $l->id }}">{{ $l->location_name }}</option>
+                        <option value="{{ $l->id }}" @selected($location_id == $l->id)>{{ $l->location_name }}
+                        </option>
                     @endforeach
                 </select>
             </div>
-
             <div wire:ignore class="tbn-tom-select">
                 <x-label class="mb-1" for="company" value="{{ __('Empresa') }}" />
-                <select id="company" x-model="company_id" @keyup.enter="searchAnnouncements"
-                    placeholder="Impuestos nacionales, Aduana" class="w-full mt-1">
+                <select id="company" @keyup.enter="searchAnnouncements" placeholder="Impuestos nacionales, Aduana"
+                    class="w-full mt-1">
                     <option></option>
                     @foreach ($companies as $c)
-                        <option value="{{ $c->id }}">{{ $c->company_name }}</option>
+                        <option value="{{ $c->id }}" @selected($company_id == $c->id)>{{ $c->company_name }}</option>
                     @endforeach
                 </select>
             </div>
             <div wire:ignore>
                 <x-label class="mb-1" for="post-date" value="{{ __('Fecha de publicación') }}" />
-                <x-input class="w-full py-[0.75rem]" id="post-date" type="text" readonly
+                <x-input class="w-full py-[0.75rem]" id="post-date" type="text" readonly value="{{ $post_date }}"
                     placeholder="Fecha de publicación"></x-input>
             </div>
 
@@ -147,18 +148,6 @@
                     </div>
                 @endforeach
             </div>
-            @if ($announcements->count() < $this->totalResults)
-                <div class="flex flex-row justify-center mb-4">
-                    <x-button wire:click="loadMore" wire:loading.attr="disabled" wire:target='loadMore'>
-                        <span wire:loading.remove wire:target="loadMore">
-                            <i class="mr-1 fa-solid fa-angles-down"></i> Ver más
-                        </span>
-                        <span wire:loading wire:target="loadMore">
-                            <i class="mr-1 fa-solid fa-spinner animate-spin"></i> Cargando...
-                        </span>
-                    </x-button>
-                </div>
-            @endif
         @endif
 
         <!-- Recommends -->
@@ -180,115 +169,75 @@
     @script
         <script>
             Alpine.data('content', () => ({
-                // Tom Select Instances
                 profesion_ts: null,
                 location_ts: null,
                 company_ts: null,
                 post_date_fp: null,
 
-                // Model properties
-                profesion_id: null,
-                location_id: null,
-                company_id: null,
-                post_date: null,
+                _navigatedHandler: null,
+                _navigatingHandler: null,
 
                 init() {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const urlProfesion = urlParams.get('profesion_id');
-                    const urlLocation = urlParams.get('location_id');
-                    const urlCompany = urlParams.get('company_id');
+                    this.setupWidgets();
 
-                    this.profesion_id = urlProfesion && urlProfesion !== 'null' ? Number(urlProfesion) : null;
-                    this.location_id = urlLocation && urlLocation !== 'null' ? Number(urlLocation) : null;
-                    this.company_id = urlCompany && urlCompany !== 'null' ? Number(urlCompany) : null;
+                    this._navigatedHandler = () => this.setupWidgets();
+                    this._navigatingHandler = () => {
+                        this.destroyWidgets();
+                        sessionStorage.setItem('lastSearchUrl', window.location.href);
+                    };
 
-                    // Initialize TomSelects
-                    this.profesion_ts = new TomSelect('#profesion', {
-                        allowEmptyOption: true,
-                        items: this.profesion_id ? [this.profesion_id] : []
-                    });
+                    document.addEventListener('livewire:navigated', this._navigatedHandler);
+                    document.addEventListener('livewire:navigating', this._navigatingHandler);
+                },
+
+                destroy() {
+                    document.removeEventListener('livewire:navigated', this._navigatedHandler);
+                    document.removeEventListener('livewire:navigating', this._navigatingHandler);
+                    this.destroyWidgets();
+                },
+
+                setupWidgets() {
+                    this.destroyWidgets();
+
+                    this.profesion_ts = new TomSelect('#profesion', {});
+                    this.company_ts = new TomSelect('#company', {});
                     this.location_ts = new TomSelect('#location', {
-                        allowEmptyOption: true,
-                        items: this.location_id ? [this.location_id] : []
+                        allowEmptyOption: true
                     });
-                    this.company_ts = new TomSelect('#company', {
-                        allowEmptyOption: true,
-                        items: this.company_id ? [this.company_id] : []
-                    });
-
-                    // Tom Select Change Listeners
-                    this.profesion_ts.on('change', (value) => {
-                        this.profesion_id = value ? Number(value) : null;
-                        this.updateUrlParam('profesion_id', value);
-                    });
-                    this.location_ts.on('change', (value) => {
-                        this.location_id = value ? Number(value) : null;
-                        this.updateUrlParam('location_id', value);
-                    });
-                    this.company_ts.on('change', (value) => {
-                        this.company_id = value ? Number(value) : null;
-                        this.updateUrlParam('company_id', value);
-                    });
-
-                    // Initialize Flatpickr
-                    this.post_date_fp = flatpickr("#post-date", {
-                        dateFormat: "d/m/Y",
-                        locale: "es",
-                        onChange: (selectedDates, dateStr) => {
-                            this.post_date = dateStr || null;
-                        }
+                    this.post_date_fp = flatpickr('#post-date', {
+                        dateFormat: 'd/m/Y',
+                        locale: 'es',
                     });
                 },
 
-                updateUrlParam(key, value) {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    if (value) {
-                        urlParams.set(key, value);
-                    } else {
-                        urlParams.delete(key);
-                    }
-                    const nuevaUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() :
-                        '');
-                    window.history.replaceState({}, document.title, nuevaUrl);
+                destroyWidgets() {
+                    this.profesion_ts?.destroy();
+                    this.location_ts?.destroy();
+                    this.company_ts?.destroy();
+                    this.post_date_fp?.destroy();
+
+                    this.profesion_ts = null;
+                    this.location_ts = null;
+                    this.company_ts = null;
+                    this.post_date_fp = null;
                 },
 
-                // Clear a single filter
+                // Clear one filter
                 setClear(prop) {
-                    if (prop === 'profesion_id') {
-                        this.profesion_id = null;
-                        this.profesion_ts.clear();
-                    } else if (prop === 'location_id') {
-                        this.location_id = null;
-                        this.location_ts.clear();
-                    } else if (prop === 'company_id') {
-                        this.company_id = null;
-                        this.company_ts.clear();
-                    } else if (prop === 'post_date') {
-                        this.post_date = null;
-                        if (this.post_date_fp) this.post_date_fp.clear();
-                    }
+                    if (prop === 'profesion_id') this.profesion_ts?.clear();
+                    else if (prop === 'location_id') this.location_ts?.clear();
+                    else if (prop === 'company_id') this.company_ts?.clear();
+                    else if (prop === 'post_date') this.post_date_fp?.clear();
 
-                    this.updateUrlParam(prop, null);
                     $wire.set(prop, null);
                 },
 
-                // Clear all filters at once
+                // Clear all filtera
                 clearFilters() {
-                    this.profesion_id = null;
-                    this.location_id = null;
-                    this.company_id = null;
-                    this.post_date = null;
-
-                    this.profesion_ts.clear();
-                    this.location_ts.clear();
-                    this.company_ts.clear();
-                    if (this.post_date_fp) this.post_date_fp.clear();
-
-                    const urlParams = new URLSearchParams(window.location.search);
-                    urlParams.delete('profesion_id');
-                    urlParams.delete('location_id');
-                    urlParams.delete('company_id');
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                    this.profesion_ts?.clear();
+                    this.location_ts?.clear();
+                    this.company_ts?.clear();
+                    this.post_date_fp?.clear();
 
                     $wire.set('profesion_id', null);
                     $wire.set('location_id', null);
@@ -298,10 +247,15 @@
 
                 // Submit/Search action
                 searchAnnouncements() {
-                    $wire.set('profesion_id', this.profesion_id ? Number(this.profesion_id) : null);
-                    $wire.set('location_id', this.location_id ? Number(this.location_id) : null);
-                    $wire.set('company_id', this.company_id ? Number(this.company_id) : null);
-                    $wire.set('post_date', this.post_date ?? null);
+                    const profesionValue = this.profesion_ts?.getValue();
+                    const locationValue = this.location_ts?.getValue();
+                    const companyValue = this.company_ts?.getValue();
+                    const dateValue = this.post_date_fp?.input?.value;
+
+                    $wire.set('profesion_id', profesionValue ? Number(profesionValue) : null);
+                    $wire.set('location_id', locationValue ? Number(locationValue) : null);
+                    $wire.set('company_id', companyValue ? Number(companyValue) : null);
+                    $wire.set('post_date', dateValue || null);
                 }
             }));
         </script>
