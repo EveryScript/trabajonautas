@@ -13,11 +13,16 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('trabajonautas:send-unnotified-clients')->dailyAt('20:30'); // Send notification and emails to clients
-        $schedule->command('trabajonautas:delete-incomplete-clients')->dailyAt('20:00'); // Delete clients register_completed = false
-        $schedule->command('trabajonautas:update-expired-accounts')->hourly(); // Convert to FREE when user is expired account
-        // 1. Send email in queue when: Client is register completed and User/Admin verified account (PRO of PRO-MAX)
-        // 2. Send Notifications to all users PRO-MAX if location and profesion is same at announcement
+
+        // Send notification and email to clients PRO-MAX still not notified in all day
+        $schedule->command('trabajonautas:send-unnotified-clients')->dailyAt('20:30');
+        // Send notification and email to clients PRO or PRO-MAX if their account will be expire in 2 days
+        $schedule->command('trabajonautas:send-expiring-account-notification-clients')->dailyAt('07:00');
+        // Delete clients if register_completed = false
+        $schedule->command('trabajonautas:delete-incomplete-clients')->dailyAt('20:00');
+        // Set account FREE to all clients if expired time is after now
+        $schedule->command('trabajonautas:update-expired-accounts')->hourly();
+
         $schedule->command('queue:restart')->everyFiveMinutes();
         $schedule->command('queue:work --max-time=55 --stop-when-empty')->everyMinute();
         $schedule->command('queue:prune-failed --hours=168')->weekly(); // Clear failed_jobs after 3 trying times 
