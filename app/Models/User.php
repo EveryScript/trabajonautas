@@ -188,6 +188,11 @@ class User extends Authenticatable implements MustVerifyEmail
             'device_token'
         );
     }
+    // Simple relation notification_logs exist
+    public function notificationLogsExist()
+    {
+        return $this->hasMany(NotificationLog::class, 'user_id');
+    }
     // Casting UUID always string (for testing)
     public function getKey()
     {
