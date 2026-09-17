@@ -24,6 +24,12 @@
                     :client="$this->client" :my_announces_mode="true" :key="'my-announces-' . $this->client->id" lazy>
                 </livewire:panel.dashboard-card>
             </div>
+            <!-- Client Announces Preferences -->
+            <div x-show="btnNavigation == 3">
+                <livewire:panel.dashboard-preferences title="Preferencias"
+                    description="Establece la visibilidad de las convocatorias según su tipo.">
+                </livewire:panel.dashboard-preferences>
+            </div>
         </main>
         <!-- Modal: Verifing account -->
         @if ($this->client->latestPendingSubscription)
@@ -42,7 +48,8 @@
                         por WhatsApp para habilitar tu cuenta hoy mismo.
                     </x-slot>
                     <x-slot name="buttons">
-                        <x-button-link href="https://wa.me/{{ config('trabajonautas.support_phone') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $this->client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $this->client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $this->client->email }}."
+                        <x-button-link
+                            href="https://wa.me/{{ config('trabajonautas.support_phone') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $this->client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $this->client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $this->client->email }}."
                             target="_blank" class="text-sm cursor-pointer select-none bg-tbn-primary">
                             <i class="mr-1 fab fa-whatsapp"></i> Enviar</x-button-link>
                     </x-slot>
@@ -127,7 +134,7 @@
                             console.log('Getting current token...')
                             const workerConfig = new URLSearchParams(
                                 Object.entries(window.firebaseConfig)
-                                    .filter(([, value]) => value !== null && value !== '')
+                                .filter(([, value]) => value !== null && value !== '')
                             )
                             const registration = await navigator.serviceWorker.register(
                                 `/firebase-messaging-sw.js?${workerConfig.toString()}`

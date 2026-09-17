@@ -77,7 +77,7 @@
                                 {{ $this->client->latestPendingSubscription->updated_at->format('d/m/Y H:i') }}
                             </p>
                             <x-input-checkbox-block wire:model="verified_payment">
-                                <div class="ms-4">
+                                <div>
                                     <p class="font-medium text-md text-tbn-dark dark:text-white">Confirmar pago de
                                         cliente</p>
                                     <p class="text-xs text-tbn-dark dark:text-tbn-light">
@@ -93,7 +93,7 @@
                         </div>
                     @endif
                     <x-input-checkbox-block wire:model="client_actived" :checked="$client_actived">
-                        <div class="ms-4">
+                        <div>
                             <p class="font-medium text-md text-tbn-dark dark:text-white">Habilitar cliente</p>
                             <p class="text-xs text-tbn-dark dark:text-tbn-light">
                                 El cliente utiliza el sistema y su cuenta está disponible actualmente </p>

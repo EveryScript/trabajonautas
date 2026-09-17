@@ -17,7 +17,7 @@ class RecentAnnouncement extends Component
     {
         $this->client_pro_verified = $this->isAuthClientProVerifiedAndCurrent();
         $this->announcements = Announcement::where('expiration_time', '>=', now())
-            ->with(['company:id,company_name,company_image', 'locations:id,location_name'])
+            ->with(['company:id,company_name,company_image', 'locations:id,location_name', 'announceType:id,name'])
             ->where(function ($query) {
                 $query->whereNull('scheduled_at')
                     ->orWhere('scheduled_at', '<=', now());

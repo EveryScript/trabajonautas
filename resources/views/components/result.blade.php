@@ -37,6 +37,21 @@
                     @endif
                 </div>
                 <div class="text-sm font-normal text-tbn-dark">
+                    @if ($announcement->announceType)
+                        <div class="mb-2">
+                            @php
+                                $iconClass = match ($announcement->announceType->id) {
+                                    1 => 'fa-solid fa-graduation-cap',
+                                    2 => 'fa-solid fa-suitcase',
+                                    3 => 'fa-solid fa-hand-holding-heart',
+                                    default => 'fa-solid fa-briefcase',
+                                };
+                            @endphp
+                            <span class="text-tbn-dark dark:text-white">
+                                <i class="pr-1 {{ $iconClass }} text-tbn-primary"></i>
+                                {{ $announcement->announceType->name }}</span>
+                        </div>
+                    @endif
                     <div class="mb-2">
                         <i class="pr-1 fas fa-calendar-alt text-tbn-primary"></i>
                         <span class="text-tbn-dark dark:text-white">

@@ -15,7 +15,8 @@
                     class="hidden dark:block w-[3rem] rounded-full mx-auto">
             </picture>
             <h5 class="text-lg font-medium"> {{ $client->name }} </h5>
-            <small class="block text-xs font-light text-tbn-primary">{{ $client->profesion->profesion_name }}</small>
+            <small
+                class="block text-xs font-light text-tbn-primary">{{ $client->profesion ? $client->profesion->profesion_name : '(sin profesión)' }}</small>
             <!-- Account Type or Verifing subscription -->
             @if ($client->latestPendingSubscription)
                 <div class="p-4 my-4 text-left border rounded-lg border-tbn-primary">
@@ -110,6 +111,10 @@
             <a x-on:click="btnNavigation = 2"
                 class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                 <i class="ml-2 mr-3 fas fa-bookmark"></i> Mis convocatorias
+            </a>
+            <a x-on:click="btnNavigation = 3"
+                class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
+                <i class="ml-2 mr-3 fa-solid fa-sliders"></i> Preferencias
             </a>
         </nav>
         <!-- FAQ Card -->

@@ -43,7 +43,8 @@ class ResultAnnouncement extends Component
         return Announcement::with([
             'company.companyType',
             'profesions:id,profesion_name',
-            'locations:id,location_name'
+            'locations:id,location_name',
+            'announceType:id,name'
         ])->find($this->id);
     }
 

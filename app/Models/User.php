@@ -198,4 +198,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return (string) parent::getKey();
     }
+    // User preferences to announcements type
+    public function excludedAnnouncementTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(AnnouncementType::class, 'excluded_announcement_types')->withTimestamps();
+    }
 }

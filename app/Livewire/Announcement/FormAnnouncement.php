@@ -5,6 +5,7 @@ namespace App\Livewire\Announcement;
 use App\Jobs\SendAnnouncementNotifications;
 use App\Livewire\Forms\AnnouncementForm;
 use App\Models\Announcement;
+use App\Models\AnnouncementType;
 use App\Models\Area;
 use App\Models\Company;
 use App\Models\Location;
@@ -95,10 +96,10 @@ class FormAnnouncement extends Component
         abort_unless(Area::query()->whereKey($areaId)->exists(), 404);
 
         return Profesion::query()
-            ->whereHas('areas', fn ($query) => $query->where('areas.id', $areaId))
+            ->whereHas('areas', fn($query) => $query->where('areas.id', $areaId))
             ->orderBy('profesion_name')
             ->pluck('id')
-            ->map(fn ($id): int => (int) $id)
+            ->map(fn($id): int => (int) $id)
             ->all();
     }
 
@@ -110,7 +111,7 @@ class FormAnnouncement extends Component
                 return [
                     'id' => (int) $p->id,
                     'profesion_name' => $p->profesion_name,
-                    'area_ids' => $p->areas->pluck('id')->map(fn ($id) => (int) $id)->toArray(),
+                    'area_ids' => $p->areas->pluck('id')->map(fn($id) => (int) $id)->toArray(),
                 ];
             })->toArray();
         });
@@ -119,19 +120,25 @@ class FormAnnouncement extends Component
     #[Computed]
     public function locations()
     {
-        return Cache::remember('locations', 86400, fn () => Location::all(['id', 'location_name']));
+        return Cache::remember('locations', 86400, fn() => Location::all(['id', 'location_name']));
     }
 
     #[Computed]
     public function areas()
     {
-        return Cache::remember('areas', 86400, fn () => Area::all(['id', 'area_name']));
+        return Cache::remember('areas', 86400, fn() => Area::all(['id', 'area_name']));
     }
 
     #[Computed]
     public function companies()
     {
-        return Cache::remember('companies', 86400, fn () => Company::all(['id', 'company_name']));
+        return Cache::remember('companies', 86400, fn() => Company::all(['id', 'company_name']));
+    }
+
+    #[Computed]
+    public function announceTypes()
+    {
+        return Cache::remember('announce_types', 86400, fn() => AnnouncementType::all(['id', 'name']));
     }
 
     public function render()
@@ -141,6 +148,7 @@ class FormAnnouncement extends Component
             'locations' => $this->locations,
             'areas' => $this->areas,
             'companies' => $this->companies,
+            'announce_types' => $this->announceTypes
         ]);
     }
 }

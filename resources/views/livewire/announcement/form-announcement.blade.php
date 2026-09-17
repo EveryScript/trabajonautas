@@ -57,8 +57,8 @@
                     </x-select>
                 </div>
                 <div x-show="professionAreaWarning" x-text="professionAreaWarning"
-                    class="mt-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800"
-                    x-cloak></div>
+                    class="p-3 mt-2 text-xs border rounded-md border-amber-200 bg-amber-50 text-amber-800" x-cloak>
+                </div>
                 <x-input-error for="announcement.profesions" class="mt-2" />
             </div>
             <div class="mb-4">
@@ -153,11 +153,41 @@
                 </div>
                 <x-input-error for="announcement.description" class="mt-2" />
             </div>
+            <!-- Announcement Type (optional) -->
+            <div class="mb-4">
+                <x-label for="account" value="{{ __('Tipo de convocatoria (opcional)') }}" />
+                <ul class="grid w-full gap-4 md:grid-cols-3">
+                    @foreach ($announce_types as $type)
+                        @php
+                            $iconClass = match ($type->id) {
+                                1 => 'fa-solid fa-graduation-cap',
+                                2 => 'fa-solid fa-suitcase',
+                                3 => 'fa-solid fa-hand-holding-heart',
+                                default => 'fa-solid fa-briefcase',
+                            };
+                        @endphp
+
+                        <li wire:key='type-{{ $type->id }}'>
+                            <input type="radio" id="type-{{ $type->id }}" class="hidden peer"
+                                wire:model='announcement.announcement_type_id' value="{{ $type->id }}"
+                                name="announce_type">
+                            <label for="type-{{ $type->id }}"
+                                class="inline-flex items-center justify-between w-full p-5 bg-white border rounded-lg cursor-pointer text-tbn-secondary dark:text-white dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary hover:bg-tbn-light dark:hover:bg-neutral-900 peer-checked:border-tbn-primary peer-checked:text-tbn-primary peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:hover:bg-transparent peer-disabled:hover:dark:bg-tbn-dark">
+                                <div class="w-2/3">
+                                    <div class="w-full text-lg font-semibold">{{ $type->name }}</div>
+                                </div>
+                                <i class="mr-1 {{ $iconClass }}"></i>
+                            </label>
+                        </li>
+                    @endforeach
+                </ul>
+                <x-input-error for="announcement.announcement_type_id" class="mt-2" />
+            </div>
             <!-- Announcement PRO -->
             <div class="mb-4">
                 <x-input-checkbox-block x-model="isProAnnounce" checked="{{ $announcement->pro ? 'checked' : '' }}"
                     wire:model="announcement.pro">
-                    <div class="divide-y ms-6 divide-tbn-secondary">
+                    <div class="divide-y divide-tbn-secondary">
                         <div class="w-full mb-2">
                             <p class="font-medium text-black text-md dark:text-tbn-primary">Convocatoria PRO</p>
                             <p class="text-xs text-tbn-dark dark:text-white">
@@ -304,9 +334,9 @@
                     }
 
                     const compatibleIds = (await $wire.professionsForArea(areaSelected)).map(Number);
-                    const currentIds = tsControl
-                        ? tsControl.getValue().map(Number)
-                        : (this.profesionsSelectedIds || []).map(Number);
+                    const currentIds = tsControl ?
+                        tsControl.getValue().map(Number) :
+                        (this.profesionsSelectedIds || []).map(Number);
                     const incompatibleIds = currentIds.filter(id => !compatibleIds.includes(id));
 
                     if (incompatibleIds.length > 0) {
@@ -337,8 +367,8 @@
                     if (preserveIncompatibleSelections) {
                         this.profesions
                             .filter(item =>
-                                currentIds.includes(Number(item.id))
-                                && !compatible.some(compatibleItem => Number(compatibleItem.id) === Number(item.id))
+                                currentIds.includes(Number(item.id)) &&
+                                !compatible.some(compatibleItem => Number(compatibleItem.id) === Number(item.id))
                             )
                             .forEach(item => visible.push({
                                 ...item,
