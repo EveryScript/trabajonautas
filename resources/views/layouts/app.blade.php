@@ -24,18 +24,18 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBKn9I--sruLzQFQVgAayPMZuTt6tKU8A8",
-            authDomain: "trabajonautas-notifications.firebaseapp.com",
-            projectId: "trabajonautas-notifications",
-            storageBucket: "trabajonautas-notifications.firebasestorage.app",
-            messagingSenderId: "888362496290",
-            appId: "1:888362496290:web:04394616572da440fef57b",
-            measurementId: "G-FTYMBGYPTP"
-        };
+        window.firebaseConfig = {{ Illuminate\Support\Js::from(config('services.firebase.web')) }};
+        window.messaging = null;
 
-        firebase.initializeApp(firebaseConfig);
-        const messaging = firebase.messaging();
+        if (
+            window.firebaseConfig.apiKey &&
+            window.firebaseConfig.projectId &&
+            window.firebaseConfig.messagingSenderId &&
+            window.firebaseConfig.appId
+        ) {
+            firebase.initializeApp(window.firebaseConfig);
+            window.messaging = firebase.messaging();
+        }
     </script>
 
     <!-- ChartJS -->

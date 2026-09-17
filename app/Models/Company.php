@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\StoragePath;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,24 @@ class Company extends Model
 
     // Permissions
     public $guarded = [];
+
+    public function getCompanyImageAttribute(?string $value): ?string
+    {
+        return StoragePath::normalizePublicPath($value);
+    }
+
+    public function hasCompanyImageFile(): bool
+    {
+        if (!$this->company_image)
+            return false;
+
+        return Cache::remember('company-image-exists:' . $this->company_image, 3600, fn() => StoragePath::exists($this->company_image));
+    }
+
+    public function companyImageUrl(): ?string
+    {
+        return StoragePath::url($this->company_image);
+    }
 
     // Relationships
     public function announcements(): HasMany

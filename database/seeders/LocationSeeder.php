@@ -3,48 +3,57 @@
 namespace Database\Seeders;
 
 use App\Models\Location;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LocationSeeder extends Seeder
 {
     public function run(): void
     {
-        Location::create([
-            'id' => 1,
-            'location_name' => 'La Paz'
-        ]);
-        Location::create([
-            'id' => 2,
-            'location_name' => 'Cochabamba'
-        ]);
-        Location::create([
-            'id' => 3,
-            'location_name' => 'Santa Cruz'
-        ]);
-        Location::create([
-            'id' => 4,
-            'location_name' => 'Beni'
-        ]);
-        Location::create([
-            'id' => 5,
-            'location_name' => 'Pando'
-        ]);
-        Location::create([
-            'id' => 6,
-            'location_name' => 'Tarija'
-        ]);
-        Location::create([
-            'id' => 7,
-            'location_name' => 'Oruro'
-        ]);
-        Location::create([
-            'id' => 8,
-            'location_name' => 'Potosí'
-        ]);
-        Location::create([
-            'id' => 9,
-            'location_name' => 'Chuquisaca'
-        ]);
+        $departments = [
+            'Beni',
+            'Chuquisaca',
+            'Cochabamba',
+            'La Paz',
+            'Oruro',
+            'Pando',
+            'Potosí',
+            'Santa Cruz',
+            'Tarija',
+            'No especificado',
+        ];
+
+        DB::transaction(function () use ($departments): void {
+            foreach ($departments as $department) {
+                $normalized = $this->normalize($department);
+                $existing = Location::query()
+                    ->get(['id', 'location_name'])
+                    ->first(fn (Location $location): bool => $this->normalize($location->location_name) === $normalized);
+
+                if ($existing) {
+                    if ($existing->location_name !== $department) {
+                        $existing->update(['location_name' => $department]);
+                    }
+
+                    continue;
+                }
+
+                Location::firstOrCreate(['location_name' => $department]);
+            }
+        });
+
+        Cache::forget('locations');
+    }
+
+    private function normalize(string $value): string
+    {
+        return Str::of($value)
+            ->ascii()
+            ->lower()
+            ->replaceMatches('/[^a-z0-9]+/', ' ')
+            ->squish()
+            ->toString();
     }
 }

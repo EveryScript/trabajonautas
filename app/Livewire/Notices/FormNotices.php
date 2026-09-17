@@ -5,6 +5,7 @@ namespace App\Livewire\Notices;
 use App\Livewire\Forms\NoticeForm;
 use App\Models\Notice;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -27,6 +28,7 @@ class FormNotices extends Component
     {
         $this->form->user_id = Auth::id();
         $this->form->save();
+        Cache::forget('web-recent-notices');
         $this->dispatch('notice-saved');
     }
 

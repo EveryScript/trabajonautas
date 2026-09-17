@@ -20,8 +20,8 @@ class ListUser extends Component
 
     public function render()
     {
-        define('USER', env('USER_ROLE'));
-        define('ADMIN', env('ADMIN_ROLE'));
+        define('USER', config('trabajonautas.roles.user', 'USER'));
+        define('ADMIN', config('trabajonautas.roles.admin', 'ADMIN'));
 
         $users = User::whereHas('roles', function ($query) {
             $query->whereIn('name', [USER, ADMIN]);

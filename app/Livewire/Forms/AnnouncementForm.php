@@ -3,6 +3,8 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Announcement;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Livewire\Form;
 
 class AnnouncementForm extends Form
@@ -14,11 +16,13 @@ class AnnouncementForm extends Form
     public $announce_files = [];
     public $pro = false;
     public $scheduled_at;
+    public $announcement_type_id;
     public $notification_sent = false;
     public $company_id;
     public $user_id;
     public $locations;
     public $profesions;
+    public $selected_area_id;
     public $current_files;
 
     protected function rules()
@@ -30,6 +34,7 @@ class AnnouncementForm extends Form
             'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
             'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
+            'announcement_type_id' => 'nullable|exists:announcement_types,id',
             'announce_files.*' => [
                 'file',
                 'mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv',
@@ -51,22 +56,27 @@ class AnnouncementForm extends Form
 
     public function edit($id)
     {
-        $announcement_edit = Announcement::find($id);
+        $announcement_edit = Announcement::findOrFail($id);
         $this->announce_title = $announcement_edit->announce_title;
         $this->description = $announcement_edit->description;
         $this->expiration_time = $announcement_edit->expiration_time;
         $this->salary = $announcement_edit->salary;
         $this->pro = $announcement_edit->pro;
         $this->scheduled_at = $announcement_edit->scheduled_at;
+        $this->announcement_type_id = $announcement_edit->announcement_type_id;
         $this->company_id = $announcement_edit->company_id;
         $this->user_id = $announcement_edit->user_id;
-        $this->locations = $announcement_edit->locations->pluck('id');
-        $this->profesions = $announcement_edit->profesions->pluck('id');
+        $this->locations = $announcement_edit->locations->pluck('id')->map(fn($id) => (int) $id)->all();
+        $this->profesions = $announcement_edit->profesions->pluck('id')->map(fn($id) => (int) $id)->all();
+        $this->selected_area_id = $this->commonAreaId($this->profesions);
         $this->current_files = $announcement_edit->announceFiles;
     }
 
     public function update($update_id)
     {
+        $this->normalizeRelationSelections();
+        $this->validateProfessionAreaRelation();
+        $announcement = Announcement::findOrFail($update_id);
         $this->validate($this->rules());
 
         $announcement = Announcement::find($update_id);
@@ -77,8 +87,8 @@ class AnnouncementForm extends Form
             'salary' => str_replace('.', '', $this->salary),
             'pro' => $this->pro,
             'scheduled_at' => $this->pro && $this->scheduled_at ? $this->scheduled_at : null,
+            'announcement_type_id' => $this->announcement_type_id ?: null,
             'company_id' => $this->company_id,
-            'user_id' => $this->user_id
         ]);
         $announcement->locations()->sync($this->locations);
         $announcement->profesions()->sync($this->profesions);
@@ -92,7 +102,7 @@ class AnnouncementForm extends Form
                 $announce_files_data[] = [
                     'announcement_id' => $announcement->id,
                     'url' => $file_url,
-                    'original_name' => $original_name
+                    'original_name' => $original_name,
                 ];
             }
             $announcement->announceFiles()->createMany($announce_files_data);
@@ -102,6 +112,8 @@ class AnnouncementForm extends Form
     public function save()
     {
         $this->salary = str_replace('.', '', $this->salary);
+        $this->normalizeRelationSelections();
+        $this->validateProfessionAreaRelation();
         $this->validate($this->rules());
 
         $announcement = Announcement::create($this->only(
@@ -111,11 +123,12 @@ class AnnouncementForm extends Form
             'salary',
             'pro',
             'scheduled_at',
+            'announcement_type_id',
             'company_id',
             'user_id',
         ));
-        $announcement->locations()->attach($this->locations);
-        $announcement->profesions()->attach($this->profesions);
+        $announcement->locations()->sync($this->locations);
+        $announcement->profesions()->sync($this->profesions);
 
         $announce_files_data = [];
         if ($this->announce_files) {
@@ -129,12 +142,69 @@ class AnnouncementForm extends Form
                 $announce_files_data[] = [
                     'announcement_id' => $announcement->id,
                     'url' => $file_url,
-                    'original_name' => $original_name
+                    'original_name' => $original_name,
                 ];
             }
             $announcement->announceFiles()->createMany($announce_files_data);
         }
+
         return $announcement;
+    }
+
+    private function normalizeRelationSelections(): void
+    {
+        $this->locations = $this->normalizeIds($this->locations);
+        $this->profesions = $this->normalizeIds($this->profesions);
+        $this->selected_area_id = is_numeric($this->selected_area_id)
+            ? (int) $this->selected_area_id
+            : null;
+    }
+
+    public function validateProfessionAreaRelation(): void
+    {
+        $professionIds = collect($this->profesions)->map(fn($id): int => (int) $id)->unique()->values();
+        $compatibleCount = DB::table('area_profesion')
+            ->where('area_id', $this->selected_area_id)
+            ->whereIn('profesion_id', $professionIds)
+            ->distinct()
+            ->count('profesion_id');
+
+        if ($compatibleCount !== $professionIds->count()) {
+            throw ValidationException::withMessages([
+                'profesions' => 'Una o más profesiones no pertenecen al área seleccionada.',
+            ]);
+        }
+    }
+
+    private function commonAreaId(array $professionIds): ?int
+    {
+        $professionIds = collect($professionIds)->map(fn($id): int => (int) $id)->unique()->values();
+
+        if ($professionIds->isEmpty()) {
+            return null;
+        }
+
+        $areaId = DB::table('area_profesion')
+            ->select('area_id')
+            ->whereIn('profesion_id', $professionIds)
+            ->groupBy('area_id')
+            ->havingRaw('COUNT(DISTINCT profesion_id) = ?', [$professionIds->count()])
+            ->orderBy('area_id')
+            ->value('area_id');
+
+        return $areaId ? (int) $areaId : null;
+    }
+
+    private function normalizeIds(mixed $values): array
+    {
+        return collect($values ?? [])
+            ->filter(fn(mixed $value): bool => is_int($value)
+                || (is_string($value) && ctype_digit(trim($value))))
+            ->map(fn(mixed $value): int => (int) $value)
+            ->filter(fn(int $value): bool => $value > 0)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     public function messages()
@@ -144,7 +214,8 @@ class AnnouncementForm extends Form
             'announce_files.*.mimes' => 'Los archivos de la convocatoria deben ser documentos o imagenes',
             'expiration_time.after' => 'La fecha de expiración debe ser superior al momento actual',
             'scheduled_at.after' => 'La fecha de programación debe ser superior al momento actual',
-            'scheduled_at.before' => 'La fecha de programación debe ser antes de la fecha de expiración'
+            'scheduled_at.before' => 'La fecha de programación debe ser antes de la fecha de expiración',
+            'announcement_type_id' => 'Hay un error en el tipo de convocatorias'
         ];
     }
 
@@ -157,11 +228,13 @@ class AnnouncementForm extends Form
             'salary' => 'sueldo',
             'pro' => 'PRO',
             'scheduled_at' => 'fecha de programación',
+            'announcement_type_id' => 'tipo de convocatoria',
             'company_id' => 'empresa',
             'user_id' => 'usuario',
             'announce_files' => 'archivos de la convocatoria',
             'locations' => 'ubicaciones',
-            'profesions' => 'profesiones'
+            'profesions' => 'profesiones',
+            'selected_area_id' => 'área profesional',
         ];
     }
 }

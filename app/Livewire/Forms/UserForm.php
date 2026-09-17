@@ -65,8 +65,8 @@ class UserForm extends Form
             ],
             'password' => 'nullable|min:8',
             'role' => 'required|in:' . implode(',', [
-                env('USER_ROLE'),
-                env('ADMIN_ROLE'),
+                config('trabajonautas.roles.user', 'USER'),
+                config('trabajonautas.roles.admin', 'ADMIN'),
             ]),
         ]);
         $user = User::find($user_id);

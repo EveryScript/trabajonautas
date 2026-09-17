@@ -71,6 +71,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_url',
     ];
 
+    protected $keyType = 'string';
+
     // Remove permissions and roles if user is forceDeleted
     protected static function booted()
     {
@@ -185,5 +187,20 @@ class User extends Authenticatable implements MustVerifyEmail
             'id',
             'device_token'
         );
+    }
+    // Simple relation notification_logs exist
+    public function notificationLogsExist()
+    {
+        return $this->hasMany(NotificationLog::class, 'user_id');
+    }
+    // Casting UUID always string (for testing)
+    public function getKey()
+    {
+        return (string) parent::getKey();
+    }
+    // User preferences to announcements type
+    public function excludedAnnouncementTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(AnnouncementType::class, 'excluded_announcement_types')->withTimestamps();
     }
 }

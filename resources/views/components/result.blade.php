@@ -5,8 +5,9 @@
     <span class="absolute top-6 right-6 {{ $announcement->pro ? '' : 'hidden' }}">
         <i class="fas fa-crown text-md text-tbn-primary"></i></span>
     <div class="flex flex-col w-full gap-2 sm:flex-row sm:gap-6">
-        <img alt="team" class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
-            src="{{ $announcement->company ? asset('storage/' . $announcement->company->company_image) : asset('storage/empresas/tbn-new-default.webp') }}">
+        <img alt="{{ $announcement->company?->company_name ?? 'Empresa' }}"
+            class="flex-shrink-0 rounded-lg w-[5rem] h-[5rem] object-cover object-center sm:mb-0 mb-4"
+            src="{{ $announcement->company && $announcement->company->hasCompanyImageFile() ? $announcement->company->companyImageUrl() : asset('images/company-placeholder.svg') }}">
         <div class="flex-grow">
             <h2 class="text-xl font-bold leading-6 uppercase text-tbn-dark dark:text-white">
                 {{ $announcement->announce_title }}</h2>
@@ -36,6 +37,21 @@
                     @endif
                 </div>
                 <div class="text-sm font-normal text-tbn-dark">
+                    @if ($announcement->announceType)
+                        <div class="mb-2">
+                            @php
+                                $iconClass = match ($announcement->announceType->id) {
+                                    1 => 'fa-solid fa-graduation-cap',
+                                    2 => 'fa-solid fa-suitcase',
+                                    3 => 'fa-solid fa-hand-holding-heart',
+                                    default => 'fa-solid fa-briefcase',
+                                };
+                            @endphp
+                            <span class="text-tbn-dark dark:text-white">
+                                <i class="pr-1 {{ $iconClass }} text-tbn-primary"></i>
+                                {{ $announcement->announceType->name }}</span>
+                        </div>
+                    @endif
                     <div class="mb-2">
                         <i class="pr-1 fas fa-calendar-alt text-tbn-primary"></i>
                         <span class="text-tbn-dark dark:text-white">
@@ -136,7 +152,9 @@
             </x-button>
         @endif
         <!-- Return -->
-        <x-secondary-button type="button" onclick="history.back()" class="w-full my-1 sm:w-auto">
+        <x-secondary-button type="button"
+            x-on:click="Livewire.navigate(sessionStorage.getItem('lastSearchUrl') || '{{ route('search') }}')"
+            class="w-full my-1 sm:w-auto">
             <i class="pr-2 text-sm fas fa-arrow-left"></i> Volver
         </x-secondary-button>
     </div>

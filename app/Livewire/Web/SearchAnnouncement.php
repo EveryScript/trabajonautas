@@ -116,10 +116,11 @@ class SearchAnnouncement extends Component
     public function announcements()
     {
         return $this->announceBaseQuery()
-            ->select('id', 'announce_title', 'company_id', 'pro', 'expiration_time', 'created_at', 'updated_at')
+            ->select('id', 'announce_title', 'company_id', 'pro', 'expiration_time', 'created_at', 'updated_at', 'announcement_type_id')
             ->with([
                 'company:id,company_name,company_image',
-                'locations:id,location_name'
+                'locations:id,location_name',
+                'announceType:id,name'
             ])
             ->latest('updated_at')
             ->limit($this->per_page)

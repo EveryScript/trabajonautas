@@ -38,7 +38,8 @@ return [
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',
-            'retry_after' => 90,
+            // Debe permanecer por encima de ProcessSicoesJob::$timeout (7500 s).
+            'retry_after' => (int) env('QUEUE_RETRY_AFTER', 7600),
             'after_commit' => false,
         ],
 
@@ -46,7 +47,7 @@ return [
             'driver' => 'beanstalkd',
             'host' => 'localhost',
             'queue' => 'default',
-            'retry_after' => 90,
+            'retry_after' => (int) env('QUEUE_RETRY_AFTER', 7600),
             'block_for' => 0,
             'after_commit' => false,
         ],
@@ -66,7 +67,7 @@ return [
             'driver' => 'redis',
             'connection' => 'default',
             'queue' => env('REDIS_QUEUE', 'default'),
-            'retry_after' => 90,
+            'retry_after' => (int) env('QUEUE_RETRY_AFTER', 7600),
             'block_for' => null,
             'after_commit' => false,
         ],

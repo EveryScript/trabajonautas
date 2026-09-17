@@ -21,9 +21,9 @@ class DatabaseSeeder extends Seeder
             AnnouncementSeeder::class,
             GradeProfileSeeder::class,
             AccountTypeSeeder::class,
-            // ClientSeeder::class,
-            // NoticeSeeder::class,
-            TbnSettingSeeder::class
+            ClientSeeder::class,
+            NoticeSeeder::class,
+            //TbnSettingSeeder::class
         ]);
     }
 }

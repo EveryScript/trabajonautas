@@ -7,18 +7,40 @@
     wire:navigate>
     <article
         class="relative flex flex-col justify-start w-full h-full gap-4 px-6 py-5 transition-colors duration-150 bg-white border border-gray-300 rounded-lg shadow-md cursor-pointer md:flex-row md:gap-6 md:items-center text-start dark:bg-tbn-dark dark:text-tbn-light dark:border-tbn-secondary hover:border-tbn-primary">
+
         <img class="flex-shrink-0 object-cover object-center w-16 h-16 rounded-lg"
-            src="{{ $announce->company ? asset('storage/' . $announce->company->company_image) : asset('storage/empresas/tbn-new-default.webp') }}">
+            src="{{ $announce->company && $announce->company->hasCompanyImageFile() ? $announce->company->companyImageUrl() : asset('images/company-placeholder.svg') }}"
+            alt="{{ $announce->company?->company_name ?? 'Empresa' }}">
+
         <div class="flex-1 text-sm">
-            <p class="absolute top-4 right-6 {{ $announce->pro ? '' : 'hidden' }}">
+            <p class="absolute top-4 right-5 {{ $announce->pro ? '' : 'hidden' }}">
                 <i class="text-sm fas fa-crown text-tbn-primary"></i>
             </p>
-            <p class="text-xs font-normal text-tbn-dark dark:text-tbn-light">
-                <span class="pr-2">Publicado {{ Carbon\Carbon::parse($announce->created_at)->diffForHumans() }}</span>
-                @if ($announce->expiration_time < now())
-                    <span class="font-light text-tbn-primary">(Convocatoria expirada)</span>
+            <div class="flex flex-wrap items-center justify-start gap-2">
+                <p class="text-xs font-normal text-tbn-dark dark:text-tbn-light">
+                    <span class="pr-2">Publicado
+                        {{ Carbon\Carbon::parse($announce->created_at)->diffForHumans() }}</span>
+                    @if ($announce->expiration_time < now())
+                        <span class="font-light text-tbn-primary">(Convocatoria expirada)</span>
+                    @endif
+                </p>
+                <!-- Announce type -->
+                @if ($announce->announceType)
+                    @php
+                        $iconClass = match ($announce->announceType->id) {
+                            1 => 'fa-solid fa-graduation-cap',
+                            2 => 'fa-solid fa-suitcase',
+                            3 => 'fa-solid fa-hand-holding-heart',
+                            default => 'fa-solid fa-briefcase',
+                        };
+                    @endphp
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-tbn-light text-tbn-secondary dark:bg-tbn-dark dark:text-tbn-light border border-tbn-secondary dark:border-tbn-secondary">
+                        <i class="{{ $iconClass }} mr-1.5 text-xs text-tbn-primary"></i>
+                        {{ $announce->announceType->name }}
+                    </span>
                 @endif
-            </p>
+            </div>
             <h2 class="my-2 text-lg font-bold leading-6 uppercase dark:text-white">{{ $announce->announce_title }}</h2>
             <div class="grid w-full grid-cols-2 gap-4 mt-1">
                 @if ($announce->company)
@@ -26,6 +48,7 @@
                 @else
                     <p class="text-sm text-tbn-dark dark:text-tbn-light">(sin empresa)</p>
                 @endif
+
                 <div class="flex flex-wrap items-center gap-2">
                     @php
                         $userLocationId = auth()->user()->location_id ?? null;

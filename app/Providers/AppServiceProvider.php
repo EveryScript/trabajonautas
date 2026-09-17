@@ -10,6 +10,7 @@ use App\Models\Location;
 use App\Models\Profesion;
 use App\Observers\AreaObserver;
 use App\Observers\CompanyObserver;
+use App\Observers\LocationObserver;
 use App\Observers\ProfesionObserver;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         Area::observe(AreaObserver::class);
         Profesion::observe(ProfesionObserver::class);
         Company::observe(CompanyObserver::class);
+        Location::observe(LocationObserver::class);
 
         View::composer('profile.update-profile-information-form', function ($view) {
             $view->with([

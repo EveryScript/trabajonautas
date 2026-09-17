@@ -15,7 +15,8 @@
                     class="hidden dark:block w-[3rem] rounded-full mx-auto">
             </picture>
             <h5 class="text-lg font-medium"> {{ $client->name }} </h5>
-            <small class="block text-xs font-light text-tbn-primary">{{ $client->profesion->profesion_name }}</small>
+            <small
+                class="block text-xs font-light text-tbn-primary">{{ $client->profesion ? $client->profesion->profesion_name : '(sin profesión)' }}</small>
             <!-- Account Type or Verifing subscription -->
             @if ($client->latestPendingSubscription)
                 <div class="p-4 my-4 text-left border rounded-lg border-tbn-primary">
@@ -28,7 +29,7 @@
                     </p>
                     <a class="inline-block px-3 py-2 text-xs text-white transition-colors duration-300 border rounded cursor-pointer bg-tbn-primary border-tbn-primary hover:bg-transparent hover:text-tbn-primary"
                         target="_blank"
-                        href="https://wa.me/{{ env('SUPPORT_PHONE') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $client->email }}.">
+                        href="https://wa.me/{{ config('trabajonautas.support_phone') }}?text=Hola%20Trabajonautas.com,%20he%20realizado%20el%20pago%20de%20mi%20cuenta%20{{ $client->latestPendingSubscription->type->name }}%20por%20QR,%20adjunto%20mi%20comprobante%20de%20pago%20(FOTO),%20para%20su%20verificación.%20Mi%20nombre%20es%20{{ $client->name }}%20y%20mi%20correo%20electrónico%20es%20{{ $client->email }}.">
                         <i class="mr-1 fab fa-whatsapp"></i> Enviar mensaje</a>
                 </div>
             @else
@@ -110,6 +111,10 @@
             <a x-on:click="btnNavigation = 2"
                 class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
                 <i class="ml-2 mr-3 fas fa-bookmark"></i> Mis convocatorias
+            </a>
+            <a x-on:click="btnNavigation = 3"
+                class="flex items-center py-2 transition-all duration-300 cursor-pointer text-tbn-secondary dark:text-tbn-light hover:text-tbn-primary">
+                <i class="ml-2 mr-3 fa-solid fa-sliders"></i> Preferencias
             </a>
         </nav>
         <!-- FAQ Card -->

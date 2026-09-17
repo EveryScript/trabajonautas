@@ -49,7 +49,7 @@ class CreateNewUser implements CreatesNewUsers
             'terms_accepted_at' => now()
         ]);
 
-        $new_user->assignRole(env('CLIENT_ROLE')); // Every user is CLIENT
+        $new_user->assignRole(config('trabajonautas.roles.client', 'CLIENT')); // Every user is CLIENT
 
         return $new_user;
     }

@@ -53,7 +53,8 @@
                             <th scope="row"
                                 class="px-6 py-4 max-w-60 sm:max-w-md lg:max-w-2xl font-medium whitespace-wrap {{ $company->trashed() ? 'opacity-20' : '' }}">
                                 <div class="flex flex-row gap-3">
-                                    <img src="{{ asset('storage/' . $company->company_image) }}" alt="logo"
+                                    <img src="{{ $company->hasCompanyImageFile() ? $company->companyImageUrl() : asset('images/company-placeholder.svg') }}"
+                                        alt="{{ $company->company_name }}"
                                         class="flex-shrink-0 object-cover object-center w-10 h-10 mb-4 rounded-lg sm:mb-0">
                                     <div class="truncate">
                                         <h5 class="font-bold truncate text-md dark:text-white">{{ $company->company_name }}</h5>

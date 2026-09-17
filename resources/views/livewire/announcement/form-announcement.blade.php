@@ -30,9 +30,9 @@
                 <x-input-error for="announcement.company_id" class="mt-2" />
             </div>
             <div class="mb-4">
-                <x-label for="area"><span class="font-bold">Área profesional</span> (añadir profesiones) </x-label>
+                <x-label for="area"><span class="font-bold">Área profesional</span> (filtra profesiones)</x-label>
                 <div class="mt-1 tbn-tom-select" wire:ignore>
-                    <x-select id="area">
+                    <x-select id="area" wire:model="announcement.selected_area_id">
                         <option></option>
                         @forelse ($areas as $area)
                             <option value="{{ $area->id }}">{{ $area->area_name }}</option>
@@ -41,6 +41,7 @@
                         @endforelse
                     </x-select>
                 </div>
+                <x-input-error for="announcement.selected_area_id" class="mt-2" />
             </div>
             <div class="mb-4">
                 <x-label for="profesions">Profesiones <button x-on:click="clearProfesionsSelected" type="button"
@@ -54,6 +55,9 @@
                             <option>No hay opciones para mostrar</option>
                         @endforelse
                     </x-select>
+                </div>
+                <div x-show="professionAreaWarning" x-text="professionAreaWarning"
+                    class="p-3 mt-2 text-xs border rounded-md border-amber-200 bg-amber-50 text-amber-800" x-cloak>
                 </div>
                 <x-input-error for="announcement.profesions" class="mt-2" />
             </div>
@@ -149,11 +153,41 @@
                 </div>
                 <x-input-error for="announcement.description" class="mt-2" />
             </div>
+            <!-- Announcement Type (optional) -->
+            <div class="mb-4">
+                <x-label for="account" value="{{ __('Tipo de convocatoria (opcional)') }}" />
+                <ul class="grid w-full gap-4 md:grid-cols-3">
+                    @foreach ($announce_types as $type)
+                        @php
+                            $iconClass = match ($type->id) {
+                                1 => 'fa-solid fa-graduation-cap',
+                                2 => 'fa-solid fa-suitcase',
+                                3 => 'fa-solid fa-hand-holding-heart',
+                                default => 'fa-solid fa-briefcase',
+                            };
+                        @endphp
+
+                        <li wire:key='type-{{ $type->id }}'>
+                            <input type="radio" id="type-{{ $type->id }}" class="hidden peer"
+                                wire:model='announcement.announcement_type_id' value="{{ $type->id }}"
+                                name="announce_type">
+                            <label for="type-{{ $type->id }}"
+                                class="inline-flex items-center justify-between w-full p-5 bg-white border rounded-lg cursor-pointer text-tbn-secondary dark:text-white dark:bg-tbn-dark border-tbn-light dark:border-tbn-secondary hover:bg-tbn-light dark:hover:bg-neutral-900 peer-checked:border-tbn-primary peer-checked:text-tbn-primary peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:hover:bg-transparent peer-disabled:hover:dark:bg-tbn-dark">
+                                <div class="w-2/3">
+                                    <div class="w-full text-lg font-semibold">{{ $type->name }}</div>
+                                </div>
+                                <i class="mr-1 {{ $iconClass }}"></i>
+                            </label>
+                        </li>
+                    @endforeach
+                </ul>
+                <x-input-error for="announcement.announcement_type_id" class="mt-2" />
+            </div>
             <!-- Announcement PRO -->
             <div class="mb-4">
                 <x-input-checkbox-block x-model="isProAnnounce" checked="{{ $announcement->pro ? 'checked' : '' }}"
                     wire:model="announcement.pro">
-                    <div class="divide-y ms-6 divide-tbn-secondary">
+                    <div class="divide-y divide-tbn-secondary">
                         <div class="w-full mb-2">
                             <p class="font-medium text-black text-md dark:text-tbn-primary">Convocatoria PRO</p>
                             <p class="text-xs text-tbn-dark dark:text-white">
@@ -248,6 +282,8 @@
                 modalPreview: false,
                 previewUrl: null,
                 ts_area: null,
+                currentAreaId: null,
+                professionAreaWarning: '',
                 profesions: @json($profesions),
                 locations: @json($locations),
                 areas: @json($areas),
@@ -260,6 +296,11 @@
                             this.onAreaChange(value)
                         }
                     })
+                    if ($wire.announcement.selected_area_id) {
+                        this.currentAreaId = Number($wire.announcement.selected_area_id);
+                        this.ts_area.setValue(this.currentAreaId, true);
+                        this.filterProfessionOptions(this.currentAreaId, true);
+                    }
                     flatpickr("#expiration_time", {
                         defaultDate: @json($id) ? $wire.announcement.expiration_time :
                             'today',
@@ -279,18 +320,78 @@
                         "locale": "es"
                     });
                 },
-                // Set profesions base on area selected
-                onAreaChange(areaId) {
+                // Filter professions by area without selecting the complete area catalog.
+                async onAreaChange(areaId) {
                     const areaSelected = Number(areaId)
-                    const profesionsSelected = this.profesions.filter(p => {
-                        return p.area_ids && p.area_ids.map(Number).includes(areaSelected);
-                    });
-                    const selectedIds = profesionsSelected.map(p => p.id);
-                    this.profesionsSelectedIds = [...new Set([...this.profesionsSelectedIds, ...selectedIds])];
-
                     const tsControl = document.querySelector('#profesions').tomselect;
-                    if (tsControl)
-                        tsControl.setValue(this.profesionsSelectedIds);
+
+                    if (!areaSelected) {
+                        this.currentAreaId = null;
+                        this.professionAreaWarning = '';
+                        $wire.announcement.selected_area_id = null;
+                        this.replaceProfessionOptions(this.profesions, tsControl.getValue().map(Number));
+                        return;
+                    }
+
+                    const compatibleIds = (await $wire.professionsForArea(areaSelected)).map(Number);
+                    const currentIds = tsControl ?
+                        tsControl.getValue().map(Number) :
+                        (this.profesionsSelectedIds || []).map(Number);
+                    const incompatibleIds = currentIds.filter(id => !compatibleIds.includes(id));
+
+                    if (incompatibleIds.length > 0) {
+                        const incompatibleNames = this.profesions
+                            .filter(item => incompatibleIds.includes(Number(item.id)))
+                            .map(item => item.profesion_name)
+                            .join(', ');
+                        this.professionAreaWarning =
+                            `Estas profesiones se conservaron, pero no pertenecen al área elegida: ${incompatibleNames}. Quítalas manualmente antes de guardar.`;
+                    } else {
+                        this.professionAreaWarning = '';
+                    }
+
+                    this.profesionsSelectedIds = currentIds;
+                    this.currentAreaId = areaSelected;
+                    $wire.announcement.selected_area_id = areaSelected;
+                    $wire.announcement.profesions = this.profesionsSelectedIds;
+                    this.filterProfessionOptions(areaSelected, true);
+                },
+                filterProfessionOptions(areaId, preserveIncompatibleSelections = false) {
+                    const tsControl = document.querySelector('#profesions').tomselect;
+                    const currentIds = tsControl.getValue().map(Number);
+                    const compatible = this.profesions.filter(item =>
+                        (item.area_ids || []).map(Number).includes(Number(areaId))
+                    );
+                    const visible = [...compatible];
+
+                    if (preserveIncompatibleSelections) {
+                        this.profesions
+                            .filter(item =>
+                                currentIds.includes(Number(item.id)) &&
+                                !compatible.some(compatibleItem => Number(compatibleItem.id) === Number(item.id))
+                            )
+                            .forEach(item => visible.push({
+                                ...item,
+                                profesion_name: `${item.profesion_name} (no pertenece al área seleccionada)`
+                            }));
+                    }
+
+                    this.replaceProfessionOptions(visible, currentIds);
+                    if (preserveIncompatibleSelections && visible.length !== compatible.length) {
+                        this.professionAreaWarning =
+                            'Hay profesiones seleccionadas que no pertenecen al área. Corrígelas antes de guardar.';
+                    }
+                },
+                replaceProfessionOptions(items, selectedIds) {
+                    const tsControl = document.querySelector('#profesions').tomselect;
+                    tsControl.clear(true);
+                    tsControl.clearOptions();
+                    items.forEach(item => tsControl.addOption({
+                        value: String(item.id),
+                        text: item.profesion_name,
+                    }));
+                    tsControl.refreshOptions(false);
+                    tsControl.setValue((selectedIds || []).map(String), true);
                 },
                 // Set all locations
                 setAllLocations() {
@@ -302,6 +403,7 @@
                 clearProfesionsSelected() {
                     this.profesionsSelectedIds = []
                     document.querySelector('#profesions').tomselect.clear()
+                    $wire.announcement.profesions = []
                 }
             }))
         </script>

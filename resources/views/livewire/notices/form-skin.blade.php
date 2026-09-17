@@ -10,8 +10,15 @@
             <div>
                 <div class="mb-4">
                     <x-label>Imagen de fondo <span class="text-xs font-light">(1500 x 1000)</span> </x-label>
-                    <img src="{{ asset('storage/' . $bg_web_image->value) }}" alt="imagen-fondo"
-                        class="object-cover w-64 h-32 rounded" />
+                    @if ($bg_web_image_url)
+                        <img src="{{ $bg_web_image_url }}" alt="Imagen de fondo configurada"
+                            class="object-cover w-64 h-32 rounded" />
+                    @else
+                        <div
+                            class="flex items-center justify-center w-64 h-32 text-sm border rounded text-tbn-secondary border-tbn-light dark:text-tbn-light dark:border-tbn-secondary">
+                            Sin imagen configurada
+                        </div>
+                    @endif
                 </div>
                 <x-label for="image" value="{{ __('Cambiar imagen de fondo') }}" />
                 <x-filepond type="file" wire:model="bg_new_image" id="image"
@@ -21,8 +28,15 @@
             <div>
                 <div class="mb-4">
                     <x-label>Imagen del astronauta <span class="text-xs font-light">(580 x 720)</span> </x-label>
-                    <img src="{{ asset('storage/' . $thumb_web_image->value) }}" alt="imagen-fondo"
-                        class="w-32 rounded" />
+                    @if ($thumb_web_image_url)
+                        <img src="{{ $thumb_web_image_url }}" alt="Imagen del astronauta configurada"
+                            class="w-32 rounded" />
+                    @else
+                        <div
+                            class="flex items-center justify-center w-32 h-32 text-xs text-center border rounded text-tbn-secondary border-tbn-light dark:text-tbn-light dark:border-tbn-secondary">
+                            Sin imagen configurada
+                        </div>
+                    @endif
                 </div>
                 <x-label for="image" value="{{ __('Cambiar imagen del astronauta') }}" />
                 <x-filepond type="file" wire:model="thumb_new_image" id="image"
