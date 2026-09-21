@@ -49,7 +49,18 @@
                         <span wire:loading wire:target="unlock">Desbloqueando...</span>
                     </x-button>
                 @endif
-                <x-secondary-button type="button" onclick="history.back()" class="w-full my-1 sm:w-auto">
+                <x-secondary-button type="button"
+                    x-on:click="
+                        const lastUrl = sessionStorage.getItem('lastSearchUrl');
+                        if (lastUrl) {
+                            Livewire.navigate(lastUrl);
+                        } else if (document.referrer && document.referrer.includes(window.location.origin)) {
+                            window.history.back();
+                        } else {
+                            Livewire.navigate('{{ route('search') }}');
+                        }
+                    "
+                    class="w-full my-1 sm:w-auto">
                     <i class="pr-2 text-sm fas fa-arrow-left"></i> Volver
                 </x-secondary-button>
             </div>

@@ -104,6 +104,8 @@
                         this.aside_error_notifications = false
                         this.button_notify_loading = false
                     })
+
+                    sessionStorage.removeItem('lastSearchUrl'); // Remove search url to back
                 },
                 async activateNotificationsAndSaveCurrentToken() {
                     this.button_notify_loading = true

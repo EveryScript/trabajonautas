@@ -148,6 +148,18 @@
                     </div>
                 @endforeach
             </div>
+            @if ($announcements->count() < $this->totalResults)
+                <div class="flex flex-row justify-center mb-4">
+                    <x-button wire:click="loadMore" wire:loading.attr="disabled" wire:target='loadMore'>
+                        <span wire:loading.remove wire:target="loadMore">
+                            <i class="mr-1 fa-solid fa-angles-down"></i> Ver más
+                        </span>
+                        <span wire:loading wire:target="loadMore">
+                            <i class="mr-1 fa-solid fa-spinner animate-spin"></i> Cargando...
+                        </span>
+                    </x-button>
+                </div>
+            @endif
         @endif
 
         <!-- Recommends -->
