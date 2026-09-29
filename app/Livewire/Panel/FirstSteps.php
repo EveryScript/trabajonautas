@@ -5,6 +5,7 @@ namespace App\Livewire\Panel;
 use App\Livewire\Forms\ClientForm;
 use App\Mail\WelcomeAccount;
 use App\Models\AccountType;
+use App\Models\AnnouncementType;
 use App\Models\Location;
 use App\Models\Profesion;
 use App\Models\TbnSetting;
@@ -46,6 +47,12 @@ class FirstSteps extends Component
     public function account_types()
     {
         return AccountType::select('id', 'name', 'price', 'duration_days')->get();
+    }
+
+    #[Computed]
+    public function announcement_types()
+    {
+        return AnnouncementType::select('id', 'name')->get();
     }
 
     public function confirmAndSave()
@@ -102,6 +109,7 @@ class FirstSteps extends Component
             'profesions'    => $this->profesions,
             'locations'     => $this->locations,
             'account_types' => $this->account_types,
+            'announcement_types' => $this->announcement_types,
             'tbn_coins'     => TbnSetting::where('key', 'tbn_coins')->value('value'),
         ]);
     }

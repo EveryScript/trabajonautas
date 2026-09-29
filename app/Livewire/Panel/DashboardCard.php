@@ -14,7 +14,7 @@ class DashboardCard extends Component
 {
     use AuthorizeClients;
     // Parameters
-    public $title, $description;
+    public string $title, $description;
     public $my_announces_mode = false;
     public User $client;
     // Propeties
@@ -28,9 +28,10 @@ class DashboardCard extends Component
             return collect();
 
         $query = Announcement::where('expiration_time', '>=', now())
+            ->visibleTo(auth()->user())
             ->whereHas('profesions', fn($sub) => $sub->where('profesion_id', $profesion_id))
             ->selectRaw(
-                "id, announce_title, company_id, pro, expiration_time, created_at, updated_at,
+                "id, announce_title, company_id, pro, expiration_time, created_at, updated_at, announcement_type_id,
                 (created_at >= ?) as is_today,
                 (created_at >= ?) as is_week,
                 (created_at >= ?) as is_month,
@@ -44,7 +45,8 @@ class DashboardCard extends Component
             ->with([
                 'company:id,company_name,company_image',
                 'locations:id,location_name',
-                'profesions:id'
+                'profesions:id',
+                'announceType:id,name'
             ])
             ->orderBy('priority_level', 'ASC')
             ->latest('updated_at')
@@ -60,6 +62,7 @@ class DashboardCard extends Component
     }
 
     #[On('announcements-updated')]
+    #[On('preferences-updated')]
     public function refreshComponent()
     {
         unset($this->announcements);

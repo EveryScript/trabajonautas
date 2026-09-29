@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Announcement;
+use Illuminate\Support\Facades\DB;
 use Livewire\Form;
 
 class AnnouncementForm extends Form
@@ -14,6 +15,7 @@ class AnnouncementForm extends Form
     public $announce_files = [];
     public $pro = false;
     public $scheduled_at;
+    public $announcement_type_id;
     public $notification_sent = false;
     public $company_id;
     public $user_id;
@@ -30,6 +32,7 @@ class AnnouncementForm extends Form
             'salary' => 'required|numeric|min:0',
             'pro' => 'boolean',
             'scheduled_at' => 'nullable|date|after:now|before:expiration_time',
+            'announcement_type_id' => 'nullable|exists:announcement_types,id',
             'announce_files.*' => [
                 'file',
                 'mimes:jpg,jpeg,png,pdf,docx,xlsx,xlsm,xls,csv',
@@ -49,7 +52,7 @@ class AnnouncementForm extends Form
         ];
     }
 
-    public function edit($id)
+    public function edit(?int $id)
     {
         $announcement_edit = Announcement::find($id);
         $this->announce_title = $announcement_edit->announce_title;
@@ -58,14 +61,15 @@ class AnnouncementForm extends Form
         $this->salary = $announcement_edit->salary;
         $this->pro = $announcement_edit->pro;
         $this->scheduled_at = $announcement_edit->scheduled_at;
+        $this->announcement_type_id = $announcement_edit->announcement_type_id;
         $this->company_id = $announcement_edit->company_id;
         $this->user_id = $announcement_edit->user_id;
-        $this->locations = $announcement_edit->locations->pluck('id');
-        $this->profesions = $announcement_edit->profesions->pluck('id');
+        $this->locations = $announcement_edit->locations->pluck('id')->map(fn($id) => (int) $id)->all();
+        $this->profesions = $announcement_edit->profesions->pluck('id')->map(fn($id) => (int) $id)->all();
         $this->current_files = $announcement_edit->announceFiles;
     }
 
-    public function update($update_id)
+    public function update(?int $update_id)
     {
         $this->validate($this->rules());
 
@@ -77,6 +81,7 @@ class AnnouncementForm extends Form
             'salary' => str_replace('.', '', $this->salary),
             'pro' => $this->pro,
             'scheduled_at' => $this->pro && $this->scheduled_at ? $this->scheduled_at : null,
+            'announcement_type_id' => $this->announcement_type_id ?: null,
             'company_id' => $this->company_id,
             'user_id' => $this->user_id
         ]);
@@ -111,6 +116,7 @@ class AnnouncementForm extends Form
             'salary',
             'pro',
             'scheduled_at',
+            'announcement_type_id',
             'company_id',
             'user_id',
         ));
@@ -144,7 +150,8 @@ class AnnouncementForm extends Form
             'announce_files.*.mimes' => 'Los archivos de la convocatoria deben ser documentos o imagenes',
             'expiration_time.after' => 'La fecha de expiración debe ser superior al momento actual',
             'scheduled_at.after' => 'La fecha de programación debe ser superior al momento actual',
-            'scheduled_at.before' => 'La fecha de programación debe ser antes de la fecha de expiración'
+            'scheduled_at.before' => 'La fecha de programación debe ser antes de la fecha de expiración',
+            'announcement_type_id' => 'Hay un error en el tipo de convocatorias'
         ];
     }
 
@@ -157,6 +164,7 @@ class AnnouncementForm extends Form
             'salary' => 'sueldo',
             'pro' => 'PRO',
             'scheduled_at' => 'fecha de programación',
+            'announcement_type_id' => 'tipo de convocatoria',
             'company_id' => 'empresa',
             'user_id' => 'usuario',
             'announce_files' => 'archivos de la convocatoria',

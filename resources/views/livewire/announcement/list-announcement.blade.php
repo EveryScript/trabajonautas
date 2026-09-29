@@ -44,6 +44,9 @@
                             PRO
                         </th>
                         <th scope="col" class="hidden px-6 py-3 lg:table-cell">
+                            Tipo
+                        </th>
+                        <th scope="col" class="hidden px-6 py-3 lg:table-cell">
                             Ubicación
                         </th>
                         <th scope="col" class="hidden px-6 py-3 lg:table-cell">
@@ -97,6 +100,20 @@
                             <td class="px-6 py-4 dark:text-tbn-light">
                                 @if ($announcement->pro)
                                     <i class="text-xs fas fa-crown text-tbn-primary"></i>
+                                @endif
+                            </td>
+                            <td class="hidden px-6 py-4 dark:text-tbn-light lg:table-cell">
+                                @if ($announcement->announceType)
+                                    @php
+                                        $iconClass = match ($announcement->announceType->id) {
+                                            1 => 'fa-solid fa-graduation-cap',
+                                            2 => 'fa-solid fa-suitcase',
+                                            3 => 'fa-solid fa-hand-holding-heart',
+                                            default => 'fa-solid fa-briefcase',
+                                        };
+                                    @endphp
+                                    <span class="text-tbn-dark dark:text-white">
+                                        <i class="pr-1 {{ $iconClass }} text-tbn-primary"></i></span>
                                 @endif
                             </td>
                             <td class="hidden px-6 py-4 dark:text-tbn-light lg:table-cell">

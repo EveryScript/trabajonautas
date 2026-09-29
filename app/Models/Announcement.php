@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Observers\AnnouncementObserver;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,5 +54,21 @@ class Announcement extends Model
     protected static function booted(): void
     {
         static::observe(AnnouncementObserver::class);
+    }
+    public function announceType(): BelongsTo
+    {
+        return $this->belongsTo(AnnouncementType::class, 'announcement_type_id');
+    }
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        $excludedTypeIds = $user->excludedAnnouncementTypes()->pluck('announcement_types.id');
+
+        if ($excludedTypeIds->isEmpty())
+            return $query;
+
+        return $query->where(function (Builder $q) use ($excludedTypeIds) {
+            $q->whereNotIn('announcement_type_id', $excludedTypeIds)
+                ->orWhereNull('announcement_type_id');
+        });
     }
 }

@@ -24,6 +24,12 @@
                     :client="$this->client" :my_announces_mode="true" :key="'my-announces-' . $this->client->id" lazy>
                 </livewire:panel.dashboard-card>
             </div>
+            <!-- Client Announces Preferences -->
+            <div x-show="btnNavigation == 3">
+                <livewire:panel.dashboard-preferences title="Preferencias"
+                    description="Establece la visibilidad de las convocatorias según su tipo.">
+                </livewire:panel.dashboard-preferences>
+            </div>
         </main>
         <!-- Modal: Verifing account -->
         @if ($this->client->latestPendingSubscription)

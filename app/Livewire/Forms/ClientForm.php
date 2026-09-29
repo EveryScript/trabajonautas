@@ -21,6 +21,7 @@ class ClientForm extends Form
     public $location_id;
     public $account_type_id;
     public $account_price;
+    public $excluded_announces = [];
 
     public function setClient(User $client)
     {
@@ -36,7 +37,10 @@ class ClientForm extends Form
             'profesion_id',
             'location_id',
         ]));
-
+        $this->excluded_announces = $this->client
+            ->excludedAnnouncementTypes()
+            ->pluck('announcement_types.id')
+            ->toArray();
         $this->account_type_id = $this->client->account ? $this->client->account->account_type_id : null;
     }
 
@@ -70,6 +74,7 @@ class ClientForm extends Form
                     'verified_payment' => true,
                     'verified_by_user_id' => null
                 ]);
+                $user->excludedAnnouncementTypes()->sync($this->excluded_announces);
             } else {
                 // --- PRO or PRO-MAX CLIENT ---
                 $subscription = $user->subscriptions()->create([
@@ -77,6 +82,7 @@ class ClientForm extends Form
                     'price'            => $this->account_price,
                     'verified_payment' => false,
                 ]);
+                $user->excludedAnnouncementTypes()->sync($this->excluded_announces);
             }
         });
     }
@@ -100,6 +106,7 @@ class ClientForm extends Form
         ]);
 
         $this->client->update($this->except(['client']));
+        $this->client->excludedAnnouncementTypes()->sync($this->excluded_announces);
         // Update account if change
         if (intval($this->account_type_id) !== $this->client->account->account_type_id) {
             DB::transaction(function () {

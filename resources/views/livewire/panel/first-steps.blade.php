@@ -17,9 +17,11 @@
             <x-step-profesional />
             <!-- Step 4 : Locations -->
             <x-step-location />
-            <!-- Step 5 : Select your account -->
+            <!-- Step 5 : Locations -->
+            <x-step-preferences />
+            <!-- Step 6 : Select your account -->
             <x-step-account :tbn_coins="$tbn_coins" />
-            <!-- Step 6 : Purchase review -->
+            <!-- Step 7 : Purchase review -->
             <x-step-purchase />
         </div>
     </div>
@@ -42,11 +44,13 @@
                 location_id: @entangle('form.location_id'),
                 account_type_id: @entangle('form.account_type_id'),
                 account_price: @entangle('form.account_price'),
+                excluded_announces: @entangle('form.excluded_announces'),
                 // Data
                 user: @json($user),
                 profesions: @json($profesions),
                 locations: @json($locations),
                 accountTypes: @json($account_types),
+                announcementTypes: @json($announcement_types),
                 // Bank Account
                 bankAccount: '4077070681',
                 copied: false,
@@ -66,7 +70,7 @@
                 },
                 isProAccountSelected() {
                     if (this.account_type_id == 2 || this.account_type_id == 3) {
-                        this.step = 6
+                        this.step = 7
                         this.accountTypes.find(account => {
                             if (account.id == this.account_type_id) {
                                 this.user.phone = this.phone

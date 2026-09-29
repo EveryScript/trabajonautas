@@ -60,6 +60,11 @@ class SendAnnouncementNotifications implements ShouldQueue
                 ->whereIn('location_id', $locationIds))
             ->whereHas('profesion', fn($query)  => $query
                 ->whereIn('profesion_id', $profesionIds))
+            ->when($this->announcement->announcement_type_id, function ($query) {
+                $query->whereDoesntHave('excludedAnnouncementTypes', function ($sub) {
+                    $sub->where('announcement_types.id', $this->announcement->announcement_type_id);
+                });
+            })
             ->get();
 
         // Map tokens and user_id

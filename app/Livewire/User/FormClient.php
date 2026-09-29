@@ -4,6 +4,7 @@ namespace App\Livewire\User;
 
 use App\Livewire\Forms\ClientForm;
 use App\Models\AccountType;
+use App\Models\AnnouncementType;
 use App\Models\GradeProfile;
 use App\Models\Location;
 use App\Models\Profesion;
@@ -51,6 +52,12 @@ class FormClient extends Component
     }
 
     #[Computed]
+    public function announcementTypes()
+    {
+        return Cache::remember('announcement_types', 86400, fn() => AnnouncementType::all(['id', 'name']));
+    }
+
+    #[Computed]
     public function locations()
     {
         return Cache::remember('locations', 86400, fn() => Location::all(['id', 'location_name']));
@@ -89,6 +96,7 @@ class FormClient extends Component
             'profesions' => $this->profesions,
             'grade_profiles' => $this->gradeProfiles,
             'account_types' => $this->accountTypes,
+            'announcement_types' => $this->announcementTypes
         ]);
     }
 }
