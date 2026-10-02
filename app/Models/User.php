@@ -64,7 +64,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'email_verified_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -159,7 +158,7 @@ class User extends Authenticatable implements MustVerifyEmail
             set: function ($value) {
                 if (!$value) return null;
                 $onlyNumbers = preg_replace('/\D/', '', $value);
-                $cleanNumber = ltrim($onlyNumbers, '591');
+                $cleanNumber = preg_replace('/^591/', '', $onlyNumbers);
                 return '+591' . $cleanNumber;
             },
         );
