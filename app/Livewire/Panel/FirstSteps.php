@@ -52,7 +52,7 @@ class FirstSteps extends Component
     #[Computed]
     public function announcement_types()
     {
-        return AnnouncementType::select('id', 'name')->get();
+        return AnnouncementType::select('id', 'name', 'description')->get();
     }
 
     public function confirmAndSave()

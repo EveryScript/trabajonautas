@@ -128,18 +128,14 @@
                 <div class="mb-4">
                     <x-label for="profesions">Preferencias</x-label>
                     @foreach ($announcement_types as $type)
-                        <x-input-checkbox-block wire:model="form.excluded_announces" value="{{ $type->id }}"
-                            name="form.excluded_announces[]" id="excluded-type-{{ $type->id }}">
+                        <x-input-checkbox-block wire:model="form.selected_announcement_types"
+                            value="{{ $type->id }}" name="selected_types[]" id="type-{{ $type->id }}">
                             <div class="divide-y divide-tbn-secondary">
                                 <div class="w-full mb-2">
-                                    <p class="font-medium text-black text-md dark:text-tbn-primary">Ocultar
-                                        convocatorias de
-                                        tipo "{{ $type->name }}"</p>
-                                    <p class="text-xs text-tbn-dark dark:text-white">
-                                        Ya no quiero recibir información ni notificaciones sobre las convocatorias de
-                                        tipo
-                                        "{{ $type->name }}"
+                                    <p class="font-medium text-black text-md dark:text-tbn-primary">
+                                        Desactivar el envío de convocatorias para "{{ $type->name }}"
                                     </p>
+                                    <p class="text-xs text-tbn-dark dark:text-white">{{ $type->description }}</p>
                                 </div>
                             </div>
                         </x-input-checkbox-block>

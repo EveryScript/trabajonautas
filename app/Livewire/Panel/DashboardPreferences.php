@@ -12,30 +12,37 @@ class DashboardPreferences extends Component
 {
     public string $title = '';
     public string $description = '';
-    public array $excluded = [];
+    public array $selected = [];
 
     public function mount(): void
     {
         /** @var User $user */
         $user = Auth::user();
 
-        $this->excluded = $user
+        $excludedIds = $user
             ->excludedAnnouncementTypes()
             ->pluck('announcement_types.id')
             ->toArray();
+
+        $allTypeIds = $this->types->pluck('id')->toArray();
+        $this->selected = array_values(array_diff($allTypeIds, $excludedIds));
     }
 
     #[Computed(cache: true, key: 'announcement_types_all')]
     public function types()
     {
-        return AnnouncementType::orderBy('name')->get();
+        return AnnouncementType::select('id', 'name', 'description')->get();
     }
 
     public function save(): void
     {
+
         /** @var User $user */
         $user = Auth::user();
-        $user->excludedAnnouncementTypes()->sync($this->excluded);
+        $allTypeIds = $this->types->pluck('id')->toArray();
+        $selectedInts = array_map('intval', $this->selected);
+        $excludedIds = array_values(array_diff($allTypeIds, $selectedInts));
+        $user->excludedAnnouncementTypes()->sync($excludedIds);
         $this->dispatch('preferences-updated');
     }
 

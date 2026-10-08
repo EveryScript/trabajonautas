@@ -54,7 +54,7 @@ class FormClient extends Component
     #[Computed]
     public function announcementTypes()
     {
-        return Cache::remember('announcement_types', 86400, fn() => AnnouncementType::all(['id', 'name']));
+        return Cache::remember('announcement_types', 86400, fn() => AnnouncementType::all(['id', 'name', 'description']));
     }
 
     #[Computed]

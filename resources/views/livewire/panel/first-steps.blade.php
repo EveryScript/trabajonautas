@@ -4,11 +4,14 @@
             <div class="mb-3 max-w-60">
                 <x-application-logo />
             </div>
-            <h3 class="mb-1 text-lg font-semibold dark:text-white md:text-xl">
-                Hola {{ auth()->user()->name }}</h3>
-            <p class="mb-4 text-sm text-tbn-secondary dark:text-tbn-light">Estamos listos para despegar contigo. Ingresa
-                tu información para
-                completar tu registro.</p>
+            <div x-show="step == 1">
+                <h3 class="mb-1 text-lg font-semibold dark:text-white md:text-xl">
+                    Hola {{ auth()->user()->name }}</h3>
+                <p class="mb-4 text-sm text-tbn-secondary dark:text-tbn-light">Estamos listos para despegar contigo.
+                    Ingresa
+                    tu información para
+                    completar tu registro.</p>
+            </div>
             <!-- Step 1 : Gender, Age, Phone -->
             <x-step-personal />
             <!-- Step 2 : Grade profile -->
@@ -44,7 +47,7 @@
                 location_id: @entangle('form.location_id'),
                 account_type_id: @entangle('form.account_type_id'),
                 account_price: @entangle('form.account_price'),
-                excluded_announces: @entangle('form.excluded_announces'),
+                selected_announcement_types: @entangle('form.selected_announcement_types'),
                 // Data
                 user: @json($user),
                 profesions: @json($profesions),
@@ -63,6 +66,7 @@
                             confirmButtonColor: '#ff420a'
                         })
                     })
+                    this.selected_announcement_types = this.announcementTypes.map(type => Number(type.id))
                 },
                 setAccountData(accountType) {
                     this.account_type_id = accountType.id

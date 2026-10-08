@@ -7,25 +7,25 @@
     </header>
     <main>
         <div class="space-y-4">
-            @foreach ($types as $type)
-                <x-input-checkbox-block wire:model="excluded" value="{{ $type->id }}" name="excluded[]"
+            @foreach ($this->types as $type)
+                <x-input-checkbox-block wire:model="selected" value="{{ $type->id }}" name="selected[]"
                     id="excluded-type-{{ $type->id }}">
                     <div class="divide-y divide-tbn-secondary">
                         <div class="w-full mb-2">
-                            <p class="font-medium text-black text-md dark:text-tbn-primary">Ocultar convocatorias de
-                                tipo "{{ $type->name }}"</p>
-                            <p class="text-xs text-tbn-dark dark:text-white">
-                                Ya no quiero recibir información ni notificaciones sobre las convocatorias de tipo
-                                "{{ $type->name }}"
+                            <p class="font-medium text-black text-md dark:text-tbn-primary">
+                                Desactivar el envío de convocatorias para "{{ $type->name }}"
                             </p>
+                            <p class="text-xs text-tbn-dark dark:text-white">
+                                {{ $type->description }}</p>
                         </div>
                     </div>
                 </x-input-checkbox-block>
             @endforeach
+
             <x-button type="button" wire:click="save" wire:loading.attr="disabled" class="w-full lg:w-auto">
                 <span wire:loading.remove wire:target='save'>Guardar cambios</span>
-                <span wire:loading wire:target='save'><i class="mr-2 fa-solid fa-spinner animate-spin"></i>
-                    Guardando...
+                <span wire:loading wire:target='save'>
+                    <i class="mr-2 fa-solid fa-spinner animate-spin"></i> Guardando...
                 </span>
             </x-button>
         </div>
