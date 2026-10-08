@@ -89,7 +89,7 @@
                 },
                 isValidPhone() {
                     this.url_whatsapp = 'https://wa.me/591' + this.phone
-                    return /^[67]\d{7}$/.test(this.phone)
+                    return /^[567]\d{7}$/.test(this.phone)
                 },
                 get filteredProfesions() {
                     if (!this.searchProfesion.trim())
