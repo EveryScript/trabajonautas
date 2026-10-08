@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\AnnouncementType;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,7 @@ class ClientForm extends Form
     public $location_id;
     public $account_type_id;
     public $account_price;
+    public array $selected_announcement_types = [];
 
     public function setClient(User $client)
     {
@@ -36,8 +38,11 @@ class ClientForm extends Form
             'profesion_id',
             'location_id',
         ]));
-
         $this->account_type_id = $this->client->account ? $this->client->account->account_type_id : null;
+        // Client preferences
+        $excludedIds = $client->excludedAnnouncementTypes()->pluck('announcement_types.id')->toArray();
+        $allTypeIds = AnnouncementType::pluck('id')->toArray();
+        $this->selected_announcement_types = array_values(array_diff($allTypeIds, $excludedIds));
     }
 
     public function store(User $user, $country_code = '+591')
@@ -56,6 +61,11 @@ class ClientForm extends Form
                 'register_completed' => true,
                 'last_announce_check' => now(),
             ]);
+            // Update preferences
+            $allTypeIds = AnnouncementType::pluck('id')->toArray();
+            $selectedInts = array_map('intval', $this->selected_announcement_types);
+            $excludedIds = array_values(array_diff($allTypeIds, $selectedInts));
+            $user->excludedAnnouncementTypes()->sync($excludedIds);
             if ((int) $this->account_type_id === 1) {
                 // --- FREE CLIENT ---
                 // Create account FREE
@@ -100,6 +110,11 @@ class ClientForm extends Form
         ]);
 
         $this->client->update($this->except(['client']));
+        // Update preferences
+        $allTypeIds = AnnouncementType::pluck('id')->toArray();
+        $selectedInts = array_map('intval', $this->selected_announcement_types);
+        $excludedIds = array_values(array_diff($allTypeIds, $selectedInts));
+        $this->client->excludedAnnouncementTypes()->sync($excludedIds);
         // Update account if change
         if (intval($this->account_type_id) !== $this->client->account->account_type_id) {
             DB::transaction(function () {

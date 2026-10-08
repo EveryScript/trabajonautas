@@ -1,4 +1,4 @@
-<div x-show="step === 6" x-cloak x-transition:enter.duration.300ms>
+<div x-show="step === 7" x-cloak x-transition:enter.duration.300ms>
     <h5 class="mb-1 font-bold text-md dark:text-white">Resumen de la compra</h5>
     <span class="block mb-4 text-xs text-tbn-dark dark:text-tbn-light">
         Revisa tus datos y escanea el código QR para realizar tu depósito.</span>

@@ -4,11 +4,14 @@
             <div class="mb-3 max-w-60">
                 <x-application-logo />
             </div>
-            <h3 class="mb-1 text-lg font-semibold dark:text-white md:text-xl">
-                Hola {{ auth()->user()->name }}</h3>
-            <p class="mb-4 text-sm text-tbn-secondary dark:text-tbn-light">Estamos listos para despegar contigo. Ingresa
-                tu información para
-                completar tu registro.</p>
+            <div x-show="step == 1">
+                <h3 class="mb-1 text-lg font-semibold dark:text-white md:text-xl">
+                    Hola {{ auth()->user()->name }}</h3>
+                <p class="mb-4 text-sm text-tbn-secondary dark:text-tbn-light">Estamos listos para despegar contigo.
+                    Ingresa
+                    tu información para
+                    completar tu registro.</p>
+            </div>
             <!-- Step 1 : Gender, Age, Phone -->
             <x-step-personal />
             <!-- Step 2 : Grade profile -->
@@ -17,9 +20,11 @@
             <x-step-profesional />
             <!-- Step 4 : Locations -->
             <x-step-location />
-            <!-- Step 5 : Select your account -->
+            <!-- Step 5 : Locations -->
+            <x-step-preferences />
+            <!-- Step 6 : Select your account -->
             <x-step-account :tbn_coins="$tbn_coins" />
-            <!-- Step 6 : Purchase review -->
+            <!-- Step 7 : Purchase review -->
             <x-step-purchase />
         </div>
     </div>
@@ -42,11 +47,13 @@
                 location_id: @entangle('form.location_id'),
                 account_type_id: @entangle('form.account_type_id'),
                 account_price: @entangle('form.account_price'),
+                selected_announcement_types: @entangle('form.selected_announcement_types'),
                 // Data
                 user: @json($user),
                 profesions: @json($profesions),
                 locations: @json($locations),
                 accountTypes: @json($account_types),
+                announcementTypes: @json($announcement_types),
                 // Bank Account
                 bankAccount: '4077070681',
                 copied: false,
@@ -59,6 +66,7 @@
                             confirmButtonColor: '#ff420a'
                         })
                     })
+                    this.selected_announcement_types = this.announcementTypes.map(type => Number(type.id))
                 },
                 setAccountData(accountType) {
                     this.account_type_id = accountType.id
@@ -66,7 +74,7 @@
                 },
                 isProAccountSelected() {
                     if (this.account_type_id == 2 || this.account_type_id == 3) {
-                        this.step = 6
+                        this.step = 7
                         this.accountTypes.find(account => {
                             if (account.id == this.account_type_id) {
                                 this.user.phone = this.phone

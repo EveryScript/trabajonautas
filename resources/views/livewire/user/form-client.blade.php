@@ -124,6 +124,23 @@
                         <span class="text-sm italic text-tbn-secondary">(sin cuenta)</span>
                     @endif
                 </div>
+                <!-- Preferences -->
+                <div class="mb-4">
+                    <x-label for="profesions">Preferencias</x-label>
+                    @foreach ($announcement_types as $type)
+                        <x-input-checkbox-block wire:model="form.selected_announcement_types"
+                            value="{{ $type->id }}" name="selected_types[]" id="type-{{ $type->id }}">
+                            <div class="divide-y divide-tbn-secondary">
+                                <div class="w-full mb-2">
+                                    <p class="font-medium text-black text-md dark:text-tbn-primary">
+                                        Desactivar el envío de convocatorias para "{{ $type->name }}"
+                                    </p>
+                                    <p class="text-xs text-tbn-dark dark:text-white">{{ $type->description }}</p>
+                                </div>
+                            </div>
+                        </x-input-checkbox-block>
+                    @endforeach
+                </div>
                 <div class="mb-4">
                     <x-button type="button" x-on:click="confirmUpdateModal" wire:loading.attr='disabled'>
                         <span wire:loading.remove wire:target='update'>Actualizar cliente</span>

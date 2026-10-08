@@ -9,7 +9,7 @@ class UpdateExpiredAccounts extends Command
 {
     // Command Name    
     protected $signature = 'trabajonautas:update-expired-accounts';
-    protected $description = 'Actualiza la cuenta de clientes PRO o PRO-MAX cuya fecha límite de uso ha caducado';
+    protected $description = 'Update account if limit_time is expired';
 
     public function handle()
     {

@@ -1,5 +1,5 @@
 @props(['tbn_coins'])
-<div x-show="step === 5" x-cloak x-transition:enter.duration.300ms>
+<div x-show="step === 6" x-cloak x-transition:enter.duration.300ms>
     <h5 class="mb-2 font-bold text-md dark:text-white">Elige una cuenta</h5>
     <ul class="grid grid-cols-1 gap-1 md:grid-cols-3">
         <template x-for="accountType in accountTypes">
@@ -65,7 +65,7 @@
         </template>
     </ul>
     <div class="flex justify-between mt-4">
-        <x-secondary-button type="button" x-on:click="step = 4">
+        <x-secondary-button type="button" x-on:click="step = 5">
             Anterior</x-secondary-button>
         <x-button type="submit" x-on:click="isProAccountSelected" x-bind:disabled="!account_type_id">
             <span wire:loading.remove>Siguiente</span>
