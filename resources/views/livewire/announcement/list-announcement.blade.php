@@ -106,9 +106,9 @@
                                 @if ($announcement->announceType)
                                     @php
                                         $iconClass = match ($announcement->announceType->id) {
-                                            1 => 'fa-solid fa-graduation-cap',
-                                            2 => 'fa-solid fa-suitcase',
-                                            3 => 'fa-solid fa-hand-holding-heart',
+                                            1 => 'fa-solid fa-suitcase',
+                                            2 => 'fa-solid fa-heart',
+                                            3 => 'fa-solid fa-graduation-cap',
                                             default => 'fa-solid fa-briefcase',
                                         };
                                     @endphp
