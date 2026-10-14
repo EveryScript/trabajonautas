@@ -86,10 +86,34 @@
     <main class="bg-white dark:bg-tbn-dark">
         {{ $slot }}
     </main>
+    <!-- Scroll to up button -->
+    <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'});"
+        class="fixed bottom-6 right-6 z-50 p-3 bg-white dark:bg-[#242424] text-[#ff420a] border border-slate-200 dark:border-neutral-700 rounded-2xl shadow-xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300 hover:bg-[#ff420a] hover:text-white dark:hover:bg-[#ff420a] dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff420a]"
+        aria-label="Volver arriba">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"></path>
+        </svg>
+    </button>
     <!-- Footer Content -->
     <livewire:web.footer-data />
     <!-- Scripts -->
     @livewireScripts
 </body>
+<script>
+    // Scroll to up arrow
+    const scrollBtn = document.getElementById('scrollTopBtn');
+    if (scrollBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                scrollBtn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                scrollBtn.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                scrollBtn.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                scrollBtn.classList.remove('opacity-100', 'translate-y-0');
+            }
+        });
+    }
+</script>
 
 </html>
