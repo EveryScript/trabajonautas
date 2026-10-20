@@ -43,7 +43,14 @@
     <h4 class="text-lg text-tbn-dark dark:text-tbn-primary font-semibold mb-1">Clientes según ubicación </h4>
     <div class="flex flex-row">
         <p class="w-1/2 mb-5 text-tbn-dark dark:text-tbn-light text-sm">
-            <span class="font-medium">Cantidad total: </span> {{ $total }}
+             @if ($labels['client_type'])
+                <span class="font-medium {{ $filterClient == 1 ? 'text-green-600' : 'text-tbn-primary' }}">
+                    <i class="mr-1 fas {{ $filterClient == 1 ? 'fa-leaf' : 'fa-crown' }}"></i>
+                    {{ $labels['client_type'] }}:
+                </span> {{ $total }}
+            @else
+                <span class="font-medium">Cantidad total: </span> {{ $total }}
+            @endif
         </p>
     </div>
     <div wire:ignore wire:loading.remove class="relative h-64 w-full">

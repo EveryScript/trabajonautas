@@ -12,13 +12,15 @@ class ClientsAccount extends Component
 {
     // Parameters
     #[Reactive]
-    public $startDate;
+    public string $startDate;
     #[Reactive]
-    public $endDate;
+    public string $endDate;
     #[Reactive]
-    public $labels;
+    public array $labels;
+    #[Reactive]
+    public string $filterClient;
     // Format propeties
-    public $total;
+    public int $total;
 
     public function getChartData()
     {
@@ -28,6 +30,11 @@ class ClientsAccount extends Component
             'users' => function ($query) {
                 $query->role(config('app.client_role'))->where('actived', true)
                     ->whereHas('latestVerifiedSubscription')
+                    ->when(
+                        $this->filterClient,
+                        fn($query, $client) =>
+                        $query->whereHas('account', fn($q) => $q->where('account_type_id', $client))
+                    )
                     ->whereBetween('users.created_at', [
                         Carbon::parse($this->startDate)->startOfDay(),
                         Carbon::parse($this->endDate)->endOfDay()
