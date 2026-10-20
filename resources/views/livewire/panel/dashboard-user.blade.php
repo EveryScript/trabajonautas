@@ -6,6 +6,12 @@
             <x-slot name="description_page">Esta es la actividad más reciente en Trabajonautas.com</x-slot>
             <x-slot name="search_field">
                 <div class="flex flex-col h-full gap-1 sm:h-10 sm:flex-row">
+                    <x-select x-model="filterClient" class="w-full">
+                        <option value="">Todos los clientes</option>
+                        <option value="1">Clientes FREE</option>
+                        <option value="2">Clientes PRO</option>
+                        <option value="3">Clientes PRO-MAX</option>
+                    </x-select>
                     <x-input id="dateRange" class="w-full dark:bg-tbn-dark dark:text-white" type="text"
                         placeholder="Rango de fechas" />
                     <x-button id="dateButton" type="button" x-on:click="processData"
@@ -66,33 +72,33 @@
             <div class="flex-1 dark:text-tbn-light">
                 <!-- Clients by account type chart -->
                 <div x-show="tab_option === 1" x-transition:enter.duration.300ms>
-                    <livewire:Charts.ClientsAccount :startDate="$start_date" :endDate="$end_date" :labels="$labels"
+                    <livewire:Charts.ClientsAccount :startDate="$start_date" :endDate="$end_date" :labels="$labels" :filterClient="$filter_client"
                         wire:key='clients-account-chart'>
                 </div>
                 <!-- Clients by age chart -->
                 <div x-show="tab_option === 2" x-transition:enter.duration.300ms>
-                    <livewire:Charts.ClientsAge :startDate="$start_date" :endDate="$end_date" :labels="$labels"
+                    <livewire:Charts.ClientsAge :startDate="$start_date" :endDate="$end_date" :labels="$labels" :filterClient="$filter_client"
                         wire:key='clients-age-chart'>
                 </div>
                 <!-- Clients by gender chart -->
                 <div x-show="tab_option === 3" x-transition:enter.duration.300ms>
                     <livewire:Charts.ClientsGender :startDate="$start_date" :endDate="$end_date" :labels="$labels"
-                        wire:key='clients-gender-chart'>
+                        :filterClient="$filter_client" wire:key='clients-gender-chart'>
                 </div>
                 <!-- Clients by grade profile chart -->
                 <div x-show="tab_option === 4" x-transition:enter.duration.300ms>
                     <livewire:Charts.ClientsGrade :startDate="$start_date" :endDate="$end_date" :labels="$labels"
-                        wire:key='clients-grade-chart'>
+                        :filterClient="$filter_client" wire:key='clients-grade-chart'>
                 </div>
                 <!-- Clients by location chart -->
                 <div x-show="tab_option === 5" x-transition:enter.duration.300ms>
                     <livewire:Charts.ClientsLocation :startDate="$start_date" :endDate="$end_date" :labels="$labels"
-                        wire:key='clients-location-chart'>
+                        :filterClient="$filter_client" wire:key='clients-location-chart'>
                 </div>
                 <!-- Clients by profesion chart -->
                 <div x-show="tab_option === 6" x-transition:enter.duration.300ms>
                     <livewire:Charts.ClientsProfesion :startDate="$start_date" :endDate="$end_date" :labels="$labels"
-                        wire:key='clients-profesion-chart'>
+                        :filterClient="$filter_client" wire:key='clients-profesion-chart'>
                 </div>
                 <!-- Clients unregistered chart -->
                 <div x-show="tab_option === 7" x-transition:enter.duration.300ms>
@@ -113,6 +119,7 @@
             show_dropdown: false,
             startDate: '',
             endDate: '',
+            filterClient: '',
             init() {
                 flatpickr("#dateRange", {
                     mode: "range",
@@ -126,7 +133,7 @@
             },
             processData() {
                 if (this.startDate && this.endDate)
-                    $wire.setRangeDate(this.startDate, this.endDate)
+                    $wire.setChartParameters(this.startDate, this.endDate, this.filterClient)
             }
         }))
     </script>

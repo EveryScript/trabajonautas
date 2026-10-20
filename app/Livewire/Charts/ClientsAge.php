@@ -11,13 +11,15 @@ class ClientsAge extends Component
 {
     // Parameters
     #[Reactive]
-    public $startDate;
+    public string $startDate;
     #[Reactive]
-    public $endDate;
+    public string $endDate;
     #[Reactive]
-    public $labels;
+    public array $labels;
+    #[Reactive]
+    public string $filterClient;
     // Format propeties
-    public $total;
+    public int $total;
 
     public function getChartData()
     {
@@ -27,6 +29,11 @@ class ClientsAge extends Component
                 Carbon::parse($this->startDate)->startOfDay(),
                 Carbon::parse($this->endDate)->endOfDay(),
             ])
+            ->when(
+                $this->filterClient,
+                fn($query, $client) =>
+                $query->whereHas('account', fn($q) => $q->where('account_type_id', $client))
+            )
             ->selectRaw('age, count(*) as total')
             ->groupBy('age')
             ->pluck('total', 'age');
