@@ -16,6 +16,7 @@
                     email: '',
                     password: '',
                     get hasUppercase() { return /[A-Z]/.test(this.password) },
+                    get hasLowercase() { return /[a-z]/.test(this.password) },
                     get hasNumber() { return /[0-9]/.test(this.password) },
                     get hasMinLength() { return this.password.length >= 8 }
                 }" class="max-w-sm mx-auto">
@@ -66,6 +67,22 @@
                                 </template>
                                 <span>Al menos una mayúscula</span>
                             </div>
+                            <div :class="hasLowercase ? 'text-green-500 text-xs' : 'text-tbn-primary text-xs'"
+                                class="flex items-center transition-colors duration-300">
+                                <template x-if="hasLowercase">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </template>
+                                <template x-if="!hasLowercase">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </template>
+                                <span>Al menos una minúscula</span>
+                            </div>
                             <div :class="hasNumber ? 'text-green-600 text-xs' : 'text-tbn-primary text-xs'"
                                 class="flex items-center transition-colors duration-300">
                                 <template x-if="hasNumber">
@@ -114,13 +131,12 @@
                                 <div class="flex items-center">
                                     <x-checkbox name="terms" id="terms" required />
                                     <p class="ml-2 text-xs text-tbn-dark dark:text-tbn-light">
-                                        Al iniciar sesión con Google, aceptas nuestros
-                                        <a href="{{ route('terms.show') }}" target="_blank"
+                                        Aceptar <a href="{{ route('terms.show') }}" target="_blank"
                                             class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Términos
-                                            de servicio</a> y
-                                        <a href="{{ route('policy.show') }}" target="_blank"
+                                            de servicio</a> y <a href="{{ route('policy.show') }}" target="_blank"
                                             class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Política
-                                            de privacidad</a>.
+                                            de privacidad</a> (Al iniciar sesión con Google manifiestas
+                                        tu aceptación automáticamente).
                                     </p>
                                 </div>
                             </x-label>

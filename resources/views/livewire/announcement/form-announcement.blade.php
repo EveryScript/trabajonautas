@@ -151,7 +151,15 @@
             </div>
             <!-- Announcement Type (optional) -->
             <div class="mb-4">
-                <x-label for="account" value="{{ __('Tipo de convocatoria (opcional)') }}" />
+                <x-label for="account">
+                    Tipo de convocatoria (opcional)
+                    @if (!empty($announcement->announcement_type_id))
+                        <button type="button" wire:click="$set('announcement.announcement_type_id', null)"
+                            class="inline-block ml-2 text-sm underline text-tbn-primary">
+                            Quitar selección
+                        </button>
+                    @endif
+                </x-label>
                 <ul class="grid w-full gap-4 md:grid-cols-3">
                     @foreach ($announce_types as $type)
                         @php

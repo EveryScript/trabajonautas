@@ -104,7 +104,7 @@
         </div>
     </div>
     <div class="flex justify-between mt-4">
-        <x-secondary-button type="button" x-on:click="step = 5">
+        <x-secondary-button type="button" x-on:click="step = 6">
             Anterior</x-secondary-button>
         <x-button wire:loading.attr='disabled' wire:target='confirmAndSave' type="button" wire:click='confirmAndSave'>
             <span wire:loading.remove>Generar QR</span>

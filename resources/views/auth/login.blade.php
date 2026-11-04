@@ -59,13 +59,12 @@
                         </a>
                     </div>
                     <p class="mt-4 text-xs text-tbn-dark dark:text-tbn-light">
-                        Al iniciar sesión con Google, aceptas nuestros
-                        <a href="{{ route('terms.show') }}" target="_blank"
+                        Aceptar <a href="{{ route('terms.show') }}" target="_blank"
                             class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Términos
-                            de servicio</a> y
-                        <a href="{{ route('policy.show') }}" target="_blank"
+                            de servicio</a> y <a href="{{ route('policy.show') }}" target="_blank"
                             class="text-xs underline transition duration-150 rounded-md cursor-pointer hover:text-tbn-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tbn-high">Política
-                            de privacidad</a>.
+                            de privacidad</a> (Al iniciar sesión con Google manifiestas
+                        tu aceptación automáticamente).
                     </p>
                     <div class="relative mt-4">
                         <label for="remember_me" class="flex items-center cursor-pointer">
